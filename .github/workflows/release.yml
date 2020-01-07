@@ -17,6 +17,15 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 1.8
+    - uses: actions/cache@v1
+      with:
+        path: ~/.m2/repository/org/spigotmc/spigot
+        key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+        restore-keys: |
+          ${{ runner.os }}-maven-
+    - name: BuildTools
+      run: |
+        sh ./.github/workflows/buildtools.sh
     - name: Build
       run: |
         mvn clean package -pl orebfuscator-plugin -B --also-make -Dorebfuscator.version=$RELEASE_VERSION
