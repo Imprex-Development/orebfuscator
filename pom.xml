@@ -12,6 +12,7 @@
 		<orebfuscator.version>5.0.0</orebfuscator.version>
 
 		<dependency.bukkit.version>1.15.1-R0.1-SNAPSHOT</dependency.bukkit.version>
+		<plugin.shade.version>3.2.1</plugin.shade.version>
 
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
