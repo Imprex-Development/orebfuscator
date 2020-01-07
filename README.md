@@ -1,4 +1,4 @@
-<img align="right" src="https://raw.githubusercontent.com/Imprex-Development/Orebfuscator/master/Oreb.png" height="200" width="200">
+<img align="right" src="https://user-images.githubusercontent.com/13753840/71858027-ebcfd180-30e9-11ea-82d5-4c06c0c3db94.png" height="200" width="200">
 
 # Orebfuscator - Anti X-Ray [![Build Status](https://github.com/Imprex-Development/Orebfuscator/workflows/Build/badge.svg)](https://github.com/Imprex-Development/Orebfuscator/actions?query=workflow%3ABuild) [![Release Status](https://github.com/Imprex-Development/Orebfuscator/workflows/Releases/badge.svg)](https://github.com/Imprex-Development/Orebfuscator/releases/latest)
 
