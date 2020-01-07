@@ -19,6 +19,7 @@ package com.lishid.orebfuscator.obfuscation;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -31,7 +32,8 @@ import com.lishid.orebfuscator.Orebfuscator;
 import com.lishid.orebfuscator.config.ProximityHiderConfig;
 import com.lishid.orebfuscator.config.WorldConfig;
 import com.lishid.orebfuscator.nms.IBlockInfo;
-import com.lishid.orebfuscator.types.BlockCoord;
+
+import net.imprex.orebfuscator.util.BlockCoords;
 
 public class ProximityHider extends Thread implements Runnable {
 	private static final Map<Player, ProximityHiderPlayer> proximityHiderTracker = new HashMap<>();
@@ -148,7 +150,7 @@ public class ProximityHider extends Thread implements Runnable {
 
 					int distanceSquared = proximityHider.getDistanceSquared();
 
-					ArrayList<BlockCoord> removedBlocks = new ArrayList<>();
+					ArrayList<BlockCoords> removedBlocks = new ArrayList<>();
 					Location playerLocation = p.getLocation();
 					// 4.3.1 -- GAZE CHECK
 					Location playerEyes = p.getEyeLocation();
@@ -160,7 +162,7 @@ public class ProximityHider extends Thread implements Runnable {
 
 					for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
 						for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
-							ArrayList<BlockCoord> blocks = localPlayerInfo.getBlocks(chunkX, chunkZ);
+							List<BlockCoords> blocks = localPlayerInfo.getBlocks(chunkX, chunkZ);
 
 							if (blocks == null) {
 								continue;
@@ -168,7 +170,7 @@ public class ProximityHider extends Thread implements Runnable {
 
 							removedBlocks.clear();
 
-							for (BlockCoord b : blocks) {
+							for (BlockCoords b : blocks) {
 								if (b == null) {
 									removedBlocks.add(b);
 									continue;
@@ -185,7 +187,7 @@ public class ProximityHider extends Thread implements Runnable {
 										removedBlocks.add(b);
 
 										if (NmsInstance.current.sendBlockChange(p, blockLocation)) {
-											final BlockCoord block = b;
+											final BlockCoords block = b;
 											final Player player = p;
 											Orebfuscator.instance.runTask(new Runnable() {
 												@Override
@@ -300,7 +302,7 @@ public class ProximityHider extends Thread implements Runnable {
 		}
 	}
 
-	public static void addProximityBlocks(Player player, int chunkX, int chunkZ, ArrayList<BlockCoord> blocks) {
+	public static void addProximityBlocks(Player player, int chunkX, int chunkZ, List<BlockCoords> blocks) {
 		ProximityHiderConfig proximityHider = Orebfuscator.configManager.getWorld(player.getWorld())
 				.getProximityHiderConfig();
 

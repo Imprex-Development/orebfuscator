@@ -13,8 +13,9 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import com.lishid.orebfuscator.types.BlockCoord;
 import com.lishid.orebfuscator.types.ConfigDefaults;
+
+import net.imprex.orebfuscator.util.BlockCoords;
 
 public interface INmsManager {
 
@@ -36,7 +37,7 @@ public interface INmsManager {
 
 	IChunkCache createChunkCache();
 
-	void updateBlockTileEntity(BlockCoord blockCoord, Player player);
+	void updateBlockTileEntity(BlockCoords blockCoord, Player player);
 
 	void notifyBlockChange(World world, IBlockInfo blockInfo);
 

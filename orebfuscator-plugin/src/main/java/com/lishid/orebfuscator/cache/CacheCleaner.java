@@ -8,6 +8,7 @@ import org.bukkit.World;
 import com.lishid.orebfuscator.Orebfuscator;
 
 public class CacheCleaner implements Runnable {
+
 	@Override
 	public void run() {
 		if (!Orebfuscator.config.isEnabled() || Orebfuscator.config.getDeleteCacheFilesAfterDays() <= 0) {

@@ -11,11 +11,12 @@ import java.io.DataOutputStream;
 import java.io.File;
 import java.util.HashMap;
 
-import net.minecraft.server.v1_13_R1.RegionFile;
-
 import com.lishid.orebfuscator.nms.IChunkCache;
 
+import net.minecraft.server.v1_13_R1.RegionFile;
+
 public class ChunkCache implements IChunkCache {
+
     private static final HashMap<File, RegionFile> cachedRegionFiles = new HashMap<File, RegionFile>();
     
     private int maxLoadedCacheFiles;

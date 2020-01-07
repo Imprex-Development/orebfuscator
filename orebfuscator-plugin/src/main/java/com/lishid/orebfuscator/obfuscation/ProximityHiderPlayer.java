@@ -5,17 +5,17 @@
 
 package com.lishid.orebfuscator.obfuscation;
 
-import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import org.bukkit.World;
 
-import com.lishid.orebfuscator.types.BlockCoord;
+import net.imprex.orebfuscator.util.BlockCoords;
 
 public class ProximityHiderPlayer {
 	private World world;
-	private Map<Long, ArrayList<BlockCoord>> chunks;
+	private Map<Long, List<BlockCoords>> chunks;
 
 	public ProximityHiderPlayer(World world) {
 		this.world = world;
@@ -34,12 +34,12 @@ public class ProximityHiderPlayer {
 		this.chunks.clear();
 	}
 
-	public void putBlocks(int chunkX, int chunkZ, ArrayList<BlockCoord> blocks) {
+	public void putBlocks(int chunkX, int chunkZ, List<BlockCoords> blocks) {
 		long key = getKey(chunkX, chunkZ);
 		this.chunks.put(key, blocks);
 	}
 
-	public ArrayList<BlockCoord> getBlocks(int chunkX, int chunkZ) {
+	public List<BlockCoords> getBlocks(int chunkX, int chunkZ) {
 		long key = getKey(chunkX, chunkZ);
 		return this.chunks.get(key);
 	}

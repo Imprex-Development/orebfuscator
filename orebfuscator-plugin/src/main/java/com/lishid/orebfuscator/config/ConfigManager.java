@@ -282,7 +282,17 @@ public class ConfigManager {
 			}
 		}
 
-		@SuppressWarnings("deprecation")
+		for (Material material : Material.values()) {
+			if (material.isBlock() && !material.isOccluding()) {
+				Set<Integer> ids = NmsInstance.current.getMaterialIds(material);
+
+				for (int id : ids) {
+					transparentBlocks[id] = 1;
+				}
+			}
+		}
+
+		/*@SuppressWarnings("deprecation")
 		Material[] extraTransparentBlocks = NmsInstance.current.getExtraTransparentBlocks();
 
 		for (Material material : extraTransparentBlocks) {
@@ -291,7 +301,7 @@ public class ConfigManager {
 			for (int id : ids) {
 				transparentBlocks[id] = 1;
 			}
-		}
+		}*/
 
 		Set<Integer> lavaIds = NmsInstance.current.getMaterialIds(Material.LAVA);
 

@@ -39,7 +39,8 @@ import com.lishid.orebfuscator.chunkmap.ChunkData;
 import com.lishid.orebfuscator.config.WorldConfig;
 import com.lishid.orebfuscator.hithack.BlockHitManager;
 import com.lishid.orebfuscator.obfuscation.Calculations;
-import com.lishid.orebfuscator.types.BlockCoord;
+
+import net.imprex.orebfuscator.util.BlockCoords;
 
 public class ProtocolLibHook {
 	private ProtocolManager manager;
@@ -132,7 +133,7 @@ public class ProtocolLibHook {
 	}
 
 	@SuppressWarnings("rawtypes")
-	private static void removeBlockEntities(List nmsTags, List<NbtCompound> tags, List<BlockCoord> removedEntities) {
+	private static void removeBlockEntities(List nmsTags, List<NbtCompound> tags, List<BlockCoords> removedEntities) {
 		for (int i = nmsTags.size() - 1; i >= 0; i--) {
 			if (removedEntities.size() == 0) {
 				break;
@@ -144,7 +145,7 @@ public class ProtocolLibHook {
 			int z = tag.getInteger("z");
 
 			for (int k = 0; k < removedEntities.size(); k++) {
-				BlockCoord blockCoord = removedEntities.get(k);
+				BlockCoords blockCoord = removedEntities.get(k);
 
 				if (blockCoord.x == x && blockCoord.y == y && blockCoord.z == z) {
 					nmsTags.remove(i);

@@ -53,7 +53,7 @@ public class ChunkCache implements IChunkCache {
 		ChunkCache.cachedRegionFiles.clear();
 	}
 
-	private synchronized RegionFile getRegionFile(File folder, int x, int z) {
+	private synchronized RegionFile getRegionFile(File folder, int x, int z) throws IOException {
 		Path path = folder.toPath().resolve("region");
 		Path file = Paths.get(path.toString(), "r." + (x >> 5) + "." + (z >> 5) + ".mcr");
 
@@ -64,8 +64,8 @@ public class ChunkCache implements IChunkCache {
 				return regionFile;
 			}
 
-			if (!Files.isDirectory(path)) {
-				Files.createDirectory(path);
+			if (!Files.exists(path)) {
+				Files.createDirectories(path);
 			}
 
 			if (ChunkCache.cachedRegionFiles.size() >= this.maxLoadedCacheFiles) {
@@ -76,13 +76,13 @@ public class ChunkCache implements IChunkCache {
 			ChunkCache.cachedRegionFiles.put(file, regionFile);
 
 			return regionFile;
-		} catch (Exception e) {
+		} catch (IOException e) {
 			try {
 				Files.delete(file);
 			} catch (Exception e2) {
 				e2.printStackTrace();
 			}
+			throw e;
 		}
-		return null;
 	}
 }

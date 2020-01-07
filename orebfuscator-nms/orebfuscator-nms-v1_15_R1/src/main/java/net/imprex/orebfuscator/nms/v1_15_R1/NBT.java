@@ -15,6 +15,7 @@ import com.lishid.orebfuscator.nms.INBT;
 
 import net.minecraft.server.v1_15_R1.NBTCompressedStreamTools;
 import net.minecraft.server.v1_15_R1.NBTTagCompound;
+import net.minecraft.server.v1_15_R1.NBTTagLongArray;
 
 public class NBT implements INBT {
 
@@ -40,6 +41,11 @@ public class NBT implements INBT {
 		this.nbt.setIntArray(tag, value);
 	}
 
+	@Override
+	public void setLongArray(String tag, long[] value) {
+		this.nbt.set(tag, new NBTTagLongArray(value));
+	}
+
 	public int getInt(String tag) {
 		return this.nbt.getInt(tag);
 	}
@@ -54,6 +60,11 @@ public class NBT implements INBT {
 
 	public int[] getIntArray(String tag) {
 		return this.nbt.getIntArray(tag);
+	}
+
+	@Override
+	public long[] getLongArray(String tag) {
+		return this.nbt.getLongArray(tag);
 	}
 
 	public void read(DataInput stream) throws IOException {

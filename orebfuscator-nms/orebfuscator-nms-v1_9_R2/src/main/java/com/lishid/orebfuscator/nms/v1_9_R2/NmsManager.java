@@ -32,9 +32,9 @@ import com.lishid.orebfuscator.nms.v1_9_R2.BlockInfo;
 import com.lishid.orebfuscator.nms.v1_9_R2.ChunkCache;
 import com.lishid.orebfuscator.nms.v1_9_R2.ConfigDefault;
 import com.lishid.orebfuscator.nms.v1_9_R2.NBT;
-import com.lishid.orebfuscator.types.BlockCoord;
 import com.lishid.orebfuscator.types.ConfigDefaults;
 
+import net.imprex.orebfuscator.util.BlockCoords;
 import net.minecraft.server.v1_9_R2.Block;
 import net.minecraft.server.v1_9_R2.BlockPosition;
 import net.minecraft.server.v1_9_R2.Chunk;
@@ -84,7 +84,7 @@ public class NmsManager implements INmsManager {
 	}
 
 	@Override
-	public void updateBlockTileEntity(BlockCoord blockCoord, Player player) {
+	public void updateBlockTileEntity(BlockCoords blockCoord, Player player) {
 		CraftWorld world = (CraftWorld) player.getWorld();
 		TileEntity tileEntity = world.getTileEntityAt(blockCoord.x, blockCoord.y, blockCoord.z);
 

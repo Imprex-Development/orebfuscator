@@ -1,7 +1,7 @@
 api-version: 1.13
 
-name: ${project.name}
-version: ${project.version}
+name: Orebfuscator
+version: 5.0.0
 
 main: com.lishid.orebfuscator.Orebfuscator
 

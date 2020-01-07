@@ -16,9 +16,11 @@
 
 package com.lishid.orebfuscator.obfuscation;
 
-import java.io.File;
 import java.io.IOException;
+import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Random;
 
 import org.bukkit.World;
@@ -29,112 +31,82 @@ import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 import com.comphenix.protocol.wrappers.nbt.NbtType;
 import com.lishid.orebfuscator.NmsInstance;
 import com.lishid.orebfuscator.Orebfuscator;
-import com.lishid.orebfuscator.cache.ObfuscatedCachedChunk;
-import com.lishid.orebfuscator.cache.ObfuscatedDataCache;
 import com.lishid.orebfuscator.chunkmap.ChunkData;
 import com.lishid.orebfuscator.chunkmap.ChunkMapManager;
 import com.lishid.orebfuscator.config.ProximityHiderConfig;
 import com.lishid.orebfuscator.config.WorldConfig;
-import com.lishid.orebfuscator.types.BlockCoord;
 import com.lishid.orebfuscator.utils.Globals;
+
+import net.imprex.orebfuscator.cache.ChunkCache;
+import net.imprex.orebfuscator.cache.ChunkCacheEntry;
+import net.imprex.orebfuscator.util.BlockCoords;
+import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class Calculations {
 	public static class Result {
 		public byte[] output;
-		public ArrayList<BlockCoord> removedEntities;
+		public List<BlockCoords> removedEntities;
 	}
 
 	private static Random random = new Random();
 
-	public static Result obfuscateOrUseCache(ChunkData chunkData, Player player, WorldConfig worldConfig)
-			throws Exception {
-		if (chunkData.primaryBitMask == 0) {
-			return null;
+	public static ChunkCacheEntry obfuscateChunk(ChunkData chunkData, Player player, WorldConfig worldConfig) {
+		List<BlockCoords> proximityBlocks = new ArrayList<>();
+		List<BlockCoords> removedEntities = new ArrayList<>();
+		try {
+			long hash = CalculationsUtil.Hash(chunkData.data, chunkData.data.length);
+			byte[] data = obfuscate(worldConfig, chunkData, player, proximityBlocks, removedEntities);
+
+			ChunkCacheEntry chunkCacheEntry = new ChunkCacheEntry(hash, data);
+			chunkCacheEntry.getProximityBlocks().addAll(proximityBlocks);
+			chunkCacheEntry.getRemovedEntities().addAll(removedEntities);
+			return chunkCacheEntry;
+		} catch (Exception e) {
+			throw new RuntimeException("Can't obfuscate chunk " + chunkData.chunkX + ", " + chunkData.chunkZ);
+		}
+	}
+
+	private static LinkedList<Long> avgTimes = new LinkedList<>();
+	private static double calls = 0;
+	private static DecimalFormat formatter = new DecimalFormat("###,###,###,###.00");
+
+	public static Result obfuscateOrUseCache(ChunkData chunkData, Player player, WorldConfig worldConfig) {
+		long time = System.nanoTime();
+		Result result = obfuscateOrUseCache0(chunkData, player, worldConfig);
+		long diff = System.nanoTime() - time;
+
+		avgTimes.add(diff);
+		if (avgTimes.size() > 1000) {
+			avgTimes.removeFirst();
 		}
 
-		byte[] output;
-		ArrayList<BlockCoord> removedEntities;
-
-		ObfuscatedCachedChunk cache = tryUseCache(chunkData, player);
-
-		if (cache != null && cache.data != null) {
-			// Orebfuscator.log("Read from cache");/*debug*/
-			output = cache.data;
-			removedEntities = getCoordFromArray(cache.removedEntityList);
-		} else {
-			// Blocks kept track for ProximityHider
-			ArrayList<BlockCoord> proximityBlocks = new ArrayList<>();
-
-			removedEntities = new ArrayList<>();
-
-			output = obfuscate(worldConfig, chunkData, player, proximityBlocks, removedEntities);
-
-			if (cache != null) {
-				// If cache is still allowed
-				if (chunkData.useCache) {
-					// Save cache
-					int[] proximityList = getArrayFromCoord(proximityBlocks);
-					int[] removedEntityList = getArrayFromCoord(removedEntities);
-
-					cache.write(cache.hash, output, proximityList, removedEntityList);
-
-					// Orebfuscator.log("Write to cache");/*debug*/
-				}
-
-				cache.free();
-			}
+		if (calls++ % 100 == 0) {
+			System.out.println("avg: "
+					+ formatter.format(
+							((double) avgTimes.stream().reduce(0L, Long::sum) / (double) avgTimes.size()) / 1000D)
+					+ "μs");
 		}
-
-		// Orebfuscator.log("Send chunk x = " + chunkData.chunkX + ", z = " +
-		// chunkData.chunkZ + " to player " + player.getName());/*debug*/
-
-		Result result = new Result();
-		result.output = output;
-		result.removedEntities = removedEntities;
 
 		return result;
 	}
 
-	private static int[] getArrayFromCoord(ArrayList<BlockCoord> coords) {
-		int[] list = new int[coords.size() * 3];
-		int index = 0;
-
-		for (int i = 0; i < coords.size(); i++) {
-			BlockCoord b = coords.get(i);
-			if (b != null) {
-				list[index++] = b.x;
-				list[index++] = b.y;
-				list[index++] = b.z;
-			}
+	public static Result obfuscateOrUseCache0(ChunkData chunkData, Player player, WorldConfig worldConfig) {
+		if (chunkData.primaryBitMask == 0) {
+			return null;
 		}
 
-		return list;
-	}
+		ChunkPosition position = new ChunkPosition(player.getWorld().getName(), chunkData.chunkX, chunkData.chunkZ);
+		ChunkCacheEntry cacheEntry = ChunkCache.get(position, key -> obfuscateChunk(chunkData, player, worldConfig));
 
-	private static ArrayList<BlockCoord> getCoordFromArray(int[] array) {
-		ArrayList<BlockCoord> list = new ArrayList<>();
+		Result result = new Result();
+		result.output = cacheEntry.getData();
+		result.removedEntities = cacheEntry.getRemovedEntities();
 
-		// Decrypt chest list
-		if (array != null) {
-			int index = 0;
-
-			while (index < array.length) {
-				int x = array[index++];
-				int y = array[index++];
-				int z = array[index++];
-				BlockCoord b = new BlockCoord(x, y, z);
-
-				if (b != null) {
-					list.add(b);
-				}
-			}
-		}
-
-		return list;
+		return result;
 	}
 
 	private static byte[] obfuscate(WorldConfig worldConfig, ChunkData chunkData, Player player,
-			ArrayList<BlockCoord> proximityBlocks, ArrayList<BlockCoord> removedEntities) throws Exception {
+			List<BlockCoords> proximityBlocks, List<BlockCoords> removedEntities) throws IOException {
 		ProximityHiderConfig proximityHider = worldConfig.getProximityHiderConfig();
 		int initialRadius = Orebfuscator.config.getInitialRadius();
 
@@ -204,7 +176,7 @@ public class Calculations {
 							// Check if the block should be obfuscated because of proximity check
 							if (!obfuscate && proximityHiderFlag && proximityHider.isEnabled()
 									&& proximityHider.isProximityObfuscated(y, blockData)) {
-								BlockCoord block = new BlockCoord(x, y, z);
+								BlockCoords block = new BlockCoords(x, y, z);
 								if (block != null) {
 									proximityBlocks.add(block);
 								}
@@ -262,7 +234,7 @@ public class Calculations {
 							}
 
 							if (obfuscate && tileEntityFlag) {
-								removedEntities.add(new BlockCoord(x, y, z));
+								removedEntities.add(new BlockCoords(x, y, z));
 							}
 
 							if (offsetY == 0 && offsetZ == 0 && offsetX == 0) {
@@ -338,42 +310,6 @@ public class Calculations {
 		for (int id : worldConfig.getPaletteBlocks()) {
 			manager.addToOutputPalette(id);
 		}
-	}
-
-	private static ObfuscatedCachedChunk tryUseCache(ChunkData chunkData, Player player) {
-		if (!Orebfuscator.config.isUseCache()) {
-			return null;
-		}
-
-		chunkData.useCache = true;
-
-		// Hash the chunk
-		long hash = CalculationsUtil.Hash(chunkData.data, chunkData.data.length);
-		// Get cache folder
-		File cacheFolder = new File(ObfuscatedDataCache.getCacheFolder(), player.getWorld().getName());
-		// Create cache objects
-		ObfuscatedCachedChunk cache = new ObfuscatedCachedChunk(cacheFolder, chunkData.chunkX, chunkData.chunkZ);
-
-		// Check if hash is consistent
-		cache.read();
-
-		long storedHash = cache.getHash();
-
-		if (storedHash == hash && cache.data != null) {
-			int[] proximityList = cache.proximityList;
-			ArrayList<BlockCoord> proximityBlocks = getCoordFromArray(proximityList);
-
-			// ProximityHider add blocks
-			ProximityHider.addProximityBlocks(player, chunkData.chunkX, chunkData.chunkZ, proximityBlocks);
-
-			// Hash match, use the cached data instead and skip calculations
-			return cache;
-		}
-
-		cache.hash = hash;
-		cache.data = null;
-
-		return cache;
 	}
 
 	public static boolean areAjacentBlocksTransparent(ChunkMapManager manager, World world, boolean checkCurrentBlock,

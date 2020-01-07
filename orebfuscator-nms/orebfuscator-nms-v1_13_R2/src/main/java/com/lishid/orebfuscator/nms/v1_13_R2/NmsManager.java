@@ -25,9 +25,9 @@ import com.lishid.orebfuscator.nms.IBlockInfo;
 import com.lishid.orebfuscator.nms.IChunkCache;
 import com.lishid.orebfuscator.nms.INBT;
 import com.lishid.orebfuscator.nms.INmsManager;
-import com.lishid.orebfuscator.types.BlockCoord;
 import com.lishid.orebfuscator.types.ConfigDefaults;
 
+import net.imprex.orebfuscator.util.BlockCoords;
 import net.minecraft.server.v1_13_R2.Block;
 import net.minecraft.server.v1_13_R2.BlockPosition;
 import net.minecraft.server.v1_13_R2.Chunk;
@@ -435,7 +435,7 @@ public class NmsManager implements INmsManager {
 		return new ChunkCache(this.maxLoadedCacheFiles);
 	}
 
-	public void updateBlockTileEntity(BlockCoord blockCoord, Player player) {
+	public void updateBlockTileEntity(BlockCoords blockCoord, Player player) {
 		CraftWorld world = (CraftWorld)player.getWorld();
 		// 1.13.2 has made this quite a bit different in later builds.
 		TileEntity tileEntity = null;

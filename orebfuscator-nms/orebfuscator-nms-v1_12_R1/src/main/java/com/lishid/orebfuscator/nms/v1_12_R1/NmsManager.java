@@ -8,6 +8,8 @@ package com.lishid.orebfuscator.nms.v1_12_R1;
 
 import com.google.common.collect.ImmutableList;
 import com.lishid.orebfuscator.types.ConfigDefaults;
+
+import net.imprex.orebfuscator.util.BlockCoords;
 import net.minecraft.server.v1_12_R1.*;
 
 import org.bukkit.Location;
@@ -22,7 +24,6 @@ import com.lishid.orebfuscator.nms.IBlockInfo;
 import com.lishid.orebfuscator.nms.IChunkCache;
 import com.lishid.orebfuscator.nms.INBT;
 import com.lishid.orebfuscator.nms.INmsManager;
-import com.lishid.orebfuscator.types.BlockCoord;
 
 import java.lang.reflect.InvocationTargetException;
 import java.util.HashSet;
@@ -246,7 +247,7 @@ public class NmsManager implements INmsManager {
 	}
 	
 	@Override
-    public void updateBlockTileEntity(BlockCoord blockCoord, Player player) {
+    public void updateBlockTileEntity(BlockCoords blockCoord, Player player) {
         CraftWorld world = (CraftWorld)player.getWorld();
         TileEntity tileEntity = world.getTileEntityAt(blockCoord.x, blockCoord.y, blockCoord.z);
         

@@ -20,6 +20,8 @@ public interface INBT {
 
 	void setIntArray(String tag, int[] value);
 
+	default void setLongArray(String tag, long[] value) {}
+
 	int getInt(String tag);
 
 	long getLong(String tag);
@@ -27,6 +29,8 @@ public interface INBT {
 	byte[] getByteArray(String tag);
 
 	int[] getIntArray(String tag);
+
+	default long[] getLongArray(String tag) { return new long[0]; }
 
 	void read(DataInput stream) throws IOException;
 
