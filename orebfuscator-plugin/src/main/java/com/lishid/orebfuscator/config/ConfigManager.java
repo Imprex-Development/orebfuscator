@@ -8,14 +8,10 @@ package com.lishid.orebfuscator.config;
 import java.util.Set;
 import java.util.logging.Logger;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
-import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.lishid.orebfuscator.NmsInstance;
@@ -49,15 +45,6 @@ public class ConfigManager implements Listener {
 	public void load() {
 		// Version check
 		if (this.getInt("ConfigVersion", CONFIG_VERSION) < CONFIG_VERSION) {
-			this.plugin.getServer().getPluginManager().registerEvent(PluginEnableEvent.class, this, EventPriority.NORMAL, (listener, event) -> {
-				PluginEnableEvent enableEvent = (PluginEnableEvent) event;
-
-				if (enableEvent.getPlugin() == this.plugin) {
-					HandlerList.unregisterAll(this);
-					Bukkit.getPluginManager().disablePlugin(this.plugin);
-				}
-			}, plugin);
-
 			this.logger.info(Globals.LogPrefix + "Current config is not up to date, please delete your config");
 			throw new RuntimeException("Current config is not up to date, please delete your config");
 		}

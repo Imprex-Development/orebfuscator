@@ -144,7 +144,6 @@ public class WorldReader {
 		}
 
 		Set<String> keys = section.getKeys(false);
-
 		List<ProximityHiderConfig.BlockSetting> list = new ArrayList<>();
 
 		for (String key : keys) {

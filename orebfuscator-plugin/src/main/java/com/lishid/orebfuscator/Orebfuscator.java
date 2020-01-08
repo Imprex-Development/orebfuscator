@@ -19,6 +19,7 @@ package com.lishid.orebfuscator;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -27,6 +28,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -50,7 +55,7 @@ import com.lishid.orebfuscator.utils.MaterialHelper;
  *
  * @author lishid
  */
-public class Orebfuscator extends JavaPlugin {
+public class Orebfuscator extends JavaPlugin implements Listener {
 
 	private static final String SERVER_VERSION = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
 	private static final Pattern NMS_PATTERN = Pattern.compile("v(\\d+)_(\\d+)_R\\d", Pattern.DOTALL);
@@ -66,41 +71,55 @@ public class Orebfuscator extends JavaPlugin {
 		return this.isProtocolLibFound;
 	}
 
-	@Override
-	public void onEnable() {
-		// Get plugin manager
-		PluginManager pm = this.getServer().getPluginManager();
-
-		instance = this;
-
-		NmsInstance.current = createNmsManager();
-
-		MaterialHelper.init();
-		ChunkMapBuffer.init(NmsInstance.current.getBitsPerBlock());
-
-		// Load configurations
-		this.loadOrebfuscatorConfig();
-
-		this.isProtocolLibFound = pm.getPlugin("ProtocolLib") != null;
-
-		if (!this.isProtocolLibFound) {
-			Orebfuscator.log("ProtocolLib is not found! Plugin cannot be enabled.");
-			return;
-		}
-
-		// Orebfuscator events
-		pm.registerEvents(new OrebfuscatorPlayerListener(), this);
-		pm.registerEvents(new OrebfuscatorEntityListener(), this);
-		pm.registerEvents(new OrebfuscatorBlockListener(), this);
-
-		new ProtocolLibHook().register(this);
-
-		// Run CacheCleaner
-		this.getServer().getScheduler().runTaskTimerAsynchronously(this, new CacheCleaner(), 0,
-				config.getCacheCleanRate());
+	public Orebfuscator() {
+		Orebfuscator.instance = this;
 	}
 
-	public void checkIfConfigExist() {
+	@Override
+	public void onEnable() {
+		try {
+			NmsInstance.current = Orebfuscator.createNmsManager();
+
+			MaterialHelper.init();
+			ChunkMapBuffer.init(NmsInstance.current.getBitsPerBlock());
+
+			// Load configurations
+			this.loadOrebfuscatorConfig();
+
+			PluginManager pm = this.getServer().getPluginManager();
+			this.isProtocolLibFound = pm.getPlugin("ProtocolLib") != null;
+
+			if (!this.isProtocolLibFound) {
+				Orebfuscator.log("ProtocolLib is not found! Plugin cannot be enabled.");
+				return;
+			}
+
+			// Orebfuscator events
+			pm.registerEvents(new OrebfuscatorPlayerListener(), this);
+			pm.registerEvents(new OrebfuscatorEntityListener(), this);
+			pm.registerEvents(new OrebfuscatorBlockListener(), this);
+
+			new ProtocolLibHook().register(this);
+
+			// Run CacheCleaner
+			this.getServer().getScheduler().runTaskTimerAsynchronously(this, new CacheCleaner(), 0,
+					config.getCacheCleanRate());
+		} catch(Exception e) {
+			e.printStackTrace();
+			LOGGER.log(Level.SEVERE, "An error occurred by enabling plugin");
+
+			this.getServer().getPluginManager().registerEvent(PluginEnableEvent.class, this, EventPriority.NORMAL, (listener, event) -> {
+				PluginEnableEvent enableEvent = (PluginEnableEvent) event;
+
+				if (enableEvent.getPlugin() == this) {
+					HandlerList.unregisterAll(listener);
+					Bukkit.getPluginManager().disablePlugin(this);
+				}
+			}, this);
+		}
+	}
+
+	public void createConfigIfNotExist() {
 		Path path = this.getDataFolder().toPath().resolve("config.yml");
 
 		if (Files.notExists(path)) {
@@ -121,7 +140,7 @@ public class Orebfuscator extends JavaPlugin {
 	}
 
 	public void loadOrebfuscatorConfig() {
-		this.checkIfConfigExist();
+		this.createConfigIfNotExist();
 
 		if (config == null) {
 			config = new OrebfuscatorConfig();
@@ -143,7 +162,7 @@ public class Orebfuscator extends JavaPlugin {
 	}
 
 	public void reloadOrebfuscatorConfig() {
-		this.checkIfConfigExist();
+		this.createConfigIfNotExist();
 		this.reloadConfig();
 		this.loadOrebfuscatorConfig();
 	}
