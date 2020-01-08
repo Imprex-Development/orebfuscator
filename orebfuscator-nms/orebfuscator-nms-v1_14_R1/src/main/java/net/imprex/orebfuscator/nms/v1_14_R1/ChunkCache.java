@@ -4,7 +4,7 @@
  *
  */
 
-package com.lishid.orebfuscator.nms.v1_10_R1;
+package net.imprex.orebfuscator.nms.v1_14_R1;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -13,7 +13,8 @@ import java.util.HashMap;
 
 import com.lishid.orebfuscator.nms.IChunkCache;
 
-import net.minecraft.server.v1_10_R1.RegionFile;
+import net.minecraft.server.v1_14_R1.ChunkCoordIntPair;
+import net.minecraft.server.v1_14_R1.RegionFile;
 
 public class ChunkCache implements IChunkCache {
 
@@ -28,13 +29,13 @@ public class ChunkCache implements IChunkCache {
 	@Override
 	public DataInputStream getInputStream(File folder, int x, int z) {
 		RegionFile regionFile = this.getRegionFile(folder, x, z);
-		return regionFile.a(x & 0x1F, z & 0x1F);
+		return regionFile.a(new ChunkCoordIntPair(x & 0x1F, z & 0x1F));
 	}
 
 	@Override
 	public DataOutputStream getOutputStream(File folder, int x, int z) {
 		RegionFile regionFile = this.getRegionFile(folder, x, z);
-		return regionFile.b(x & 0x1F, z & 0x1F);
+		return regionFile.c(new ChunkCoordIntPair(x & 0x1F, z & 0x1F));
 	}
 
 	@Override
@@ -45,8 +46,10 @@ public class ChunkCache implements IChunkCache {
 	private synchronized RegionFile getRegionFile(File folder, int x, int z) {
 		File path = new File(folder, "region");
 		File file = new File(path, "r." + (x >> 5) + "." + (z >> 5) + ".mcr");
+
 		try {
 			RegionFile regionFile = cachedRegionFiles.get(file);
+
 			if (regionFile != null) {
 				return regionFile;
 			}
@@ -75,9 +78,7 @@ public class ChunkCache implements IChunkCache {
 	private synchronized void closeCacheFilesInternal() {
 		for (RegionFile regionFile : cachedRegionFiles.values()) {
 			try {
-				if (regionFile != null) {
-					regionFile.c();
-				}
+				regionFile.close();
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

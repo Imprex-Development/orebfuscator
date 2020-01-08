@@ -9,28 +9,28 @@ public class ChunkPosition {
 	private final int z;
 
 	public ChunkPosition(String world, int x, int z) {
-		this.world =  world;
+		this.world = world;
 		this.x = x;
 		this.z = z;
 	}
 
 	public String getWorld() {
-		return world;
+		return this.world;
 	}
 
 	public int getX() {
-		return x;
+		return this.x;
 	}
 
 	public int getZ() {
-		return z;
+		return this.z;
 	}
 
 	@Override
 	public int hashCode() {
 		int x = 1664525 * this.x + 1013904223;
 		int z = 1664525 * (this.z ^ -559038737) + 1013904223;
-		return this.world.hashCode() ^ (x ^ z);
+		return this.world.hashCode() ^ x ^ z;
 	}
 
 	@Override

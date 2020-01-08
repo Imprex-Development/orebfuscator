@@ -24,18 +24,22 @@ public class BlockInfo implements IBlockInfo {
 		this.blockData = blockData;
 	}
 
+	@Override
 	public int getX() {
 		return this.x;
 	}
 
+	@Override
 	public int getY() {
 		return this.y;
 	}
 
+	@Override
 	public int getZ() {
 		return this.z;
 	}
 
+	@Override
 	public int getCombinedId() {
 		return Block.getCombinedId(this.blockData);
 	}

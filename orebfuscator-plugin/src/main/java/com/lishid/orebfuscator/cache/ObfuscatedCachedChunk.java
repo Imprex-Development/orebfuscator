@@ -16,12 +16,7 @@
 
 package com.lishid.orebfuscator.cache;
 
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.File;
-
-import com.lishid.orebfuscator.NmsInstance;
-import com.lishid.orebfuscator.nms.INBT;
 
 public class ObfuscatedCachedChunk {
 	File path;
@@ -32,13 +27,6 @@ public class ObfuscatedCachedChunk {
 	public int[] removedEntityList;
 	public long hash = 0L;
 	private boolean loaded = false;
-
-	private static final ThreadLocal<INBT> nbtAccessor = new ThreadLocal<INBT>() {
-		@Override
-		protected INBT initialValue() {
-			return NmsInstance.current.createNBT();
-		}
-	};
 
 	public ObfuscatedCachedChunk(File file, int x, int z) {
 		this.x = x;
@@ -67,68 +55,7 @@ public class ObfuscatedCachedChunk {
 		return this.hash;
 	}
 
-	public void read() {
-		if (this.loaded) {
-			return;
-		}
+	public void read() { }
 
-		try {
-			DataInputStream stream = ObfuscatedDataCache.getInputStream(this.path, this.x, this.z);
-			if (stream != null) {
-				INBT nbt = nbtAccessor.get();
-
-				nbt.read(stream);
-
-				// Check if statuses makes sense
-				if (nbt.getInt("X") != this.x || nbt.getInt("Z") != this.z) {
-					return;
-				}
-
-				// Get Hash
-				this.hash = nbt.getLong("Hash");
-
-				// Get Data
-				this.data = nbt.getByteArray("Data");
-				this.proximityList = nbt.getIntArray("ProximityList");
-				this.removedEntityList = nbt.getIntArray("RemovedEntityList");
-				this.loaded = true;
-			}
-		} catch (Exception e) {
-			// Orebfuscator.log("Error reading Cache: " + e.getMessage());
-			// e.printStackTrace();
-			this.loaded = false;
-		}
-	}
-
-	public void write(long hash, byte[] data, int[] proximityList, int[] removedEntityList) {
-		try {
-			INBT nbt = nbtAccessor.get();
-			nbt.reset();
-
-			// Set status indicator
-			nbt.setInt("X", this.x);
-			nbt.setInt("Z", this.z);
-
-			// Set hash
-			nbt.setLong("Hash", hash);
-
-			// Set data
-			nbt.setByteArray("Data", data);
-			nbt.setIntArray("ProximityList", proximityList);
-			nbt.setIntArray("RemovedEntityList", removedEntityList);
-
-			DataOutputStream stream = ObfuscatedDataCache.getOutputStream(this.path, this.x, this.z);
-
-			nbt.write(stream);
-
-			try {
-				stream.close();
-			} catch (Exception e) {
-
-			}
-		} catch (Exception e) {
-			// Orebfuscator.log("Error reading Cache: " + e.getMessage());
-			// e.printStackTrace();
-		}
-	}
+	public void write(long hash, byte[] data, int[] proximityList, int[] removedEntityList) { }
 }

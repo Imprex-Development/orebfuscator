@@ -21,19 +21,7 @@ public interface INmsManager {
 
 	ConfigDefaults getConfigDefaults();
 
-	/**
-	 * This method is no longer supported!
-	 * 
-	 * @deprecated use Material.isOccluding()
-	 */
-	@Deprecated
-	default Material[] getExtraTransparentBlocks() {
-		return null;
-	}
-
 	void setMaxLoadedCacheFiles(int value);
-
-	INBT createNBT();
 
 	IChunkCache createChunkCache();
 

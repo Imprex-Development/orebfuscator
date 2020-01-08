@@ -31,16 +31,19 @@ public class ChunkCache implements IChunkCache {
 		this.maxLoadedCacheFiles = maxLoadedCacheFiles;
 	}
 
+	@Override
 	public DataInputStream getInputStream(File folder, int x, int z) throws IOException {
 		RegionFile regionFile = this.getRegionFile(folder, x, z);
 		return regionFile.a(new ChunkCoordIntPair(x & 0x1F, z & 0x1F));
 	}
 
+	@Override
 	public DataOutputStream getOutputStream(File folder, int x, int z) throws IOException {
 		RegionFile regionFile = this.getRegionFile(folder, x, z);
 		return regionFile.c(new ChunkCoordIntPair(x & 0x1F, z & 0x1F));
 	}
 
+	@Override
 	public synchronized void closeCacheFiles() {
 		for (RegionFile regionFile : ChunkCache.cachedRegionFiles.values()) {
 			try {

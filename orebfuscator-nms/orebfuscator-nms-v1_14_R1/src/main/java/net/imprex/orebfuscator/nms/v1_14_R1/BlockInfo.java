@@ -3,12 +3,12 @@
  *
  */
 
-package com.lishid.orebfuscator.nms.v1_11_R1;
+package net.imprex.orebfuscator.nms.v1_14_R1;
 
 import com.lishid.orebfuscator.nms.IBlockInfo;
 
-import net.minecraft.server.v1_11_R1.Block;
-import net.minecraft.server.v1_11_R1.IBlockData;
+import net.minecraft.server.v1_14_R1.Block;
+import net.minecraft.server.v1_14_R1.IBlockData;
 
 public class BlockInfo implements IBlockInfo {
 
@@ -41,8 +41,7 @@ public class BlockInfo implements IBlockInfo {
 
 	@Override
 	public int getCombinedId() {
-		Block block = this.blockData.getBlock();
-		return Block.getId(block) << 4 | block.toLegacyData(this.blockData);
+		return Block.getCombinedId(this.blockData);
 	}
 
 	public IBlockData getBlockData() {
@@ -66,6 +65,6 @@ public class BlockInfo implements IBlockInfo {
 
 	@Override
 	public String toString() {
-		return this.x + " " + this.y + " " + this.z;
+		return String.format("%d %d %d", this.x, this.y, this.z);
 	}
 }

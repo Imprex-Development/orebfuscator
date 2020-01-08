@@ -13,11 +13,10 @@ import org.bukkit.Material;
 import com.lishid.orebfuscator.NmsInstance;
 
 public class MaterialHelper {
-	private static HashMap<Integer, Material> _blocks;
+
+	private static final HashMap<Integer, Material> BLOCK_BY_ID = new HashMap<Integer, Material>();
 
 	public static void init() {
-		_blocks = new HashMap<>();
-
 		Material[] allMaterials = Material.values();
 
 		for (Material material : allMaterials) {
@@ -25,20 +24,20 @@ public class MaterialHelper {
 				Set<Integer> ids = NmsInstance.current.getMaterialIds(material);
 
 				for (int id : ids) {
-					_blocks.put(id, material);
+					MaterialHelper.BLOCK_BY_ID.put(id, material);
 				}
 			}
 		}
 	}
 
 	public static Material getById(int combinedBlockId) {
-		return _blocks.get(combinedBlockId);
+		return MaterialHelper.BLOCK_BY_ID.get(combinedBlockId);
 	}
 
 	public static int getMaxId() {
 		int maxId = -1;
 
-		for (int id : _blocks.keySet()) {
+		for (int id : MaterialHelper.BLOCK_BY_ID.keySet()) {
 			if (id > maxId) {
 				maxId = id;
 			}

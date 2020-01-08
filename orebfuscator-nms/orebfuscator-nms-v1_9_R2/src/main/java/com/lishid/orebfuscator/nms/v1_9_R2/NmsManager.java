@@ -26,12 +26,7 @@ import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
 import com.lishid.orebfuscator.nms.IBlockInfo;
 import com.lishid.orebfuscator.nms.IChunkCache;
-import com.lishid.orebfuscator.nms.INBT;
 import com.lishid.orebfuscator.nms.INmsManager;
-import com.lishid.orebfuscator.nms.v1_9_R2.BlockInfo;
-import com.lishid.orebfuscator.nms.v1_9_R2.ChunkCache;
-import com.lishid.orebfuscator.nms.v1_9_R2.ConfigDefault;
-import com.lishid.orebfuscator.nms.v1_9_R2.NBT;
 import com.lishid.orebfuscator.types.ConfigDefaults;
 
 import net.imprex.orebfuscator.util.BlockCoords;
@@ -64,18 +59,8 @@ public class NmsManager implements INmsManager {
 	}
 
 	@Override
-	public Material[] getExtraTransparentBlocks() {
-		return this.configDefaults.extraTransparentBlocks;
-	}
-
-	@Override
 	public void setMaxLoadedCacheFiles(int value) {
 		this.maxLoadedCacheFiles = value;
-	}
-
-	@Override
-	public INBT createNBT() {
-		return new NBT();
 	}
 
 	@Override
@@ -114,14 +99,14 @@ public class NmsManager implements INmsManager {
 
 	@Override
 	public IBlockInfo getBlockInfo(World world, int x, int y, int z) {
-		IBlockData blockData = getBlockData(world, x, y, z, false);
+		IBlockData blockData = this.getBlockData(world, x, y, z, false);
 
 		return blockData != null ? new BlockInfo(x, y, z, blockData) : null;
 	}
 
 	@Override
 	public int loadChunkAndGetBlockId(World world, int x, int y, int z) {
-		IBlockData blockData = getBlockData(world, x, y, z, true);
+		IBlockData blockData = this.getBlockData(world, x, y, z, true);
 		return blockData != null ? Block.getCombinedId(blockData) : -1;
 	}
 
@@ -182,8 +167,9 @@ public class NmsManager implements INmsManager {
 		IBlockData blockData = this.getBlockData(location.getWorld(), location.getBlockX(), location.getBlockY(),
 				location.getBlockZ(), false);
 
-		if (blockData == null)
+		if (blockData == null) {
 			return false;
+		}
 
 		PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(((CraftWorld) location.getWorld()).getHandle(),
 				new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()));
@@ -194,6 +180,7 @@ public class NmsManager implements INmsManager {
 	}
 
 	// PacketPlayOutMultiBlockChange
+	@Override
 	public void sendMultiBlockChange(Player player, int chunkX, int chunkZ, Location... locations)
 			throws IllegalAccessException, InvocationTargetException {
 		if (locations.length == 0) {
@@ -218,7 +205,7 @@ public class NmsManager implements INmsManager {
 		packet.getChunkCoordIntPairs().write(0, new ChunkCoordIntPair(chunkX, chunkZ));
 		packet.getMultiBlockChangeInfoArrays().write(0, blockInfoArray);
 
-		protocolManager.sendServerPacket(player, packet);
+		this.protocolManager.sendServerPacket(player, packet);
 	}
 
 	@Override
@@ -241,8 +228,9 @@ public class NmsManager implements INmsManager {
 		WorldServer worldServer = ((CraftWorld) world).getHandle();
 		ChunkProviderServer chunkProviderServer = worldServer.getChunkProviderServer();
 
-		if (!loadChunk && !chunkProviderServer.isLoaded(chunkX, chunkZ))
+		if (!loadChunk && !chunkProviderServer.isLoaded(chunkX, chunkZ)) {
 			return null;
+		}
 
 		return chunkProviderServer.getOrLoadChunkAt(chunkX, chunkZ);
 	}

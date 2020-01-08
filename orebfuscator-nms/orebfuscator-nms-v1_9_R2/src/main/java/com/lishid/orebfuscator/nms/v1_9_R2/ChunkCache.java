@@ -15,7 +15,6 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 
 import com.lishid.orebfuscator.nms.IChunkCache;
-import com.lishid.orebfuscator.nms.v1_9_R2.ChunkCache;
 
 import net.minecraft.server.v1_9_R2.RegionFile;
 
@@ -29,16 +28,19 @@ public class ChunkCache implements IChunkCache {
 		this.maxLoadedCacheFiles = maxLoadedCacheFiles;
 	}
 
+	@Override
 	public DataInputStream getInputStream(File folder, int x, int z) {
-		RegionFile regionFile = getRegionFile(folder, x, z);
+		RegionFile regionFile = this.getRegionFile(folder, x, z);
 		return regionFile.a(x & 0x1F, z & 0x1F);
 	}
 
+	@Override
 	public DataOutputStream getOutputStream(File folder, int x, int z) {
-		RegionFile regionFile = getRegionFile(folder, x, z);
+		RegionFile regionFile = this.getRegionFile(folder, x, z);
 		return regionFile.b(x & 0x1F, z & 0x1F);
 	}
 
+	@Override
 	public synchronized void closeCacheFiles() {
 		for (RegionFile regionFile : cachedRegionFiles.values()) {
 			try {

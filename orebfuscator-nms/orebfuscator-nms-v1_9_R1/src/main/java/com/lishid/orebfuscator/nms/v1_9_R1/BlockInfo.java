@@ -5,10 +5,10 @@
 
 package com.lishid.orebfuscator.nms.v1_9_R1;
 
+import com.lishid.orebfuscator.nms.IBlockInfo;
+
 import net.minecraft.server.v1_9_R1.Block;
 import net.minecraft.server.v1_9_R1.IBlockData;
-
-import com.lishid.orebfuscator.nms.IBlockInfo;
 
 public class BlockInfo implements IBlockInfo {
 
@@ -24,21 +24,25 @@ public class BlockInfo implements IBlockInfo {
 		this.blockData = blockData;
 	}
 
+	@Override
 	public int getX() {
 		return this.x;
 	}
 
+	@Override
 	public int getY() {
 		return this.y;
 	}
 
+	@Override
 	public int getZ() {
 		return this.z;
 	}
 
+	@Override
 	public int getCombinedId() {
 		Block block = this.blockData.getBlock();
-		return (Block.getId(block) << 4) | block.toLegacyData(this.blockData);
+		return Block.getId(block) << 4 | block.toLegacyData(this.blockData);
 	}
 
 	public IBlockData getBlockData() {

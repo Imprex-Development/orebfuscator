@@ -25,13 +25,13 @@ public class BlockCoords {
 	}
 
 	public long toLong() {
-		return ((long) this.x & maskX) << offsetX | ((long) this.y & maskY) << offsetY | ((long) this.z & maskZ) << offsetZ;
+		return (this.x & maskX) << offsetX | (this.y & maskY) << offsetY | (this.z & maskZ) << offsetZ;
 	}
 
 	public static BlockCoords fromLong(long value) {
-		int x = (int) ((value >> offsetX) & maskX);
+		int x = (int) (value >> offsetX & maskX);
 		int y = (int) (value & maskY);
-		int z = (int) ((value >> offsetZ) & maskZ);
+		int z = (int) (value >> offsetZ & maskZ);
 		return new BlockCoords(x, y, z);
 	}
 

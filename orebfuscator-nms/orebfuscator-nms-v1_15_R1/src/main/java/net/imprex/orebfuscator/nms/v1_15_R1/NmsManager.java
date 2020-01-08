@@ -26,7 +26,6 @@ import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
 import com.lishid.orebfuscator.nms.IBlockInfo;
 import com.lishid.orebfuscator.nms.IChunkCache;
-import com.lishid.orebfuscator.nms.INBT;
 import com.lishid.orebfuscator.nms.INmsManager;
 import com.lishid.orebfuscator.types.ConfigDefaults;
 
@@ -64,11 +63,6 @@ public class NmsManager implements INmsManager {
 	}
 
 	@Override
-	public INBT createNBT() {
-		return new NBT();
-	}
-
-	@Override
 	public IChunkCache createChunkCache() {
 		return new ChunkCache(this.maxLoadedCacheFiles);
 	}
@@ -77,7 +71,8 @@ public class NmsManager implements INmsManager {
 	public void updateBlockTileEntity(BlockCoords blockCoord, Player player) {
 		try {
 			CraftWorld world = (CraftWorld) player.getWorld();
-			TileEntity tileEntity = world.getHandle().getTileEntity(new BlockPosition(blockCoord.x, blockCoord.y, blockCoord.z));
+			TileEntity tileEntity = world.getHandle()
+					.getTileEntity(new BlockPosition(blockCoord.x, blockCoord.y, blockCoord.z));
 
 			if (tileEntity == null) {
 				return;
@@ -87,17 +82,6 @@ public class NmsManager implements INmsManager {
 			if (packet != null) {
 				((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
 			}
-
-			// TODO check if this work
-//			PacketContainer packet = this.protocolManager.createPacket(PacketType.Play.Server.TILE_ENTITY_DATA);
-//			packet.getBlockPositionModifier().write(0, new com.comphenix.protocol.wrappers.BlockPosition(blockCoord.x, blockCoord.y, blockCoord.z));
-//			packet.getIntegers().write(0, tileEntity.getBlock().h());
-//
-//			NbtCompound nbt = NbtFactory.ofCompound("");
-//			tileEntity.save((NBTTagCompound) nbt);
-//			packet.getNbtModifier().write(0, nbt);
-//
-//			protocolManager.sendServerPacket(player, packet);
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -179,8 +163,9 @@ public class NmsManager implements INmsManager {
 		IBlockData blockData = this.getBlockData(location.getWorld(), location.getBlockX(), location.getBlockY(),
 				location.getBlockZ(), false);
 
-		if (blockData == null)
+		if (blockData == null) {
 			return false;
+		}
 
 		PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(((CraftWorld) location.getWorld()).getHandle(),
 				new BlockPosition(location.getBlockX(), location.getBlockY(), location.getBlockZ()));
@@ -215,7 +200,7 @@ public class NmsManager implements INmsManager {
 		packet.getChunkCoordIntPairs().write(0, new ChunkCoordIntPair(chunkX, chunkZ));
 		packet.getMultiBlockChangeInfoArrays().write(0, blockInfoArray);
 
-		protocolManager.sendServerPacket(player, packet);
+		this.protocolManager.sendServerPacket(player, packet);
 	}
 
 	@Override
@@ -234,8 +219,9 @@ public class NmsManager implements INmsManager {
 
 		ChunkProviderServer chunkProviderServer = ((CraftWorld) world).getHandle().getChunkProvider();
 
-		if (!loadChunk && !chunkProviderServer.isLoaded(chunkX, chunkZ))
+		if (!loadChunk && !chunkProviderServer.isLoaded(chunkX, chunkZ)) {
 			return null;
+		}
 
 		Chunk chunk = chunkProviderServer.getChunkAt(chunkX, chunkZ, true);
 		return chunk != null ? chunk.getType(new BlockPosition(x, y, z)) : null;
