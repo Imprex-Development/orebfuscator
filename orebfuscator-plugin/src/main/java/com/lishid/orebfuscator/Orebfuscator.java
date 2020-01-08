@@ -16,14 +16,14 @@
 
 package com.lishid.orebfuscator;
 
-import java.io.BufferedReader;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.PrintWriter;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.logging.Logger;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
@@ -52,7 +52,10 @@ import com.lishid.orebfuscator.utils.MaterialHelper;
  */
 public class Orebfuscator extends JavaPlugin {
 
-	public static final Logger logger = Logger.getLogger("Minecraft.OFC");
+	private static final String SERVER_VERSION = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+	private static final Pattern NMS_PATTERN = Pattern.compile("v(\\d+)_(\\d+)_R\\d", Pattern.DOTALL);
+
+	public static final Logger LOGGER = Logger.getLogger("Minecraft.OFC");
 	public static Orebfuscator instance;
 	public static OrebfuscatorConfig config;
 	public static ConfigManager configManager;
@@ -78,8 +81,6 @@ public class Orebfuscator extends JavaPlugin {
 		// Load configurations
 		this.loadOrebfuscatorConfig();
 
-		this.makeConfigExample();
-
 		this.isProtocolLibFound = pm.getPlugin("ProtocolLib") != null;
 
 		if (!this.isProtocolLibFound) {
@@ -100,9 +101,27 @@ public class Orebfuscator extends JavaPlugin {
 	}
 
 	public void loadOrebfuscatorConfig() {
+		Path path = this.getDataFolder().toPath().resolve("config.yml");
+
+		if (Files.notExists(path)) {
+			try {
+				Matcher matcher = Orebfuscator.NMS_PATTERN.matcher(Orebfuscator.SERVER_VERSION);
+
+				if (!matcher.find()) {
+					throw new RuntimeException("WTF is this version!?");
+				}
+
+				String configVersion = matcher.group(1) + "." + matcher.group(2);
+
+				Files.copy(Orebfuscator.class.getResourceAsStream("/resources/config-" + configVersion + ".yml"), path);
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
+		}
+
 		if (config == null) {
 			config = new OrebfuscatorConfig();
-			configManager = new ConfigManager(this, logger, config);
+			configManager = new ConfigManager(this, LOGGER, config);
 		}
 
 		configManager.load();
@@ -119,53 +138,31 @@ public class Orebfuscator extends JavaPlugin {
 		}
 	}
 
-	private void makeConfigExample() {
-		File outputFile = new File(this.getDataFolder(), "config.example_enabledworlds.yml");
-
-		if (outputFile.exists()) {
-			return;
-		}
-
-		InputStream configStream = Orebfuscator.class
-				.getResourceAsStream("/resources/config.example_enabledworlds.yml");
-
-		try (BufferedReader reader = new BufferedReader(new InputStreamReader(configStream));
-				PrintWriter writer = new PrintWriter(outputFile)) {
-			String line;
-
-			while ((line = reader.readLine()) != null) {
-				writer.println(line);
-			}
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-
 	public void reloadOrebfuscatorConfig() {
 		this.reloadConfig();
 		this.loadOrebfuscatorConfig();
 	}
 
 	private static INmsManager createNmsManager() {
-		String serverVersion = org.bukkit.Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
-
-		if (serverVersion.equals("v1_15_R1")) {
+		if (SERVER_VERSION.equals("v1_15_R1")) {
 			return new net.imprex.orebfuscator.nms.v1_15_R1.NmsManager();
-		} else if (serverVersion.equals("v1_13_R2")) {
+		} else if (SERVER_VERSION.equals("v1_14_R1")) {
+			return new net.imprex.orebfuscator.nms.v1_14_R1.NmsManager();
+		} else if (SERVER_VERSION.equals("v1_13_R2")) {
 			return new com.lishid.orebfuscator.nms.v1_13_R2.NmsManager();
-		} else if (serverVersion.equals("v1_13_R1")) {
+		} else if (SERVER_VERSION.equals("v1_13_R1")) {
 			return new com.lishid.orebfuscator.nms.v1_13_R1.NmsManager();
-		} else if (serverVersion.equals("v1_12_R1")) {
+		} else if (SERVER_VERSION.equals("v1_12_R1")) {
 			return new com.lishid.orebfuscator.nms.v1_12_R1.NmsManager();
-		} else if (serverVersion.equals("v1_11_R1")) {
+		} else if (SERVER_VERSION.equals("v1_11_R1")) {
 			return new com.lishid.orebfuscator.nms.v1_11_R1.NmsManager();
-		} else if (serverVersion.equals("v1_10_R1")) {
+		} else if (SERVER_VERSION.equals("v1_10_R1")) {
 			return new com.lishid.orebfuscator.nms.v1_10_R1.NmsManager();
-		} else if (serverVersion.equals("v1_9_R2")) {
+		} else if (SERVER_VERSION.equals("v1_9_R2")) {
 			return new com.lishid.orebfuscator.nms.v1_9_R2.NmsManager();
-		} else if (serverVersion.equals("v1_9_R1")) {
+		} else if (SERVER_VERSION.equals("v1_9_R1")) {
 			return new com.lishid.orebfuscator.nms.v1_9_R1.NmsManager();
-		} else if (serverVersion.equals("v1_8_R3")) {
+		} else if (SERVER_VERSION.equals("v1_8_R3")) {
 			return new com.lishid.orebfuscator.nms.v1_8_R3.NmsManager();
 		}
 
@@ -194,14 +191,14 @@ public class Orebfuscator extends JavaPlugin {
 	 * Log an information
 	 */
 	public static void log(String text) {
-		logger.info(Globals.LogPrefix + text);
+		LOGGER.info(Globals.LogPrefix + text);
 	}
 
 	/**
 	 * Log an error
 	 */
 	public static void log(Throwable e) {
-		logger.severe(Globals.LogPrefix + e.toString());
+		LOGGER.severe(Globals.LogPrefix + e.toString());
 		e.printStackTrace();
 	}
 

@@ -6,25 +6,30 @@
 package com.lishid.orebfuscator.config;
 
 import java.util.Set;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.file.FileConfiguration;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.lishid.orebfuscator.NmsInstance;
 import com.lishid.orebfuscator.utils.Globals;
 import com.lishid.orebfuscator.utils.MaterialHelper;
 
-public class ConfigManager {
+public class ConfigManager implements Listener {
+
 	private static final int CONFIG_VERSION = 13;
 
-	private JavaPlugin plugin;
-	private Logger logger;
-	private OrebfuscatorConfig orebfuscatorConfig;
-	private MaterialReader materialReader;
+	private final JavaPlugin plugin;
+	private final Logger logger;
+	private final OrebfuscatorConfig orebfuscatorConfig;
+	private final MaterialReader materialReader;
 
 	public ConfigManager(JavaPlugin plugin, Logger logger, OrebfuscatorConfig orebfuscatorConfig) {
 		this.plugin = plugin;
@@ -38,45 +43,23 @@ public class ConfigManager {
 			return null;
 		}
 
-		WorldConfig baseCfg;
-
-		switch (world.getEnvironment()) {
-		case THE_END:
-			baseCfg = this.orebfuscatorConfig.getEndWorld();
-			break;
-		case NETHER:
-			baseCfg = this.orebfuscatorConfig.getNetherWorld();
-			break;
-		default:
-			baseCfg = this.orebfuscatorConfig.getNormalWorld();
-			break;
-		}
-
-		WorldConfig cfg = this.orebfuscatorConfig.getWorld(world.getName());
-
-		if (cfg == null) {
-			return baseCfg;
-		}
-
-		if (!cfg.isInitialized()) {
-			cfg.init(baseCfg);
-			this.logger.log(Level.INFO,
-					Globals.LogPrefix + "Config for world '" + world.getName() + "' is initialized.");
-		}
-
-		return cfg;
+		return this.orebfuscatorConfig.getWorld(world.getName());
 	}
 
 	public void load() {
 		// Version check
-		int version = this.getInt("ConfigVersion", CONFIG_VERSION);
-		if (version < CONFIG_VERSION) {
-			if (version <= 12) {
-				new Convert12To13(this.plugin).convert();
-				this.logger.info(Globals.LogPrefix + "Configuration file have been converted to new version.");
-			} else {
-				this.getConfig().set("ConfigVersion", CONFIG_VERSION);
-			}
+		if (this.getInt("ConfigVersion", CONFIG_VERSION) < CONFIG_VERSION) {
+			this.plugin.getServer().getPluginManager().registerEvent(PluginEnableEvent.class, this, EventPriority.NORMAL, (listener, event) -> {
+				PluginEnableEvent enableEvent = (PluginEnableEvent) event;
+
+				if (enableEvent.getPlugin() == this.plugin) {
+					HandlerList.unregisterAll(this);
+					Bukkit.getPluginManager().disablePlugin(this.plugin);
+				}
+			}, plugin);
+
+			this.logger.info(Globals.LogPrefix + "Current config is not up to date, please delete your config");
+			throw new RuntimeException("Current config is not up to date, please delete your config");
 		}
 
 		boolean useCache = this.getBoolean("Booleans.UseCache", true);
@@ -148,12 +131,6 @@ public class ConfigManager {
 		this.getConfig().set("Integers.InitialRadius", value);
 		this.save();
 		this.orebfuscatorConfig.setInitialRadius(value);
-	}
-
-	public void setProximityHiderDistance(int value) {
-		this.getConfig().set("Integers.ProximityHiderDistance", value);
-		this.save();
-		this.orebfuscatorConfig.getDefaultWorld().getProximityHiderConfig().setDistance(value);
 	}
 
 	public void setNoObfuscationForOps(boolean value) {

@@ -38,9 +38,9 @@ import com.lishid.orebfuscator.utils.Globals;
 import com.lishid.orebfuscator.utils.MaterialHelper;
 
 public class OrebfuscatorCommandExecutor {
-	public static boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
 
-		if (sender instanceof Player && !sender.hasPermission("Orebfuscator.admin")) {
+	public static boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+		if (sender instanceof Player && !sender.hasPermission("orebfuscator.admin")) {
 			Orebfuscator.message(sender, "You do not have permissions.");
 			return true;
 		}
@@ -147,19 +147,13 @@ public class OrebfuscatorCommandExecutor {
 			Orebfuscator.message(sender, "Caching: " + (Orebfuscator.config.isUseCache() ? "Enabled" : "Disabled"));
 			Orebfuscator.message(sender,
 					"ProximityHider: " + (Orebfuscator.config.isProximityHiderEnabled() ? "Enabled" : "Disabled"));
-			Orebfuscator.message(sender, "DarknessHideBlocks: "
-					+ (Orebfuscator.config.getDefaultWorld().isDarknessHideBlocks() ? "Enabled" : "Disabled"));
 
 			Orebfuscator.message(sender, "Initial Obfuscation Radius: " + Orebfuscator.config.getInitialRadius());
 			Orebfuscator.message(sender, "Update Radius: " + Orebfuscator.config.getUpdateRadius());
 
-			Orebfuscator.message(sender, "World by Default: "
-					+ (Orebfuscator.config.getDefaultWorld().isEnabled() ? "Enabled" : "Disabled"));
-
 			String worldNames = Orebfuscator.config.getWorldNames();
 
 			Orebfuscator.message(sender, "Worlds in List: " + (worldNames.equals("") ? "None" : worldNames));
-
 			return true;
 		}
 
@@ -270,15 +264,15 @@ public class OrebfuscatorCommandExecutor {
 		String worldName = args[1];
 
 		if (worldName.startsWith(":")) {
-			if (worldName.equalsIgnoreCase(":default")) {
-				worldConfig = Orebfuscator.config.getDefaultWorld();
-			} else if (worldName.equalsIgnoreCase(":normal")) {
-				worldConfig = Orebfuscator.config.getNormalWorld();
-			} else if (worldName.equalsIgnoreCase(":nether")) {
-				worldConfig = Orebfuscator.config.getNetherWorld();
-			} else if (worldName.equalsIgnoreCase(":end")) {
-				worldConfig = Orebfuscator.config.getEndWorld();
-			}
+//			if (worldName.equalsIgnoreCase(":default")) {
+//				worldConfig = Orebfuscator.config.getDefaultWorld();
+//			} else if (worldName.equalsIgnoreCase(":normal")) {
+//				worldConfig = Orebfuscator.config.getNormalWorld();
+//			} else if (worldName.equalsIgnoreCase(":nether")) {
+//				worldConfig = Orebfuscator.config.getNetherWorld();
+//			} else if (worldName.equalsIgnoreCase(":end")) {
+//				worldConfig = Orebfuscator.config.getEndWorld();
+//			}
 		} else {
 			World world = Bukkit.getWorld(worldName);
 			worldConfig = Orebfuscator.configManager.getWorld(world);

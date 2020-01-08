@@ -13,13 +13,9 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import com.lishid.orebfuscator.types.ConfigDefaults;
-
 import net.imprex.orebfuscator.util.BlockCoords;
 
 public interface INmsManager {
-
-	ConfigDefaults getConfigDefaults();
 
 	void setMaxLoadedCacheFiles(int value);
 

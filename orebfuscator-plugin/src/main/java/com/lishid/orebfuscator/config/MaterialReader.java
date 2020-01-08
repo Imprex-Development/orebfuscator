@@ -21,6 +21,7 @@ import com.lishid.orebfuscator.utils.Globals;
 import com.lishid.orebfuscator.utils.MaterialHelper;
 
 public class MaterialReader {
+
 	private static class MaterialResult {
 		public Set<Integer> ids;
 		public String name;

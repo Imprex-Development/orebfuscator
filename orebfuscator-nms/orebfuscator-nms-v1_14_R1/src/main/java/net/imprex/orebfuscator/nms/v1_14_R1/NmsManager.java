@@ -24,7 +24,6 @@ import com.lishid.orebfuscator.nms.IBlockInfo;
 import com.lishid.orebfuscator.nms.IChunkCache;
 import com.lishid.orebfuscator.nms.INmsManager;
 import com.lishid.orebfuscator.types.BlockCoord;
-import com.lishid.orebfuscator.types.ConfigDefaults;
 
 import net.imprex.orebfuscator.util.BlockCoords;
 import net.minecraft.server.v1_14_R1.Block;
@@ -42,7 +41,6 @@ public class NmsManager implements INmsManager {
 	private final Set<Integer> BLOCK_ID_AIRS;
 	private final Set<Integer> BLOCK_ID_SIGNS;
 
-	private final ConfigDefaults configDefaults;
 	private int maxLoadedCacheFiles;
 	private HashMap<Material, Set<Integer>> materialIds;
 
@@ -56,58 +54,6 @@ public class NmsManager implements INmsManager {
 				Material.DARK_OAK_SIGN, Material.JUNGLE_SIGN, Material.OAK_SIGN, Material.SPRUCE_SIGN,
 				Material.ACACIA_WALL_SIGN, Material.BIRCH_WALL_SIGN, Material.DARK_OAK_WALL_SIGN,
 				Material.JUNGLE_WALL_SIGN, Material.OAK_WALL_SIGN, Material.SPRUCE_WALL_SIGN });
-
-		this.configDefaults = new ConfigDefaults();
-
-		// Default World
-		this.configDefaults.defaultProximityHiderBlockIds = this.convertMaterialsToIds(new Material[] {
-				Material.DISPENSER, Material.SPAWNER, Material.CHEST, Material.HOPPER, Material.CRAFTING_TABLE,
-				Material.FURNACE, Material.ENCHANTING_TABLE, Material.EMERALD_ORE, Material.ENDER_CHEST, Material.ANVIL,
-				Material.CHIPPED_ANVIL, Material.DAMAGED_ANVIL, Material.TRAPPED_CHEST, Material.DIAMOND_ORE });
-
-		this.configDefaults.defaultDarknessBlockIds = this
-				.convertMaterialsToIds(new Material[] { Material.SPAWNER, Material.CHEST });
-
-		this.configDefaults.defaultMode1BlockId = this.getMaterialIds(Material.STONE).iterator().next();
-		this.configDefaults.defaultProximityHiderSpecialBlockId = this.getMaterialIds(Material.STONE).iterator().next();
-
-		// The End
-		this.configDefaults.endWorldRandomBlockIds = this.convertMaterialsToIds(new Material[] { Material.BEDROCK,
-				Material.OBSIDIAN, Material.END_STONE, Material.PURPUR_BLOCK, Material.END_STONE_BRICKS });
-
-		this.configDefaults.endWorldObfuscateBlockIds = this
-				.convertMaterialsToIds(new Material[] { Material.END_STONE });
-
-		this.configDefaults.endWorldMode1BlockId = this.getMaterialIds(Material.END_STONE).iterator().next();
-		this.configDefaults.endWorldRequiredObfuscateBlockIds = this
-				.convertMaterialsToIds(new Material[] { Material.END_STONE });
-
-		// Nether World
-		this.configDefaults.netherWorldRandomBlockIds = this.convertMaterialsToIds(new Material[] { Material.GRAVEL,
-				Material.NETHERRACK, Material.SOUL_SAND, Material.NETHER_BRICKS, Material.NETHER_QUARTZ_ORE });
-
-		this.configDefaults.netherWorldObfuscateBlockIds = this
-				.convertMaterialsToIds(new Material[] { Material.NETHERRACK, Material.NETHER_QUARTZ_ORE });
-
-		this.configDefaults.netherWorldMode1BlockId = this.getMaterialIds(Material.NETHERRACK).iterator().next();
-
-		this.configDefaults.netherWorldRequiredObfuscateBlockIds = this
-				.convertMaterialsToIds(new Material[] { Material.NETHERRACK });
-
-		// Normal World
-		this.configDefaults.normalWorldRandomBlockIds = this.convertMaterialsToIds(new Material[] { Material.STONE,
-				Material.EMERALD_ORE, Material.GOLD_ORE, Material.IRON_ORE, Material.COAL_ORE, Material.LAPIS_ORE,
-				Material.DIAMOND_ORE, Material.REDSTONE_ORE, Material.OAK_PLANKS, Material.COBBLESTONE, Material.TNT,
-				Material.MOSSY_COBBLESTONE, Material.OBSIDIAN, Material.CLAY });
-
-		this.configDefaults.normalWorldObfuscateBlockIds = this.convertMaterialsToIds(new Material[] {
-				Material.DIAMOND_ORE, Material.GOLD_ORE, Material.IRON_ORE, Material.COAL_ORE, Material.LAPIS_ORE,
-				Material.REDSTONE_ORE, Material.EMERALD_ORE, Material.CHEST, Material.ENDER_CHEST, Material.CLAY });
-
-		this.configDefaults.normalWorldMode1BlockId = this.getMaterialIds(Material.STONE).iterator().next();
-
-		this.configDefaults.normalWorldRequiredObfuscateBlockIds = this
-				.convertMaterialsToIds(new Material[] { Material.STONE });
 	}
 
 	private void initBlockIds() {
@@ -128,11 +74,6 @@ public class NmsManager implements INmsManager {
 				ids.add(materialId);
 			}
 		});
-	}
-
-	@Override
-	public ConfigDefaults getConfigDefaults() {
-		return this.configDefaults;
 	}
 
 	@Override
@@ -257,19 +198,6 @@ public class NmsManager implements INmsManager {
 		}
 
 		return ids;
-	}
-
-	private int[] convertMaterialsToIds(Material[] materials) {
-		Set<Integer> ids = this.convertMaterialsToSet(materials);
-
-		int[] result = new int[ids.size()];
-		int index = 0;
-
-		for (int id : ids) {
-			result[index++] = id;
-		}
-
-		return result;
 	}
 
 	@Override

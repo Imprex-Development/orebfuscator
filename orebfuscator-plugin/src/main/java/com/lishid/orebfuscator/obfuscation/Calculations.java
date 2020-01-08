@@ -43,6 +43,7 @@ import net.imprex.orebfuscator.util.BlockCoords;
 import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class Calculations {
+
 	public static class Result {
 		public byte[] output;
 		public List<BlockCoords> removedEntities;

@@ -63,7 +63,7 @@ public class ProtocolLibHook {
 
 					WorldConfig worldConfig = Orebfuscator.configManager.getWorld(player.getWorld());
 
-					if (!worldConfig.isEnabled()) {
+					if (worldConfig == null || !worldConfig.isEnabled()) {
 						return;
 					}
 
@@ -97,7 +97,7 @@ public class ProtocolLibHook {
 					}
 				} catch (Exception e) {
 					if (chunkData != null) {
-						Orebfuscator.logger.log(Level.SEVERE,
+						Orebfuscator.LOGGER.log(Level.SEVERE,
 								"ChunkX = " + chunkData.chunkX + ", chunkZ = " + chunkData.chunkZ);
 					}
 

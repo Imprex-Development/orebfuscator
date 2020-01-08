@@ -7,6 +7,7 @@
 package com.lishid.orebfuscator.nms.v1_9_R1;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.HashSet;
 import java.util.Set;
 
 import org.bukkit.Location;
@@ -24,10 +25,10 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
+import com.google.common.collect.ImmutableList;
 import com.lishid.orebfuscator.nms.IBlockInfo;
 import com.lishid.orebfuscator.nms.IChunkCache;
 import com.lishid.orebfuscator.nms.INmsManager;
-import com.lishid.orebfuscator.types.ConfigDefaults;
 
 import net.imprex.orebfuscator.util.BlockCoords;
 import net.minecraft.server.v1_9_R1.Block;
@@ -43,19 +44,12 @@ import net.minecraft.server.v1_9_R1.WorldServer;
 
 public class NmsManager implements INmsManager {
 
-	private final ConfigDefault configDefaults;
 	private final ProtocolManager protocolManager;
 
 	private int maxLoadedCacheFiles;
 
 	public NmsManager() {
 		this.protocolManager = ProtocolLibrary.getProtocolManager();
-		this.configDefaults = new ConfigDefault();
-	}
-
-	@Override
-	public ConfigDefaults getConfigDefaults() {
-		return this.configDefaults;
 	}
 
 	@Override
@@ -157,11 +151,19 @@ public class NmsManager implements INmsManager {
 				|| blockMaterial == Material.STATIONARY_LAVA;
 	}
 
-	@Override
+	@SuppressWarnings("deprecation")
 	public Set<Integer> getMaterialIds(Material material) {
-		return this.configDefaults.getMaterialIds(material);
-	}
+		Set<Integer> ids = new HashSet<>();
+		int blockId = material.getId() << 4;
+		Block block = Block.getById(material.getId());
+		ImmutableList<IBlockData> blockDataList = block.t().a();
 
+		for (IBlockData blockData : blockDataList) {
+			ids.add(blockId | block.toLegacyData(blockData));
+		}
+
+		return ids;
+	}
 	@Override
 	public boolean sendBlockChange(Player player, Location location) {
 		IBlockData blockData = this.getBlockData(location.getWorld(), location.getBlockX(), location.getBlockY(),

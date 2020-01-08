@@ -32,10 +32,6 @@ public class OrebfuscatorConfig {
 
 	private byte[] transparentBlocks;
 
-	private WorldConfig defaultWorld;
-	private WorldConfig normalWorld;
-	private WorldConfig endWorld;
-	private WorldConfig netherWorld;
 	private Map<String, WorldConfig> worlds;
 
 	private boolean proximityHiderEnabled;
@@ -161,38 +157,6 @@ public class OrebfuscatorConfig {
 		this.transparentBlocks = transparentBlocks;
 	}
 
-	public WorldConfig getDefaultWorld() {
-		return this.defaultWorld;
-	}
-
-	public void setDefaultWorld(WorldConfig value) {
-		this.defaultWorld = value;
-	}
-
-	public WorldConfig getNormalWorld() {
-		return this.normalWorld;
-	}
-
-	public void setNormalWorld(WorldConfig value) {
-		this.normalWorld = value;
-	}
-
-	public WorldConfig getEndWorld() {
-		return this.endWorld;
-	}
-
-	public void setEndWorld(WorldConfig value) {
-		this.endWorld = value;
-	}
-
-	public WorldConfig getNetherWorld() {
-		return this.netherWorld;
-	}
-
-	public void setNetherWorld(WorldConfig value) {
-		this.netherWorld = value;
-	}
-
 	public String getWorldNames() {
 		String worldNames = "";
 
@@ -220,10 +184,6 @@ public class OrebfuscatorConfig {
 	}
 
 	public void setProximityHiderEnabled() {
-		this.proximityHiderEnabled = this.normalWorld.getProximityHiderConfig().isEnabled()
-				|| this.endWorld.getProximityHiderConfig().isEnabled()
-				|| this.netherWorld.getProximityHiderConfig().isEnabled();
-
 		if (!this.proximityHiderEnabled) {
 			for (WorldConfig world : this.worlds.values()) {
 				if (world.getProximityHiderConfig().isEnabled() != null

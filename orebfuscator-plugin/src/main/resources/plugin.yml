@@ -43,6 +43,10 @@ permissions:
     default: false
     children:
       orebfuscator.deobfuscate: true
+      orebfuscator.admin: true
   orebfuscator.deobfuscate:
-    description: No deobfuscate in all regions and worlds
+    description: No deobfuscate in all and worlds
+    default: false
+  orebfuscator.admin:
+    description: Use /ofc command
     default: false

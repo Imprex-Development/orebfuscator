@@ -15,8 +15,11 @@ import com.lishid.orebfuscator.utils.Globals;
 import com.lishid.orebfuscator.utils.MaterialHelper;
 
 public class WorldConfig {
+
+	private final ProximityHiderConfig proximityHiderConfig = new ProximityHiderConfig();
+
 	private String name;
-	private Boolean enabled;
+	private Boolean enabled = false;
 	private Boolean darknessHideBlocks;
 	private Boolean antiTexturePackAndFreecam;
 	private Boolean bypassObfuscationForSignsWithText;
@@ -28,94 +31,56 @@ public class WorldConfig {
 	private Integer[] randomBlocks2;
 	private Integer mode1BlockId;
 	private int[] paletteBlocks;
-	private ProximityHiderConfig proximityHiderConfig;
-	private boolean initialized;
 
-	public WorldConfig() {
-		this.proximityHiderConfig = new ProximityHiderConfig();
-	}
+	protected void setObfuscateAndProximityBlocks() {
+		this.obfuscateAndProximityBlocks = new byte[MaterialHelper.getMaxId() + 1];
 
-	public void setDefaults() {
-		this.enabled = true;
-		this.darknessHideBlocks = false;
-		this.antiTexturePackAndFreecam = true;
-		this.bypassObfuscationForSignsWithText = false;
-		this.airGeneratorMaxChance = 43;
-		this.obfuscateBlocks = new HashSet<>();
+		this.setObfuscateMask(this.obfuscateBlocks, false, false);
 
-		this.darknessBlocks = new HashSet<>();
-		for (int blockId : NmsInstance.current.getConfigDefaults().defaultDarknessBlockIds) {
-			this.darknessBlocks.add(blockId);
+		if (this.darknessBlocks != null && this.darknessHideBlocks) {
+			this.setObfuscateMask(this.darknessBlocks, true, false);
 		}
 
-		this.randomBlocks = new Integer[0];
-		this.randomBlocks2 = this.randomBlocks;
-
-		this.mode1BlockId = NmsInstance.current.getConfigDefaults().defaultMode1BlockId;
-		this.paletteBlocks = null;
-
-		this.proximityHiderConfig.setDefaults();
+		if (this.proximityHiderConfig != null && this.proximityHiderConfig.isEnabled()) {
+			this.setObfuscateMask(this.proximityHiderConfig.getProximityHiderBlocks(), false, true);
+		}
 	}
 
-	@SuppressWarnings("unchecked")
-	public void init(WorldConfig baseWorld) {
-		if (this.initialized) {
+	protected void setPaletteBlocks() {
+		if (this.randomBlocks == null) {
 			return;
 		}
 
-		if (baseWorld != null) {
-			if (this.enabled == null) {
-				this.enabled = baseWorld.enabled;
-			}
+		HashSet<Integer> map = new HashSet<>();
 
-			if (this.darknessHideBlocks == null) {
-				this.darknessHideBlocks = baseWorld.darknessHideBlocks;
-			}
+		map.add(NmsInstance.current.getCaveAirBlockId());
+		map.add(this.mode1BlockId);
 
-			if (this.antiTexturePackAndFreecam == null) {
-				this.antiTexturePackAndFreecam = baseWorld.antiTexturePackAndFreecam;
-			}
-
-			if (this.bypassObfuscationForSignsWithText == null) {
-				this.bypassObfuscationForSignsWithText = baseWorld.bypassObfuscationForSignsWithText;
-			}
-
-			if (this.airGeneratorMaxChance == null) {
-				this.airGeneratorMaxChance = baseWorld.airGeneratorMaxChance;
-			}
-
-			if (this.obfuscateBlocks == null) {
-				this.obfuscateBlocks = baseWorld.obfuscateBlocks != null
-						? (HashSet<Integer>) baseWorld.obfuscateBlocks.clone()
-						: null;
-			}
-
-			if (this.darknessBlocks == null) {
-				this.darknessBlocks = baseWorld.darknessBlocks != null
-						? (HashSet<Integer>) baseWorld.darknessBlocks.clone()
-						: null;
-			}
-
-			if (this.randomBlocks == null) {
-				this.randomBlocks = baseWorld.randomBlocks != null ? baseWorld.randomBlocks.clone() : null;
-				this.randomBlocks2 = baseWorld.randomBlocks2 != null ? baseWorld.randomBlocks2.clone() : null;
-			}
-
-			if (this.mode1BlockId == null) {
-				this.mode1BlockId = baseWorld.mode1BlockId;
-			}
-
-			this.proximityHiderConfig.init(baseWorld.proximityHiderConfig);
-			this.setObfuscateAndProximityBlocks();
+		if (this.proximityHiderConfig.isUseSpecialBlock()) {
+			map.add(this.proximityHiderConfig.getSpecialBlockID());
 		}
 
-		this.setPaletteBlocks();
+		for (Integer id : this.randomBlocks) {
+			if (id != null) {
+				map.add(id);
+			}
+		}
 
-		this.initialized = true;
+		int[] paletteBlocks = new int[map.size()];
+		int index = 0;
+
+		for (Integer id : map) {
+			paletteBlocks[index++] = id;
+		}
+
+		this.paletteBlocks = paletteBlocks;
 	}
 
-	public boolean isInitialized() {
-		return this.initialized;
+	public void shuffleRandomBlocks() {
+		synchronized (this.randomBlocks) {
+			Collections.shuffle(Arrays.asList(this.randomBlocks));
+			Collections.shuffle(Arrays.asList(this.randomBlocks2));
+		}
 	}
 
 	public String getName() {
@@ -182,20 +147,6 @@ public class WorldConfig {
 		}
 	}
 
-	private void setObfuscateAndProximityBlocks() {
-		this.obfuscateAndProximityBlocks = new byte[MaterialHelper.getMaxId() + 1];
-
-		this.setObfuscateMask(this.obfuscateBlocks, false, false);
-
-		if (this.darknessBlocks != null && this.darknessHideBlocks) {
-			this.setObfuscateMask(this.darknessBlocks, true, false);
-		}
-
-		if (this.proximityHiderConfig != null && this.proximityHiderConfig.isEnabled()) {
-			this.setObfuscateMask(this.proximityHiderConfig.getProximityHiderBlocks(), false, true);
-		}
-	}
-
 	private void setObfuscateMask(Set<Integer> blockIds, boolean isDarknessBlock, boolean isProximityHider) {
 		for (int blockId : blockIds) {
 			int bits = this.obfuscateAndProximityBlocks[blockId] | Globals.MASK_OBFUSCATE;
@@ -237,13 +188,6 @@ public class WorldConfig {
 		this.randomBlocks2 = values;
 	}
 
-	public void shuffleRandomBlocks() {
-		synchronized (this.randomBlocks) {
-			Collections.shuffle(Arrays.asList(this.randomBlocks));
-			Collections.shuffle(Arrays.asList(this.randomBlocks2));
-		}
-	}
-
 	public Integer getMode1BlockId() {
 		return this.mode1BlockId;
 	}
@@ -256,41 +200,9 @@ public class WorldConfig {
 		return this.paletteBlocks;
 	}
 
-	private void setPaletteBlocks() {
-		if (this.randomBlocks == null) {
-			return;
-		}
-
-		HashSet<Integer> map = new HashSet<>();
-
-		map.add(NmsInstance.current.getCaveAirBlockId());
-		map.add(this.mode1BlockId);
-
-		if (this.proximityHiderConfig.isUseSpecialBlock()) {
-			map.add(this.proximityHiderConfig.getSpecialBlockID());
-		}
-
-		for (Integer id : this.randomBlocks) {
-			if (id != null) {
-				map.add(id);
-			}
-		}
-
-		int[] paletteBlocks = new int[map.size()];
-		int index = 0;
-
-		for (Integer id : map) {
-			paletteBlocks[index++] = id;
-		}
-
-		this.paletteBlocks = paletteBlocks;
-	}
-
 	public ProximityHiderConfig getProximityHiderConfig() {
 		return this.proximityHiderConfig;
 	}
-
-	// Helper methods
 
 	public int getObfuscatedBits(int id) {
 		return this.obfuscateAndProximityBlocks[id];

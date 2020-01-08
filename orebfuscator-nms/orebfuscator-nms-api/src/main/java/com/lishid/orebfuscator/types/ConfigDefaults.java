@@ -7,11 +7,6 @@ package com.lishid.orebfuscator.types;
 
 public class ConfigDefaults {
 
-	public int[] defaultProximityHiderBlockIds;
-	public int[] defaultDarknessBlockIds;
-	public int defaultMode1BlockId;
-	public int defaultProximityHiderSpecialBlockId;
-
 	public int[] endWorldRandomBlockIds;
 	public int[] endWorldObfuscateBlockIds;
 	public int endWorldMode1BlockId;

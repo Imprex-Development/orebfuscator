@@ -7,11 +7,12 @@ package com.lishid.orebfuscator.config;
 
 import java.util.HashSet;
 
-import com.lishid.orebfuscator.NmsInstance;
 import com.lishid.orebfuscator.utils.MaterialHelper;
 
 public class ProximityHiderConfig {
+
 	public static class BlockSetting implements Cloneable {
+
 		public int blockId;
 		public int y;
 		public boolean obfuscateAboveY;
@@ -27,7 +28,7 @@ public class ProximityHiderConfig {
 		}
 	}
 
-	private Boolean enabled;
+	private Boolean enabled = false;
 	private Integer distance;
 	private int distanceSquared;
 	private Integer specialBlockID;
@@ -38,64 +39,6 @@ public class ProximityHiderConfig {
 	private HashSet<Integer> proximityHiderBlocks;
 	private BlockSetting[] proximityHiderBlockSettings;
 	private short[] proximityHiderBlocksAndY;
-
-	public void setDefaults() {
-		this.enabled = true;
-		this.distance = 8;
-		this.distanceSquared = this.distance * this.distance;
-		this.specialBlockID = NmsInstance.current.getConfigDefaults().defaultProximityHiderSpecialBlockId;
-		this.y = 255;
-		this.useSpecialBlock = true;
-		this.obfuscateAboveY = false;
-		this.useFastGazeCheck = true;
-
-		this.proximityHiderBlocks = new HashSet<>();
-		for (int blockId : NmsInstance.current.getConfigDefaults().defaultProximityHiderBlockIds) {
-			this.proximityHiderBlocks.add(blockId);
-		}
-	}
-
-	public void init(ProximityHiderConfig baseCfg) {
-		if (this.enabled == null) {
-			this.enabled = baseCfg.enabled;
-		}
-
-		if (this.distance == null) {
-			this.distance = baseCfg.distance;
-			this.distanceSquared = baseCfg.distanceSquared;
-		}
-
-		if (this.specialBlockID == null) {
-			this.specialBlockID = baseCfg.specialBlockID;
-		}
-
-		if (this.y == null) {
-			this.y = baseCfg.y;
-		}
-
-		if (this.useSpecialBlock == null) {
-			this.useSpecialBlock = baseCfg.useSpecialBlock;
-		}
-
-		if (this.obfuscateAboveY == null) {
-			this.obfuscateAboveY = baseCfg.obfuscateAboveY;
-		}
-
-		if (this.proximityHiderBlocks == null && baseCfg.proximityHiderBlocks != null) {
-			this.proximityHiderBlocks = new HashSet<>();
-			this.proximityHiderBlocks.addAll(baseCfg.proximityHiderBlocks);
-		}
-
-		if (this.proximityHiderBlockSettings == null && baseCfg.proximityHiderBlockSettings != null) {
-			this.proximityHiderBlockSettings = baseCfg.proximityHiderBlockSettings.clone();
-		}
-
-		if (this.useFastGazeCheck == null) {
-			this.useFastGazeCheck = baseCfg.useFastGazeCheck;
-		}
-
-		this.setProximityHiderBlockMatrix();
-	}
 
 	public Boolean isEnabled() {
 		return this.enabled;
@@ -172,7 +115,7 @@ public class ProximityHiderConfig {
 		this.proximityHiderBlockSettings = value;
 	}
 
-	private void setProximityHiderBlockMatrix() {
+	protected void setProximityHiderBlockMatrix() {
 		this.proximityHiderBlocksAndY = new short[MaterialHelper.getMaxId() + 1];
 
 		if (this.proximityHiderBlocks == null) {

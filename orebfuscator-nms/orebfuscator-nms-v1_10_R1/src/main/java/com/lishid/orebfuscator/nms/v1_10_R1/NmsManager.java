@@ -22,7 +22,6 @@ import com.google.common.collect.ImmutableList;
 import com.lishid.orebfuscator.nms.IBlockInfo;
 import com.lishid.orebfuscator.nms.IChunkCache;
 import com.lishid.orebfuscator.nms.INmsManager;
-import com.lishid.orebfuscator.types.ConfigDefaults;
 
 import net.imprex.orebfuscator.util.BlockCoords;
 import net.minecraft.server.v1_10_R1.Block;
@@ -37,68 +36,7 @@ import net.minecraft.server.v1_10_R1.WorldServer;
 
 public class NmsManager implements INmsManager {
 
-	private final ConfigDefaults configDefaults;
 	private int maxLoadedCacheFiles;
-
-	public NmsManager() {
-		this.configDefaults = new ConfigDefaults();
-
-		// Default World
-		this.configDefaults.defaultProximityHiderBlockIds = this.convertMaterialsToIds(new Material[] {
-				Material.DISPENSER, Material.MOB_SPAWNER, Material.CHEST, Material.HOPPER, Material.WORKBENCH,
-				Material.FURNACE, Material.BURNING_FURNACE, Material.ENCHANTMENT_TABLE, Material.EMERALD_ORE,
-				Material.ENDER_CHEST, Material.ANVIL, Material.TRAPPED_CHEST, Material.DIAMOND_ORE });
-
-		this.configDefaults.defaultDarknessBlockIds = this
-				.convertMaterialsToIds(new Material[] { Material.MOB_SPAWNER, Material.CHEST });
-
-		this.configDefaults.defaultMode1BlockId = this.getMaterialIds(Material.STONE).iterator().next();
-		this.configDefaults.defaultProximityHiderSpecialBlockId = this.getMaterialIds(Material.STONE).iterator().next();
-
-		// The End
-		this.configDefaults.endWorldRandomBlockIds = this.convertMaterialsToIds(new Material[] { Material.BEDROCK,
-				Material.OBSIDIAN, Material.ENDER_STONE, Material.PURPUR_BLOCK, Material.END_BRICKS });
-
-		this.configDefaults.endWorldObfuscateBlockIds = this
-				.convertMaterialsToIds(new Material[] { Material.ENDER_STONE });
-
-		this.configDefaults.endWorldMode1BlockId = this.getMaterialIds(Material.ENDER_STONE).iterator().next();
-		this.configDefaults.endWorldRequiredObfuscateBlockIds = this
-				.convertMaterialsToIds(new Material[] { Material.ENDER_STONE });
-
-		// Nether World
-		this.configDefaults.netherWorldRandomBlockIds = this.convertMaterialsToIds(new Material[] { Material.GRAVEL,
-				Material.NETHERRACK, Material.SOUL_SAND, Material.NETHER_BRICK, Material.QUARTZ_ORE });
-
-		this.configDefaults.netherWorldObfuscateBlockIds = this
-				.convertMaterialsToIds(new Material[] { Material.NETHERRACK, Material.QUARTZ_ORE });
-
-		this.configDefaults.netherWorldMode1BlockId = this.getMaterialIds(Material.NETHERRACK).iterator().next();
-
-		this.configDefaults.netherWorldRequiredObfuscateBlockIds = this
-				.convertMaterialsToIds(new Material[] { Material.NETHERRACK });
-
-		// Normal World
-		this.configDefaults.normalWorldRandomBlockIds = this.convertMaterialsToIds(new Material[] { Material.STONE,
-				Material.COBBLESTONE, Material.WOOD, Material.GOLD_ORE, Material.IRON_ORE, Material.COAL_ORE,
-				Material.LAPIS_ORE, Material.TNT, Material.MOSSY_COBBLESTONE, Material.OBSIDIAN, Material.DIAMOND_ORE,
-				Material.REDSTONE_ORE, Material.CLAY, Material.EMERALD_ORE });
-
-		this.configDefaults.normalWorldObfuscateBlockIds = this
-				.convertMaterialsToIds(new Material[] { Material.GOLD_ORE, Material.IRON_ORE, Material.COAL_ORE,
-						Material.LAPIS_ORE, Material.CHEST, Material.DIAMOND_ORE, Material.ENDER_CHEST,
-						Material.REDSTONE_ORE, Material.CLAY, Material.EMERALD_ORE });
-
-		this.configDefaults.normalWorldMode1BlockId = this.getMaterialIds(Material.STONE).iterator().next();
-
-		this.configDefaults.normalWorldRequiredObfuscateBlockIds = this
-				.convertMaterialsToIds(new Material[] { Material.STONE });
-	}
-
-	@Override
-	public ConfigDefaults getConfigDefaults() {
-		return this.configDefaults;
-	}
 
 	@Override
 	public void setMaxLoadedCacheFiles(int value) {
@@ -248,29 +186,6 @@ public class NmsManager implements INmsManager {
 		Chunk chunk = chunkProviderServer.getOrLoadChunkAt(chunkX, chunkZ);
 
 		return chunk != null ? chunk.getBlockData(new BlockPosition(x, y, z)) : null;
-	}
-
-	private Set<Integer> convertMaterialsToSet(Material[] materials) {
-		Set<Integer> ids = new HashSet<>();
-
-		for (Material material : materials) {
-			ids.addAll(this.getMaterialIds(material));
-		}
-
-		return ids;
-	}
-
-	private int[] convertMaterialsToIds(Material[] materials) {
-		Set<Integer> ids = this.convertMaterialsToSet(materials);
-
-		int[] result = new int[ids.size()];
-		int index = 0;
-
-		for (int id : ids) {
-			result[index++] = id;
-		}
-
-		return result;
 	}
 
 	@Override
