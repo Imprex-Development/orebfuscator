@@ -100,7 +100,7 @@ public class Orebfuscator extends JavaPlugin {
 				config.getCacheCleanRate());
 	}
 
-	public void loadOrebfuscatorConfig() {
+	public void checkIfConfigExist() {
 		Path path = this.getDataFolder().toPath().resolve("config.yml");
 
 		if (Files.notExists(path)) {
@@ -118,6 +118,10 @@ public class Orebfuscator extends JavaPlugin {
 				e.printStackTrace();
 			}
 		}
+	}
+
+	public void loadOrebfuscatorConfig() {
+		this.checkIfConfigExist();
 
 		if (config == null) {
 			config = new OrebfuscatorConfig();
@@ -139,6 +143,7 @@ public class Orebfuscator extends JavaPlugin {
 	}
 
 	public void reloadOrebfuscatorConfig() {
+		this.checkIfConfigExist();
 		this.reloadConfig();
 		this.loadOrebfuscatorConfig();
 	}
