@@ -29,9 +29,9 @@ public class BlockCoords {
 	}
 
 	public static BlockCoords fromLong(long value) {
-		int x = (int) (value >> offsetX & maskX);
-		int y = (int) (value & maskY);
-		int z = (int) (value >> offsetZ & maskZ);
+		int x = (int) (value << (64 - bitsPerX - offsetX) >> (64 - bitsPerX));
+		int y = (int) (value << (64 - bitsPerY - offsetY) >> (64 - bitsPerY));
+		int z = (int) (value << (64 - bitsPerZ - offsetZ) >> (64 - bitsPerZ));
 		return new BlockCoords(x, y, z);
 	}
 
