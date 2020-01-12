@@ -16,7 +16,6 @@
 
 package com.lishid.orebfuscator.obfuscation;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -26,22 +25,25 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 
-import com.lishid.orebfuscator.NmsInstance;
 import com.lishid.orebfuscator.Orebfuscator;
-import com.lishid.orebfuscator.cache.ObfuscatedCachedChunk;
-import com.lishid.orebfuscator.cache.ObfuscatedDataCache;
 import com.lishid.orebfuscator.config.ConfigManager;
 import com.lishid.orebfuscator.config.WorldConfig;
 import com.lishid.orebfuscator.nms.IBlockInfo;
 import com.lishid.orebfuscator.types.ChunkCoord;
 import com.lishid.orebfuscator.utils.Globals;
 
+import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.cache.ChunkCache;
+import net.imprex.orebfuscator.util.ChunkPosition;
+
 public class BlockUpdate {
 
 	private static ConfigManager configManager;
+	private static ChunkCache chunkCache;
 
 	public static void initialize(Orebfuscator orebfuscator) {
 		BlockUpdate.configManager = orebfuscator.getConfigManager();
+		BlockUpdate.chunkCache = orebfuscator.getChunkCache();
 	}
 
 	public static boolean needsUpdate(Block block) {
@@ -143,14 +145,8 @@ public class BlockUpdate {
 			return;
 		}
 
-		File cacheFolder = new File(ObfuscatedDataCache.getCacheFolder(), world.getName());
-
 		for (ChunkCoord chunk : invalidChunks) {
-			ObfuscatedCachedChunk cache = new ObfuscatedCachedChunk(cacheFolder, chunk.x, chunk.z);
-			cache.invalidate();
-
-			// Orebfuscator.log("Chunk x = " + chunk.x + ", z = " + chunk.z + " is
-			// invalidated");/*debug*/
+			BlockUpdate.chunkCache.invalidate(new ChunkPosition(world.getName(), chunk.x, chunk.z));
 		}
 	}
 

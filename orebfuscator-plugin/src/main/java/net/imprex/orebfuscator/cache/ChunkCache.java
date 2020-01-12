@@ -8,24 +8,28 @@ import java.util.function.Function;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalNotification;
+import com.lishid.orebfuscator.Orebfuscator;
+import com.lishid.orebfuscator.config.CacheConfig;
 
-import net.imprex.cache.HybridCache;
 import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class ChunkCache {
 
-	private static final HybridCache<ChunkPosition, ChunkCacheEntry> CACHE = new HybridCache<>(new ChunkCacheSerializer());
+	private final CacheConfig cacheConfig;
 
-	public static ChunkCacheEntry get(ChunkPosition key, Function<ChunkPosition, ChunkCacheEntry> mappingFunction) {
-		return CACHE.get(key, mappingFunction);
+	private final Cache<ChunkPosition, ChunkCacheEntry> cache;
+	private final ChunkCacheSerializer serializer;
+
+	public ChunkCache(Orebfuscator orebfuscator) {
+		this.cacheConfig = orebfuscator.getConfigManager().getConfig().getCacheConfig();
+
+		this.cache = CacheBuilder.newBuilder()
+				.maximumSize(this.cacheConfig.maximumSize())
+				.expireAfterAccess(this.cacheConfig.expireAfterAccess(), TimeUnit.SECONDS)
+				.removalListener(this::onRemoval).build();
+
+		this.serializer = new ChunkCacheSerializer(this.cacheConfig);
 	}
-
-	private final Cache<ChunkPosition, ChunkCacheEntry> cache = CacheBuilder.newBuilder()
-			.maximumSize(65_536L)
-			.expireAfterAccess(30, TimeUnit.SECONDS)
-			.removalListener(this::onRemoval).build();
-
-	private final ChunkCacheSerializer serializer = new ChunkCacheSerializer();
 
 	private void onRemoval(RemovalNotification<ChunkPosition, ChunkCacheEntry> notification) {
 		if (notification.wasEvicted()) {
@@ -46,7 +50,7 @@ public class ChunkCache {
 		return null;
 	}
 
-	public ChunkCacheEntry getd(ChunkPosition key, Function<ChunkPosition, ChunkCacheEntry> mappingFunction) {
+	public ChunkCacheEntry get(ChunkPosition key, Function<ChunkPosition, ChunkCacheEntry> mappingFunction) {
 		Objects.requireNonNull(mappingFunction);
 
 		ChunkCacheEntry cacheEntry = this.cache.getIfPresent(key);
@@ -60,7 +64,12 @@ public class ChunkCache {
 		return cacheEntry;
 	}
 
-	public void clear() {
+	public void invalidate(ChunkPosition key) {
+		this.cache.invalidate(key);
+	}
+
+	public void invalidateAll() {
 		this.cache.invalidateAll();
+		this.serializer.closeRegionFileCache(); // TODO move this to ChunkCache in nms
 	}
 }

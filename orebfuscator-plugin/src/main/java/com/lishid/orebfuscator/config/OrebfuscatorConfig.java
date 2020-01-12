@@ -17,6 +17,7 @@ public class OrebfuscatorConfig {
 	private int maxLoadedCacheFiles;
 	private String cacheLocation;
 	private int deleteCacheFilesAfterDays;
+	private CacheConfig cacheConfig;
 
 	// Main engine config
 	private boolean enabled;
@@ -40,6 +41,10 @@ public class OrebfuscatorConfig {
 	private static final int antiHitHackMaxViolation = 15;
 	private static final int proximityHiderRate = 500;
 	private static final long cacheCleanRate = 60 * 60 * 20;// once per hour
+
+	public CacheConfig getCacheConfig() {
+		return this.cacheConfig;
+	}
 
 	public boolean isUseCache() {
 		return this.useCache;

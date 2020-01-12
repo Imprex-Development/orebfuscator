@@ -1,88 +1,38 @@
-/**
- * @author lishid
- * @author Aleksey Terzi
- *
- */
-
 package net.imprex.orebfuscator.nms.v1_14_R1;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
-import java.util.HashMap;
+import java.io.IOException;
+import java.nio.file.Path;
 
-import com.lishid.orebfuscator.nms.IChunkCache;
-
+import net.imprex.orebfuscator.nms.AbstractChunkCache;
+import net.imprex.orebfuscator.util.ChunkPosition;
 import net.minecraft.server.v1_14_R1.ChunkCoordIntPair;
 import net.minecraft.server.v1_14_R1.RegionFile;
 
-public class ChunkCache implements IChunkCache {
+public class ChunkCache extends AbstractChunkCache<RegionFile> {
 
-	private static final HashMap<File, RegionFile> cachedRegionFiles = new HashMap<File, RegionFile>();
-
-	private final int maxLoadedCacheFiles;
-
-	public ChunkCache(int maxLoadedCacheFiles) {
-		this.maxLoadedCacheFiles = maxLoadedCacheFiles;
+	public ChunkCache(int maxSize) {
+		super(maxSize);
 	}
 
 	@Override
-	public DataInputStream getInputStream(File folder, int x, int z) {
-		RegionFile regionFile = this.getRegionFile(folder, x, z);
-		return regionFile.a(new ChunkCoordIntPair(x & 0x1F, z & 0x1F));
+	public DataInputStream getInputStream(Path path, ChunkPosition key) throws IOException {
+		return this.get(path).a(new ChunkCoordIntPair(key.getX(), key.getZ()));
 	}
 
 	@Override
-	public DataOutputStream getOutputStream(File folder, int x, int z) {
-		RegionFile regionFile = this.getRegionFile(folder, x, z);
-		return regionFile.c(new ChunkCoordIntPair(x & 0x1F, z & 0x1F));
+	public DataOutputStream getOutputStream(Path path, ChunkPosition key) throws IOException {
+		return this.get(path).c(new ChunkCoordIntPair(key.getX(), key.getZ()));
 	}
 
 	@Override
-	public void closeCacheFiles() {
-		this.closeCacheFilesInternal();
+	protected RegionFile create(Path path) throws IOException {
+		return new RegionFile(path.toFile());
 	}
 
-	private synchronized RegionFile getRegionFile(File folder, int x, int z) {
-		File path = new File(folder, "region");
-		File file = new File(path, "r." + (x >> 5) + "." + (z >> 5) + ".mcr");
-
-		try {
-			RegionFile regionFile = cachedRegionFiles.get(file);
-
-			if (regionFile != null) {
-				return regionFile;
-			}
-
-			if (!path.exists()) {
-				path.mkdirs();
-			}
-
-			if (cachedRegionFiles.size() >= this.maxLoadedCacheFiles) {
-				this.closeCacheFiles();
-			}
-
-			regionFile = new RegionFile(file);
-			cachedRegionFiles.put(file, regionFile);
-
-			return regionFile;
-		} catch (Exception e) {
-			try {
-				file.delete();
-			} catch (Exception e2) {
-			}
-		}
-		return null;
-	}
-
-	private synchronized void closeCacheFilesInternal() {
-		for (RegionFile regionFile : cachedRegionFiles.values()) {
-			try {
-				regionFile.close();
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-		cachedRegionFiles.clear();
+	@Override
+	protected void close(RegionFile t) throws IOException {
+		t.close();
 	}
 }

@@ -16,7 +16,6 @@
 
 package com.lishid.orebfuscator;
 
-import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -29,10 +28,10 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import com.lishid.orebfuscator.cache.CacheCleaner;
-import com.lishid.orebfuscator.cache.ObfuscatedDataCache;
 import com.lishid.orebfuscator.chunkmap.ChunkMapBuffer;
 import com.lishid.orebfuscator.commands.OrebfuscatorCommandExecutor;
 import com.lishid.orebfuscator.config.ConfigManager;
+import com.lishid.orebfuscator.config.OrebfuscatorConfig;
 import com.lishid.orebfuscator.hithack.BlockHitManager;
 import com.lishid.orebfuscator.hook.ProtocolLibHook;
 import com.lishid.orebfuscator.listeners.OrebfuscatorBlockListener;
@@ -43,6 +42,9 @@ import com.lishid.orebfuscator.obfuscation.Calculations;
 import com.lishid.orebfuscator.obfuscation.ProximityHider;
 import com.lishid.orebfuscator.utils.Globals;
 import com.lishid.orebfuscator.utils.MaterialHelper;
+
+import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.cache.ChunkCache;
 
 /**
  * Orebfuscator Anti X-RAY
@@ -69,6 +71,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 	}
 
 	private ConfigManager configManager;
+	private ChunkCache chunkCache;
 
 	@Override
 	public void onEnable() {
@@ -81,8 +84,6 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 				return;
 			}
 
-			NmsInstance.initialize();
-
 			MaterialHelper.initialize();
 			ChunkMapBuffer.initialize(NmsInstance.get().getBitsPerBlock());
 
@@ -90,21 +91,14 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 			this.configManager = new ConfigManager(this);
 			this.configManager.initialize();
 
-			ObfuscatedDataCache.initialize(this);
+			this.chunkCache = new ChunkCache(this);
+
 			BlockHitManager.initialize(this);
 			BlockUpdate.initialize(this);
 			Calculations.initialize(this);
 			ProximityHider.initialize(this);
 
-			ObfuscatedDataCache.resetCacheFolder();
 			NmsInstance.get().setMaxLoadedCacheFiles(this.configManager.getConfig().getMaxLoadedCacheFiles());
-
-			// Make sure cache is cleared if config was changed since last start
-			try {
-				ObfuscatedDataCache.checkCacheAndConfigSynchronized();
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 
 			// Register events
 			pluginManager.registerEvents(new OrebfuscatorPlayerListener(this), this);
@@ -137,7 +131,8 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 
 	@Override
 	public void onDisable() {
-		ObfuscatedDataCache.closeCacheFiles();
+		this.chunkCache.invalidateAll();
+
 		BlockHitManager.clearAll();
 
 		this.getServer().getScheduler().cancelTasks(this);
@@ -153,5 +148,13 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 
 	public ConfigManager getConfigManager() {
 		return this.configManager;
+	}
+
+	public OrebfuscatorConfig getOrebfuscatorConfig() {
+		return this.configManager.getConfig();
+	}
+
+	public ChunkCache getChunkCache() {
+		return chunkCache;
 	}
 }

@@ -16,7 +16,6 @@
 
 package com.lishid.orebfuscator.commands;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -31,14 +30,14 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import com.lishid.orebfuscator.NmsInstance;
 import com.lishid.orebfuscator.Orebfuscator;
-import com.lishid.orebfuscator.cache.ObfuscatedDataCache;
 import com.lishid.orebfuscator.config.ConfigManager;
 import com.lishid.orebfuscator.config.WorldConfig;
+import com.lishid.orebfuscator.utils.CommandSenderUtil;
 import com.lishid.orebfuscator.utils.Globals;
 import com.lishid.orebfuscator.utils.MaterialHelper;
-import com.lishid.orebfuscator.utils.CommandSenderUtil;
+
+import net.imprex.orebfuscator.NmsInstance;
 
 public class OrebfuscatorCommandExecutor implements CommandExecutor {
 
@@ -166,12 +165,9 @@ public class OrebfuscatorCommandExecutor implements CommandExecutor {
 		}
 
 		else if (args[0].equalsIgnoreCase("clearcache")) {
-			try {
-				ObfuscatedDataCache.clearCache();
-				CommandSenderUtil.sendMessage(sender, "Cache cleared.");
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+			// TODO delete file and memory cache
+			// ObfuscatedDataCache.clearCache();
+			CommandSenderUtil.sendMessage(sender, "Cache cleared.");
 
 			return true;
 		}

@@ -10,9 +10,10 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.lishid.orebfuscator.NmsInstance;
 import com.lishid.orebfuscator.utils.Globals;
 import com.lishid.orebfuscator.utils.MaterialHelper;
+
+import net.imprex.orebfuscator.NmsInstance;
 
 public class WorldConfig {
 

@@ -21,9 +21,10 @@ import org.bukkit.craftbukkit.v1_13_R1.util.CraftChatMessage;
 import org.bukkit.entity.Player;
 
 import com.lishid.orebfuscator.nms.IBlockInfo;
-import com.lishid.orebfuscator.nms.IChunkCache;
 import com.lishid.orebfuscator.nms.INmsManager;
 
+import net.imprex.orebfuscator.nms.AbstractChunkCache;
+import net.imprex.orebfuscator.nms.v1_13_R1.ChunkCache;
 import net.imprex.orebfuscator.util.BlockCoords;
 import net.minecraft.server.v1_13_R1.Block;
 import net.minecraft.server.v1_13_R1.BlockPosition;
@@ -81,7 +82,7 @@ public class NmsManager implements INmsManager {
 	}
 
 	@Override
-	public IChunkCache createChunkCache() {
+	public AbstractChunkCache<?> createChunkCache() {
 		return new ChunkCache(this.maxLoadedCacheFiles);
 	}
 

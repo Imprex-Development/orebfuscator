@@ -27,13 +27,13 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import com.lishid.orebfuscator.NmsInstance;
 import com.lishid.orebfuscator.Orebfuscator;
 import com.lishid.orebfuscator.config.ConfigManager;
 import com.lishid.orebfuscator.config.ProximityHiderConfig;
 import com.lishid.orebfuscator.config.WorldConfig;
 import com.lishid.orebfuscator.nms.IBlockInfo;
 
+import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.util.BlockCoords;
 
 public class ProximityHider extends Thread {
