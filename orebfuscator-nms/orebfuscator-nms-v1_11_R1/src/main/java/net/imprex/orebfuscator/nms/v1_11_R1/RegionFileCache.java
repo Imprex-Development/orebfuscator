@@ -1,18 +1,19 @@
-package net.imprex.orebfuscator.nms.v1_13_R2;
+package net.imprex.orebfuscator.nms.v1_11_R1;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import net.imprex.orebfuscator.nms.AbstractChunkCache;
+import net.imprex.orebfuscator.config.CacheConfig;
+import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.util.ChunkPosition;
-import net.minecraft.server.v1_13_R2.RegionFile;
+import net.minecraft.server.v1_11_R1.RegionFile;
 
-public class ChunkCache extends AbstractChunkCache<RegionFile> {
+public class RegionFileCache extends AbstractRegionFileCache<RegionFile> {
 
-	public ChunkCache(int maxSize) {
-		super(maxSize);
+	public RegionFileCache(CacheConfig cacheConfig) {
+		super(cacheConfig);
 	}
 
 	@Override
@@ -22,7 +23,7 @@ public class ChunkCache extends AbstractChunkCache<RegionFile> {
 
 	@Override
 	public DataOutputStream getOutputStream(Path path, ChunkPosition key) throws IOException {
-		return this.get(path).c(key.getX() & 0x1F, key.getZ() & 0x1F);
+		return this.get(path).b(key.getX() & 0x1F, key.getZ() & 0x1F);
 	}
 
 	@Override
@@ -32,6 +33,6 @@ public class ChunkCache extends AbstractChunkCache<RegionFile> {
 
 	@Override
 	protected void close(RegionFile t) throws IOException {
-		t.close();
+		t.c();
 	}
 }

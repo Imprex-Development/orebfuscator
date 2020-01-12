@@ -27,10 +27,11 @@ import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
 import com.google.common.collect.ImmutableList;
 import com.lishid.orebfuscator.nms.IBlockInfo;
-import com.lishid.orebfuscator.nms.INmsManager;
 
-import net.imprex.orebfuscator.nms.AbstractChunkCache;
-import net.imprex.orebfuscator.nms.v1_8_R3.ChunkCache;
+import net.imprex.orebfuscator.config.CacheConfig;
+import net.imprex.orebfuscator.nms.AbstractNmsManager;
+import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
+import net.imprex.orebfuscator.nms.v1_8_R3.RegionFileCache;
 import net.imprex.orebfuscator.util.BlockCoords;
 import net.minecraft.server.v1_8_R3.Block;
 import net.minecraft.server.v1_8_R3.BlockPosition;
@@ -43,24 +44,19 @@ import net.minecraft.server.v1_8_R3.PacketPlayOutBlockChange;
 import net.minecraft.server.v1_8_R3.TileEntity;
 import net.minecraft.server.v1_8_R3.WorldServer;
 
-public class NmsManager implements INmsManager {
+public class NmsManager extends AbstractNmsManager {
 
 	private final ProtocolManager protocolManager;
 
-	private int maxLoadedCacheFiles;
+	public NmsManager(CacheConfig cacheConfig) {
+		super(cacheConfig);
 
-	public NmsManager() {
 		this.protocolManager = ProtocolLibrary.getProtocolManager();
 	}
 
 	@Override
-	public void setMaxLoadedCacheFiles(int value) {
-		this.maxLoadedCacheFiles = value;
-	}
-
-	@Override
-	public AbstractChunkCache<?> createChunkCache() {
-		return new ChunkCache(this.maxLoadedCacheFiles);
+	public AbstractRegionFileCache<?> createRegionFileCache(CacheConfig cacheConfig) {
+		return new RegionFileCache(cacheConfig);
 	}
 
 	@Override

@@ -1,18 +1,19 @@
-package net.imprex.orebfuscator.nms.v1_8_R3;
+package net.imprex.orebfuscator.nms.v1_9_R2;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.file.Path;
 
-import net.imprex.orebfuscator.nms.AbstractChunkCache;
+import net.imprex.orebfuscator.config.CacheConfig;
+import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.util.ChunkPosition;
-import net.minecraft.server.v1_8_R3.RegionFile;
+import net.minecraft.server.v1_9_R2.RegionFile;
 
-public class ChunkCache extends AbstractChunkCache<RegionFile> {
+public class RegionFileCache extends AbstractRegionFileCache<RegionFile> {
 
-	public ChunkCache(int maxSize) {
-		super(maxSize);
+	public RegionFileCache(CacheConfig cacheConfig) {
+		super(cacheConfig);
 	}
 
 	@Override

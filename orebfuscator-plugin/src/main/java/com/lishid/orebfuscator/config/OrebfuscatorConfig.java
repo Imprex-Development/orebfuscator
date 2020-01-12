@@ -11,6 +11,8 @@ import org.bukkit.entity.Player;
 
 import com.lishid.orebfuscator.Orebfuscator;
 
+import net.imprex.orebfuscator.config.CacheConfig;
+
 public class OrebfuscatorConfig {
 	// Caching
 	private boolean useCache;

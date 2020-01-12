@@ -84,6 +84,9 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 				return;
 			}
 
+			// TODO will always throw nullpointerexc
+			NmsInstance.initialize(this.configManager.getConfig());
+
 			MaterialHelper.initialize();
 			ChunkMapBuffer.initialize(NmsInstance.get().getBitsPerBlock());
 
@@ -97,8 +100,6 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 			BlockUpdate.initialize(this);
 			Calculations.initialize(this);
 			ProximityHider.initialize(this);
-
-			NmsInstance.get().setMaxLoadedCacheFiles(this.configManager.getConfig().getMaxLoadedCacheFiles());
 
 			// Register events
 			pluginManager.registerEvents(new OrebfuscatorPlayerListener(this), this);

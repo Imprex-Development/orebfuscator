@@ -11,16 +11,18 @@ import java.util.Objects;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.util.ChunkPosition;
 
-public abstract class AbstractChunkCache<T> {
+public abstract class AbstractRegionFileCache<T> {
 
 	protected final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 	protected final Map<Path, T> regionFiles = new HashMap<>();
-	protected final int maxSize;
 
-	public AbstractChunkCache(int maxSize) {
-		this.maxSize = maxSize;
+	protected final CacheConfig cacheConfig;
+
+	public AbstractRegionFileCache(CacheConfig cacheConfig) {
+		this.cacheConfig = cacheConfig;
 	}
 
 	public abstract DataInputStream getInputStream(Path path, ChunkPosition key) throws IOException;
@@ -46,8 +48,8 @@ public abstract class AbstractChunkCache<T> {
 			Files.createDirectories(path.getParent());
 		}
 
-		if (this.regionFiles.size() >= this.maxSize) {
-			this.close();
+		if (this.regionFiles.size() >= this.cacheConfig.maximumOpenRegionFiles()) {
+			this.clear();
 		}
 
 		T t = Objects.requireNonNull(this.create(path));
@@ -61,7 +63,7 @@ public abstract class AbstractChunkCache<T> {
 		}
 	}
 
-	public final void close() {
+	public final void clear() {
 		this.lock.writeLock().lock();
 		try {
 			for (T t : this.regionFiles.values()) {

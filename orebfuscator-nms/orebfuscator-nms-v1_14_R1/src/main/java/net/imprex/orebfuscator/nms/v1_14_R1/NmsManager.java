@@ -21,10 +21,11 @@ import org.bukkit.craftbukkit.v1_14_R1.util.CraftChatMessage;
 import org.bukkit.entity.Player;
 
 import com.lishid.orebfuscator.nms.IBlockInfo;
-import com.lishid.orebfuscator.nms.INmsManager;
 import com.lishid.orebfuscator.types.BlockCoord;
 
-import net.imprex.orebfuscator.nms.AbstractChunkCache;
+import net.imprex.orebfuscator.config.CacheConfig;
+import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
+import net.imprex.orebfuscator.nms.AbstractNmsManager;
 import net.imprex.orebfuscator.util.BlockCoords;
 import net.minecraft.server.v1_14_R1.Block;
 import net.minecraft.server.v1_14_R1.BlockPosition;
@@ -35,16 +36,17 @@ import net.minecraft.server.v1_14_R1.IChatBaseComponent;
 import net.minecraft.server.v1_14_R1.Packet;
 import net.minecraft.server.v1_14_R1.TileEntity;
 
-public class NmsManager implements INmsManager {
+public class NmsManager extends AbstractNmsManager {
 
 	private final int BLOCK_ID_CAVE_AIR;
 	private final Set<Integer> BLOCK_ID_AIRS;
 	private final Set<Integer> BLOCK_ID_SIGNS;
 
-	private int maxLoadedCacheFiles;
 	private HashMap<Material, Set<Integer>> materialIds;
 
-	public NmsManager() {
+	public NmsManager(CacheConfig cacheConfig) {
+		super(cacheConfig);
+
 		this.initBlockIds();
 
 		this.BLOCK_ID_CAVE_AIR = this.getMaterialIds(Material.CAVE_AIR).iterator().next();
@@ -77,13 +79,8 @@ public class NmsManager implements INmsManager {
 	}
 
 	@Override
-	public void setMaxLoadedCacheFiles(int value) {
-		this.maxLoadedCacheFiles = value;
-	}
-
-	@Override
-	public AbstractChunkCache<?> createChunkCache() {
-		return new ChunkCache(this.maxLoadedCacheFiles);
+	protected AbstractRegionFileCache<?> createRegionFileCache(CacheConfig cacheConfig) {
+		return new RegionFileCache(cacheConfig);
 	}
 
 	public void updateBlockTileEntity(BlockCoord blockCoord, Player player) {

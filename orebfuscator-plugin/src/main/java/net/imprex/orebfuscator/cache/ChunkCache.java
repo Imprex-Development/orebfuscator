@@ -9,8 +9,8 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalNotification;
 import com.lishid.orebfuscator.Orebfuscator;
-import com.lishid.orebfuscator.config.CacheConfig;
 
+import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class ChunkCache {
