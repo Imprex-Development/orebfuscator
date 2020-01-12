@@ -16,6 +16,12 @@
 
 package com.lishid.orebfuscator.commands;
 
+import java.io.IOException;
+import java.nio.file.FileVisitResult;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.SimpleFileVisitor;
+import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -165,9 +171,21 @@ public class OrebfuscatorCommandExecutor implements CommandExecutor {
 		}
 
 		else if (args[0].equalsIgnoreCase("clearcache")) {
-			// TODO delete file and memory cache
-			// ObfuscatedDataCache.clearCache();
-			CommandSenderUtil.sendMessage(sender, "Cache cleared.");
+			this.orebfuscator.getChunkCache().invalidateAll();
+			NmsInstance.get().getRegionFileCache().clear();
+			try {
+				Files.walkFileTree(this.configManager.getConfig().getCacheConfig().baseDirectory(), new SimpleFileVisitor<Path>() {
+					@Override
+					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+						Files.deleteIfExists(file);
+						return FileVisitResult.CONTINUE;
+					}
+				});
+
+				CommandSenderUtil.sendMessage(sender, "Cache cleared.");
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 
 			return true;
 		}

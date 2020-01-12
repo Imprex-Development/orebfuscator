@@ -10,6 +10,8 @@ import java.util.concurrent.TimeUnit;
 
 import com.lishid.orebfuscator.config.ConfigManager;
 
+import net.imprex.orebfuscator.NmsInstance;
+
 public class CacheCleaner implements Runnable {
 
 	private final ConfigManager configManager;
@@ -25,7 +27,8 @@ public class CacheCleaner implements Runnable {
 			return;
 		}
 
-		// TODO close all RegionFiles before deleting them
+		// TODO only closed the ones to old
+		NmsInstance.get().getRegionFileCache().clear();
 
 		long deleteAfterMillis = TimeUnit.DAYS.toMillis(deleteAfterDays);
 		try {

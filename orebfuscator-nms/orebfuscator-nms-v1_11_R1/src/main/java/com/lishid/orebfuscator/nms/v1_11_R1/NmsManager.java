@@ -43,7 +43,7 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public AbstractRegionFileCache<?> createRegionFileCache(CacheConfig cacheConfig) {
+	protected AbstractRegionFileCache<?> createRegionFileCache(CacheConfig cacheConfig) {
 		return new RegionFileCache(cacheConfig);
 	}
 

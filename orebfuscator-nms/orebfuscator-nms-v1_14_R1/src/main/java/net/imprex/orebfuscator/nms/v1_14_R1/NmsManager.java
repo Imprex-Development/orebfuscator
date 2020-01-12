@@ -21,11 +21,10 @@ import org.bukkit.craftbukkit.v1_14_R1.util.CraftChatMessage;
 import org.bukkit.entity.Player;
 
 import com.lishid.orebfuscator.nms.IBlockInfo;
-import com.lishid.orebfuscator.types.BlockCoord;
 
 import net.imprex.orebfuscator.config.CacheConfig;
-import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
+import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.util.BlockCoords;
 import net.minecraft.server.v1_14_R1.Block;
 import net.minecraft.server.v1_14_R1.BlockPosition;
@@ -83,24 +82,7 @@ public class NmsManager extends AbstractNmsManager {
 		return new RegionFileCache(cacheConfig);
 	}
 
-	public void updateBlockTileEntity(BlockCoord blockCoord, Player player) {
-		try {
-			CraftWorld world = (CraftWorld) player.getWorld();
-			TileEntity tileEntity = world.getHandle()
-					.getTileEntity(new BlockPosition(blockCoord.x, blockCoord.y, blockCoord.z));
-
-			if (tileEntity == null) {
-				return;
-			}
-
-			Packet<?> packet = tileEntity.getUpdatePacket();
-			if (packet != null) {
-				((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
-			}
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-	}
+	
 
 	@Override
 	public void notifyBlockChange(World world, IBlockInfo blockInfo) {

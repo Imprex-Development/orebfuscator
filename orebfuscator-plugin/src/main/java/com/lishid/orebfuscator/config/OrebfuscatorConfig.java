@@ -5,8 +5,11 @@
 
 package com.lishid.orebfuscator.config;
 
+import java.nio.file.Path;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.lishid.orebfuscator.Orebfuscator;
@@ -19,7 +22,33 @@ public class OrebfuscatorConfig {
 	private int maxLoadedCacheFiles;
 	private String cacheLocation;
 	private int deleteCacheFilesAfterDays;
-	private CacheConfig cacheConfig;
+	private CacheConfig cacheConfig = new CacheConfig() {
+		
+		@Override
+		public int maximumSize() {
+			return 2048;
+		}
+		
+		@Override
+		public int maximumOpenRegionFiles() {
+			return 256;
+		}
+		
+		@Override
+		public long expireAfterAccess() {
+			return TimeUnit.DAYS.toMillis(2);
+		}
+		
+		@Override
+		public boolean enabled() {
+			return true;
+		}
+		
+		@Override
+		public Path baseDirectory() {
+			return Bukkit.getWorldContainer().toPath().resolve("orebfuscator_cache");
+		}
+	};
 
 	// Main engine config
 	private boolean enabled;

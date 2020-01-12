@@ -50,6 +50,17 @@ public class ConfigManager {
 		this.load();
 	}
 
+	public void postInitialize() {
+		this.orebfuscatorConfig.setTransparentBlocks(this.generateTransparentBlocks(this.orebfuscatorConfig.getEngineMode()));
+
+		new WorldReader(this.plugin, Orebfuscator.LOGGER, this.orebfuscatorConfig, this.materialReader).load();
+
+		this.orebfuscatorConfig.setProximityHiderEnabled();
+
+		Orebfuscator.LOGGER.info(Globals.LOG_PREFIX + "Proximity Hider is "
+				+ (this.orebfuscatorConfig.isProximityHiderEnabled() ? "Enabled" : "Disabled"));
+	}
+
 	public void load() {
 		if (this.orebfuscatorConfig == null) {
 			this.orebfuscatorConfig = new OrebfuscatorConfig();
@@ -86,7 +97,6 @@ public class ConfigManager {
 		boolean noObfuscationForOps = this.getBoolean("Booleans.NoObfuscationForOps", false);
 		boolean noObfuscationForPermission = this.getBoolean("Booleans.NoObfuscationForPermission", false);
 		boolean loginNotification = this.getBoolean("Booleans.LoginNotification", true);
-		byte[] transparentBlocks = this.generateTransparentBlocks(engineMode);
 
 		this.orebfuscatorConfig.setUseCache(useCache);
 		this.orebfuscatorConfig.setMaxLoadedCacheFiles(maxLoadedCacheFiles);
@@ -102,14 +112,6 @@ public class ConfigManager {
 		this.orebfuscatorConfig.setNoObfuscationForOps(noObfuscationForOps);
 		this.orebfuscatorConfig.setNoObfuscationForPermission(noObfuscationForPermission);
 		this.orebfuscatorConfig.setLoginNotification(loginNotification);
-		this.orebfuscatorConfig.setTransparentBlocks(transparentBlocks);
-
-		new WorldReader(this.plugin, Orebfuscator.LOGGER, this.orebfuscatorConfig, this.materialReader).load();
-
-		this.orebfuscatorConfig.setProximityHiderEnabled();
-
-		Orebfuscator.LOGGER.info(Globals.LOG_PREFIX + "Proximity Hider is "
-				+ (this.orebfuscatorConfig.isProximityHiderEnabled() ? "Enabled" : "Disabled"));
 
 		this.save();
 	}
@@ -134,6 +136,10 @@ public class ConfigManager {
 				}
 
 				String configVersion = matcher.group(1) + "." + matcher.group(2);
+
+				if (Files.notExists(path.getParent())) {
+					Files.createDirectories(path.getParent());
+				}
 
 				Files.copy(Orebfuscator.class.getResourceAsStream("/resources/config-" + configVersion + ".yml"), path);
 			} catch (IOException e) {

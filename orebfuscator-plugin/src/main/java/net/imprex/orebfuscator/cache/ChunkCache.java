@@ -31,6 +31,7 @@ public class ChunkCache {
 		this.serializer = new ChunkCacheSerializer(this.cacheConfig);
 	}
 
+	// TODO make sure onDisable also gets saved to disk
 	private void onRemoval(RemovalNotification<ChunkPosition, ChunkCacheEntry> notification) {
 		if (notification.wasEvicted()) {
 			try {
@@ -50,7 +51,7 @@ public class ChunkCache {
 		return null;
 	}
 
-	public ChunkCacheEntry get(ChunkPosition key, Function<ChunkPosition, ChunkCacheEntry> mappingFunction) {
+	public ChunkCacheEntry get(ChunkPosition key, long hash, Function<ChunkPosition, ChunkCacheEntry> mappingFunction) {
 		Objects.requireNonNull(mappingFunction);
 
 		ChunkCacheEntry cacheEntry = this.cache.getIfPresent(key);
@@ -61,6 +62,12 @@ public class ChunkCache {
 			}
 			this.cache.put(key, Objects.requireNonNull(cacheEntry));
 		}
+
+		// TODO check if engine mode is same
+		if (cacheEntry.getHash() != hash) {
+			cacheEntry = mappingFunction.apply(key);
+		}
+
 		return cacheEntry;
 	}
 
@@ -70,6 +77,5 @@ public class ChunkCache {
 
 	public void invalidateAll() {
 		this.cache.invalidateAll();
-		this.serializer.closeRegionFileCache(); // TODO move this to ChunkCache in nms
 	}
 }

@@ -36,10 +36,6 @@ public class ChunkCacheSerializer {
 		return REGION_CHUNK_CACHE.getOutputStream(getPath(key), key);
 	}
 
-	public void closeRegionFileCache() {
-		REGION_CHUNK_CACHE.clear();
-	}
-
 	public ChunkCacheEntry read(ChunkPosition key) throws IOException {
 		try (DataInputStream dataInputStream = this.getInputStream(key)) {
 			if (dataInputStream != null) {
