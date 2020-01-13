@@ -44,7 +44,6 @@ import net.imprex.orebfuscator.cache.ChunkCacheEntry;
 import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.util.BlockCoords;
 import net.imprex.orebfuscator.util.ChunkPosition;
-import net.imprex.orebfuscator.util.EngineMode;
 
 public class Calculations {
 
@@ -75,7 +74,7 @@ public class Calculations {
 		try {
 			byte[] data = obfuscate(worldConfig, chunkData, player, proximityBlocks, removedEntities);
 
-			ChunkCacheEntry chunkCacheEntry = new ChunkCacheEntry(hash, EngineMode.values()[Calculations.config.getEngineMode()], data);
+			ChunkCacheEntry chunkCacheEntry = new ChunkCacheEntry(hash, data);
 			chunkCacheEntry.getProximityBlocks().addAll(proximityBlocks);
 			chunkCacheEntry.getRemovedEntities().addAll(removedEntities);
 			return chunkCacheEntry;

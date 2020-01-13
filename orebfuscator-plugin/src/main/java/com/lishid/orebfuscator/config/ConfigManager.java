@@ -72,10 +72,6 @@ public class ConfigManager {
 			throw new RuntimeException("Current config is not up to date, please delete your config");
 		}
 
-		boolean useCache = this.getBoolean("Booleans.UseCache", true);
-		int maxLoadedCacheFiles = this.getInt("Integers.MaxLoadedCacheFiles", 64, 16, 128);
-		String cacheLocation = this.getString("Strings.CacheLocation", "orebfuscator_cache");
-		int deleteCacheFilesAfterDays = this.getInt("Integers.DeleteCacheFilesAfterDays", 0);
 		boolean enabled = this.getBoolean("Booleans.Enabled", true);
 		boolean updateOnDamage = this.getBoolean("Booleans.UpdateOnDamage", true);
 
@@ -98,10 +94,6 @@ public class ConfigManager {
 		boolean noObfuscationForPermission = this.getBoolean("Booleans.NoObfuscationForPermission", false);
 		boolean loginNotification = this.getBoolean("Booleans.LoginNotification", true);
 
-		this.orebfuscatorConfig.setUseCache(useCache);
-		this.orebfuscatorConfig.setMaxLoadedCacheFiles(maxLoadedCacheFiles);
-		this.orebfuscatorConfig.setCacheLocation(cacheLocation);
-		this.orebfuscatorConfig.setDeleteCacheFilesAfterDays(deleteCacheFilesAfterDays);
 		this.orebfuscatorConfig.setEnabled(enabled);
 		this.orebfuscatorConfig.setUpdateOnDamage(updateOnDamage);
 		this.orebfuscatorConfig.setEngineMode(engineMode);
@@ -182,12 +174,6 @@ public class ConfigManager {
 		this.getPluginConfig().set("Booleans.LoginNotification", value);
 		this.save();
 		this.orebfuscatorConfig.setLoginNotification(value);
-	}
-
-	public void setUseCache(boolean value) {
-		this.getPluginConfig().set("Booleans.UseCache", value);
-		this.save();
-		this.orebfuscatorConfig.setUseCache(value);
 	}
 
 	public void setEnabled(boolean value) {

@@ -17,11 +17,7 @@ import com.lishid.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.config.CacheConfig;
 
 public class OrebfuscatorConfig {
-	// Caching
-	private boolean useCache;
-	private int maxLoadedCacheFiles;
-	private String cacheLocation;
-	private int deleteCacheFilesAfterDays;
+
 	private CacheConfig cacheConfig = new CacheConfig() {
 		
 		@Override
@@ -33,10 +29,15 @@ public class OrebfuscatorConfig {
 		public int maximumOpenRegionFiles() {
 			return 256;
 		}
+	
+		@Override
+		public long deleteRegionFilesAfterAccess() {
+			return TimeUnit.DAYS.toMillis(2);
+		}
 		
 		@Override
 		public long expireAfterAccess() {
-			return TimeUnit.DAYS.toMillis(2);
+			return TimeUnit.SECONDS.toMillis(30);
 		}
 		
 		@Override
@@ -75,38 +76,6 @@ public class OrebfuscatorConfig {
 
 	public CacheConfig getCacheConfig() {
 		return this.cacheConfig;
-	}
-
-	public boolean isUseCache() {
-		return this.useCache;
-	}
-
-	public void setUseCache(boolean value) {
-		this.useCache = value;
-	}
-
-	public int getMaxLoadedCacheFiles() {
-		return this.maxLoadedCacheFiles;
-	}
-
-	public void setMaxLoadedCacheFiles(int value) {
-		this.maxLoadedCacheFiles = value;
-	}
-
-	public String getCacheLocation() {
-		return this.cacheLocation;
-	}
-
-	public void setCacheLocation(String value) {
-		this.cacheLocation = value;
-	}
-
-	public int getDeleteCacheFilesAfterDays() {
-		return this.deleteCacheFilesAfterDays;
-	}
-
-	public void setDeleteCacheFilesAfterDays(int value) {
-		this.deleteCacheFilesAfterDays = value;
 	}
 
 	public boolean isEnabled() {

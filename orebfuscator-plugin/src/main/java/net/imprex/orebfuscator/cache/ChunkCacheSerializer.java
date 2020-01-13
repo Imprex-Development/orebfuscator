@@ -10,7 +10,6 @@ import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.util.BlockCoords;
 import net.imprex.orebfuscator.util.ChunkPosition;
-import net.imprex.orebfuscator.util.EngineMode;
 
 public class ChunkCacheSerializer {
 
@@ -37,12 +36,11 @@ public class ChunkCacheSerializer {
 		try (DataInputStream dataInputStream = this.getInputStream(key)) {
 			if (dataInputStream != null) {
 				long hash = dataInputStream.readLong();
-				EngineMode engineMode = EngineMode.values()[dataInputStream.readByte()];
 
 				byte[] data = new byte[dataInputStream.readInt()];
 				dataInputStream.readFully(data);
 
-				ChunkCacheEntry chunkCacheEntry = new ChunkCacheEntry(hash, engineMode, data);
+				ChunkCacheEntry chunkCacheEntry = new ChunkCacheEntry(hash, data);
 
 				List<BlockCoords> proximityBlocks = chunkCacheEntry.getProximityBlocks();
 				for (int i = dataInputStream.readInt(); i > 0; i--) {
@@ -65,7 +63,6 @@ public class ChunkCacheSerializer {
 	public void write(ChunkPosition key, ChunkCacheEntry value) throws IOException {
 		try (DataOutputStream dataOutputStream = this.getOutputStream(key)) {
 			dataOutputStream.writeLong(value.getHash());
-			dataOutputStream.writeByte(value.getEngineMode().ordinal());
 
 			byte[] data = value.getData();
 			dataOutputStream.writeInt(data.length);

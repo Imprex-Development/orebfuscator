@@ -144,7 +144,7 @@ public class BlockUpdate {
 	}
 
 	private static void invalidateCachedChunks(Set<ChunkPosition> invalidChunks) {
-		if (invalidChunks.isEmpty() || !BlockUpdate.configManager.getConfig().isUseCache()) {
+		if (invalidChunks.isEmpty() || !BlockUpdate.configManager.getConfig().getCacheConfig().enabled()) {
 			return;
 		}
 

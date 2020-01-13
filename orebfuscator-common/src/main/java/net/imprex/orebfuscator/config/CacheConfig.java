@@ -11,6 +11,8 @@ public interface CacheConfig {
 
 	int maximumOpenRegionFiles();
 
+	long deleteRegionFilesAfterAccess();
+
 	int maximumSize();
 
 	long expireAfterAccess();

@@ -134,11 +134,11 @@ public class OrebfuscatorCommandExecutor implements CommandExecutor {
 					this.configManager.setNoObfuscationForPermission(data);
 					CommandSenderUtil.sendMessage(sender, "Permissions No-Obfuscation " + (data ? "enabled" : "disabled") + ".");
 					return true;
-				} else if (args[1].equalsIgnoreCase("cache")) {
+				} else /*if (args[1].equalsIgnoreCase("cache")) {
 					this.configManager.setUseCache(data);
 					CommandSenderUtil.sendMessage(sender, "Cache " + (data ? "enabled" : "disabled") + ".");
 					return true;
-				} else if (args[1].equalsIgnoreCase("notification")) {
+				} else*/ if (args[1].equalsIgnoreCase("notification")) {
 					this.configManager.setLoginNotification(data);
 					CommandSenderUtil.sendMessage(sender, "Login Notification " + (data ? "enabled" : "disabled") + ".");
 					return true;
@@ -157,7 +157,7 @@ public class OrebfuscatorCommandExecutor implements CommandExecutor {
 					"Orebfuscator " + this.orebfuscator.getDescription().getVersion());
 			CommandSenderUtil.sendMessage(sender, "Engine Mode: " + this.configManager.getConfig().getEngineMode());
 
-			CommandSenderUtil.sendMessage(sender, "Caching: " + (this.configManager.getConfig().isUseCache() ? "Enabled" : "Disabled"));
+			// CommandSenderUtil.sendMessage(sender, "Caching: " + (this.configManager.getConfig().isUseCache() ? "Enabled" : "Disabled"));
 			CommandSenderUtil.sendMessage(sender,
 					"ProximityHider: " + (this.configManager.getConfig().isProximityHiderEnabled() ? "Enabled" : "Disabled"));
 

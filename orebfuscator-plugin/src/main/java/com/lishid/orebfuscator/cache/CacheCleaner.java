@@ -23,7 +23,7 @@ public class CacheCleaner implements Runnable {
 
 	@Override
 	public void run() {
-		int deleteAfterDays = this.configManager.getConfig().getDeleteCacheFilesAfterDays();
+		long deleteAfterDays = this.configManager.getConfig().getCacheConfig().deleteRegionFilesAfterAccess();
 		if (!this.configManager.getConfig().isEnabled() || deleteAfterDays <= 0) {
 			return;
 		}
