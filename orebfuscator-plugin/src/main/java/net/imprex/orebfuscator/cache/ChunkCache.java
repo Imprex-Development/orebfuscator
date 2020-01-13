@@ -31,7 +31,6 @@ public class ChunkCache {
 		this.serializer = new ChunkCacheSerializer(this.cacheConfig);
 	}
 
-	// TODO make sure onDisable also gets saved to disk
 	private void onRemoval(RemovalNotification<ChunkPosition, ChunkCacheEntry> notification) {
 		if (notification.wasEvicted()) {
 			try {
@@ -75,7 +74,18 @@ public class ChunkCache {
 		this.cache.invalidate(key);
 	}
 
-	public void invalidateAll() {
-		this.cache.invalidateAll();
+	public void invalidateAll(boolean save) {
+		if (save) {
+			this.cache.asMap().entrySet().removeIf(entry -> {
+				try {
+					this.serializer.write(entry.getKey(), entry.getValue());
+				} catch (IOException e) {
+					e.printStackTrace();
+				}
+				return true;
+			});
+		} else {
+			this.cache.invalidateAll();
+		}
 	}
 }

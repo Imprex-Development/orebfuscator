@@ -135,7 +135,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 	@Override
 	public void onDisable() {
 		NmsInstance.get().getRegionFileCache().clear();
-		this.chunkCache.invalidateAll();
+		this.chunkCache.invalidateAll(true);
 
 		BlockHitManager.clearAll();
 

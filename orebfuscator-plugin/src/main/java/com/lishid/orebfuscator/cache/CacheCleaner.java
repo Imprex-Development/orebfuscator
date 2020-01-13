@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import com.lishid.orebfuscator.config.ConfigManager;
 
 import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 
 public class CacheCleaner implements Runnable {
 
@@ -27,16 +28,16 @@ public class CacheCleaner implements Runnable {
 			return;
 		}
 
-		// TODO only closed the ones to old
-		NmsInstance.get().getRegionFileCache().clear();
-
+		AbstractRegionFileCache<?> regionFileCache = NmsInstance.get().getRegionFileCache();
 		long deleteAfterMillis = TimeUnit.DAYS.toMillis(deleteAfterDays);
+
 		try {
 			Files.walkFileTree(this.configManager.getConfig().getCacheConfig().baseDirectory(), new SimpleFileVisitor<Path>() {
 
 				@Override
 				public FileVisitResult visitFile(Path path, BasicFileAttributes attributes) throws IOException {
 					if (System.currentTimeMillis() - attributes.lastAccessTime().toMillis() > deleteAfterMillis) {
+						regionFileCache.close(path);
 						Files.delete(path);
 					}
 					return FileVisitResult.CONTINUE;

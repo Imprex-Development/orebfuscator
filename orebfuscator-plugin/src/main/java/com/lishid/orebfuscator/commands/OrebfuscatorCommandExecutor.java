@@ -171,12 +171,12 @@ public class OrebfuscatorCommandExecutor implements CommandExecutor {
 		}
 
 		else if (args[0].equalsIgnoreCase("clearcache")) {
-			this.orebfuscator.getChunkCache().invalidateAll();
-			NmsInstance.get().getRegionFileCache().clear();
+			this.orebfuscator.getChunkCache().invalidateAll(false);
 			try {
 				Files.walkFileTree(this.configManager.getConfig().getCacheConfig().baseDirectory(), new SimpleFileVisitor<Path>() {
 					@Override
 					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
+						NmsInstance.get().getRegionFileCache().close(file);
 						Files.deleteIfExists(file);
 						return FileVisitResult.CONTINUE;
 					}

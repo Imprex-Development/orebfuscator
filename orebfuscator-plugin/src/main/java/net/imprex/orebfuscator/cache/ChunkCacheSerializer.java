@@ -8,14 +8,11 @@ import java.util.List;
 
 import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.config.CacheConfig;
-import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.util.BlockCoords;
 import net.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.util.EngineMode;
 
 public class ChunkCacheSerializer {
-
-	private static final AbstractRegionFileCache<?> REGION_CHUNK_CACHE = NmsInstance.get().getRegionFileCache();
 
 	private final CacheConfig cacheConfig;
 
@@ -29,11 +26,11 @@ public class ChunkCacheSerializer {
 	}
 
 	private DataInputStream getInputStream(ChunkPosition key) throws IOException {
-		return REGION_CHUNK_CACHE.getInputStream(getPath(key), key);
+		return NmsInstance.get().getRegionFileCache().getInputStream(getPath(key), key);
 	}
 
 	private DataOutputStream getOutputStream(ChunkPosition key) throws IOException {
-		return REGION_CHUNK_CACHE.getOutputStream(getPath(key), key);
+		return NmsInstance.get().getRegionFileCache().getOutputStream(getPath(key), key);
 	}
 
 	public ChunkCacheEntry read(ChunkPosition key) throws IOException {
