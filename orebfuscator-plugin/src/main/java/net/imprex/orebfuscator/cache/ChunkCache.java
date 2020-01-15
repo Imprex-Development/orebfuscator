@@ -25,7 +25,7 @@ public class ChunkCache {
 
 		this.cache = CacheBuilder.newBuilder()
 				.maximumSize(this.cacheConfig.maximumSize())
-				.expireAfterAccess(this.cacheConfig.expireAfterAccess(), TimeUnit.SECONDS)
+				.expireAfterAccess(this.cacheConfig.expireAfterAccess(), TimeUnit.MILLISECONDS)
 				.removalListener(this::onRemoval).build();
 
 		this.serializer = new ChunkCacheSerializer(this.cacheConfig);
