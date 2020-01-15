@@ -66,7 +66,7 @@ public class OrebfuscatorCommandExecutor implements CommandExecutor {
 			return false;
 		}
 
-		if (args[0].equalsIgnoreCase("engine") && args.length > 1) {
+		/*if (args[0].equalsIgnoreCase("engine") && args.length > 1) {
 			int engine = this.configManager.getConfig().getEngineMode();
 			try {
 				engine = new Integer(args[1]);
@@ -82,7 +82,7 @@ public class OrebfuscatorCommandExecutor implements CommandExecutor {
 				CommandSenderUtil.sendMessage(sender, "Engine set to: " + engine);
 				return true;
 			}
-		}
+		}*/
 
 		else if (args[0].equalsIgnoreCase("updateradius") && args.length > 1) {
 			int radius = this.configManager.getConfig().getUpdateRadius();
@@ -155,7 +155,7 @@ public class OrebfuscatorCommandExecutor implements CommandExecutor {
 		else if (args[0].equalsIgnoreCase("status")) {
 			CommandSenderUtil.sendMessage(sender,
 					"Orebfuscator " + this.orebfuscator.getDescription().getVersion());
-			CommandSenderUtil.sendMessage(sender, "Engine Mode: " + this.configManager.getConfig().getEngineMode());
+//			CommandSenderUtil.sendMessage(sender, "Engine Mode: " + this.configManager.getConfig().getEngineMode());
 
 			// CommandSenderUtil.sendMessage(sender, "Caching: " + (this.configManager.getConfig().isUseCache() ? "Enabled" : "Disabled"));
 			CommandSenderUtil.sendMessage(sender,

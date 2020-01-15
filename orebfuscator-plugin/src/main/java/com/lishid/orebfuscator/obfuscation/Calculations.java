@@ -142,7 +142,7 @@ public class Calculations {
 		int randomIncrement2 = 0;
 		int randomCave = 0;
 
-		int engineMode = Calculations.configManager.getConfig().getEngineMode();
+//		int engineMode = Calculations.configManager.getConfig().getEngineMode();
 		int maxChance = worldConfig.getAirGeneratorMaxChance();
 
 		int randomBlocksLength = worldConfig.getRandomBlocks().length;
@@ -221,10 +221,10 @@ public class Calculations {
 									// Proximity hider
 									blockData = proximityHider.getSpecialBlockID();
 								} else {
-									if (engineMode == 1) {
+//									if (engineMode == 1) {
 										// Engine mode 1, replace with stone
-										blockData = worldConfig.getMode1BlockId();
-									} else if (engineMode == 2) {
+//										blockData = worldConfig.getMode1BlockId();
+//									} else if (engineMode == 2) {
 										// Ending mode 2, replace with random block
 										if (randomBlocksLength > 1) {
 											randomIncrement = CalculationsUtil.increment(randomIncrement,
@@ -233,7 +233,7 @@ public class Calculations {
 
 										blockData = worldConfig.getRandomBlock(randomIncrement, randomAlternate);
 										randomAlternate = !randomAlternate;
-									}
+//									}
 									// Anti texturepack and freecam
 									if (worldConfig.isAntiTexturePackAndFreecam()) {
 										// Add random air blocks
