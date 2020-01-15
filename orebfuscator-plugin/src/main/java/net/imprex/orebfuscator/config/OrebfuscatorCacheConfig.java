@@ -38,14 +38,16 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 		try {
 			this.baseDirectory = worldPath.resolve(baseDirectory).normalize();
 		} catch (InvalidPathException e) {
-			Orebfuscator.LOGGER.warning("'" + section.getCurrentPath() + ".baseDirectory': contains malformed path '"
-					+ baseDirectory + "' using default: '" + defaultPath + "'");
+			Orebfuscator.LOGGER
+					.warning("config path '" + section.getCurrentPath() + ".baseDirectory' contains malformed path '"
+							+ baseDirectory + "', using default path '" + defaultPath + "'");
 			this.baseDirectory = worldPath.resolve(defaultPath).normalize();
 		}
 
 		if (!this.baseDirectory.startsWith(worldPath)) {
-			Orebfuscator.LOGGER.warning("'" + section.getCurrentPath() + ".baseDirectory': path '" + baseDirectory
-					+ "' is no child directory of '" + worldPath + "' using default: '" + defaultPath + "'");
+			Orebfuscator.LOGGER
+					.warning("config path '" + section.getCurrentPath() + ".baseDirectory' is no child directory of '"
+							+ worldPath + "', using default path: '" + defaultPath + "'");
 			this.baseDirectory = worldPath.resolve(defaultPath).normalize();
 		}
 	}
