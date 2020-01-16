@@ -40,17 +40,18 @@ import com.lishid.orebfuscator.config.WorldConfig;
 import com.lishid.orebfuscator.hithack.BlockHitManager;
 import com.lishid.orebfuscator.obfuscation.Calculations;
 
+import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.util.BlockCoords;
 
 public class ProtocolLibHook {
 
 	private final Orebfuscator orebfuscator;
-	private final ConfigManager configManager;
+	private final OrebfuscatorConfig config;
 	private final ProtocolManager manager;
 
 	public ProtocolLibHook(Orebfuscator orebfuscator) {
 		this.orebfuscator = orebfuscator;
-		this.configManager = orebfuscator.getConfigManager();
+		this.config = orebfuscator.getOrebfuscatorConfig();
 		
 		this.manager = ProtocolLibrary.getProtocolManager();
 	}
@@ -65,11 +66,11 @@ public class ProtocolLibHook {
 				try {
 					Player player = event.getPlayer();
 
-					if (!configManager.getConfig().isEnabled() || !configManager.getConfig().obfuscateForPlayer(player)) {
+					if (!config.getConfig().isEnabled() || !config.getConfig().obfuscateForPlayer(player)) {
 						return;
 					}
 
-					WorldConfig worldConfig = configManager.getWorld(player.getWorld());
+					WorldConfig worldConfig = config.getWorld(player.getWorld());
 
 					if (worldConfig == null || !worldConfig.isEnabled()) {
 						return;

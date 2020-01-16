@@ -8,23 +8,24 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.concurrent.TimeUnit;
 
-import com.lishid.orebfuscator.config.ConfigManager;
+import com.lishid.orebfuscator.Orebfuscator;
 
 import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 
 public class CacheCleaner implements Runnable {
 
-	private final ConfigManager configManager;
+	private final CacheConfig cacheConfig;
 
-	public CacheCleaner(ConfigManager configManager) {
-		this.configManager = configManager;
+	public CacheCleaner(Orebfuscator orebfuscator) {
+		this.cacheConfig = orebfuscator.getOrebfuscatorConfig().cache();
 	}
 
 	@Override
 	public void run() {
-		long deleteAfterDays = this.configManager.getConfig().getCacheConfig().deleteRegionFilesAfterAccess();
-		if (!this.configManager.getConfig().isEnabled() || deleteAfterDays <= 0) {
+		long deleteAfterDays = this.cacheConfig.deleteRegionFilesAfterAccess();
+		if (!this.cacheConfig.enabled() || deleteAfterDays <= 0) {
 			return;
 		}
 
@@ -32,7 +33,7 @@ public class CacheCleaner implements Runnable {
 		long deleteAfterMillis = TimeUnit.DAYS.toMillis(deleteAfterDays);
 
 		try {
-			Files.walkFileTree(this.configManager.getConfig().getCacheConfig().baseDirectory(), new SimpleFileVisitor<Path>() {
+			Files.walkFileTree(this.cacheConfig.baseDirectory(), new SimpleFileVisitor<Path>() {
 
 				@Override
 				public FileVisitResult visitFile(Path path, BasicFileAttributes attributes) throws IOException {

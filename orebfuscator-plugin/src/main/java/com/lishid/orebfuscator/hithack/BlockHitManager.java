@@ -23,17 +23,17 @@ import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import com.lishid.orebfuscator.Orebfuscator;
-import com.lishid.orebfuscator.config.ConfigManager;
 
 public class BlockHitManager {
+	
+	private static final int ANTI_HIT_HACK_DECREMENT_FACTOR = 1000;
+	private static final int ANIT_HIT_HACK_MAX_VIOLATION = 15;
 
 	private static HashMap<Player, PlayerBlockTracking> playersBlockTrackingStatus = new HashMap<>();
 	private static Orebfuscator orebfuscator;
-	private static ConfigManager configManager;
 
 	public static void initialize(Orebfuscator orebfuscator) {
 		BlockHitManager.orebfuscator = orebfuscator;
-		BlockHitManager.configManager = orebfuscator.getConfigManager();
 	}
 
 	public static boolean hitBlock(Player player, Block block) {
@@ -52,14 +52,14 @@ public class BlockHitManager {
 		playerBlockTracking.setBlock(block);
 		playerBlockTracking.updateTime();
 
-		int decrement = (int) (time / BlockHitManager.configManager.getConfig().getAntiHitHackDecrementFactor());
+		int decrement = (int) (time / ANTI_HIT_HACK_DECREMENT_FACTOR);
 		playerBlockTracking.decrementHackingIndicator(decrement);
 
-		if (playerBlockTracking.getHackingIndicator() == BlockHitManager.configManager.getConfig().getAntiHitHackMaxViolation()) {
-			playerBlockTracking.incrementHackingIndicator(BlockHitManager.configManager.getConfig().getAntiHitHackMaxViolation());
+		if (playerBlockTracking.getHackingIndicator() == ANIT_HIT_HACK_MAX_VIOLATION) {
+			playerBlockTracking.incrementHackingIndicator(ANIT_HIT_HACK_MAX_VIOLATION);
 		}
 
-		if (playerBlockTracking.getHackingIndicator() > BlockHitManager.configManager.getConfig().getAntiHitHackMaxViolation()) {
+		if (playerBlockTracking.getHackingIndicator() > ANIT_HIT_HACK_MAX_VIOLATION) {
 			return false;
 		}
 
@@ -69,7 +69,7 @@ public class BlockHitManager {
 	public static boolean canFakeHit(Player player) {
 		PlayerBlockTracking playerBlockTracking = getPlayerBlockTracking(player);
 
-		if (playerBlockTracking.getHackingIndicator() > BlockHitManager.configManager.getConfig().getAntiHitHackMaxViolation()) {
+		if (playerBlockTracking.getHackingIndicator() > ANIT_HIT_HACK_MAX_VIOLATION) {
 			return false;
 		}
 
@@ -80,7 +80,7 @@ public class BlockHitManager {
 		PlayerBlockTracking playerBlockTracking = getPlayerBlockTracking(player);
 		playerBlockTracking.incrementHackingIndicator();
 
-		if (playerBlockTracking.getHackingIndicator() > BlockHitManager.configManager.getConfig().getAntiHitHackMaxViolation()) {
+		if (playerBlockTracking.getHackingIndicator() > ANIT_HIT_HACK_MAX_VIOLATION) {
 			return false;
 		}
 

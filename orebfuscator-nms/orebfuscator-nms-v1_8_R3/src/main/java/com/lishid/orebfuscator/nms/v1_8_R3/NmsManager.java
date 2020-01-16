@@ -29,6 +29,7 @@ import com.google.common.collect.ImmutableList;
 import com.lishid.orebfuscator.nms.IBlockInfo;
 
 import net.imprex.orebfuscator.config.CacheConfig;
+import net.imprex.orebfuscator.config.Config;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
 import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.nms.v1_8_R3.RegionFileCache;
@@ -48,8 +49,8 @@ public class NmsManager extends AbstractNmsManager {
 
 	private final ProtocolManager protocolManager;
 
-	public NmsManager(CacheConfig cacheConfig) {
-		super(cacheConfig);
+	public NmsManager(Config config) {
+		super(config);
 
 		this.protocolManager = ProtocolLibrary.getProtocolManager();
 	}

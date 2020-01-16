@@ -6,6 +6,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
@@ -26,30 +27,98 @@ public class OrebfuscatorWorldConfig implements WorldConfig {
 	public void serialize(ConfigurationSection section) {
 		this.enabled = section.getBoolean("enabled", true);
 
-		this.worlds.clear();
-		ConfigParser.readWorldList(section, this.worlds, "worlds");
-
+		this.serializeWorldList(section, this.worlds, "worlds");
 		if (this.worlds.isEmpty()) {
-			this.failSerialize("World config '" + section.getCurrentPath() + "' is missing 'worlds'");
+			this.failSerialize(
+					String.format("config section '%s.worlds' is missing or empty", section.getCurrentPath()));
 			return;
 		}
 
-		this.darknessMaterials.clear();
-		ConfigParser.readMaterialSet(section, this.darknessMaterials, "darknessMaterials");
-
-		this.hiddenMaterials.clear();
-		ConfigParser.readMaterialSet(section, this.hiddenMaterials, "hiddenMaterials");
-
+		this.serializeMaterialSet(section, this.darknessMaterials, "darknessMaterials");
+		this.serializeMaterialSet(section, this.hiddenMaterials, "hiddenMaterials");
 		if (this.darknessMaterials.isEmpty() && this.hiddenMaterials.isEmpty()) {
-			this.failSerialize("config '" + section.getCurrentPath() + "' is missing 'darknessMaterials' and 'hiddenMaterials' blocks");
+			this.failSerialize(String.format("config section '%s' is missing 'darknessMaterials' and 'hiddenMaterials'",
+					section.getCurrentPath()));
 			return;
 		}
 
-		this.randomMaterials.clear();
-		ConfigParser.readRandomMaterialList(section, this.randomMaterials, "randomBlocks");
-
+		this.serializeRandomMaterialList(section, this.randomMaterials, "randomBlocks");
 		if (this.randomMaterials.isEmpty()) {
-			this.failSerialize("config section '" + section.getCurrentPath() + "' is missing 'randomBlocks'");
+			this.failSerialize(
+					String.format("config section '%s.randomBlocks' is missing or empty", section.getCurrentPath()));
+		}
+	}
+
+	public void serializeWorldList(ConfigurationSection section, List<World> worlds, String path) {
+		worlds.clear();
+
+		List<String> worldNameList = section.getStringList(path);
+		if (worldNameList == null || worldNameList.isEmpty()) {
+			return;
+		}
+
+		for (String worldName : worldNameList) {
+			World world = Bukkit.getWorld(worldName);
+
+			if (world == null) {
+				Orebfuscator.LOGGER.warning(String.format("config section '%s.%s' contains unknown world '%s'",
+						section.getCurrentPath(), path, worldName));
+				continue;
+			}
+
+			worlds.add(world);
+		}
+	}
+
+	public void serializeMaterialSet(ConfigurationSection section, Set<Material> materials, String path) {
+		materials.clear();
+
+		List<String> materialNameList = section.getStringList(path);
+		if (materialNameList == null || materialNameList.isEmpty()) {
+			return;
+		}
+
+		for (String materialName : materialNameList) {
+			Material material = ConfigParser.getMaterialByName(materialName.toUpperCase());
+
+			if (material == null) {
+				Orebfuscator.LOGGER.warning(String.format("config section '%s.%s' contains unknown material '%s'",
+						section.getCurrentPath(), path, materialName));
+				continue;
+			}
+
+			materials.add(material);
+		}
+	}
+
+	public void serializeRandomMaterialList(ConfigurationSection section, WeightedRandom<Material> randomMaterials,
+			String path) {
+		this.randomMaterials.clear();
+
+		ConfigurationSection materialSection = section.getConfigurationSection(path);
+		if (materialSection == null) {
+			return;
+		}
+
+		Set<String> materialNames = materialSection.getKeys(false);
+		if (materialNames.isEmpty()) {
+			return;
+		}
+
+		for (String materialName : materialNames) {
+			Material material = ConfigParser.getMaterialByName(materialName);
+
+			if (material == null) {
+				Orebfuscator.LOGGER.warning(String.format("config section '%s.%s' contains unknown material '%s'",
+						section.getCurrentPath(), path, materialName));
+				continue;
+			}
+
+			if (materialSection.isInt(materialName)) {
+				randomMaterials.add(materialSection.getInt(materialName, 1), material);
+			} else {
+				randomMaterials.add(1, material);
+			}
 		}
 	}
 

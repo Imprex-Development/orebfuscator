@@ -1,19 +1,16 @@
-configVersion: 13
-
-updateOnDamage: true
-noObfuscationForMetadata: true
-noObfuscationForOps: false
-noObfuscationForPermission: false
-loginNotification: true
-
-maxLoadedCacheFiles: 64
-deleteCacheFilesAfterDays: 0
-initialRadius: 1
-updateRadius: 2
-
-cacheLocation: orebfuscator_cache
-noObfuscationForMetadataTagName: NPC
-
+version: 14
+general:
+  updateOnBlockDamage: true
+  bypassNotification: true
+  initialRadius: 1
+  updateRadius: 22
+cache:
+  enabled: true
+  baseDirectory: 'orebfuscator_cache/'
+  maximumOpenRegionFiles: 256
+  deleteRegionFilesAfterAccess: 172800000‬
+  maximumSize: 4096
+  expireAfterAccess: 30000
 world:
   - worlds:
       - world
@@ -38,13 +35,14 @@ world:
       - STONE
       - TRAPPED_CHEST
     randomBlocks:
+      - AIR: 45
       - CLAY
       - COAL_ORE
       - COBBLESTONE
-      - DIAMOND_ORE: 50
-      - EMERALD_ORE: 20
-      - GOLD_ORE: 10
-      - IRON_ORE: 10
+      - DIAMOND_ORE: 25
+      - EMERALD_ORE: 10
+      - GOLD_ORE: 5
+      - IRON_ORE: 5
       - LAPIS_ORE
       - MOSSY_COBBLESTONE
       - OAK_PLANKS
@@ -64,6 +62,7 @@ world:
       - NETHERRACK
       - NETHER_QUARTZ_ORE
     randomBlocks:
+      - AIR: 5
       - GRAVEL
       - NETHERRACK
       - NETHER_BRICKS
@@ -80,6 +79,7 @@ world:
     hiddenBlocks:
       - END_STONE
     randomBlocks:
+      - AIR: 5
       - BEDROCK
       - END_STONE
       - END_STONE_BRICKS

@@ -32,8 +32,6 @@ import com.comphenix.protocol.wrappers.nbt.NbtType;
 import com.lishid.orebfuscator.Orebfuscator;
 import com.lishid.orebfuscator.chunkmap.ChunkData;
 import com.lishid.orebfuscator.chunkmap.ChunkMapManager;
-import com.lishid.orebfuscator.config.ConfigManager;
-import com.lishid.orebfuscator.config.OrebfuscatorConfig;
 import com.lishid.orebfuscator.config.ProximityHiderConfig;
 import com.lishid.orebfuscator.config.WorldConfig;
 import com.lishid.orebfuscator.utils.Globals;
@@ -42,6 +40,7 @@ import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.cache.ChunkCache;
 import net.imprex.orebfuscator.cache.ChunkCacheEntry;
 import net.imprex.orebfuscator.config.CacheConfig;
+import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.util.BlockCoords;
 import net.imprex.orebfuscator.util.ChunkPosition;
 
@@ -54,17 +53,11 @@ public class Calculations {
 
 	private static final Random RANDOM = new Random();
 
-	private static ConfigManager configManager;
 	private static OrebfuscatorConfig config;
-
-	private static CacheConfig cacheConfig;
 	private static ChunkCache chunkCache;
 
 	public static void initialize(Orebfuscator orebfuscator) {
-		Calculations.configManager = orebfuscator.getConfigManager();
-		Calculations.config = Calculations.configManager.getConfig();
-
-		Calculations.cacheConfig = Calculations.config.getCacheConfig();
+		Calculations.config = orebfuscator.getOrebfuscatorConfig();
 		Calculations.chunkCache = orebfuscator.getChunkCache();
 	}
 
@@ -117,7 +110,7 @@ public class Calculations {
 
 		final long hash = CalculationsUtil.Hash(chunkData.data, chunkData.data.length);
 
-		if (Calculations.cacheConfig.enabled()) {
+		if (Calculations.config.cache().enabled()) {
 			cacheEntry = Calculations.chunkCache.get(position, hash, key -> obfuscateChunk(chunkData, player, worldConfig, hash));
 		} else {
 			cacheEntry = obfuscateChunk(chunkData, player, worldConfig, hash);
@@ -135,7 +128,7 @@ public class Calculations {
 	private static byte[] obfuscate(WorldConfig worldConfig, ChunkData chunkData, Player player,
 			List<BlockCoords> proximityBlocks, List<BlockCoords> removedEntities) throws IOException {
 		ProximityHiderConfig proximityHider = worldConfig.getProximityHiderConfig();
-		int initialRadius = Calculations.configManager.getConfig().getInitialRadius();
+		int initialRadius = Calculations.config.general().initialRadius();
 
 		// Track of pseudo-randomly assigned randomBlock
 		int randomIncrement = 0;

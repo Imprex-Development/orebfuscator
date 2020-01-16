@@ -1,15 +1,16 @@
 package net.imprex.orebfuscator;
 
 import com.lishid.orebfuscator.Orebfuscator;
-import com.lishid.orebfuscator.config.OrebfuscatorConfig;
 import com.lishid.orebfuscator.nms.INmsManager;
 import com.lishid.orebfuscator.utils.Globals;
+
+import net.imprex.orebfuscator.config.Config;
 
 public class NmsInstance {
 
 	private static INmsManager instance;
 
-	public static void initialize(OrebfuscatorConfig config) {
+	public static void initialize(Config config) {
 		if (NmsInstance.instance != null) {
 			throw new IllegalStateException("NMS protocol version was already initialized!");
 		}
@@ -18,39 +19,39 @@ public class NmsInstance {
 
 		switch (Globals.SERVER_VERSION) {
 		case "v1_15_R1":
-			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_15_R1.NmsManager(config.getCacheConfig());
+			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_15_R1.NmsManager(config);
 			break;
 
 		case "v1_14_R1":
-			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_14_R1.NmsManager(config.getCacheConfig());
+			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_14_R1.NmsManager(config);
 			break;
 
 		case "v1_13_R2":
-			NmsInstance.instance = new com.lishid.orebfuscator.nms.v1_13_R2.NmsManager(config.getCacheConfig());
+			NmsInstance.instance = new com.lishid.orebfuscator.nms.v1_13_R2.NmsManager(config);
 			break;
 
 		case "v1_13_R1":
-			NmsInstance.instance = new com.lishid.orebfuscator.nms.v1_13_R1.NmsManager(config.getCacheConfig());
+			NmsInstance.instance = new com.lishid.orebfuscator.nms.v1_13_R1.NmsManager(config);
 			break;
 
 		case "v1_12_R1":
-			NmsInstance.instance = new com.lishid.orebfuscator.nms.v1_12_R1.NmsManager(config.getCacheConfig());
+			NmsInstance.instance = new com.lishid.orebfuscator.nms.v1_12_R1.NmsManager(config);
 			break;
 
 		case "v1_11_R1":
-			NmsInstance.instance = new com.lishid.orebfuscator.nms.v1_11_R1.NmsManager(config.getCacheConfig());
+			NmsInstance.instance = new com.lishid.orebfuscator.nms.v1_11_R1.NmsManager(config);
 			break;
 
 		case "v1_10_R1":
-			NmsInstance.instance = new com.lishid.orebfuscator.nms.v1_10_R1.NmsManager(config.getCacheConfig());
+			NmsInstance.instance = new com.lishid.orebfuscator.nms.v1_10_R1.NmsManager(config);
 			break;
 
 		case "v1_9_R2":
-			NmsInstance.instance = new com.lishid.orebfuscator.nms.v1_9_R2.NmsManager(config.getCacheConfig());
+			NmsInstance.instance = new com.lishid.orebfuscator.nms.v1_9_R2.NmsManager(config);
 			break;
 
 		case "v1_9_R1":
-			NmsInstance.instance = new com.lishid.orebfuscator.nms.v1_9_R1.NmsManager(config.getCacheConfig());
+			NmsInstance.instance = new com.lishid.orebfuscator.nms.v1_9_R1.NmsManager(config);
 			break;
 		}
 

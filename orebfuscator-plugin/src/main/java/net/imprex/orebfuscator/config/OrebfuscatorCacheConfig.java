@@ -12,7 +12,7 @@ import com.lishid.orebfuscator.Orebfuscator;
 public class OrebfuscatorCacheConfig implements CacheConfig {
 
 	private boolean enabled = true;
-	private Path baseDirectory;
+	private Path baseDirectory = Bukkit.getWorldContainer().toPath().resolve("orebfuscator_cache/");
 
 	private int maximumOpenRegionFiles = 256;
 	private long deleteRegionFilesAfterAccess = TimeUnit.DAYS.toMillis(2);

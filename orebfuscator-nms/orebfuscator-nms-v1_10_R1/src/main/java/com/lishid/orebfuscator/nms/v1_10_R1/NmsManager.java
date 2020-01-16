@@ -22,6 +22,7 @@ import com.google.common.collect.ImmutableList;
 import com.lishid.orebfuscator.nms.IBlockInfo;
 
 import net.imprex.orebfuscator.config.CacheConfig;
+import net.imprex.orebfuscator.config.Config;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
 import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.nms.v1_10_R1.RegionFileCache;
@@ -38,8 +39,8 @@ import net.minecraft.server.v1_10_R1.WorldServer;
 
 public class NmsManager extends AbstractNmsManager {
 
-	public NmsManager(CacheConfig cacheConfig) {
-		super(cacheConfig);
+	public NmsManager(Config config) {
+		super(config);
 	}
 
 	@Override

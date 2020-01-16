@@ -21,7 +21,7 @@ public class ChunkCache {
 	private final ChunkCacheSerializer serializer;
 
 	public ChunkCache(Orebfuscator orebfuscator) {
-		this.cacheConfig = orebfuscator.getConfigManager().getConfig().getCacheConfig();
+		this.cacheConfig = orebfuscator.getOrebfuscatorConfig().cache();
 
 		this.cache = CacheBuilder.newBuilder()
 				.maximumSize(this.cacheConfig.maximumSize())
