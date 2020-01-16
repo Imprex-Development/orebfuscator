@@ -21,4 +21,13 @@ public class WeightedRandom<T> {
 		int value = ThreadLocalRandom.current().nextInt(this.total);
 		return this.map.higherEntry(value).getValue();
 	}
+
+	public void clear() {
+		this.map.clear();
+		this.total = 0;
+	}
+
+	public boolean isEmpty() {
+		return this.map.isEmpty();
+	}
 }
