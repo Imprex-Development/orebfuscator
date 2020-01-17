@@ -3,7 +3,7 @@ general:
   updateOnBlockDamage: true
   bypassNotification: true
   initialRadius: 1
-  updateRadius: 22
+  updateRadius: 2
 cache:
   enabled: true
   baseDirectory: 'orebfuscator_cache/'
@@ -16,72 +16,72 @@ world:
       - world
     enabled: true
     darknessBlocks:
-      - CHEST
-      - ENDER_CHEST
-      - SPAWNER
-      - TRAPPED_CHEST
+      - chest
+      - ender_chest
+      - spawner
+      - trapped_chest
     hiddenBlocks:
-      - CHEST
-      - CLAY
-      - COAL_ORE
-      - DIAMOND_ORE
-      - EMERALD_ORE
-      - ENDER_CHEST
-      - GOLD_ORE
-      - IRON_ORE
-      - LAPIS_ORE
-      - REDSTONE_ORE
-      - SHULKER_BOX
-      - STONE
-      - TRAPPED_CHEST
+      - chest
+      - clay
+      - coal_ore
+      - diamond_ore
+      - emerald_ore
+      - ender_chest
+      - gold_ore
+      - iron_ore
+      - lapis_ore
+      - redstone_ore
+      - shulker_box
+      - stone
+      - trapped_chest
     randomBlocks:
-      - AIR: 45
-      - CLAY
-      - COAL_ORE
-      - COBBLESTONE
-      - DIAMOND_ORE: 25
-      - EMERALD_ORE: 10
-      - GOLD_ORE: 5
-      - IRON_ORE: 5
-      - LAPIS_ORE
-      - MOSSY_COBBLESTONE
-      - OAK_PLANKS
-      - OBSIDIAN
-      - REDSTONE_ORE
-      - STONE
-      - TNT
+      - air: 45
+      - clay
+      - coal_ore
+      - cobblestone
+      - diamond_ore: 25
+      - emerald_ore: 10
+      - gold_ore: 5
+      - iron_ore: 5
+      - lapis_ore
+      - mossy_cobblestone
+      - oak_planks
+      - obsidian
+      - redstone_ore
+      - stone
+      - tnt
   - worlds:
       - world_nether
     enabled: true
     darknessBlocks:
-      - CHEST
-      - ENDER_CHEST
-      - SPAWNER
-      - TRAPPED_CHEST
+      - chest
+      - ender_chest
+      - spawner
+      - trapped_chest
     hiddenBlocks:
-      - NETHERRACK
-      - NETHER_QUARTZ_ORE
+      - netherrack
+      - nether_quartz_ore
     randomBlocks:
-      - AIR: 5
-      - GRAVEL
-      - NETHERRACK
-      - NETHER_BRICKS
-      - NETHER_QUARTZ_ORE
-      - SOUL_SAND
+      - air: 5
+      - gravel
+      - netherrack
+      - nether_bricks
+      - nether_quartz_ore
+      - soul_sand
   - worlds:
       - world_the_end
     enabled: true
     darknessBlocks:
-      - CHEST
-      - ENDER_CHEST
-      - SPAWNER
-      - TRAPPED_CHEST
+      - chest
+      - ender_chest
+      - spawner
+      - trapped_chest
     hiddenBlocks:
-      - END_STONE
+      - end_stone
     randomBlocks:
-      - AIR: 5
-      - BEDROCK
-      - END_STONE
-      - END_STONE_BRICKS
-      - OBSIDIAN
-      - PURPUR_BLOCK
+      - air: 5
+      - bedrock
+      - end_stone
+      - end_stone_bricks
+      - obsidian
+      - purpur_block

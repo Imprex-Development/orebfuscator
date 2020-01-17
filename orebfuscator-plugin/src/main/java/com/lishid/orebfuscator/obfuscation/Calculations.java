@@ -33,7 +33,6 @@ import com.lishid.orebfuscator.Orebfuscator;
 import com.lishid.orebfuscator.chunkmap.ChunkData;
 import com.lishid.orebfuscator.chunkmap.ChunkMapManager;
 import com.lishid.orebfuscator.config.ProximityHiderConfig;
-import com.lishid.orebfuscator.config.WorldConfig;
 import com.lishid.orebfuscator.utils.Globals;
 
 import net.imprex.orebfuscator.NmsInstance;
@@ -41,6 +40,7 @@ import net.imprex.orebfuscator.cache.ChunkCache;
 import net.imprex.orebfuscator.cache.ChunkCacheEntry;
 import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
+import net.imprex.orebfuscator.config.WorldConfig;
 import net.imprex.orebfuscator.util.BlockCoords;
 import net.imprex.orebfuscator.util.ChunkPosition;
 

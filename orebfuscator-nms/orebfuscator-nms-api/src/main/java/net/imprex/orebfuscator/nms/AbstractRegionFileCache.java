@@ -18,6 +18,7 @@ public abstract class AbstractRegionFileCache<T> {
 
 	protected final ReadWriteLock lock = new ReentrantReadWriteLock(true);
 	protected final Map<Path, T> regionFiles = new HashMap<>();
+	// TODO replace with google guava cache
 
 	protected final CacheConfig cacheConfig;
 
