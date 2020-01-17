@@ -16,7 +16,6 @@
 
 package com.lishid.orebfuscator.obfuscation;
 
-import java.io.File;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
@@ -26,22 +25,24 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 
-import com.lishid.orebfuscator.NmsInstance;
 import com.lishid.orebfuscator.Orebfuscator;
-import com.lishid.orebfuscator.cache.ObfuscatedCachedChunk;
-import com.lishid.orebfuscator.cache.ObfuscatedDataCache;
 import com.lishid.orebfuscator.config.ConfigManager;
 import com.lishid.orebfuscator.config.WorldConfig;
 import com.lishid.orebfuscator.nms.IBlockInfo;
-import com.lishid.orebfuscator.types.ChunkCoord;
 import com.lishid.orebfuscator.utils.Globals;
+
+import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.cache.ChunkCache;
+import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class BlockUpdate {
 
 	private static ConfigManager configManager;
+	private static ChunkCache chunkCache;
 
 	public static void initialize(Orebfuscator orebfuscator) {
 		BlockUpdate.configManager = orebfuscator.getConfigManager();
+		BlockUpdate.chunkCache = orebfuscator.getChunkCache();
 	}
 
 	public static boolean needsUpdate(Block block) {
@@ -64,8 +65,10 @@ public class BlockUpdate {
 
 		World world = blocks.get(0).getWorld();
 		WorldConfig worldConfig = BlockUpdate.configManager.getWorld(world);
+		String worldName = world.getName();
+
 		HashSet<IBlockInfo> updateBlocks = new HashSet<>();
-		HashSet<ChunkCoord> invalidChunks = new HashSet<>();
+		HashSet<ChunkPosition> invalidChunks = new HashSet<>();
 		int updateRadius = BlockUpdate.configManager.getConfig().getUpdateRadius();
 
 		for (Block block : blocks) {
@@ -77,13 +80,13 @@ public class BlockUpdate {
 
 				if (blockInfo != null) {
 					if ((blockInfo.getX() & 0xf) == 0) {
-						invalidChunks.add(new ChunkCoord((blockInfo.getX() >> 4) - 1, blockInfo.getZ() >> 4));
+						invalidChunks.add(new ChunkPosition(worldName, (blockInfo.getX() >> 4) - 1, blockInfo.getZ() >> 4));
 					} else if ((blockInfo.getX() + 1 & 0xf) == 0) {
-						invalidChunks.add(new ChunkCoord((blockInfo.getX() >> 4) + 1, blockInfo.getZ() >> 4));
+						invalidChunks.add(new ChunkPosition(worldName, (blockInfo.getX() >> 4) + 1, blockInfo.getZ() >> 4));
 					} else if ((blockInfo.getZ() & 0xf) == 0) {
-						invalidChunks.add(new ChunkCoord(blockInfo.getX() >> 4, (blockInfo.getZ() >> 4) - 1));
+						invalidChunks.add(new ChunkPosition(worldName, blockInfo.getX() >> 4, (blockInfo.getZ() >> 4) - 1));
 					} else if ((blockInfo.getZ() + 1 & 0xf) == 0) {
-						invalidChunks.add(new ChunkCoord(blockInfo.getX() >> 4, (blockInfo.getZ() >> 4) + 1));
+						invalidChunks.add(new ChunkPosition(worldName, blockInfo.getX() >> 4, (blockInfo.getZ() >> 4) + 1));
 					}
 				}
 			}
@@ -91,7 +94,7 @@ public class BlockUpdate {
 
 		sendUpdates(world, updateBlocks);
 
-		invalidateCachedChunks(world, invalidChunks);
+		invalidateCachedChunks(invalidChunks);
 	}
 
 	// This method is used in CastleGates plugin
@@ -102,8 +105,10 @@ public class BlockUpdate {
 
 		World world = locations.get(0).getWorld();
 		WorldConfig worldConfig = BlockUpdate.configManager.getWorld(world);
+		String worldName = world.getName();
+
 		HashSet<IBlockInfo> updateBlocks = new HashSet<>();
-		HashSet<ChunkCoord> invalidChunks = new HashSet<>();
+		HashSet<ChunkPosition> invalidChunks = new HashSet<>();
 
 		for (Location location : locations) {
 			IBlockInfo blockInfo = NmsInstance.get().getBlockInfo(world, location.getBlockX(), location.getBlockY(),
@@ -113,20 +118,20 @@ public class BlockUpdate {
 
 			if (blockInfo != null) {
 				if ((blockInfo.getX() & 0xf) == 0) {
-					invalidChunks.add(new ChunkCoord((blockInfo.getX() >> 4) - 1, blockInfo.getZ() >> 4));
+					invalidChunks.add(new ChunkPosition(worldName, (blockInfo.getX() >> 4) - 1, blockInfo.getZ() >> 4));
 				} else if ((blockInfo.getX() + 1 & 0xf) == 0) {
-					invalidChunks.add(new ChunkCoord((blockInfo.getX() >> 4) + 1, blockInfo.getZ() >> 4));
+					invalidChunks.add(new ChunkPosition(worldName, (blockInfo.getX() >> 4) + 1, blockInfo.getZ() >> 4));
 				} else if ((blockInfo.getZ() & 0xf) == 0) {
-					invalidChunks.add(new ChunkCoord(blockInfo.getX() >> 4, (blockInfo.getZ() >> 4) - 1));
+					invalidChunks.add(new ChunkPosition(worldName, blockInfo.getX() >> 4, (blockInfo.getZ() >> 4) - 1));
 				} else if ((blockInfo.getZ() + 1 & 0xf) == 0) {
-					invalidChunks.add(new ChunkCoord(blockInfo.getX() >> 4, (blockInfo.getZ() >> 4) + 1));
+					invalidChunks.add(new ChunkPosition(worldName, blockInfo.getX() >> 4, (blockInfo.getZ() >> 4) + 1));
 				}
 			}
 		}
 
 		sendUpdates(world, updateBlocks);
 
-		invalidateCachedChunks(world, invalidChunks);
+		invalidateCachedChunks(invalidChunks);
 	}
 
 	private static void sendUpdates(World world, Set<IBlockInfo> blocks) {
@@ -138,19 +143,13 @@ public class BlockUpdate {
 		}
 	}
 
-	private static void invalidateCachedChunks(World world, Set<ChunkCoord> invalidChunks) {
-		if (invalidChunks.isEmpty() || !BlockUpdate.configManager.getConfig().isUseCache()) {
+	private static void invalidateCachedChunks(Set<ChunkPosition> invalidChunks) {
+		if (invalidChunks.isEmpty() || !BlockUpdate.configManager.getConfig().getCacheConfig().enabled()) {
 			return;
 		}
 
-		File cacheFolder = new File(ObfuscatedDataCache.getCacheFolder(), world.getName());
-
-		for (ChunkCoord chunk : invalidChunks) {
-			ObfuscatedCachedChunk cache = new ObfuscatedCachedChunk(cacheFolder, chunk.x, chunk.z);
-			cache.invalidate();
-
-			// Orebfuscator.log("Chunk x = " + chunk.x + ", z = " + chunk.z + " is
-			// invalidated");/*debug*/
+		for (ChunkPosition chunk : invalidChunks) {
+			BlockUpdate.chunkCache.invalidate(chunk);
 		}
 	}
 

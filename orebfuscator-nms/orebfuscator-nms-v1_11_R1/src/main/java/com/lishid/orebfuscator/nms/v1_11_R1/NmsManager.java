@@ -20,9 +20,11 @@ import org.bukkit.entity.Player;
 
 import com.google.common.collect.ImmutableList;
 import com.lishid.orebfuscator.nms.IBlockInfo;
-import com.lishid.orebfuscator.nms.IChunkCache;
-import com.lishid.orebfuscator.nms.INmsManager;
 
+import net.imprex.orebfuscator.config.CacheConfig;
+import net.imprex.orebfuscator.nms.AbstractNmsManager;
+import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
+import net.imprex.orebfuscator.nms.v1_11_R1.RegionFileCache;
 import net.imprex.orebfuscator.util.BlockCoords;
 import net.minecraft.server.v1_11_R1.Block;
 import net.minecraft.server.v1_11_R1.BlockPosition;
@@ -34,18 +36,15 @@ import net.minecraft.server.v1_11_R1.Packet;
 import net.minecraft.server.v1_11_R1.TileEntity;
 import net.minecraft.server.v1_11_R1.WorldServer;
 
-public class NmsManager implements INmsManager {
+public class NmsManager extends AbstractNmsManager {
 
-	private int maxLoadedCacheFiles;
-
-	@Override
-	public void setMaxLoadedCacheFiles(int value) {
-		this.maxLoadedCacheFiles = value;
+	public NmsManager(CacheConfig cacheConfig) {
+		super(cacheConfig);
 	}
 
 	@Override
-	public IChunkCache createChunkCache() {
-		return new ChunkCache(this.maxLoadedCacheFiles);
+	protected AbstractRegionFileCache<?> createRegionFileCache(CacheConfig cacheConfig) {
+		return new RegionFileCache(cacheConfig);
 	}
 
 	@Override

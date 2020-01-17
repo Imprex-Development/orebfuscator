@@ -43,6 +43,12 @@
 		</dependency>
 		<dependency>
 			<groupId>net.imprex</groupId>
+			<artifactId>orebfuscator-common</artifactId>
+			<version>${orebfuscator.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.imprex</groupId>
 			<artifactId>orebfuscator-nms-api</artifactId>
 			<version>${orebfuscator.version}</version>
 			<scope>compile</scope>

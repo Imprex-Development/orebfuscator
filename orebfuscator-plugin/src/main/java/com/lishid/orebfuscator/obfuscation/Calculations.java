@@ -29,17 +29,19 @@ import org.bukkit.entity.Player;
 import com.comphenix.protocol.wrappers.nbt.NbtBase;
 import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 import com.comphenix.protocol.wrappers.nbt.NbtType;
-import com.lishid.orebfuscator.NmsInstance;
 import com.lishid.orebfuscator.Orebfuscator;
 import com.lishid.orebfuscator.chunkmap.ChunkData;
 import com.lishid.orebfuscator.chunkmap.ChunkMapManager;
 import com.lishid.orebfuscator.config.ConfigManager;
+import com.lishid.orebfuscator.config.OrebfuscatorConfig;
 import com.lishid.orebfuscator.config.ProximityHiderConfig;
 import com.lishid.orebfuscator.config.WorldConfig;
 import com.lishid.orebfuscator.utils.Globals;
 
+import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.cache.ChunkCache;
 import net.imprex.orebfuscator.cache.ChunkCacheEntry;
+import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.util.BlockCoords;
 import net.imprex.orebfuscator.util.ChunkPosition;
 
@@ -53,16 +55,23 @@ public class Calculations {
 	private static final Random RANDOM = new Random();
 
 	private static ConfigManager configManager;
+	private static OrebfuscatorConfig config;
+
+	private static CacheConfig cacheConfig;
+	private static ChunkCache chunkCache;
 
 	public static void initialize(Orebfuscator orebfuscator) {
 		Calculations.configManager = orebfuscator.getConfigManager();
+		Calculations.config = Calculations.configManager.getConfig();
+
+		Calculations.cacheConfig = Calculations.config.getCacheConfig();
+		Calculations.chunkCache = orebfuscator.getChunkCache();
 	}
 
-	public static ChunkCacheEntry obfuscateChunk(ChunkData chunkData, Player player, WorldConfig worldConfig) {
+	public static ChunkCacheEntry obfuscateChunk(ChunkData chunkData, Player player, WorldConfig worldConfig, long hash) {
 		List<BlockCoords> proximityBlocks = new ArrayList<>();
 		List<BlockCoords> removedEntities = new ArrayList<>();
 		try {
-			long hash = CalculationsUtil.Hash(chunkData.data, chunkData.data.length);
 			byte[] data = obfuscate(worldConfig, chunkData, player, proximityBlocks, removedEntities);
 
 			ChunkCacheEntry chunkCacheEntry = new ChunkCacheEntry(hash, data);
@@ -104,7 +113,17 @@ public class Calculations {
 		}
 
 		ChunkPosition position = new ChunkPosition(player.getWorld().getName(), chunkData.chunkX, chunkData.chunkZ);
-		ChunkCacheEntry cacheEntry = ChunkCache.get(position, key -> obfuscateChunk(chunkData, player, worldConfig));
+		ChunkCacheEntry cacheEntry = null;
+
+		final long hash = CalculationsUtil.Hash(chunkData.data, chunkData.data.length);
+
+		if (Calculations.cacheConfig.enabled()) {
+			cacheEntry = Calculations.chunkCache.get(position, hash, key -> obfuscateChunk(chunkData, player, worldConfig, hash));
+		} else {
+			cacheEntry = obfuscateChunk(chunkData, player, worldConfig, hash);
+		}
+
+		ProximityHider.addProximityBlocks(player, chunkData.chunkX, chunkData.chunkZ, cacheEntry.getProximityBlocks());
 
 		Result result = new Result();
 		result.output = cacheEntry.getData();
@@ -262,8 +281,6 @@ public class Calculations {
 
 			output = manager.createOutput();
 		}
-
-		ProximityHider.addProximityBlocks(player, chunkData.chunkX, chunkData.chunkZ, proximityBlocks);
 
 		// Orebfuscator.log("Create new chunk data for x = " + chunkData.chunkX + ", z =
 		// " + chunkData.chunkZ);/*debug*/

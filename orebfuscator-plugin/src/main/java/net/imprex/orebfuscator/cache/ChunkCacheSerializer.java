@@ -2,35 +2,38 @@ package net.imprex.orebfuscator.cache;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
-import java.io.File;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.List;
 
-import com.lishid.orebfuscator.NmsInstance;
-import com.lishid.orebfuscator.cache.ObfuscatedDataCache;
-import com.lishid.orebfuscator.nms.IChunkCache;
-
-import net.imprex.cache.HybridCacheSerializer;
+import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.util.BlockCoords;
 import net.imprex.orebfuscator.util.ChunkPosition;
 
-public class ChunkCacheSerializer implements HybridCacheSerializer<ChunkPosition, ChunkCacheEntry> {
+public class ChunkCacheSerializer {
 
-	private static final IChunkCache REGION_CHUNK_CACHE = NmsInstance.get().createChunkCache();
+	private final CacheConfig cacheConfig;
 
-	private static DataInputStream getInputStream(ChunkPosition key) throws IOException {
-		return REGION_CHUNK_CACHE.getInputStream(new File(ObfuscatedDataCache.getCacheFolder(), key.getWorld()),
-				key.getX(), key.getZ());
+	public ChunkCacheSerializer(CacheConfig cacheConfig) {
+		this.cacheConfig = cacheConfig;
 	}
 
-	private static DataOutputStream getOutputStream(ChunkPosition key) throws IOException {
-		return REGION_CHUNK_CACHE.getOutputStream(new File(ObfuscatedDataCache.getCacheFolder(), key.getWorld()),
-				key.getX(), key.getZ());
+	private final Path getPath(ChunkPosition key) {
+		return this.cacheConfig.baseDirectory().resolve(key.getWorld())
+				.resolve("r." + (key.getX() >> 5) + "." + (key.getZ() >> 5) + ".mca");
 	}
 
-	@Override
+	private DataInputStream getInputStream(ChunkPosition key) throws IOException {
+		return NmsInstance.get().getRegionFileCache().getInputStream(getPath(key), key);
+	}
+
+	private DataOutputStream getOutputStream(ChunkPosition key) throws IOException {
+		return NmsInstance.get().getRegionFileCache().getOutputStream(getPath(key), key);
+	}
+
 	public ChunkCacheEntry read(ChunkPosition key) throws IOException {
-		try (DataInputStream dataInputStream = getInputStream(key)) {
+		try (DataInputStream dataInputStream = this.getInputStream(key)) {
 			if (dataInputStream != null) {
 				long hash = dataInputStream.readLong();
 
@@ -57,9 +60,8 @@ public class ChunkCacheSerializer implements HybridCacheSerializer<ChunkPosition
 		return null;
 	}
 
-	@Override
 	public void write(ChunkPosition key, ChunkCacheEntry value) throws IOException {
-		try (DataOutputStream dataOutputStream = getOutputStream(key)) {
+		try (DataOutputStream dataOutputStream = this.getOutputStream(key)) {
 			dataOutputStream.writeLong(value.getHash());
 
 			byte[] data = value.getData();

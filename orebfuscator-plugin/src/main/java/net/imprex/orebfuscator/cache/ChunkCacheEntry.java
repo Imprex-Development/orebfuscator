@@ -7,8 +7,9 @@ import net.imprex.orebfuscator.util.BlockCoords;
 
 public class ChunkCacheEntry {
 
-	private long hash = 0L;
-	private byte[] data;
+	private final long hash;
+
+	private final byte[] data;
 
 	private final List<BlockCoords> proximityBlocks = new ArrayList<>();
 	private final List<BlockCoords> removedEntities = new ArrayList<>();

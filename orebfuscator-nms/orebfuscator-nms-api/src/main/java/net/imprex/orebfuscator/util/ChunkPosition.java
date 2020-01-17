@@ -9,7 +9,7 @@ public class ChunkPosition {
 	private final int z;
 
 	public ChunkPosition(String world, int x, int z) {
-		this.world = world;
+		this.world = Objects.requireNonNull(world);
 		this.x = x;
 		this.z = z;
 	}

@@ -13,13 +13,12 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.util.BlockCoords;
 
 public interface INmsManager {
 
-	void setMaxLoadedCacheFiles(int value);
-
-	IChunkCache createChunkCache();
+	AbstractRegionFileCache<?> getRegionFileCache();
 
 	void updateBlockTileEntity(BlockCoords blockCoord, Player player);
 

@@ -10,7 +10,7 @@ import java.util.Set;
 
 import org.bukkit.Material;
 
-import com.lishid.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.NmsInstance;
 
 public class MaterialHelper {
 

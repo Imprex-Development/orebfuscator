@@ -31,13 +31,14 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.event.player.PlayerTeleportEvent.TeleportCause;
 
-import com.lishid.orebfuscator.NmsInstance;
 import com.lishid.orebfuscator.Orebfuscator;
 import com.lishid.orebfuscator.config.ConfigManager;
 import com.lishid.orebfuscator.hithack.BlockHitManager;
 import com.lishid.orebfuscator.obfuscation.BlockUpdate;
 import com.lishid.orebfuscator.obfuscation.ProximityHider;
 import com.lishid.orebfuscator.utils.CommandSenderUtil;
+
+import net.imprex.orebfuscator.NmsInstance;
 
 public class OrebfuscatorPlayerListener implements Listener {
 
