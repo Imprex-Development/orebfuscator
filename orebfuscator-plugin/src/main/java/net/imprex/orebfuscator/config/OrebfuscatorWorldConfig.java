@@ -61,7 +61,7 @@ public class OrebfuscatorWorldConfig implements WorldConfig {
 		}
 	}
 
-	public void serializeWorldList(ConfigurationSection section, List<World> worlds, String path) {
+	private void serializeWorldList(ConfigurationSection section, List<World> worlds, String path) {
 		worlds.clear();
 
 		List<String> worldNameList = section.getStringList(path);
@@ -82,7 +82,7 @@ public class OrebfuscatorWorldConfig implements WorldConfig {
 		}
 	}
 
-	public void serializeMaterialSet(ConfigurationSection section, Set<Material> materials, String path) {
+	private void serializeMaterialSet(ConfigurationSection section, Set<Material> materials, String path) {
 		materials.clear();
 
 		List<String> materialNameList = section.getStringList(path);
@@ -110,7 +110,7 @@ public class OrebfuscatorWorldConfig implements WorldConfig {
 
 	@Override
 	public Set<Integer> randomBlockId() {
-		return this.randomMaterials.next();
+		return Collections.unmodifiableSet(this.randomMaterials.next());
 	}
 
 	@Override

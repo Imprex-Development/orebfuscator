@@ -85,3 +85,20 @@ world:
       - end_stone_bricks
       - obsidian
       - purpur_block
+
+proximityHider:
+  - worlds:
+      - world
+      - world_nether
+      - world_the_end
+    enabled: true
+    distance: 8
+    hiddenBlocks:
+      - chest:
+        y: 64
+        above: true
+      - trapped_chest:
+        y: 64
+        above: false
+    randomBlocks:
+      - stone

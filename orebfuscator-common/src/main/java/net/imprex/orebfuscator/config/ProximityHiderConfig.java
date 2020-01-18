@@ -2,8 +2,6 @@ package net.imprex.orebfuscator.config;
 
 import java.util.Set;
 
-import org.bukkit.Material;
-
 public interface ProximityHiderConfig {
 
 	boolean enabled();
@@ -12,7 +10,7 @@ public interface ProximityHiderConfig {
 
 	int distanceSquared();
 
-	Material randomMaterial();
+	Set<Integer> randomBlockId();
 
 	Set<Integer> hiddenBlocks();
 
