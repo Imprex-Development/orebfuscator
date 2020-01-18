@@ -19,15 +19,17 @@ import org.bukkit.plugin.Plugin;
 import com.lishid.orebfuscator.Orebfuscator;
 import com.lishid.orebfuscator.utils.Globals;
 
+import net.imprex.orebfuscator.NmsInstance;
+
 public class OrebfuscatorConfig implements Config {
 
 	private static final int CONFIG_VERSION = 14;
 
 	private final OrebfuscatorGeneralConfig generalConfig = new OrebfuscatorGeneralConfig();
 	private final OrebfuscatorCacheConfig cacheConfig = new OrebfuscatorCacheConfig();
-	private final List<WorldConfig> worlds = new ArrayList<>();
+	private final List<OrebfuscatorWorldConfig> worlds = new ArrayList<>();
 
-	private final Map<World, WorldConfig> worldToConfig = new HashMap<>();
+	private final Map<World, OrebfuscatorWorldConfig> worldToConfig = new HashMap<>();
 
 	private final Plugin plugin;
 
@@ -42,6 +44,9 @@ public class OrebfuscatorConfig implements Config {
 		this.plugin.reloadConfig();
 
 		this.serialize(this.plugin.getConfig());
+
+		// TODO close old nms instance
+		NmsInstance.initialize(this);
 
 		this.initialize();
 	}
@@ -116,7 +121,9 @@ public class OrebfuscatorConfig implements Config {
 	}
 
 	private void initialize() {
-		for (WorldConfig worldConfig : this.worlds) {
+		for (OrebfuscatorWorldConfig worldConfig : this.worlds) {
+			worldConfig.initialize();
+
 			for (World world : worldConfig.worlds()) {
 				if (this.worldToConfig.containsKey(world)) {
 					Orebfuscator.LOGGER
@@ -145,12 +152,7 @@ public class OrebfuscatorConfig implements Config {
 	}
 
 	@Override
-	public List<WorldConfig> worlds() {
-		return this.worlds;
-	}
-
-	@Override
-	public WorldConfig world(World world) {
+	public OrebfuscatorWorldConfig world(World world) {
 		return this.worldToConfig.get(Objects.requireNonNull(world));
 	}
 }

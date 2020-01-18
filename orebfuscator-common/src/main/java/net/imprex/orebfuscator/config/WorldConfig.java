@@ -12,9 +12,9 @@ public interface WorldConfig {
 
 	List<World> worlds();
 
-	Set<Material> darknessMaterials(); // if disabled return emptySet
+	Set<Material> darknessBlocks(); // if disabled return emptySet
 
-	Material randomMaterial();
+	Set<Integer> randomBlockId();
 
-	Set<Material> hiddenMaterials();
+	Set<Material> hiddenBlocks();
 }

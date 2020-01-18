@@ -2,8 +2,11 @@ package net.imprex.orebfuscator.config;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.bukkit.Bukkit;
@@ -13,18 +16,27 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import com.lishid.orebfuscator.Orebfuscator;
 
+import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.util.WeightedRandom;
 
 public class OrebfuscatorWorldConfig implements WorldConfig {
 
 	private boolean enabled;
 	private List<World> worlds = new ArrayList<>();
-	private Set<Material> darknessMaterials = new HashSet<>();
-	private Set<Material> hiddenMaterials = new HashSet<>();
+	private Set<Material> darknessBlocks = new HashSet<>();
+	private Set<Material> hiddenBlocks = new HashSet<>();
 
-	private WeightedRandom<Material> randomMaterials = new WeightedRandom<Material>();
+	private Map<Material, Integer> randomBlocks = new HashMap<>();
+	private WeightedRandom<Set<Integer>> randomMaterials = new WeightedRandom<>();
 
-	public void serialize(ConfigurationSection section) {
+	protected void initialize() {
+		this.randomMaterials.clear();
+		for (Entry<Material, Integer> entry : this.randomBlocks.entrySet()) {
+			this.randomMaterials.add(entry.getValue(), NmsInstance.get().getMaterialIds(entry.getKey()));
+		}
+	}
+
+	protected void serialize(ConfigurationSection section) {
 		this.enabled = section.getBoolean("enabled", true);
 
 		this.serializeWorldList(section, this.worlds, "worlds");
@@ -34,16 +46,16 @@ public class OrebfuscatorWorldConfig implements WorldConfig {
 			return;
 		}
 
-		this.serializeMaterialSet(section, this.darknessMaterials, "darknessMaterials");
-		this.serializeMaterialSet(section, this.hiddenMaterials, "hiddenMaterials");
-		if (this.darknessMaterials.isEmpty() && this.hiddenMaterials.isEmpty()) {
-			this.failSerialize(String.format("config section '%s' is missing 'darknessMaterials' and 'hiddenMaterials'",
+		this.serializeMaterialSet(section, this.darknessBlocks, "darknessBlocks");
+		this.serializeMaterialSet(section, this.hiddenBlocks, "hiddenBlocks");
+		if (this.darknessBlocks.isEmpty() && this.hiddenBlocks.isEmpty()) {
+			this.failSerialize(String.format("config section '%s' is missing 'darknessBlocks' and 'hiddenBlocks'",
 					section.getCurrentPath()));
 			return;
 		}
 
-		this.serializeRandomMaterialList(section, this.randomMaterials, "randomBlocks");
-		if (this.randomMaterials.isEmpty()) {
+		ConfigParser.serializeRandomMaterialList(section, this.randomBlocks, "randomBlocks");
+		if (this.randomBlocks.isEmpty()) {
 			this.failSerialize(
 					String.format("config section '%s.randomBlocks' is missing or empty", section.getCurrentPath()));
 		}
@@ -79,46 +91,15 @@ public class OrebfuscatorWorldConfig implements WorldConfig {
 		}
 
 		for (String materialName : materialNameList) {
-			Material material = ConfigParser.getMaterialByName(materialName.toUpperCase());
+			Material material = Material.matchMaterial(materialName);
 
 			if (material == null) {
-				Orebfuscator.LOGGER.warning(String.format("config section '%s.%s' contains unknown material '%s'",
+				Orebfuscator.LOGGER.warning(String.format("config section '%s.%s' contains unknown block '%s'",
 						section.getCurrentPath(), path, materialName));
 				continue;
 			}
 
 			materials.add(material);
-		}
-	}
-
-	public void serializeRandomMaterialList(ConfigurationSection section, WeightedRandom<Material> randomMaterials,
-			String path) {
-		this.randomMaterials.clear();
-
-		ConfigurationSection materialSection = section.getConfigurationSection(path);
-		if (materialSection == null) {
-			return;
-		}
-
-		Set<String> materialNames = materialSection.getKeys(false);
-		if (materialNames.isEmpty()) {
-			return;
-		}
-
-		for (String materialName : materialNames) {
-			Material material = ConfigParser.getMaterialByName(materialName);
-
-			if (material == null) {
-				Orebfuscator.LOGGER.warning(String.format("config section '%s.%s' contains unknown material '%s'",
-						section.getCurrentPath(), path, materialName));
-				continue;
-			}
-
-			if (materialSection.isInt(materialName)) {
-				randomMaterials.add(materialSection.getInt(materialName, 1), material);
-			} else {
-				randomMaterials.add(1, material);
-			}
 		}
 	}
 
@@ -128,7 +109,7 @@ public class OrebfuscatorWorldConfig implements WorldConfig {
 	}
 
 	@Override
-	public Material randomMaterial() {
+	public Set<Integer> randomBlockId() {
 		return this.randomMaterials.next();
 	}
 
@@ -143,12 +124,12 @@ public class OrebfuscatorWorldConfig implements WorldConfig {
 	}
 
 	@Override
-	public Set<Material> darknessMaterials() {
-		return Collections.unmodifiableSet(this.darknessMaterials);
+	public Set<Material> darknessBlocks() {
+		return Collections.unmodifiableSet(this.darknessBlocks);
 	}
 
 	@Override
-	public Set<Material> hiddenMaterials() {
-		return Collections.unmodifiableSet(this.hiddenMaterials);
+	public Set<Material> hiddenBlocks() {
+		return Collections.unmodifiableSet(this.hiddenBlocks);
 	}
 }

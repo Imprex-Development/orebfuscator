@@ -2,9 +2,12 @@ package net.imprex.orebfuscator.config;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
+
+import com.lishid.orebfuscator.Orebfuscator;
 
 public class ConfigParser {
 
@@ -33,4 +36,35 @@ public class ConfigParser {
         }
         return section;
     }
+
+	public static void serializeRandomMaterialList(ConfigurationSection section, Map<Material, Integer> randomBlocks,
+			String path) {
+		randomBlocks.clear();
+
+		ConfigurationSection materialSection = section.getConfigurationSection(path);
+		if (materialSection == null) {
+			return;
+		}
+
+		Set<String> materialNames = materialSection.getKeys(false);
+		if (materialNames.isEmpty()) {
+			return;
+		}
+
+		for (String materialName : materialNames) {
+			Material material = Material.matchMaterial(materialName);
+
+			if (material == null) {
+				Orebfuscator.LOGGER.warning(String.format("config section '%s.%s' contains unknown block '%s'",
+						section.getCurrentPath(), path, materialName));
+				continue;
+			}
+
+			if (materialSection.isInt(materialName)) {
+				randomBlocks.put(material, materialSection.getInt(materialName, 1));
+			} else {
+				randomBlocks.put(material, 1);
+			}
+		}
+	}
 }
