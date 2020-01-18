@@ -1,20 +1,25 @@
 package net.imprex.orebfuscator.config;
 
+import java.util.Collection;
 import java.util.List;
-import java.util.Set;
 
-import org.bukkit.Material;
 import org.bukkit.World;
 
 public interface WorldConfig {
 
-	boolean enabled();
+	public static final int BLOCK_MASK_OBFUSCATE = 1;
+	public static final int BLOCK_MASK_DARKNESS = 2;
+	public static final int BLOCK_MASK_TILEENTITY = 4;
 
+	boolean enabled();
+	
 	List<World> worlds();
 
-	Set<Material> darknessBlocks(); // if disabled return emptySet
+	int blockmask(int id);
 
-	Set<Integer> randomBlockId();
+	boolean darknessBlocksEnabled();
 
-	Set<Material> hiddenBlocks();
+	Collection<Integer> randomBlocks();
+
+	int randomBlockId();
 }

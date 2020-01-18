@@ -27,13 +27,13 @@ import org.bukkit.block.Block;
 
 import com.lishid.orebfuscator.Orebfuscator;
 import com.lishid.orebfuscator.nms.IBlockInfo;
-import com.lishid.orebfuscator.utils.Globals;
 
 import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.cache.ChunkCache;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.config.WorldConfig;
 import net.imprex.orebfuscator.util.ChunkPosition;
+import net.imprex.orebfuscator.util.MaterialUtil;
 
 public class BlockUpdate {
 
@@ -47,7 +47,7 @@ public class BlockUpdate {
 
 	public static boolean needsUpdate(Block block) {
 		int materialId = NmsInstance.get().getMaterialIds(block.getType()).iterator().next();
-		return !BlockUpdate.config.getConfig().isBlockTransparent(materialId);
+		return !MaterialUtil.isTransparent(materialId);
 	}
 
 	public static void update(Block block) {
@@ -161,7 +161,7 @@ public class BlockUpdate {
 
 		int blockId = blockInfo.getCombinedId();
 
-		if ((worldConfig.getObfuscatedBits(blockId) & Globals.MASK_OBFUSCATE) != 0) {
+		if ((worldConfig.blockmask(blockId) & WorldConfig.BLOCK_MASK_OBFUSCATE) != 0) {
 			allBlocks.add(blockInfo);
 		}
 

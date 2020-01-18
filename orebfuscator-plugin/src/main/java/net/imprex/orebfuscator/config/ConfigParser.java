@@ -6,7 +6,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 
 import com.lishid.orebfuscator.Orebfuscator;
@@ -43,29 +45,52 @@ public class ConfigParser {
 	}
 
 	public static ConfigurationSection convertMapsToSections(Map<?, ?> input, ConfigurationSection section) {
-        for (Map.Entry<?, ?> entry : input.entrySet()) {
-            String key = entry.getKey().toString();
-            Object value = entry.getValue();
+		for (Map.Entry<?, ?> entry : input.entrySet()) {
+			String key = entry.getKey().toString();
+			Object value = entry.getValue();
 
-            if (value instanceof Map) {
-                convertMapsToSections((Map<?, ?>) value, section.createSection(key));
-            } else {
-                section.set(key, value);
-            }
-        }
-        return section;
-    }
+			if (value instanceof Map) {
+				convertMapsToSections((Map<?, ?>) value, section.createSection(key));
+			} else {
+				section.set(key, value);
+			}
+		}
+		return section;
+	}
+
+	public static void serializeWorldList(ConfigurationSection section, List<World> worlds, String path) {
+		worlds.clear();
+
+		List<String> worldNameList = section.getStringList(path);
+		if (worldNameList == null || worldNameList.isEmpty()) {
+			return;
+		}
+
+		for (String worldName : worldNameList) {
+			World world = Bukkit.getWorld(worldName);
+
+			if (world == null) {
+				Orebfuscator.LOGGER.warning(String.format("config section '%s.%s' contains unknown world '%s'",
+						section.getCurrentPath(), path, worldName));
+				continue;
+			}
+
+			worlds.add(world);
+		}
+	}
 
 	public static void serializeRandomMaterialList(ConfigurationSection section, Map<Material, Integer> randomBlocks,
 			String path) {
 		randomBlocks.clear();
 
+		System.out.println(section.get(path));
 		ConfigurationSection materialSection = section.getConfigurationSection(path);
 		if (materialSection == null) {
 			return;
 		}
 
 		Set<String> materialNames = materialSection.getKeys(false);
+		System.out.println(materialNames);
 		if (materialNames.isEmpty()) {
 			return;
 		}

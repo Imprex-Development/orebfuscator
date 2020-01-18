@@ -26,9 +26,12 @@ public class OrebfuscatorConfig implements Config {
 
 	private final OrebfuscatorGeneralConfig generalConfig = new OrebfuscatorGeneralConfig();
 	private final OrebfuscatorCacheConfig cacheConfig = new OrebfuscatorCacheConfig();
-	private final List<OrebfuscatorWorldConfig> worlds = new ArrayList<>();
 
-	private final Map<World, OrebfuscatorWorldConfig> worldToConfig = new HashMap<>();
+	private final List<OrebfuscatorWorldConfig> world = new ArrayList<>();
+	private final List<OrebfuscatorProximityConfig> proximity = new ArrayList<>();
+
+	private final Map<World, OrebfuscatorWorldConfig> worldToWorldConfig = new HashMap<>();
+	private final Map<World, OrebfuscatorProximityConfig> worldToProximityConfig = new HashMap<>();
 
 	private final Plugin plugin;
 
@@ -44,7 +47,7 @@ public class OrebfuscatorConfig implements Config {
 
 		this.serialize(this.plugin.getConfig());
 
-		// TODO close old nms instance
+		NmsInstance.close();
 		NmsInstance.initialize(this);
 
 		this.initialize();
@@ -80,6 +83,9 @@ public class OrebfuscatorConfig implements Config {
 			throw new RuntimeException("config is not up to date, please delete your config");
 		}
 
+		this.world.clear();
+		this.proximity.clear();
+
 		ConfigurationSection generalSection = section.getConfigurationSection("general");
 		if (generalSection != null) {
 			this.generalConfig.serialize(generalSection);
@@ -99,30 +105,54 @@ public class OrebfuscatorConfig implements Config {
 			for (ConfigurationSection worldSection : worldSectionList) {
 				OrebfuscatorWorldConfig worldConfig = new OrebfuscatorWorldConfig();
 				worldConfig.serialize(worldSection);
-				this.worlds.add(worldConfig);
+				this.world.add(worldConfig);
 			}
 		} else {
 			Orebfuscator.LOGGER.warning("config section 'world' is missing or empty");
 		}
+
+		List<ConfigurationSection> proximitySectionList = ConfigParser.serializeSectionList(section, "proximity");
+		if (!proximitySectionList.isEmpty()) {
+			for (ConfigurationSection proximitySection : proximitySectionList) {
+				OrebfuscatorProximityConfig proximityHiderConfig = new OrebfuscatorProximityConfig();
+				proximityHiderConfig.serialize(proximitySection);
+				this.proximity.add(proximityHiderConfig);
+			}
+		} else {
+			Orebfuscator.LOGGER.warning("config section 'proximity' is missing or empty");
+		}
 	}
 
 	private void initialize() {
-		for (OrebfuscatorWorldConfig worldConfig : this.worlds) {
-			worldConfig.initialize();
+		this.worldToWorldConfig.clear();
 
+		for (OrebfuscatorWorldConfig worldConfig : this.world) {
+			worldConfig.initialize();
 			for (World world : worldConfig.worlds()) {
-				if (this.worldToConfig.containsKey(world)) {
+				if (this.worldToWorldConfig.containsKey(world)) {
 					Orebfuscator.LOGGER
 							.warning("world " + world.getName() + " has more than one world config choosing first one");
 				} else {
-					this.worldToConfig.put(world, worldConfig);
+					this.worldToWorldConfig.put(world, worldConfig);
 				}
 			}
 		}
 
 		for (World world : Bukkit.getWorlds()) {
-			if (!this.worldToConfig.containsKey(world)) {
+			if (!this.worldToWorldConfig.containsKey(world)) {
 				throw new IllegalStateException("world " + world.getName() + " is missing a world config");
+			}
+		}
+
+		for (OrebfuscatorProximityConfig proximityConfig : this.proximity) {
+			proximityConfig.initialize();
+			for (World world : proximityConfig.worlds()) {
+				if (this.worldToProximityConfig.containsKey(world)) {
+					Orebfuscator.LOGGER
+							.warning("world " + world.getName() + " has more than one proximity config choosing first one");
+				} else {
+					this.worldToProximityConfig.put(world, proximityConfig);
+				}
 			}
 		}
 	}
@@ -139,6 +169,16 @@ public class OrebfuscatorConfig implements Config {
 
 	@Override
 	public OrebfuscatorWorldConfig world(World world) {
-		return this.worldToConfig.get(Objects.requireNonNull(world));
+		return this.worldToWorldConfig.get(Objects.requireNonNull(world));
+	}
+
+	@Override
+	public boolean proximityEnabled() {
+		return this.proximity.size() != 0;
+	}
+
+	@Override
+	public ProximityConfig proximity(World world) {
+		return this.worldToProximityConfig.get(Objects.requireNonNull(world));
 	}
 }

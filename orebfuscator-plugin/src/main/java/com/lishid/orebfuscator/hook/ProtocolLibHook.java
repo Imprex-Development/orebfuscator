@@ -41,6 +41,7 @@ import com.lishid.orebfuscator.obfuscation.Calculations;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.config.WorldConfig;
 import net.imprex.orebfuscator.util.BlockCoords;
+import net.imprex.orebfuscator.util.PermissionUtil;
 
 public class ProtocolLibHook {
 
@@ -55,6 +56,7 @@ public class ProtocolLibHook {
 		this.manager = ProtocolLibrary.getProtocolManager();
 	}
 
+	// TODO unregister on disable
 	@SuppressWarnings("rawtypes")
 	public void register() {
 		this.manager.addPacketListener(new PacketAdapter(this.orebfuscator, PacketType.Play.Server.MAP_CHUNK) {
@@ -65,7 +67,7 @@ public class ProtocolLibHook {
 				try {
 					Player player = event.getPlayer();
 
-					if (!config.getConfig().isEnabled() || !config.getConfig().obfuscateForPlayer(player)) {
+					if (PermissionUtil.canDeobfuscate(player)) {
 						return;
 					}
 

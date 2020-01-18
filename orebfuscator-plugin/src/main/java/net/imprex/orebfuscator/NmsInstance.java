@@ -68,4 +68,8 @@ public class NmsInstance {
 		}
 		return NmsInstance.instance;
 	}
+
+	public static void close() {
+		NmsInstance.instance = null;
+	}
 }

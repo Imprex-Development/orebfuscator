@@ -87,9 +87,6 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 			// Load configurations
 			this.config = new OrebfuscatorConfig(this);
 
-			// Initialize NMS
-			NmsInstance.initialize(this.config);
-
 			MaterialHelper.initialize();
 			ChunkMapBuffer.initialize(NmsInstance.get().getBitsPerBlock());
 

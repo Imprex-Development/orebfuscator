@@ -61,6 +61,11 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
+	public int getMaterialSize() {
+		return Block.REGISTRY_ID.a();
+	}
+
+	@Override
 	public void updateBlockTileEntity(BlockCoords blockCoord, Player player) {
 		CraftWorld world = (CraftWorld) player.getWorld();
 		TileEntity tileEntity = world.getTileEntityAt(blockCoord.x, blockCoord.y, blockCoord.z);

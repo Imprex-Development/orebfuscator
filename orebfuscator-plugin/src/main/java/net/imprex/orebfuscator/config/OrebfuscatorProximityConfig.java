@@ -1,12 +1,16 @@
 package net.imprex.orebfuscator.config;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
 import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 
 import com.lishid.orebfuscator.Orebfuscator;
@@ -14,17 +18,24 @@ import com.lishid.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.util.WeightedRandom;
 
-public class OrebfuscatorProximityHiderConfig implements ProximityHiderConfig {
+public class OrebfuscatorProximityConfig implements ProximityConfig {
+
+	private final List<World> worlds = new ArrayList<>();
 
 	private boolean enabled;
 	private int distance;
 	private int distanceSquared;
+	private boolean hideAboveY;
+	private int y;
+	private boolean useFastGazeCheck;
 
 	private Map<Material, ShouldHideConfig> hiddenBlocks = new HashMap<>();
 	private Map<Integer, ShouldHideConfig> hiddenMaterials = new HashMap<>();
 
 	private Map<Material, Integer> randomBlocks = new HashMap<>();
-	private WeightedRandom<Set<Integer>> randomMaterials = new WeightedRandom<>();
+
+	private List<Integer> randomBlockIds = new ArrayList<>();
+	private WeightedRandom<Integer> randomMaterials = new WeightedRandom<>();
 
 	protected void initialize() {
 		this.hiddenMaterials.clear();
@@ -36,17 +47,30 @@ public class OrebfuscatorProximityHiderConfig implements ProximityHiderConfig {
 
 		this.randomMaterials.clear();
 		for (Entry<Material, Integer> entry : this.randomBlocks.entrySet()) {
-			this.randomMaterials.add(entry.getValue(), NmsInstance.get().getMaterialIds(entry.getKey()));
+			int blockId = NmsInstance.get().getMaterialIds(entry.getKey()).iterator().next();
+			this.randomMaterials.add(entry.getValue(), blockId);
+			this.randomBlockIds.add(blockId);
 		}
 	}
 
 	protected void serialize(ConfigurationSection section) {
 		this.enabled = section.getBoolean("enabled", true);
+
+		ConfigParser.serializeWorldList(section, this.worlds, "worlds");
+		if (this.worlds.isEmpty()) {
+			this.failSerialize(
+					String.format("config section '%s.worlds' is missing or empty", section.getCurrentPath()));
+			return;
+		}
+
 		this.distance = section.getInt("distance", 8);
 		this.distanceSquared = this.distance * this.distance;
+		this.hideAboveY = section.getBoolean("hideAboveY", false);
+		this.y = section.getInt("y", 255);
+		this.useFastGazeCheck = section.getBoolean("useFastGazeCheck", true);
 
 		this.serializeHiddenBlocks(section);
-		if (this.randomBlocks.isEmpty()) {
+		if (this.hiddenBlocks.isEmpty()) {
 			this.enabled = false;
 			this.failSerialize(
 					String.format("config section '%s.hiddenBlocks' is missing or empty", section.getCurrentPath()));
@@ -107,6 +131,11 @@ public class OrebfuscatorProximityHiderConfig implements ProximityHiderConfig {
 	}
 
 	@Override
+	public List<World> worlds() {
+		return Collections.unmodifiableList(this.worlds);
+	}
+
+	@Override
 	public int distance() {
 		return this.distance;
 	}
@@ -117,8 +146,28 @@ public class OrebfuscatorProximityHiderConfig implements ProximityHiderConfig {
 	}
 
 	@Override
-	public Set<Integer> randomBlockId() {
-		return Collections.unmodifiableSet(this.randomMaterials.next());
+	public boolean hideAboveY() {
+		return this.hideAboveY;
+	}
+
+	@Override
+	public int y() {
+		return this.y;
+	}
+
+	@Override
+	public boolean useFastGazeCheck() {
+		return this.useFastGazeCheck;
+	}
+
+	@Override
+	public Collection<Integer> randomBlocks() {
+		return this.randomBlockIds;
+	}
+
+	@Override
+	public int randomBlockId() {
+		return this.randomMaterials.next();
 	}
 
 	@Override

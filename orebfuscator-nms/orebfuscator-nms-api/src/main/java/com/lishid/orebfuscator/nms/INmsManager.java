@@ -46,6 +46,8 @@ public interface INmsManager {
 
 	boolean canApplyPhysics(Material blockMaterial);
 
+	int getMaterialSize();
+
 	Set<Integer> getMaterialIds(Material material);
 
 	boolean sendBlockChange(Player player, Location blockLocation);

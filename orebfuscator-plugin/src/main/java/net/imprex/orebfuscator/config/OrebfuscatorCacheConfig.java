@@ -1,5 +1,7 @@
 package net.imprex.orebfuscator.config;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
 import java.util.concurrent.TimeUnit;
@@ -49,6 +51,14 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 					.warning("config path '" + section.getCurrentPath() + ".baseDirectory' is no child directory of '"
 							+ worldPath + "', using default path: '" + defaultPath + "'");
 			this.baseDirectory = worldPath.resolve(defaultPath).normalize();
+		}
+
+		try {
+			if (Files.notExists(this.baseDirectory)) {
+				Files.createDirectories(this.baseDirectory);
+			}
+		} catch (IOException e) {
+			e.printStackTrace();
 		}
 	}
 

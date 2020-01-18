@@ -1,6 +1,7 @@
 package net.imprex.orebfuscator.config;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -9,7 +10,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
@@ -19,27 +19,56 @@ import com.lishid.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.util.WeightedRandom;
 
-public class OrebfuscatorWorldConfig implements WorldConfig {
+public class OrebfuscatorWorldConfig implements WorldConfig {	
 
 	private boolean enabled;
 	private List<World> worlds = new ArrayList<>();
-	private Set<Material> darknessBlocks = new HashSet<>();
 	private Set<Material> hiddenBlocks = new HashSet<>();
+	private Set<Material> darknessBlocks = new HashSet<>();
+
+	private byte[] blockmask;
 
 	private Map<Material, Integer> randomBlocks = new HashMap<>();
-	private WeightedRandom<Set<Integer>> randomMaterials = new WeightedRandom<>();
+	private List<Integer> randomBlockIds = new ArrayList<>();
+	private WeightedRandom<Integer> randomMaterials = new WeightedRandom<>();
 
 	protected void initialize() {
 		this.randomMaterials.clear();
 		for (Entry<Material, Integer> entry : this.randomBlocks.entrySet()) {
-			this.randomMaterials.add(entry.getValue(), NmsInstance.get().getMaterialIds(entry.getKey()));
+			int blockId = NmsInstance.get().getMaterialIds(entry.getKey()).iterator().next();
+			this.randomMaterials.add(entry.getValue(), blockId);
+			this.randomBlockIds.add(blockId);
+		}
+
+		this.blockmask = new byte[NmsInstance.get().getMaterialSize()];
+		for (Material material : this.hiddenBlocks) {
+			this.setBlockmask(NmsInstance.get().getMaterialIds(material), false);
+		}
+		for (Material material : this.darknessBlocks) {
+			this.setBlockmask(NmsInstance.get().getMaterialIds(material), true);
+		}
+	}
+
+	private void setBlockmask(Set<Integer> blockIds, boolean isDarknessBlock) {
+		for (int blockId : blockIds) {
+			int blockmask = this.blockmask[blockId] | WorldConfig.BLOCK_MASK_OBFUSCATE;
+
+			if (isDarknessBlock) {
+				blockmask |= WorldConfig.BLOCK_MASK_DARKNESS;
+			}
+
+			if (NmsInstance.get().isTileEntity(blockId)) {
+				blockmask |= WorldConfig.BLOCK_MASK_TILEENTITY;
+			}
+
+			this.blockmask[blockId] = (byte) blockmask;
 		}
 	}
 
 	protected void serialize(ConfigurationSection section) {
 		this.enabled = section.getBoolean("enabled", true);
 
-		this.serializeWorldList(section, this.worlds, "worlds");
+		ConfigParser.serializeWorldList(section, this.worlds, "worlds");
 		if (this.worlds.isEmpty()) {
 			this.failSerialize(
 					String.format("config section '%s.worlds' is missing or empty", section.getCurrentPath()));
@@ -58,27 +87,6 @@ public class OrebfuscatorWorldConfig implements WorldConfig {
 		if (this.randomBlocks.isEmpty()) {
 			this.failSerialize(
 					String.format("config section '%s.randomBlocks' is missing or empty", section.getCurrentPath()));
-		}
-	}
-
-	private void serializeWorldList(ConfigurationSection section, List<World> worlds, String path) {
-		worlds.clear();
-
-		List<String> worldNameList = section.getStringList(path);
-		if (worldNameList == null || worldNameList.isEmpty()) {
-			return;
-		}
-
-		for (String worldName : worldNameList) {
-			World world = Bukkit.getWorld(worldName);
-
-			if (world == null) {
-				Orebfuscator.LOGGER.warning(String.format("config section '%s.%s' contains unknown world '%s'",
-						section.getCurrentPath(), path, worldName));
-				continue;
-			}
-
-			worlds.add(world);
 		}
 	}
 
@@ -109,11 +117,6 @@ public class OrebfuscatorWorldConfig implements WorldConfig {
 	}
 
 	@Override
-	public Set<Integer> randomBlockId() {
-		return Collections.unmodifiableSet(this.randomMaterials.next());
-	}
-
-	@Override
 	public boolean enabled() {
 		return this.enabled;
 	}
@@ -124,12 +127,22 @@ public class OrebfuscatorWorldConfig implements WorldConfig {
 	}
 
 	@Override
-	public Set<Material> darknessBlocks() {
-		return Collections.unmodifiableSet(this.darknessBlocks);
+	public int blockmask(int id) {
+		return this.blockmask[id];
 	}
 
 	@Override
-	public Set<Material> hiddenBlocks() {
-		return Collections.unmodifiableSet(this.hiddenBlocks);
+	public boolean darknessBlocksEnabled() {
+		return this.darknessBlocks.size() != 0;
+	}
+
+	@Override
+	public Collection<Integer> randomBlocks() {
+		return this.randomBlockIds;
+	}
+
+	@Override
+	public int randomBlockId() {
+		return this.randomMaterials.next();
 	}
 }

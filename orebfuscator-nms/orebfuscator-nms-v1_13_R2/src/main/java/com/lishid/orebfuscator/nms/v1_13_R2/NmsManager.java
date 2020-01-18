@@ -86,6 +86,11 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
+	public int getMaterialSize() {
+		return Block.REGISTRY_ID.a();
+	}
+
+	@Override
 	public void updateBlockTileEntity(BlockCoords blockCoord, Player player) {
 		CraftWorld world = (CraftWorld) player.getWorld();
 		// 1.13.2 has made this quite a bit different in later builds.

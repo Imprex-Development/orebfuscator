@@ -35,21 +35,21 @@ world:
       - stone
       - trapped_chest
     randomBlocks:
-      - air: 45
-      - clay
-      - coal_ore
-      - cobblestone
-      - diamond_ore: 25
-      - emerald_ore: 10
-      - gold_ore: 5
-      - iron_ore: 5
-      - lapis_ore
-      - mossy_cobblestone
-      - oak_planks
-      - obsidian
-      - redstone_ore
-      - stone
-      - tnt
+      cave_air: 45
+      clay: 1
+      coal_ore: 1
+      cobblestone: 1
+      diamond_ore: 25
+      emerald_ore: 10
+      gold_ore: 5
+      iron_ore: 5
+      lapis_ore: 1
+      mossy_cobblestone: 1
+      oak_planks: 1
+      obsidian: 1
+      redstone_ore: 1
+      stone: 1
+      tnt: 1
   - worlds:
       - world_nether
     enabled: true
@@ -62,12 +62,12 @@ world:
       - netherrack
       - nether_quartz_ore
     randomBlocks:
-      - air: 5
-      - gravel
-      - netherrack
-      - nether_bricks
-      - nether_quartz_ore
-      - soul_sand
+      cave_air: 5
+      gravel: 1
+      netherrack: 1
+      nether_bricks: 1
+      nether_quartz_ore: 1
+      soul_sand: 1
   - worlds:
       - world_the_end
     enabled: true
@@ -79,14 +79,14 @@ world:
     hiddenBlocks:
       - end_stone
     randomBlocks:
-      - air: 5
-      - bedrock
-      - end_stone
-      - end_stone_bricks
-      - obsidian
-      - purpur_block
+      cave_air: 5
+      bedrock: 1
+      end_stone: 1
+      end_stone_bricks: 1
+      obsidian: 1
+      purpur_block: 1
 
-proximityHider:
+proximity:
   - worlds:
       - world
       - world_nether
@@ -94,11 +94,11 @@ proximityHider:
     enabled: true
     distance: 8
     hiddenBlocks:
-      - chest:
+      chest:
         y: 64
         above: true
-      - trapped_chest:
+      trapped_chest:
         y: 64
         above: false
     randomBlocks:
-      - stone
+      stone: 1

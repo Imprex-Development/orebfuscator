@@ -9,4 +9,8 @@ public interface Config {
 	CacheConfig cache();
 
 	WorldConfig world(World world);
+	
+	boolean proximityEnabled();
+
+	ProximityConfig proximity(World world);
 }

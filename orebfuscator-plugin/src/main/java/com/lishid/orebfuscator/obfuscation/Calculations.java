@@ -21,7 +21,6 @@ import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Random;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
@@ -32,17 +31,16 @@ import com.comphenix.protocol.wrappers.nbt.NbtType;
 import com.lishid.orebfuscator.Orebfuscator;
 import com.lishid.orebfuscator.chunkmap.ChunkData;
 import com.lishid.orebfuscator.chunkmap.ChunkMapManager;
-import com.lishid.orebfuscator.config.ProximityHiderConfig;
-import com.lishid.orebfuscator.utils.Globals;
 
 import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.cache.ChunkCache;
 import net.imprex.orebfuscator.cache.ChunkCacheEntry;
-import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
+import net.imprex.orebfuscator.config.ProximityConfig;
 import net.imprex.orebfuscator.config.WorldConfig;
 import net.imprex.orebfuscator.util.BlockCoords;
 import net.imprex.orebfuscator.util.ChunkPosition;
+import net.imprex.orebfuscator.util.MaterialUtil;
 
 public class Calculations {
 
@@ -51,7 +49,7 @@ public class Calculations {
 		public List<BlockCoords> removedEntities;
 	}
 
-	private static final Random RANDOM = new Random();
+//	private static final Random RANDOM = new Random();
 
 	private static OrebfuscatorConfig config;
 	private static ChunkCache chunkCache;
@@ -61,7 +59,8 @@ public class Calculations {
 		Calculations.chunkCache = orebfuscator.getChunkCache();
 	}
 
-	public static ChunkCacheEntry obfuscateChunk(ChunkData chunkData, Player player, WorldConfig worldConfig, long hash) {
+	public static ChunkCacheEntry obfuscateChunk(ChunkData chunkData, Player player, WorldConfig worldConfig,
+			long hash) {
 		List<BlockCoords> proximityBlocks = new ArrayList<>();
 		List<BlockCoords> removedEntities = new ArrayList<>();
 		try {
@@ -72,7 +71,7 @@ public class Calculations {
 			chunkCacheEntry.getRemovedEntities().addAll(removedEntities);
 			return chunkCacheEntry;
 		} catch (Exception e) {
-			throw new RuntimeException("Can't obfuscate chunk " + chunkData.chunkX + ", " + chunkData.chunkZ);
+			throw new RuntimeException("Can't obfuscate chunk " + chunkData.chunkX + ", " + chunkData.chunkZ, e);
 		}
 	}
 
@@ -111,7 +110,8 @@ public class Calculations {
 		final long hash = CalculationsUtil.Hash(chunkData.data, chunkData.data.length);
 
 		if (Calculations.config.cache().enabled()) {
-			cacheEntry = Calculations.chunkCache.get(position, hash, key -> obfuscateChunk(chunkData, player, worldConfig, hash));
+			cacheEntry = Calculations.chunkCache.get(position, hash,
+					key -> obfuscateChunk(chunkData, player, worldConfig, hash));
 		} else {
 			cacheEntry = obfuscateChunk(chunkData, player, worldConfig, hash);
 		}
@@ -127,19 +127,21 @@ public class Calculations {
 
 	private static byte[] obfuscate(WorldConfig worldConfig, ChunkData chunkData, Player player,
 			List<BlockCoords> proximityBlocks, List<BlockCoords> removedEntities) throws IOException {
-		ProximityHiderConfig proximityHider = worldConfig.getProximityHiderConfig();
+
+		final ProximityConfig proximityConfig = config.proximity(player.getWorld());
+//		ProximityHiderConfig proximityHider = worldConfig.getProximityHiderConfig();
 		int initialRadius = Calculations.config.general().initialRadius();
 
 		// Track of pseudo-randomly assigned randomBlock
-		int randomIncrement = 0;
-		int randomIncrement2 = 0;
-		int randomCave = 0;
+//		int randomIncrement = 0;
+//		int randomIncrement2 = 0;
+//		int randomCave = 0;
 
 //		int engineMode = Calculations.configManager.getConfig().getEngineMode();
-		int maxChance = worldConfig.getAirGeneratorMaxChance();
+//		int maxChance = worldConfig.getAirGeneratorMaxChance();
 
-		int randomBlocksLength = worldConfig.getRandomBlocks().length;
-		boolean randomAlternate = false;
+//		int randomBlocksLength = worldConfig.getRandomBlocks().length;
+//		boolean randomAlternate = false;
 
 		int startX = chunkData.chunkX << 4;
 		int startZ = chunkData.chunkZ << 4;
@@ -148,11 +150,11 @@ public class Calculations {
 
 		try (ChunkMapManager manager = ChunkMapManager.create(chunkData)) {
 			for (int i = 0; i < manager.getSectionCount(); i++) {
-				worldConfig.shuffleRandomBlocks();
+//				worldConfig.shuffleRandomBlocks();
 
 				for (int offsetY = 0; offsetY < 16; offsetY++) {
 					for (int offsetZ = 0; offsetZ < 16; offsetZ++) {
-						int incrementMax = (maxChance + random(maxChance)) / 2;
+//						int incrementMax = (maxChance + random(maxChance)) / 2;
 
 						for (int offsetX = 0; offsetX < 16; offsetX++) {
 							int blockData = manager.readNextBlock();
@@ -161,21 +163,21 @@ public class Calculations {
 							int z = startZ | offsetZ;
 
 							// Initialize data
-							int obfuscateBits = worldConfig.getObfuscatedBits(blockData);
-							boolean obfuscateFlag = (obfuscateBits & Globals.MASK_OBFUSCATE) != 0;
-							boolean proximityHiderFlag = (obfuscateBits & Globals.MASK_PROXIMITYHIDER) != 0;
-							boolean darknessBlockFlag = (obfuscateBits & Globals.MASK_DARKNESSBLOCK) != 0;
-							boolean tileEntityFlag = (obfuscateBits & Globals.MASK_TILEENTITY) != 0;
+							int obfuscateBits = worldConfig.blockmask(blockData);
+							boolean obfuscateFlag = (obfuscateBits & WorldConfig.BLOCK_MASK_OBFUSCATE) != 0;
+							boolean darknessBlockFlag = (obfuscateBits & WorldConfig.BLOCK_MASK_DARKNESS) != 0;
+							boolean tileEntityFlag = (obfuscateBits & WorldConfig.BLOCK_MASK_TILEENTITY) != 0;
+							boolean proximityHiderFlag = proximityConfig != null
+									&& proximityConfig.shouldHide(y, blockData);
 
 							boolean obfuscate = false;
-							boolean specialObfuscate = false;
+//							boolean specialObfuscate = false;
 
 							// Check if the block should be obfuscated for the default engine modes
 							if (obfuscateFlag) {
 								if (initialRadius == 0) {
 									// Do not interfere with PH
-									if (proximityHiderFlag && proximityHider.isEnabled()
-											&& proximityHider.isProximityObfuscated(y, blockData)) {
+									if (proximityHiderFlag && proximityConfig.enabled()) {
 										if (!areAjacentBlocksTransparent(manager, player.getWorld(), false, x, y, z,
 												1)) {
 											obfuscate = true;
@@ -194,58 +196,59 @@ public class Calculations {
 							}
 
 							// Check if the block should be obfuscated because of proximity check
-							if (!obfuscate && proximityHiderFlag && proximityHider.isEnabled()
-									&& proximityHider.isProximityObfuscated(y, blockData)) {
+							if (!obfuscate && proximityHiderFlag && proximityConfig.enabled()
+									&& proximityConfig.shouldHide(y, blockData)) {
 								BlockCoords block = new BlockCoords(x, y, z);
 								if (block != null) {
 									proximityBlocks.add(block);
 								}
 
 								obfuscate = true;
-								if (proximityHider.isUseSpecialBlock()) {
-									specialObfuscate = true;
-								}
+//								if (proximityHider.isUseSpecialBlock()) {
+//									specialObfuscate = true;
+//								}
 							}
 
 							// Check if the block is obfuscated
-							if (obfuscate && (!worldConfig.isBypassObfuscationForSignsWithText()
-									|| canObfuscate(chunkData, x, y, z, blockData))) {
-								if (specialObfuscate) {
+							if (obfuscate && /*(!worldConfig.isBypassObfuscationForSignsWithText()
+									||*/ canObfuscate(chunkData, x, y, z, blockData)/*)*/) {
+								if (proximityHiderFlag) {
 									// Proximity hider
-									blockData = proximityHider.getSpecialBlockID();
+									blockData = proximityConfig.randomBlockId();
 								} else {
+									blockData = worldConfig.randomBlockId();
 //									if (engineMode == 1) {
-										// Engine mode 1, replace with stone
+									// Engine mode 1, replace with stone
 //										blockData = worldConfig.getMode1BlockId();
 //									} else if (engineMode == 2) {
-										// Ending mode 2, replace with random block
-										if (randomBlocksLength > 1) {
-											randomIncrement = CalculationsUtil.increment(randomIncrement,
-													randomBlocksLength);
-										}
-
-										blockData = worldConfig.getRandomBlock(randomIncrement, randomAlternate);
-										randomAlternate = !randomAlternate;
+									// Ending mode 2, replace with random block
+//									if (randomBlocksLength > 1) {
+//										randomIncrement = CalculationsUtil.increment(randomIncrement,
+//												randomBlocksLength);
+//									}
+//
+//									blockData = worldConfig.getRandomBlock(randomIncrement, randomAlternate);
+//									randomAlternate = !randomAlternate;
 //									}
 									// Anti texturepack and freecam
-									if (worldConfig.isAntiTexturePackAndFreecam()) {
-										// Add random air blocks
-										randomIncrement2 = random(incrementMax);
-
-										if (randomIncrement2 == 0) {
-											randomCave = 1 + random(3);
-										}
-
-										if (randomCave > 0) {
-											blockData = NmsInstance.get().getCaveAirBlockId();
-											randomCave--;
-										}
-									}
+//									if (worldConfig.isAntiTexturePackAndFreecam()) {
+//										// Add random air blocks
+//										randomIncrement2 = random(incrementMax);
+//
+//										if (randomIncrement2 == 0) {
+//											randomCave = 1 + random(3);
+//										}
+//
+//										if (randomCave > 0) {
+//											blockData = NmsInstance.get().getCaveAirBlockId();
+//											randomCave--;
+//										}
+//									}
 								}
 							}
 
 							// Check if the block should be obfuscated because of the darkness
-							if (!obfuscate && darknessBlockFlag && worldConfig.isDarknessHideBlocks()) {
+							if (!obfuscate && darknessBlockFlag && worldConfig.darknessBlocksEnabled()) {
 								if (!areAjacentBlocksBright(player.getWorld(), x, y, z, 1)) {
 									// Hide block, setting it to air
 									blockData = NmsInstance.get().getCaveAirBlockId();
@@ -260,7 +263,17 @@ public class Calculations {
 							if (offsetY == 0 && offsetZ == 0 && offsetX == 0) {
 								manager.finalizeOutput();
 								manager.initOutputPalette();
-								addBlocksToPalette(manager, worldConfig);
+
+								manager.addToOutputPalette(NmsInstance.get().getCaveAirBlockId());
+								for (int blockId : worldConfig.randomBlocks()) {
+									manager.addToOutputPalette(blockId);
+								}
+								if (proximityConfig.enabled()) {
+									for (int blockId : proximityConfig.randomBlocks()) {
+										manager.addToOutputPalette(blockId);
+									}
+								}
+
 								manager.initOutputSection();
 							}
 
@@ -320,16 +333,6 @@ public class Calculations {
 		return null;
 	}
 
-	private static void addBlocksToPalette(ChunkMapManager manager, WorldConfig worldConfig) {
-		if (!manager.inputHasNonAirBlock()) {
-			return;
-		}
-
-		for (int id : worldConfig.getPaletteBlocks()) {
-			manager.addToOutputPalette(id);
-		}
-	}
-
 	public static boolean areAjacentBlocksTransparent(ChunkMapManager manager, World world, boolean checkCurrentBlock,
 			int x, int y, int z, int countdown) throws IOException {
 		if (y >= world.getMaxHeight() || y < 0) {
@@ -348,7 +351,7 @@ public class Calculations {
 				}
 			}
 
-			if (blockData >= 0 && Calculations.configManager.getConfig().isBlockTransparent(blockData)) {
+			if (blockData >= 0 && MaterialUtil.isTransparent(blockData)) {
 				return true;
 			}
 		}
@@ -410,7 +413,7 @@ public class Calculations {
 		return false;
 	}
 
-	private static int random(int max) {
-		return RANDOM.nextInt(max);
-	}
+//	private static int random(int max) {
+//		return RANDOM.nextInt(max);
+//	}
 }

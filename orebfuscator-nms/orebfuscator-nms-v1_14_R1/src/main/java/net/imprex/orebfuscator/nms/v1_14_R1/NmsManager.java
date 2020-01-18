@@ -77,6 +77,11 @@ public class NmsManager extends AbstractNmsManager {
 		return new RegionFileCache(cacheConfig);
 	}
 
+	@Override
+	public int getMaterialSize() {
+		return Block.REGISTRY_ID.a();
+	}
+
 	
 
 	@Override
