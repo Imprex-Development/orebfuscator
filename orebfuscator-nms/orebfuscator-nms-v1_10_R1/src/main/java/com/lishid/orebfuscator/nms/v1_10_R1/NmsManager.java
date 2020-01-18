@@ -45,7 +45,7 @@ public class NmsManager extends AbstractNmsManager {
 			Material material = CraftMagicNumbers.getMaterial(blockData.getBlock());
 			int id = Block.getCombinedId(blockData);
 			this.registerMaterialId(material, id);
-		}s
+		}
 	}
 
 	@Override
