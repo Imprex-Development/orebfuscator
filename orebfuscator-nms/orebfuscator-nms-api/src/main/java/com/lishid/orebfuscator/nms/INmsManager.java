@@ -55,4 +55,6 @@ public interface INmsManager {
 	boolean hasLightArray();
 
 	boolean hasBlockCount();
+
+	void close();
 }

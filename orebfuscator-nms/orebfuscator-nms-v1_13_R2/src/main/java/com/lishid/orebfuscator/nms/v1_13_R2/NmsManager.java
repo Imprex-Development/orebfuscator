@@ -8,7 +8,6 @@ package com.lishid.orebfuscator.nms.v1_13_R2;
 
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -24,8 +23,8 @@ import org.bukkit.entity.Player;
 import com.lishid.orebfuscator.nms.IBlockInfo;
 
 import net.imprex.orebfuscator.config.CacheConfig;
-import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
+import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.nms.v1_13_R2.RegionFileCache;
 import net.imprex.orebfuscator.util.BlockCoords;
 import net.minecraft.server.v1_13_R2.Block;
@@ -46,37 +45,20 @@ public class NmsManager extends AbstractNmsManager {
 	private final Set<Integer> BLOCK_ID_AIRS;
 	private final Set<Integer> BLOCK_ID_SIGNS;
 
-	private HashMap<Material, Set<Integer>> materialIds;
-
 	public NmsManager(CacheConfig cacheConfig) {
 		super(cacheConfig);
 
-		this.initBlockIds();
+		for (Object blockDataObj : Block.REGISTRY_ID) {
+			IBlockData blockData = (IBlockData) blockDataObj;
+			Material material = CraftBlockData.fromData(blockData).getMaterial();
+			int id = Block.getCombinedId(blockData);
+			this.registerMaterialId(material, id);
+		}
 
 		this.BLOCK_ID_CAVE_AIR = this.getMaterialIds(Material.CAVE_AIR).iterator().next();
 		this.BLOCK_ID_AIRS = this
 				.convertMaterialsToSet(new Material[] { Material.AIR, Material.CAVE_AIR, Material.VOID_AIR });
 		this.BLOCK_ID_SIGNS = this.convertMaterialsToSet(new Material[] { Material.SIGN, Material.WALL_SIGN });
-	}
-
-	private void initBlockIds() {
-		this.materialIds = new HashMap<>();
-
-		Block.REGISTRY_ID.iterator().forEachRemaining(blockData -> {
-			Material material = CraftBlockData.fromData(blockData).getMaterial();
-
-			if (material.isBlock()) {
-				int materialId = Block.REGISTRY_ID.getId(blockData);
-
-				Set<Integer> ids = this.materialIds.get(material);
-
-				if (ids == null) {
-					this.materialIds.put(material, ids = new HashSet<>());
-				}
-
-				ids.add(materialId);
-			}
-		});
 	}
 
 	@Override
@@ -177,11 +159,6 @@ public class NmsManager extends AbstractNmsManager {
 	public boolean canApplyPhysics(Material blockMaterial) {
 		return blockMaterial == Material.AIR || blockMaterial == Material.CAVE_AIR || blockMaterial == Material.VOID_AIR
 				|| blockMaterial == Material.FIRE || blockMaterial == Material.WATER || blockMaterial == Material.LAVA;
-	}
-
-	@Override
-	public Set<Integer> getMaterialIds(Material material) {
-		return this.materialIds.get(material);
 	}
 
 	@Override

@@ -7,8 +7,6 @@
 package com.lishid.orebfuscator.nms.v1_11_R1;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,9 +14,9 @@ import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_11_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_11_R1.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_11_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
 
-import com.google.common.collect.ImmutableList;
 import com.lishid.orebfuscator.nms.IBlockInfo;
 
 import net.imprex.orebfuscator.config.CacheConfig;
@@ -40,6 +38,13 @@ public class NmsManager extends AbstractNmsManager {
 
 	public NmsManager(CacheConfig cacheConfig) {
 		super(cacheConfig);
+
+		for (Object blockDataObj : Block.REGISTRY_ID) {
+			IBlockData blockData = (IBlockData) blockDataObj;
+			Material material = CraftMagicNumbers.getMaterial(blockData.getBlock());
+			int id = Block.getCombinedId(blockData);
+			this.registerMaterialId(material, id);
+		}
 	}
 
 	@Override
@@ -135,21 +140,6 @@ public class NmsManager extends AbstractNmsManager {
 		return blockMaterial == Material.AIR || blockMaterial == Material.FIRE || blockMaterial == Material.WATER
 				|| blockMaterial == Material.STATIONARY_WATER || blockMaterial == Material.LAVA
 				|| blockMaterial == Material.STATIONARY_LAVA;
-	}
-
-	@Override
-	@SuppressWarnings("deprecation")
-	public Set<Integer> getMaterialIds(Material material) {
-		Set<Integer> ids = new HashSet<>();
-		int blockId = material.getId() << 4;
-		Block block = Block.getById(material.getId());
-		ImmutableList<IBlockData> blockDataList = block.s().a();
-
-		for (IBlockData blockData : blockDataList) {
-			ids.add(blockId | block.toLegacyData(blockData));
-		}
-
-		return ids;
 	}
 
 	@Override

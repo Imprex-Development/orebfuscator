@@ -7,7 +7,6 @@
 package net.imprex.orebfuscator.nms.v1_14_R1;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -41,12 +40,14 @@ public class NmsManager extends AbstractNmsManager {
 	private final Set<Integer> BLOCK_ID_AIRS;
 	private final Set<Integer> BLOCK_ID_SIGNS;
 
-	private HashMap<Material, Set<Integer>> materialIds;
-
 	public NmsManager(CacheConfig cacheConfig) {
 		super(cacheConfig);
 
-		this.initBlockIds();
+		for (IBlockData blockData : Block.REGISTRY_ID) {
+			Material material = CraftBlockData.fromData(blockData).getMaterial();
+			int id = Block.getCombinedId(blockData);
+			this.registerMaterialId(material, id);
+		}
 
 		this.BLOCK_ID_CAVE_AIR = this.getMaterialIds(Material.CAVE_AIR).iterator().next();
 		this.BLOCK_ID_AIRS = this
@@ -57,32 +58,10 @@ public class NmsManager extends AbstractNmsManager {
 				Material.JUNGLE_WALL_SIGN, Material.OAK_WALL_SIGN, Material.SPRUCE_WALL_SIGN });
 	}
 
-	private void initBlockIds() {
-		this.materialIds = new HashMap<>();
-
-		Block.REGISTRY_ID.iterator().forEachRemaining(blockData -> {
-			Material material = CraftBlockData.fromData(blockData).getMaterial();
-
-			if (material.isBlock()) {
-				int materialId = Block.REGISTRY_ID.getId(blockData);
-
-				Set<Integer> ids = this.materialIds.get(material);
-
-				if (ids == null) {
-					this.materialIds.put(material, ids = new HashSet<>());
-				}
-
-				ids.add(materialId);
-			}
-		});
-	}
-
 	@Override
 	protected AbstractRegionFileCache<?> createRegionFileCache(CacheConfig cacheConfig) {
 		return new RegionFileCache(cacheConfig);
 	}
-
-	
 
 	@Override
 	public void notifyBlockChange(World world, IBlockInfo blockInfo) {
@@ -149,11 +128,6 @@ public class NmsManager extends AbstractNmsManager {
 	public boolean canApplyPhysics(Material blockMaterial) {
 		return blockMaterial == Material.AIR || blockMaterial == Material.CAVE_AIR || blockMaterial == Material.VOID_AIR
 				|| blockMaterial == Material.FIRE || blockMaterial == Material.WATER || blockMaterial == Material.LAVA;
-	}
-
-	@Override
-	public Set<Integer> getMaterialIds(Material material) {
-		return this.materialIds.get(material);
 	}
 
 	@Override

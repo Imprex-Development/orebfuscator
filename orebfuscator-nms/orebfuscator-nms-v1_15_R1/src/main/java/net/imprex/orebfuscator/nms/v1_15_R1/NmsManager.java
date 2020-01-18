@@ -7,7 +7,6 @@
 package net.imprex.orebfuscator.nms.v1_15_R1;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -30,22 +29,23 @@ import com.comphenix.protocol.wrappers.WrappedBlockData;
 import com.lishid.orebfuscator.nms.IBlockInfo;
 
 import net.imprex.orebfuscator.config.CacheConfig;
-import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
+import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.util.BlockCoords;
 import net.minecraft.server.v1_15_R1.Block;
 import net.minecraft.server.v1_15_R1.BlockPosition;
 import net.minecraft.server.v1_15_R1.Chunk;
 import net.minecraft.server.v1_15_R1.ChunkProviderServer;
+import net.minecraft.server.v1_15_R1.EntityPlayer;
 import net.minecraft.server.v1_15_R1.IBlockData;
 import net.minecraft.server.v1_15_R1.IChatBaseComponent;
 import net.minecraft.server.v1_15_R1.Packet;
 import net.minecraft.server.v1_15_R1.PacketPlayOutBlockChange;
 import net.minecraft.server.v1_15_R1.TileEntity;
+import net.minecraft.server.v1_15_R1.WorldServer;
 
 public class NmsManager extends AbstractNmsManager {
 
-	private final HashMap<Material, Set<Integer>> materialIds = new HashMap<>();
 	private final int blockIdCaveAir;
 	private final Set<Integer> blockIdAir;
 	private final Set<Integer> blockIdSign;
@@ -56,23 +56,11 @@ public class NmsManager extends AbstractNmsManager {
 
 		this.protocolManager = ProtocolLibrary.getProtocolManager();
 
-		this.materialIds.clear();
-
-		Block.REGISTRY_ID.iterator().forEachRemaining(blockData -> {
+		for (IBlockData blockData : Block.REGISTRY_ID) {
 			Material material = CraftBlockData.fromData(blockData).getMaterial();
-
-			if (material.isBlock()) {
-				int materialId = Block.REGISTRY_ID.getId(blockData);
-
-				Set<Integer> ids = this.materialIds.get(material);
-
-				if (ids == null) {
-					this.materialIds.put(material, ids = new HashSet<Integer>());
-				}
-
-				ids.add(materialId);
-			}
-		});
+			int id = Block.getCombinedId(blockData);
+			this.registerMaterialId(material, id);
+		}
 
 		this.blockIdCaveAir = this.getMaterialIds(Material.CAVE_AIR).iterator().next();
 		this.blockIdAir = this
@@ -91,17 +79,17 @@ public class NmsManager extends AbstractNmsManager {
 	@Override
 	public void updateBlockTileEntity(BlockCoords blockCoord, Player player) {
 		try {
-			CraftWorld world = (CraftWorld) player.getWorld();
-			TileEntity tileEntity = world.getHandle()
-					.getTileEntity(new BlockPosition(blockCoord.x, blockCoord.y, blockCoord.z));
+			EntityPlayer entityPlayer = ((CraftPlayer) player).getHandle();
+			WorldServer world = entityPlayer.getWorldServer();
 
+			TileEntity tileEntity = world.getTileEntity(new BlockPosition(blockCoord.x, blockCoord.y, blockCoord.z));
 			if (tileEntity == null) {
 				return;
 			}
 
 			Packet<?> packet = tileEntity.getUpdatePacket();
 			if (packet != null) {
-				((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+				entityPlayer.playerConnection.sendPacket(packet);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -172,11 +160,6 @@ public class NmsManager extends AbstractNmsManager {
 	public boolean canApplyPhysics(Material blockMaterial) {
 		return blockMaterial == Material.AIR || blockMaterial == Material.CAVE_AIR || blockMaterial == Material.VOID_AIR
 				|| blockMaterial == Material.FIRE || blockMaterial == Material.WATER || blockMaterial == Material.LAVA;
-	}
-
-	@Override
-	public Set<Integer> getMaterialIds(Material material) {
-		return this.materialIds.get(material);
 	}
 
 	@Override

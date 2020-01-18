@@ -7,8 +7,6 @@
 package com.lishid.orebfuscator.nms.v1_9_R2;
 
 import java.lang.reflect.InvocationTargetException;
-import java.util.HashSet;
-import java.util.Set;
 
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -16,6 +14,7 @@ import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_9_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_9_R2.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_9_R2.util.CraftChatMessage;
+import org.bukkit.craftbukkit.v1_9_R2.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
 
 import com.comphenix.protocol.PacketType;
@@ -25,7 +24,6 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
-import com.google.common.collect.ImmutableList;
 import com.lishid.orebfuscator.nms.IBlockInfo;
 
 import net.imprex.orebfuscator.config.CacheConfig;
@@ -52,6 +50,13 @@ public class NmsManager extends AbstractNmsManager {
 		super(cacheConfig);
 
 		this.protocolManager = ProtocolLibrary.getProtocolManager();
+
+		for (Object blockDataObj : Block.REGISTRY_ID) {
+			IBlockData blockData = (IBlockData) blockDataObj;
+			Material material = CraftMagicNumbers.getMaterial(blockData.getBlock());
+			int id = Block.getCombinedId(blockData);
+			this.registerMaterialId(material, id);
+		}
 	}
 
 	@Override
@@ -146,21 +151,6 @@ public class NmsManager extends AbstractNmsManager {
 		return blockMaterial == Material.AIR || blockMaterial == Material.FIRE || blockMaterial == Material.WATER
 				|| blockMaterial == Material.STATIONARY_WATER || blockMaterial == Material.LAVA
 				|| blockMaterial == Material.STATIONARY_LAVA;
-	}
-
-	@SuppressWarnings("deprecation")
-	@Override
-	public Set<Integer> getMaterialIds(Material material) {
-		Set<Integer> ids = new HashSet<>();
-		int blockId = material.getId() << 4;
-		Block block = Block.getById(material.getId());
-		ImmutableList<IBlockData> blockDataList = block.t().a();
-
-		for (IBlockData blockData : blockDataList) {
-			ids.add(blockId | block.toLegacyData(blockData));
-		}
-
-		return ids;
 	}
 
 	@Override
