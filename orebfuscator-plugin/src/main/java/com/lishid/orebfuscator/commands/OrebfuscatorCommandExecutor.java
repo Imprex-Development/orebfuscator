@@ -22,37 +22,26 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
 
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
 import com.lishid.orebfuscator.Orebfuscator;
-import com.lishid.orebfuscator.config.ConfigManager;
-import com.lishid.orebfuscator.config.WorldConfig;
 import com.lishid.orebfuscator.utils.CommandSenderUtil;
-import com.lishid.orebfuscator.utils.Globals;
-import com.lishid.orebfuscator.utils.MaterialHelper;
 
 import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 
 public class OrebfuscatorCommandExecutor implements CommandExecutor {
 
 	private final Orebfuscator orebfuscator;
-	private final ConfigManager configManager;
+	private final OrebfuscatorConfig config;
 
 	public OrebfuscatorCommandExecutor(Orebfuscator orebfuscator) {
 		this.orebfuscator = orebfuscator;
-		this.configManager = orebfuscator.getConfigManager();
+		this.config = orebfuscator.getOrebfuscatorConfig();
 	}
 
 	@Override
@@ -66,7 +55,7 @@ public class OrebfuscatorCommandExecutor implements CommandExecutor {
 			return false;
 		}
 
-		if (args[0].equalsIgnoreCase("engine") && args.length > 1) {
+		/*if (args[0].equalsIgnoreCase("engine") && args.length > 1) {
 			int engine = this.configManager.getConfig().getEngineMode();
 			try {
 				engine = new Integer(args[1]);
@@ -82,9 +71,9 @@ public class OrebfuscatorCommandExecutor implements CommandExecutor {
 				CommandSenderUtil.sendMessage(sender, "Engine set to: " + engine);
 				return true;
 			}
-		}
+		}*/
 
-		else if (args[0].equalsIgnoreCase("updateradius") && args.length > 1) {
+		/*else if (args[0].equalsIgnoreCase("updateradius") && args.length > 1) {
 			int radius = this.configManager.getConfig().getUpdateRadius();
 			try {
 				radius = new Integer(args[1]);
@@ -108,9 +97,9 @@ public class OrebfuscatorCommandExecutor implements CommandExecutor {
 			this.configManager.setInitialRadius(radius);
 			CommandSenderUtil.sendMessage(sender, "InitialRadius set to: " + radius);
 			return true;
-		}
+		}*/
 
-		else if (args[0].equalsIgnoreCase("enable") || args[0].equalsIgnoreCase("disable")) {
+		/*else if (args[0].equalsIgnoreCase("enable") || args[0].equalsIgnoreCase("disable")) {
 			boolean data = args[0].equalsIgnoreCase("enable");
 
 			if (args[0].equalsIgnoreCase("enable") && args.length == 1) {
@@ -134,30 +123,29 @@ public class OrebfuscatorCommandExecutor implements CommandExecutor {
 					this.configManager.setNoObfuscationForPermission(data);
 					CommandSenderUtil.sendMessage(sender, "Permissions No-Obfuscation " + (data ? "enabled" : "disabled") + ".");
 					return true;
-				} else /*if (args[1].equalsIgnoreCase("cache")) {
+				} else if (args[1].equalsIgnoreCase("cache")) {
 					this.configManager.setUseCache(data);
 					CommandSenderUtil.sendMessage(sender, "Cache " + (data ? "enabled" : "disabled") + ".");
 					return true;
-				} else*/ if (args[1].equalsIgnoreCase("notification")) {
+				} else if (args[1].equalsIgnoreCase("notification")) {
 					this.configManager.setLoginNotification(data);
 					CommandSenderUtil.sendMessage(sender, "Login Notification " + (data ? "enabled" : "disabled") + ".");
 					return true;
 				}
 			}
-		}
-
-		else if (args[0].equalsIgnoreCase("reload")) {
-			this.configManager.reload();
+		} else*/
+		if (args[0].equalsIgnoreCase("reload")) {
+			this.config.reload();
 			CommandSenderUtil.sendMessage(sender, "Reload complete.");
 			return true;
 		}
 
-		else if (args[0].equalsIgnoreCase("status")) {
+/*		else if (args[0].equalsIgnoreCase("status")) {
 			CommandSenderUtil.sendMessage(sender,
 					"Orebfuscator " + this.orebfuscator.getDescription().getVersion());
 			CommandSenderUtil.sendMessage(sender, "Engine Mode: " + this.configManager.getConfig().getEngineMode());
 
-			// CommandSenderUtil.sendMessage(sender, "Caching: " + (this.configManager.getConfig().isUseCache() ? "Enabled" : "Disabled"));
+			CommandSenderUtil.sendMessage(sender, "Caching: " + (this.configManager.getConfig().isUseCache() ? "Enabled" : "Disabled"));
 			CommandSenderUtil.sendMessage(sender,
 					"ProximityHider: " + (this.configManager.getConfig().isProximityHiderEnabled() ? "Enabled" : "Disabled"));
 
@@ -168,12 +156,12 @@ public class OrebfuscatorCommandExecutor implements CommandExecutor {
 
 			CommandSenderUtil.sendMessage(sender, "Worlds in List: " + (worldNames.equals("") ? "None" : worldNames));
 			return true;
-		}
+		}*/
 
 		else if (args[0].equalsIgnoreCase("clearcache")) {
 			this.orebfuscator.getChunkCache().invalidateAll(false);
 			try {
-				Files.walkFileTree(this.configManager.getConfig().getCacheConfig().baseDirectory(), new SimpleFileVisitor<Path>() {
+				Files.walkFileTree(this.config.cache().baseDirectory(), new SimpleFileVisitor<Path>() {
 					@Override
 					public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
 						NmsInstance.get().getRegionFileCache().close(file);
@@ -190,7 +178,7 @@ public class OrebfuscatorCommandExecutor implements CommandExecutor {
 			return true;
 		}
 
-		else if (args[0].equalsIgnoreCase("obfuscateblocks")) {
+		/*else if (args[0].equalsIgnoreCase("obfuscateblocks")) {
 			commandObfuscateBlocks(sender, args);
 			return true;
 		}
@@ -208,12 +196,12 @@ public class OrebfuscatorCommandExecutor implements CommandExecutor {
 		else if (args[0].equalsIgnoreCase("tp")) {
 			commandTransparentBlocks(sender, args);
 			return true;
-		}
+		}*/
 
 		return false;
 	}
 
-	private void commandObfuscateBlocks(CommandSender sender, String[] args) {
+	/*private void commandObfuscateBlocks(CommandSender sender, String[] args) {
 		if (args.length == 1) {
 			CommandSenderUtil.sendMessage(sender, ChatColor.RED + "World is required parameter.");
 			return;
@@ -395,5 +383,5 @@ public class OrebfuscatorCommandExecutor implements CommandExecutor {
 		}
 
 		CommandSenderUtil.sendMessage(sender, blocks.toString());
-	}
+	}*/
 }

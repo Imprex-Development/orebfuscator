@@ -1,9 +1,3 @@
-/**
- * @author lishid
- * @author Aleksey Terzi
- *
- */
-
 package net.imprex.orebfuscator.nms.v1_15_R1;
 
 import java.lang.reflect.InvocationTargetException;
@@ -29,6 +23,7 @@ import com.comphenix.protocol.wrappers.WrappedBlockData;
 import com.lishid.orebfuscator.nms.IBlockInfo;
 
 import net.imprex.orebfuscator.config.CacheConfig;
+import net.imprex.orebfuscator.config.Config;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
 import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.util.BlockCoords;
@@ -51,8 +46,8 @@ public class NmsManager extends AbstractNmsManager {
 	private final Set<Integer> blockIdSign;
 	private final ProtocolManager protocolManager;
 
-	public NmsManager(CacheConfig cacheConfig) {
-		super(cacheConfig);
+	public NmsManager(Config config) {
+		super(config);
 
 		this.protocolManager = ProtocolLibrary.getProtocolManager();
 
@@ -74,6 +69,11 @@ public class NmsManager extends AbstractNmsManager {
 	@Override
 	protected AbstractRegionFileCache<?> createRegionFileCache(CacheConfig cacheConfig) {
 		return new RegionFileCache(cacheConfig);
+	}
+
+	@Override
+	public int getMaterialSize() {
+		return Block.REGISTRY_ID.a();
 	}
 
 	@Override

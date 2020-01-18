@@ -1,7 +1,7 @@
-api-version: 1.13
+api-version: 1.15
 
 name: Orebfuscator
-version: 5.0.0
+version: 5.0.1
 
 main: com.lishid.orebfuscator.Orebfuscator
 
@@ -11,7 +11,7 @@ authors: [Ingrim4, NgLoader, SydMontague, ProgrammerDan, Aleksey-Terzi]
 depend: [ProtocolLib]
 loadbefore: [ProtocolLib]
 
-load: startup
+load: POSTWORLD
 
 description: 'The most powerful and efficient Anti Xray plugin compatible with any CraftBukkit fork!'
 

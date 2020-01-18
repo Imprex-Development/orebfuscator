@@ -10,14 +10,15 @@ import org.bukkit.Material;
 import com.lishid.orebfuscator.nms.INmsManager;
 
 import net.imprex.orebfuscator.config.CacheConfig;
+import net.imprex.orebfuscator.config.Config;
 
 public abstract class AbstractNmsManager implements INmsManager {
 
 	private final AbstractRegionFileCache<?> regionFileCache;
 	private final Map<Material, Set<Integer>> materialToIds = new HashMap<>();
 
-	public AbstractNmsManager(CacheConfig cacheConfig) {
-		this.regionFileCache = this.createRegionFileCache(cacheConfig);
+	public AbstractNmsManager(Config config) {
+		this.regionFileCache = this.createRegionFileCache(config.cache());
 	}
 
 	protected abstract AbstractRegionFileCache<?> createRegionFileCache(CacheConfig cacheConfig);

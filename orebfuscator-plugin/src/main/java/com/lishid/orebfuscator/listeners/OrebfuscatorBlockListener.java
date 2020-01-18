@@ -27,18 +27,18 @@ import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 
 import com.lishid.orebfuscator.Orebfuscator;
-import com.lishid.orebfuscator.config.ConfigManager;
 import com.lishid.orebfuscator.hithack.BlockHitManager;
 import com.lishid.orebfuscator.obfuscation.BlockUpdate;
 
 import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.config.GeneralConfig;
 
 public class OrebfuscatorBlockListener implements Listener {
 
-	private final ConfigManager configManager;
+	private final GeneralConfig generalConfig;
 
 	public OrebfuscatorBlockListener(Orebfuscator orebfuscator) {
-		this.configManager = orebfuscator.getConfigManager();
+		this.generalConfig = orebfuscator.getOrebfuscatorConfig().general();
 	}
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
@@ -49,7 +49,7 @@ public class OrebfuscatorBlockListener implements Listener {
 
 	@EventHandler(priority = EventPriority.MONITOR, ignoreCancelled = true)
 	public void onBlockDamage(BlockDamageEvent event) {
-		if (!this.configManager.getConfig().isUpdateOnDamage()) {
+		if (!this.generalConfig.updateOnBlockDamage()) {
 			return;
 		}
 

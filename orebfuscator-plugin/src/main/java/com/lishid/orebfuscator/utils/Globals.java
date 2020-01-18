@@ -6,7 +6,7 @@ import org.bukkit.Bukkit;
 
 public class Globals {
 
-	public static final Pattern NMS_PATTERN = Pattern.compile("v(\\d+)_(\\d+)_R\\d", Pattern.DOTALL);
+	public static final Pattern NMS_PATTERN = Pattern.compile("v(\\d+)_(\\d+)_R\\d");
 
 	public static final String SERVER_VERSION = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
 	public static final String LOG_PREFIX = "[OFC] ";

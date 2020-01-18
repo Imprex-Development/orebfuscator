@@ -54,7 +54,6 @@ public class OrebfuscatorConfig {
 	// Main engine config
 	private boolean enabled;
 	private boolean updateOnDamage;
-	private int engineMode;
 	private int initialRadius;
 	private int updateRadius;
 	private boolean noObfuscationForMetadata;
@@ -92,14 +91,6 @@ public class OrebfuscatorConfig {
 
 	public void setUpdateOnDamage(boolean value) {
 		this.updateOnDamage = value;
-	}
-
-	public int getEngineMode() {
-		return this.engineMode;
-	}
-
-	public void setEngineMode(int value) {
-		this.engineMode = value;
 	}
 
 	public int getInitialRadius() {

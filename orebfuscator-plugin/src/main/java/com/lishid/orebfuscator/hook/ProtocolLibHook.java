@@ -35,26 +35,28 @@ import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 import com.comphenix.protocol.wrappers.nbt.NbtFactory;
 import com.lishid.orebfuscator.Orebfuscator;
 import com.lishid.orebfuscator.chunkmap.ChunkData;
-import com.lishid.orebfuscator.config.ConfigManager;
-import com.lishid.orebfuscator.config.WorldConfig;
 import com.lishid.orebfuscator.hithack.BlockHitManager;
 import com.lishid.orebfuscator.obfuscation.Calculations;
 
+import net.imprex.orebfuscator.config.OrebfuscatorConfig;
+import net.imprex.orebfuscator.config.WorldConfig;
 import net.imprex.orebfuscator.util.BlockCoords;
+import net.imprex.orebfuscator.util.PermissionUtil;
 
 public class ProtocolLibHook {
 
 	private final Orebfuscator orebfuscator;
-	private final ConfigManager configManager;
+	private final OrebfuscatorConfig config;
 	private final ProtocolManager manager;
 
 	public ProtocolLibHook(Orebfuscator orebfuscator) {
 		this.orebfuscator = orebfuscator;
-		this.configManager = orebfuscator.getConfigManager();
+		this.config = orebfuscator.getOrebfuscatorConfig();
 		
 		this.manager = ProtocolLibrary.getProtocolManager();
 	}
 
+	// TODO unregister on disable
 	@SuppressWarnings("rawtypes")
 	public void register() {
 		this.manager.addPacketListener(new PacketAdapter(this.orebfuscator, PacketType.Play.Server.MAP_CHUNK) {
@@ -65,13 +67,12 @@ public class ProtocolLibHook {
 				try {
 					Player player = event.getPlayer();
 
-					if (!configManager.getConfig().isEnabled() || !configManager.getConfig().obfuscateForPlayer(player)) {
+					if (PermissionUtil.canDeobfuscate(player)) {
 						return;
 					}
 
-					WorldConfig worldConfig = configManager.getWorld(player.getWorld());
-
-					if (worldConfig == null || !worldConfig.isEnabled()) {
+					WorldConfig worldConfig = config.world(player.getWorld());
+					if (worldConfig == null || !worldConfig.enabled()) {
 						return;
 					}
 

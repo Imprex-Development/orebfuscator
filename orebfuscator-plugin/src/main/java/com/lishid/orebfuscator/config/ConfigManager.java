@@ -51,7 +51,7 @@ public class ConfigManager {
 	}
 
 	public void postInitialize() {
-		this.orebfuscatorConfig.setTransparentBlocks(this.generateTransparentBlocks(this.orebfuscatorConfig.getEngineMode()));
+		this.orebfuscatorConfig.setTransparentBlocks(this.generateTransparentBlocks());
 
 		new WorldReader(this.plugin, Orebfuscator.LOGGER, this.orebfuscatorConfig, this.materialReader).load();
 
@@ -96,7 +96,6 @@ public class ConfigManager {
 
 		this.orebfuscatorConfig.setEnabled(enabled);
 		this.orebfuscatorConfig.setUpdateOnDamage(updateOnDamage);
-		this.orebfuscatorConfig.setEngineMode(engineMode);
 		this.orebfuscatorConfig.setInitialRadius(initialRadius);
 		this.orebfuscatorConfig.setUpdateRadius(updateRadius);
 		this.orebfuscatorConfig.setNoObfuscationForMetadata(noObfuscationForMetadata);
@@ -138,12 +137,6 @@ public class ConfigManager {
 				e.printStackTrace();
 			}
 		}
-	}
-
-	public void setEngineMode(int value) {
-		this.getPluginConfig().set("Integers.EngineMode", value);
-		this.save();
-		this.orebfuscatorConfig.setEngineMode(value);
 	}
 
 	public void setUpdateRadius(int value) {
@@ -258,7 +251,7 @@ public class ConfigManager {
 		return this.getBoolean(path, defaultData, true);
 	}
 
-	private byte[] generateTransparentBlocks(int engineMode) {
+	private byte[] generateTransparentBlocks() {
 		byte[] transparentBlocks = new byte[MaterialHelper.getMaxId() + 1];
 
 		for (Material material : Material.values()) {
@@ -271,11 +264,11 @@ public class ConfigManager {
 			}
 		}
 
-		Set<Integer> lavaIds = NmsInstance.get().getMaterialIds(Material.LAVA);
-
-		for (int id : lavaIds) {
-			transparentBlocks[id] = (byte) (engineMode == 1 ? 0 : 1);
-		}
+//		Set<Integer> lavaIds = NmsInstance.get().getMaterialIds(Material.LAVA);
+//
+//		for (int id : lavaIds) {
+//			transparentBlocks[id] = (byte) (engineMode == 1 ? 0 : 1);
+//		}
 
 		return transparentBlocks;
 	}

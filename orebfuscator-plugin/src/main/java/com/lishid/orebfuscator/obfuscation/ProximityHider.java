@@ -28,15 +28,17 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import com.lishid.orebfuscator.Orebfuscator;
-import com.lishid.orebfuscator.config.ConfigManager;
-import com.lishid.orebfuscator.config.ProximityHiderConfig;
-import com.lishid.orebfuscator.config.WorldConfig;
 import com.lishid.orebfuscator.nms.IBlockInfo;
 
 import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.config.OrebfuscatorConfig;
+import net.imprex.orebfuscator.config.ProximityConfig;
 import net.imprex.orebfuscator.util.BlockCoords;
+import net.imprex.orebfuscator.util.MaterialUtil;
 
 public class ProximityHider extends Thread {
+
+	private static final int RATE = 500;
 
 	private static final Map<Player, ProximityHiderPlayer> proximityHiderTracker = new HashMap<>();
 	private static final Map<Player, Location> playersToCheck = new HashMap<>();
@@ -50,11 +52,11 @@ public class ProximityHider extends Thread {
 	private static boolean running = false;
 
 	private static Orebfuscator orebfuscator;
-	private static ConfigManager configManager;
+	private static OrebfuscatorConfig config;
 
 	public static void initialize(Orebfuscator orebfuscator) {
 		ProximityHider.orebfuscator = orebfuscator;
-		ProximityHider.configManager = orebfuscator.getConfigManager();
+		ProximityHider.config = orebfuscator.getOrebfuscatorConfig();
 	}
 
 	public static void load() {
@@ -78,14 +80,13 @@ public class ProximityHider extends Thread {
 		while (!this.isInterrupted() && !this.kill.get()) {
 			try {
 				// Wait until necessary
-				long timeWait = this.lastExecute + ProximityHider.configManager.getConfig().getProximityHiderRate()
-						- System.currentTimeMillis();
+				long timeWait = this.lastExecute + RATE - System.currentTimeMillis();
 				this.lastExecute = System.currentTimeMillis();
 				if (timeWait > 0) {
 					Thread.sleep(timeWait);
 				}
 
-				if (!ProximityHider.configManager.getConfig().isProximityHiderEnabled()) {
+				if (!ProximityHider.config.proximityEnabled()) {
 					running = false;
 					return;
 				}
@@ -149,16 +150,15 @@ public class ProximityHider extends Thread {
 						continue;
 					}
 
-					WorldConfig worldConfig = ProximityHider.configManager.getWorld(p.getWorld());
-					ProximityHiderConfig proximityHider = worldConfig.getProximityHiderConfig();
+					ProximityConfig proximityConfig = config.proximity(p.getWorld());
 
-					int checkRadius = proximityHider.getDistance() >> 4;
+					int checkRadius = proximityConfig.distance() >> 4;
 
-					if ((proximityHider.getDistance() & 0xf) != 0) {
+					if ((proximityConfig.distance() & 0xf) != 0) {
 						checkRadius++;
 					}
 
-					int distanceSquared = proximityHider.getDistanceSquared();
+					int distanceSquared = proximityConfig.distanceSquared();
 
 					ArrayList<BlockCoords> removedBlocks = new ArrayList<>();
 					Location playerLocation = p.getLocation();
@@ -188,10 +188,10 @@ public class ProximityHider extends Thread {
 
 								Location blockLocation = new Location(localPlayerInfo.getWorld(), b.x, b.y, b.z);
 
-								if (proximityHider.isObfuscateAboveY()
+								if (proximityConfig.hideAboveY()
 										|| playerLocation.distanceSquared(blockLocation) < distanceSquared) {
 									// 4.3.1 -- GAZE CHECK
-									if (!proximityHider.isUseFastGazeCheck() || this.doFastCheck(blockLocation,
+									if (!proximityConfig.useFastGazeCheck() || this.doFastCheck(blockLocation,
 											playerEyes, localPlayerInfo.getWorld())) {
 										// 4.3.1 -- GAZE CHECK END
 										removedBlocks.add(b);
@@ -291,7 +291,8 @@ public class ProximityHider extends Thread {
 				return true; // we've reached our starting block, don't test it.
 			}
 			IBlockInfo between = NmsInstance.get().getBlockInfo(world, (int) lx, (int) ly, (int) lz);
-			if (between != null && !ProximityHider.configManager.getConfig().isBlockTransparent(between.getCombinedId())) {
+			if (between != null
+					&& !MaterialUtil.isTransparent(between.getCombinedId())) {
 				return false; // fail on first hit, this ray is "blocked"
 			}
 			s--; // we stop
@@ -305,7 +306,7 @@ public class ProximityHider extends Thread {
 				running = false;
 			}
 
-			if (!running && ProximityHider.configManager.getConfig().isProximityHiderEnabled()) {
+			if (!running && ProximityHider.config.proximityEnabled()) {
 				// Load ProximityHider
 				ProximityHider.load();
 			}
@@ -313,10 +314,8 @@ public class ProximityHider extends Thread {
 	}
 
 	public static void addProximityBlocks(Player player, int chunkX, int chunkZ, List<BlockCoords> blocks) {
-		ProximityHiderConfig proximityHider = ProximityHider.configManager.getWorld(player.getWorld())
-				.getProximityHiderConfig();
-
-		if (!proximityHider.isEnabled()) {
+		ProximityConfig proximityConfig = config.proximity(player.getWorld());
+		if (!proximityConfig.enabled()) {
 			return;
 		}
 
@@ -389,7 +388,7 @@ public class ProximityHider extends Thread {
 	}
 
 	public static void addPlayersToReload(HashSet<Player> players) {
-		if (!ProximityHider.configManager.getConfig().isProximityHiderEnabled()) {
+		if (!ProximityHider.config.proximityEnabled()) {
 			return;
 		}
 

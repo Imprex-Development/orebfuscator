@@ -23,6 +23,7 @@ import org.bukkit.entity.Player;
 import com.lishid.orebfuscator.nms.IBlockInfo;
 
 import net.imprex.orebfuscator.config.CacheConfig;
+import net.imprex.orebfuscator.config.Config;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
 import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.nms.v1_13_R2.RegionFileCache;
@@ -45,8 +46,8 @@ public class NmsManager extends AbstractNmsManager {
 	private final Set<Integer> BLOCK_ID_AIRS;
 	private final Set<Integer> BLOCK_ID_SIGNS;
 
-	public NmsManager(CacheConfig cacheConfig) {
-		super(cacheConfig);
+	public NmsManager(Config config) {
+		super(config);
 
 		for (Object blockDataObj : Block.REGISTRY_ID) {
 			IBlockData blockData = (IBlockData) blockDataObj;
@@ -64,6 +65,11 @@ public class NmsManager extends AbstractNmsManager {
 	@Override
 	protected AbstractRegionFileCache<?> createRegionFileCache(CacheConfig cacheConfig) {
 		return new RegionFileCache(cacheConfig);
+	}
+
+	@Override
+	public int getMaterialSize() {
+		return Block.REGISTRY_ID.a();
 	}
 
 	@Override
