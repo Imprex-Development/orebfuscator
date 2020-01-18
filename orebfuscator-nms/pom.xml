@@ -12,7 +12,6 @@
 
 	<modules>
 		<module>orebfuscator-nms-api</module>
-		<module>orebfuscator-nms-v1_8_R3</module>
 		<module>orebfuscator-nms-v1_9_R1</module>
 		<module>orebfuscator-nms-v1_9_R2</module>
 		<module>orebfuscator-nms-v1_10_R1</module>
