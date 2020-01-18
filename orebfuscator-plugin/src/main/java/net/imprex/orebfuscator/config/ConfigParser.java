@@ -1,6 +1,8 @@
 package net.imprex.orebfuscator.config;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -21,6 +23,23 @@ public class ConfigParser {
 
 	public static Material getMaterialByName(String materialName) {
 		return MATERIAL_BY_NAME.get(materialName.toUpperCase());
+	}
+
+	public static List<ConfigurationSection> serializeSectionList(ConfigurationSection parentSection, String path) {
+		List<ConfigurationSection> sections = new ArrayList<>();
+
+		List<?> sectionList = parentSection.getList(path);
+		if (sectionList != null) {
+			for (int i = 0; i < sectionList.size(); i++) {
+				Object section = sectionList.get(i);
+				if (section instanceof Map) {
+					sections.add(ConfigParser.convertMapsToSections((Map<?, ?>) section,
+							parentSection.createSection(path + "-" + i)));
+				}
+			}
+		}
+
+		return sections;
 	}
 
 	public static ConfigurationSection convertMapsToSections(Map<?, ?> input, ConfigurationSection section) {

@@ -26,28 +26,28 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 
 import com.lishid.orebfuscator.Orebfuscator;
-import com.lishid.orebfuscator.config.ConfigManager;
-import com.lishid.orebfuscator.config.WorldConfig;
 import com.lishid.orebfuscator.nms.IBlockInfo;
 import com.lishid.orebfuscator.utils.Globals;
 
 import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.cache.ChunkCache;
+import net.imprex.orebfuscator.config.OrebfuscatorConfig;
+import net.imprex.orebfuscator.config.WorldConfig;
 import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class BlockUpdate {
 
-	private static ConfigManager configManager;
+	private static OrebfuscatorConfig config;
 	private static ChunkCache chunkCache;
 
 	public static void initialize(Orebfuscator orebfuscator) {
-		BlockUpdate.configManager = orebfuscator.getConfigManager();
+		BlockUpdate.config = orebfuscator.getOrebfuscatorConfig();
 		BlockUpdate.chunkCache = orebfuscator.getChunkCache();
 	}
 
 	public static boolean needsUpdate(Block block) {
 		int materialId = NmsInstance.get().getMaterialIds(block.getType()).iterator().next();
-		return !BlockUpdate.configManager.getConfig().isBlockTransparent(materialId);
+		return !BlockUpdate.config.getConfig().isBlockTransparent(materialId);
 	}
 
 	public static void update(Block block) {
@@ -64,12 +64,12 @@ public class BlockUpdate {
 		}
 
 		World world = blocks.get(0).getWorld();
-		WorldConfig worldConfig = BlockUpdate.configManager.getWorld(world);
+		WorldConfig worldConfig = BlockUpdate.config.world(world);
 		String worldName = world.getName();
 
 		HashSet<IBlockInfo> updateBlocks = new HashSet<>();
 		HashSet<ChunkPosition> invalidChunks = new HashSet<>();
-		int updateRadius = BlockUpdate.configManager.getConfig().getUpdateRadius();
+		int updateRadius = BlockUpdate.config.general().updateRadius();
 
 		for (Block block : blocks) {
 			if (needsUpdate(block)) {
@@ -104,7 +104,7 @@ public class BlockUpdate {
 		}
 
 		World world = locations.get(0).getWorld();
-		WorldConfig worldConfig = BlockUpdate.configManager.getWorld(world);
+		WorldConfig worldConfig = BlockUpdate.config.world(world);
 		String worldName = world.getName();
 
 		HashSet<IBlockInfo> updateBlocks = new HashSet<>();
@@ -144,7 +144,7 @@ public class BlockUpdate {
 	}
 
 	private static void invalidateCachedChunks(Set<ChunkPosition> invalidChunks) {
-		if (invalidChunks.isEmpty() || !BlockUpdate.configManager.getConfig().getCacheConfig().enabled()) {
+		if (invalidChunks.isEmpty() || !BlockUpdate.config.cache().enabled()) {
 			return;
 		}
 

@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,20 +51,21 @@ public class OrebfuscatorConfig implements Config {
 	}
 
 	private void createConfigIfNotExist() {
-		Path path = this.plugin.getDataFolder().toPath().resolve("config.yml");
+		Path dataFolder = this.plugin.getDataFolder().toPath();
+		Path path = dataFolder.resolve("config.yml");
 
 		if (Files.notExists(path)) {
 			try {
 				Matcher matcher = Globals.NMS_PATTERN.matcher(Globals.SERVER_VERSION);
 
 				if (!matcher.find()) {
-					throw new RuntimeException("WTF is this version!?");
+					throw new RuntimeException("Can't parse server version " + Globals.SERVER_VERSION);
 				}
 
 				String configVersion = matcher.group(1) + "." + matcher.group(2);
 
-				if (Files.notExists(path.getParent())) {
-					Files.createDirectories(path.getParent());
+				if (Files.notExists(dataFolder)) {
+					Files.createDirectories(dataFolder);
 				}
 
 				Files.copy(Orebfuscator.class.getResourceAsStream("/resources/config-" + configVersion + ".yml"), path);
@@ -77,7 +77,7 @@ public class OrebfuscatorConfig implements Config {
 
 	private void serialize(ConfigurationSection section) {
 		if (section.getInt("version", -1) != CONFIG_VERSION) {
-			throw new RuntimeException("Current config is not up to date, please delete your config");
+			throw new RuntimeException("config is not up to date, please delete your config");
 		}
 
 		ConfigurationSection generalSection = section.getConfigurationSection("general");
@@ -94,30 +94,16 @@ public class OrebfuscatorConfig implements Config {
 			Orebfuscator.LOGGER.warning("config section 'cache' is missing, using default one");
 		}
 
-		List<?> worldSectionList = section.getList("world", Collections.emptyList());
-		if (worldSectionList != null) {
-			List<ConfigurationSection> sectionList = this.serializeSectionList(section, "world", worldSectionList);
-			for (ConfigurationSection worldSection : sectionList) {
+		List<ConfigurationSection> worldSectionList = ConfigParser.serializeSectionList(section, "world");
+		if (!worldSectionList.isEmpty()) {
+			for (ConfigurationSection worldSection : worldSectionList) {
 				OrebfuscatorWorldConfig worldConfig = new OrebfuscatorWorldConfig();
 				worldConfig.serialize(worldSection);
 				this.worlds.add(worldConfig);
 			}
 		} else {
-			Orebfuscator.LOGGER.warning("config section 'world' is missing");
+			Orebfuscator.LOGGER.warning("config section 'world' is missing or empty");
 		}
-	}
-
-	private List<ConfigurationSection> serializeSectionList(ConfigurationSection parentSection, String path,
-			List<?> sectionList) {
-		List<ConfigurationSection> sections = new ArrayList<>();
-		for (int i = 0; i < sectionList.size(); i++) {
-			Object section = sectionList.get(i);
-			if (section instanceof Map) {
-				sections.add(ConfigParser.convertMapsToSections((Map<?, ?>) section,
-						parentSection.createSection(path + "-" + i)));
-			}
-		}
-		return sections;
 	}
 
 	private void initialize() {
@@ -127,7 +113,7 @@ public class OrebfuscatorConfig implements Config {
 			for (World world : worldConfig.worlds()) {
 				if (this.worldToConfig.containsKey(world)) {
 					Orebfuscator.LOGGER
-							.warning("world " + world.getName() + " has more than one config choosing first one");
+							.warning("world " + world.getName() + " has more than one world config choosing first one");
 				} else {
 					this.worldToConfig.put(world, worldConfig);
 				}

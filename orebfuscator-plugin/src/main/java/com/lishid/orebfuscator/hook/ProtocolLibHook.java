@@ -35,12 +35,11 @@ import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 import com.comphenix.protocol.wrappers.nbt.NbtFactory;
 import com.lishid.orebfuscator.Orebfuscator;
 import com.lishid.orebfuscator.chunkmap.ChunkData;
-import com.lishid.orebfuscator.config.ConfigManager;
-import com.lishid.orebfuscator.config.WorldConfig;
 import com.lishid.orebfuscator.hithack.BlockHitManager;
 import com.lishid.orebfuscator.obfuscation.Calculations;
 
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
+import net.imprex.orebfuscator.config.WorldConfig;
 import net.imprex.orebfuscator.util.BlockCoords;
 
 public class ProtocolLibHook {
@@ -70,9 +69,8 @@ public class ProtocolLibHook {
 						return;
 					}
 
-					WorldConfig worldConfig = config.getWorld(player.getWorld());
-
-					if (worldConfig == null || !worldConfig.isEnabled()) {
+					WorldConfig worldConfig = config.world(player.getWorld());
+					if (worldConfig == null || !worldConfig.enabled()) {
 						return;
 					}
 
