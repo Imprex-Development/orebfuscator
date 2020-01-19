@@ -36,3 +36,6 @@ local.properties
 #Logs
 *.log
 .test
+
+# Maven
+dependency-reduced-pom.xml

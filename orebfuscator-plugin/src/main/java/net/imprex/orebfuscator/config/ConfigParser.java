@@ -1,7 +1,6 @@
 package net.imprex.orebfuscator.config;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -14,18 +13,6 @@ import org.bukkit.configuration.ConfigurationSection;
 import com.lishid.orebfuscator.Orebfuscator;
 
 public class ConfigParser {
-
-	private static final Map<String, Material> MATERIAL_BY_NAME = new HashMap<>();
-
-	static {
-		for (Material material : Material.values()) {
-			MATERIAL_BY_NAME.put(material.name(), material);
-		}
-	}
-
-	public static Material getMaterialByName(String materialName) {
-		return MATERIAL_BY_NAME.get(materialName.toUpperCase());
-	}
 
 	public static List<ConfigurationSection> serializeSectionList(ConfigurationSection parentSection, String path) {
 		List<ConfigurationSection> sections = new ArrayList<>();
@@ -83,14 +70,12 @@ public class ConfigParser {
 			String path) {
 		randomBlocks.clear();
 
-		System.out.println(section.get(path));
 		ConfigurationSection materialSection = section.getConfigurationSection(path);
 		if (materialSection == null) {
 			return;
 		}
 
 		Set<String> materialNames = materialSection.getKeys(false);
-		System.out.println(materialNames);
 		if (materialNames.isEmpty()) {
 			return;
 		}
