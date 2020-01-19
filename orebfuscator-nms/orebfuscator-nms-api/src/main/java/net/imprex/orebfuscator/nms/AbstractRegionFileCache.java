@@ -5,7 +5,6 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.locks.ReadWriteLock;
@@ -13,26 +12,37 @@ import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.util.ChunkPosition;
+import net.imprex.orebfuscator.util.SimpleCache;
 
 public abstract class AbstractRegionFileCache<T> {
 
 	protected final ReadWriteLock lock = new ReentrantReadWriteLock(true);
-	protected final Map<Path, T> regionFiles = new HashMap<>();
-	// TODO replace with google guava cache
+	protected final Map<Path, T> regionFiles;
 
 	protected final CacheConfig cacheConfig;
 
 	public AbstractRegionFileCache(CacheConfig cacheConfig) {
 		this.cacheConfig = cacheConfig;
+
+		this.regionFiles = new SimpleCache<>(cacheConfig.maximumOpenRegionFiles(), this::remove);
 	}
 
+	protected abstract T createRegionFile(Path path) throws IOException;
+
+	protected abstract void closeRegionFile(T t) throws IOException;
+
+	// TODO maybe generate Path inside RegionFileCache and not external
 	public abstract DataInputStream getInputStream(Path path, ChunkPosition key) throws IOException;
 
 	public abstract DataOutputStream getOutputStream(Path path, ChunkPosition key) throws IOException;
 
-	protected abstract T create(Path path) throws IOException;
-
-	protected abstract void close(T t) throws IOException;
+	private final void remove(Map.Entry<Path, T> entry) {
+		try {
+			this.closeRegionFile(entry.getValue());
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+	}
 
 	protected final T get(Path path) throws IOException {
 		this.lock.readLock().lock();
@@ -49,11 +59,12 @@ public abstract class AbstractRegionFileCache<T> {
 			Files.createDirectories(path.getParent());
 		}
 
-		if (this.regionFiles.size() >= this.cacheConfig.maximumOpenRegionFiles()) {
-			this.clear();
+		if (this.regionFiles.size() > this.cacheConfig.maximumOpenRegionFiles()) {
+			throw new IllegalStateException(String.format("RegionFileCache got bigger than expected (%d > %d)",
+					this.regionFiles.size(), this.cacheConfig.maximumOpenRegionFiles()));
 		}
 
-		T t = Objects.requireNonNull(this.create(path));
+		T t = Objects.requireNonNull(this.createRegionFile(path));
 
 		this.lock.writeLock().lock();
 		try {
@@ -75,7 +86,7 @@ public abstract class AbstractRegionFileCache<T> {
 		}
 
 		if (t != null) {
-			this.close(t);
+			this.closeRegionFile(t);
 		}
 	}
 
@@ -85,7 +96,7 @@ public abstract class AbstractRegionFileCache<T> {
 			for (T t : this.regionFiles.values()) {
 				try {
 					if (t != null) {
-						this.close(t);
+						this.closeRegionFile(t);
 					}
 				} catch (IOException e) {
 					e.printStackTrace();

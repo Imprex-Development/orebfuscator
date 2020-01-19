@@ -62,7 +62,6 @@ public class ChunkCache {
 			this.cache.put(key, Objects.requireNonNull(cacheEntry));
 		}
 
-		// TODO check if engine mode is same
 		if (cacheEntry.getHash() != hash) {
 			cacheEntry = mappingFunction.apply(key);
 		}

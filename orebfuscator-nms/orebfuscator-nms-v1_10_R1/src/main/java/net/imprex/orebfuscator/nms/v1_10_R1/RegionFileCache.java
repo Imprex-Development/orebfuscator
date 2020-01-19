@@ -27,12 +27,12 @@ public class RegionFileCache extends AbstractRegionFileCache<RegionFile> {
 	}
 
 	@Override
-	protected void close(RegionFile t) throws IOException {
+	protected void closeRegionFile(RegionFile t) throws IOException {
 		t.c();
 	}
 
 	@Override
-	protected RegionFile create(Path path) throws IOException {
+	protected RegionFile createRegionFile(Path path) throws IOException {
 		return new RegionFile(path.toFile());
 	}
 }
