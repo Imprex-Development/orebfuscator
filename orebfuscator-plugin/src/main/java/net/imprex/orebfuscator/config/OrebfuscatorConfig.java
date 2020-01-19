@@ -3,6 +3,7 @@ package net.imprex.orebfuscator.config;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -34,6 +35,8 @@ public class OrebfuscatorConfig implements Config {
 	private final Map<World, OrebfuscatorProximityConfig> worldToProximityConfig = new HashMap<>();
 
 	private final Plugin plugin;
+
+	private byte[] hash;
 
 	public OrebfuscatorConfig(Plugin plugin) {
 		this.plugin = plugin;
@@ -76,6 +79,19 @@ public class OrebfuscatorConfig implements Config {
 				e.printStackTrace();
 			}
 		}
+
+		this.hash = this.calculateHash(path);
+	}
+
+	private byte[] calculateHash(Path path) {
+		try {
+			MessageDigest md5Digest = MessageDigest.getInstance("MD5");
+			return md5Digest.digest(Files.readAllBytes(path));
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		return new byte[0];
 	}
 
 	private void serialize(ConfigurationSection section) {
@@ -180,5 +196,10 @@ public class OrebfuscatorConfig implements Config {
 	@Override
 	public ProximityConfig proximity(World world) {
 		return this.worldToProximityConfig.get(Objects.requireNonNull(world));
+	}
+
+	@Override
+	public byte[] hash() {
+		return hash;
 	}
 }

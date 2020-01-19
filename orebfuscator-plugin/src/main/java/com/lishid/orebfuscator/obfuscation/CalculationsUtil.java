@@ -20,10 +20,11 @@ import java.util.zip.CRC32;
 
 public class CalculationsUtil {
 
-	public static long Hash(byte[] data, int length) {
+	public static long Hash(byte[] data, int length, byte[] configHash) {
 		CRC32 crc = new CRC32();
 		crc.reset();
 		crc.update(data, 0, length);
+		crc.update(configHash);
 		return crc.getValue();
 	}
 

@@ -107,7 +107,7 @@ public class Calculations {
 		ChunkPosition position = new ChunkPosition(player.getWorld().getName(), chunkData.chunkX, chunkData.chunkZ);
 		ChunkCacheEntry cacheEntry = null;
 
-		final long hash = CalculationsUtil.Hash(chunkData.data, chunkData.data.length);
+		final long hash = CalculationsUtil.Hash(chunkData.data, chunkData.data.length, Calculations.config.hash());
 
 		if (Calculations.config.cache().enabled()) {
 			cacheEntry = Calculations.chunkCache.get(position, hash,

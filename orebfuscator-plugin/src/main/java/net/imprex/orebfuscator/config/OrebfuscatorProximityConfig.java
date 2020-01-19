@@ -20,13 +20,13 @@ import net.imprex.orebfuscator.util.WeightedRandom;
 
 public class OrebfuscatorProximityConfig implements ProximityConfig {
 
+	private static final ShouldHideConfig EMPTY_HIDE_CONFIG = new ShouldHideConfig(0, true);
+
 	private final List<World> worlds = new ArrayList<>();
 
 	private boolean enabled;
 	private int distance;
 	private int distanceSquared;
-	private boolean hideAboveY;
-	private int y;
 	private boolean useFastGazeCheck;
 
 	private Map<Material, ShouldHideConfig> hiddenBlocks = new HashMap<>();
@@ -65,8 +65,6 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 
 		this.distance = section.getInt("distance", 8);
 		this.distanceSquared = this.distance * this.distance;
-		this.hideAboveY = section.getBoolean("hideAboveY", false);
-		this.y = section.getInt("y", 255);
 		this.useFastGazeCheck = section.getBoolean("useFastGazeCheck", true);
 
 		this.serializeHiddenBlocks(section);
@@ -98,7 +96,6 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 			return;
 		}
 
-		ShouldHideConfig emptyHideConfig = new ShouldHideConfig(0, true);
 		for (String materialName : materialNames) {
 			Material material = Material.matchMaterial(materialName);
 
@@ -107,13 +104,10 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 						section.getCurrentPath(), materialName));
 				continue;
 			}
-			ConfigurationSection configurationSection = section.getConfigurationSection(materialName);
-			ShouldHideConfig hideConfig = emptyHideConfig;
 
-			if (configurationSection != null) {
-				if (configurationSection.isInt("y") && configurationSection.isBoolean("above")) {
-					hideConfig = new ShouldHideConfig(configurationSection.getInt("y"), configurationSection.getBoolean("above"));
-				}
+			ShouldHideConfig hideConfig = EMPTY_HIDE_CONFIG;
+			if (materialSection.isInt(materialName + ".y") && materialSection.isBoolean(materialName + ".above")) {
+				hideConfig = new ShouldHideConfig(materialSection.getInt(materialName + ".y"), materialSection.getBoolean(materialName + ".above"));
 			}
 
 			this.hiddenBlocks.put(material, hideConfig);
@@ -143,16 +137,6 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 	@Override
 	public int distanceSquared() {
 		return this.distanceSquared;
-	}
-
-	@Override
-	public boolean hideAboveY() {
-		return this.hideAboveY;
-	}
-
-	@Override
-	public int y() {
-		return this.y;
 	}
 
 	@Override
@@ -186,7 +170,7 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 		return shouldHide.shouldHide(y);
 	}
 
-	private class ShouldHideConfig {
+	private static class ShouldHideConfig {
 
 		private final int y;
 		private final boolean higher;
@@ -198,9 +182,9 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 
 		public boolean shouldHide(int y) {
 			if (this.higher) {
-				return this.y <= y;
+				return this.y < y;
 			} else {
-				return this.y >= y;
+				return this.y > y;
 			}
 		}
 	}

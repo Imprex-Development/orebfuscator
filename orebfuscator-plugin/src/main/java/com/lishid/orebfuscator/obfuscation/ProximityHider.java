@@ -188,8 +188,7 @@ public class ProximityHider extends Thread {
 
 								Location blockLocation = new Location(localPlayerInfo.getWorld(), b.x, b.y, b.z);
 
-								if (proximityConfig.hideAboveY()
-										|| playerLocation.distanceSquared(blockLocation) < distanceSquared) {
+								if (playerLocation.distanceSquared(blockLocation) < distanceSquared) {
 									// 4.3.1 -- GAZE CHECK
 									if (!proximityConfig.useFastGazeCheck() || this.doFastCheck(blockLocation,
 											playerEyes, localPlayerInfo.getWorld())) {
@@ -199,6 +198,7 @@ public class ProximityHider extends Thread {
 										if (NmsInstance.get().sendBlockChange(p, blockLocation)) {
 											final BlockCoords block = b;
 											final Player player = p;
+
 											ProximityHider.orebfuscator.runTask(new Runnable() {
 												@Override
 												public void run() {

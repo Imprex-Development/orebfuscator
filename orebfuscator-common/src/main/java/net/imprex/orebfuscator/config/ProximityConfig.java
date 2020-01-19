@@ -16,10 +16,6 @@ public interface ProximityConfig {
 
 	int distanceSquared();
 
-	boolean hideAboveY();
-
-	int y();
-
 	boolean useFastGazeCheck();
 
 	Collection<Integer> randomBlocks();
