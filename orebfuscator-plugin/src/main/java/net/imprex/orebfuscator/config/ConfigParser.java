@@ -31,7 +31,7 @@ public class ConfigParser {
 		return sections;
 	}
 
-	public static ConfigurationSection convertMapsToSections(Map<?, ?> input, ConfigurationSection section) {
+	private static ConfigurationSection convertMapsToSections(Map<?, ?> input, ConfigurationSection section) {
 		for (Map.Entry<?, ?> entry : input.entrySet()) {
 			String key = entry.getKey().toString();
 			Object value = entry.getValue();

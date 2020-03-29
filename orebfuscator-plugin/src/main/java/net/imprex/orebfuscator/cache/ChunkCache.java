@@ -53,19 +53,22 @@ public class ChunkCache {
 	public ChunkCacheEntry get(ChunkPosition key, long hash, Function<ChunkPosition, ChunkCacheEntry> mappingFunction) {
 		Objects.requireNonNull(mappingFunction);
 
+		// check if live cache entry is present and valid
 		ChunkCacheEntry cacheEntry = this.cache.getIfPresent(key);
-		if (cacheEntry == null) {
-			cacheEntry = this.load(key);
-			if (cacheEntry == null) {
-				cacheEntry = mappingFunction.apply(key);
-			}
+		if (cacheEntry != null && cacheEntry.getHash() == hash) {
+			return cacheEntry;
+		}
+
+		// check if disk cache entry is present and valid
+		cacheEntry = this.load(key);
+		if (cacheEntry != null && cacheEntry.getHash() == hash) {
 			this.cache.put(key, Objects.requireNonNull(cacheEntry));
+			return cacheEntry;
 		}
 
-		if (cacheEntry.getHash() != hash) {
-			cacheEntry = mappingFunction.apply(key);
-		}
-
+		// create new entry no valid ones found
+		cacheEntry = mappingFunction.apply(key);
+		this.cache.put(key, Objects.requireNonNull(cacheEntry));
 		return cacheEntry;
 	}
 
