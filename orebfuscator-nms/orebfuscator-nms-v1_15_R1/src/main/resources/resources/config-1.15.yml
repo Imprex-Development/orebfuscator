@@ -18,37 +18,37 @@ world:
     enabled: true
     darknessBlocks:
       - chest
+      - trapped_chest
       - ender_chest
       - spawner
-      - trapped_chest
     hiddenBlocks:
       - chest
-      - clay
+      - trapped_chest
+      - ender_chest
       - coal_ore
       - diamond_ore
       - emerald_ore
-      - ender_chest
       - gold_ore
       - iron_ore
       - lapis_ore
       - redstone_ore
       - shulker_box
       - stone
-      - trapped_chest
+      - clay
     randomBlocks:
       cave_air: 45
-      clay: 1
-      coal_ore: 1
-      cobblestone: 1
       diamond_ore: 25
       emerald_ore: 10
       gold_ore: 5
       iron_ore: 5
       lapis_ore: 1
-      mossy_cobblestone: 1
-      oak_planks: 1
-      obsidian: 1
+      coal_ore: 1
       redstone_ore: 1
+      oak_planks: 1
+      clay: 1
+      cobblestone: 1
+      mossy_cobblestone: 1
+      obsidian: 1
       stone: 1
       tnt: 1
   - worlds:
@@ -57,8 +57,8 @@ world:
     darknessBlocks:
       - chest
       - ender_chest
-      - spawner
       - trapped_chest
+      - spawner
     hiddenBlocks:
       - netherrack
       - nether_quartz_ore
@@ -75,8 +75,8 @@ world:
     darknessBlocks:
       - chest
       - ender_chest
-      - spawner
       - trapped_chest
+      - spawner
     hiddenBlocks:
       - end_stone
     randomBlocks:
@@ -90,16 +90,35 @@ world:
 proximity:
   - worlds:
       - world
-      - world_nether
-      - world_the_end
     enabled: true
     distance: 8
+    useFastGazeCheck: false
     hiddenBlocks:
-      chest:
-        y: 64
-        above: true
-      trapped_chest:
+      chest: {}
+      trapped_chest: {}
+      ender_chest: {}
+      emerald_ore: {}
+      diamond_ore: {}
+      iron_ore: {}
+      lapis_ore: {}
+      coal_ore: {}
+      redstone_ore: {}
+      gold_ore: {}
+      mossy_cobblestone: {}
+      obsidian: {}
+      clay: {}
+      tnt: {}
+      anvil: {}
+      damaged_anvil: {}
+      crafting_table: {}
+      enchanting_table: {}
+      furnace: {}
+      hopper: {}
+      spawner:
         y: 64
         above: false
     randomBlocks:
+      cobblestone: 1
       stone: 1
+      dirt: 1
+      grass_block: 1
