@@ -83,6 +83,16 @@ public class OrebfuscatorProximityConfig implements ProximityWorldConfig {
 		}
 	}
 
+	protected void store(ConfigurationSection section) {
+		section.set("worlds", this.worlds);
+		section.set("enabled", this.enabled);
+		section.set("distance", this.distance);
+		section.set("distanceSquared", this.distanceSquared);
+		section.set("useFastGazeCheck", this.useFastGazeCheck);
+		section.set("hiddenBlocks", this.hiddenBlocks);
+		section.set("randomBlocks", this.randomBlocks);
+	}
+
 	private void serializeHiddenBlocks(ConfigurationSection section) {
 		this.hiddenBlocks.clear();
 

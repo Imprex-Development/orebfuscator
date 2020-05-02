@@ -64,6 +64,15 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 		}
 	}
 
+	protected void store(ConfigurationSection section) {
+		section.set("enabled", this.enabled);
+		section.set("maximumOpenRegionFiles", this.maximumOpenRegionFiles);
+		section.set("deleteRegionFilesAfterAccess", this.deleteRegionFilesAfterAccess);
+		section.set("maximumSize", this.maximumSize);
+		section.set("expireAfterAccess", this.expireAfterAccess);
+		section.set("baseDirectory", this.baseDirectory);
+	}
+
 	@Override
 	public boolean enabled() {
 		return this.enabled;

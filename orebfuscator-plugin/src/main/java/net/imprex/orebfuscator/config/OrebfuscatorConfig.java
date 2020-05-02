@@ -14,6 +14,7 @@ import java.util.regex.Matcher;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import com.lishid.orebfuscator.utils.Globals;
@@ -29,7 +30,7 @@ public class OrebfuscatorConfig implements Config {
 	private final OrebfuscatorGeneralConfig generalConfig = new OrebfuscatorGeneralConfig();
 	private final OrebfuscatorCacheConfig cacheConfig = new OrebfuscatorCacheConfig();
 
-	private final List<OrebfuscatorWorldConfig> world = new ArrayList<>();
+	private final List<OrebfuscatorWorldConfig> worlds = new ArrayList<>();
 	private final List<OrebfuscatorProximityConfig> proximityWorlds = new ArrayList<>();
 
 	private final Map<World, OrebfuscatorBlockMask> worldToBlockMask = new HashMap<>();
@@ -101,7 +102,7 @@ public class OrebfuscatorConfig implements Config {
 			throw new RuntimeException("config is not up to date, please delete your config");
 		}
 
-		this.world.clear();
+		this.worlds.clear();
 		this.proximityWorlds.clear();
 
 		ConfigurationSection generalSection = section.getConfigurationSection("general");
@@ -123,7 +124,7 @@ public class OrebfuscatorConfig implements Config {
 			for (ConfigurationSection worldSection : worldSectionList) {
 				OrebfuscatorWorldConfig worldConfig = new OrebfuscatorWorldConfig();
 				worldConfig.serialize(worldSection);
-				this.world.add(worldConfig);
+				this.worlds.add(worldConfig);
 			}
 		} else {
 			OFCLogger.warn("config section 'world' is missing or empty");
@@ -141,10 +142,42 @@ public class OrebfuscatorConfig implements Config {
 		}
 	}
 
+	public void store(ConfigurationSection section) {
+		ConfigurationSection generalSection = section.getConfigurationSection("general");
+		if (generalSection == null) {
+			generalSection = new MemoryConfiguration();
+			section.set("general", generalSection);
+		}
+		this.generalConfig.store(generalSection);
+
+		ConfigurationSection cacheSection = section.getConfigurationSection("cache");
+		if (cacheSection == null) {
+			cacheSection = new MemoryConfiguration();
+			section.set("cache", cacheSection);
+		}
+		this.cacheConfig.store(cacheSection);
+
+		List<ConfigurationSection> worldSections = new ArrayList<ConfigurationSection>();
+		for (OrebfuscatorWorldConfig world : this.worlds) {
+			ConfigurationSection worldSection = new MemoryConfiguration();
+			world.store(worldSection);
+			worldSections.add(worldSection);
+		}
+		section.set("world", worldSections);
+
+		List<ConfigurationSection> proximitySections = new ArrayList<ConfigurationSection>();
+		for (OrebfuscatorWorldConfig proximity : this.worlds) {
+			ConfigurationSection proximitySection = new MemoryConfiguration();
+			proximity.store(proximitySection);
+			proximitySections.add(proximitySection);
+		}
+		section.set("proximity", proximitySections);
+	}
+
 	private void initialize() {
 		this.worldToWorldConfig.clear();
 
-		for (OrebfuscatorWorldConfig worldConfig : this.world) {
+		for (OrebfuscatorWorldConfig worldConfig : this.worlds) {
 			worldConfig.initialize();
 			for (World world : worldConfig.worlds()) {
 				if (this.worldToWorldConfig.containsKey(world)) {

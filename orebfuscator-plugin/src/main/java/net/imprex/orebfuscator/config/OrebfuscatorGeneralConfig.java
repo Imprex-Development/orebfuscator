@@ -18,6 +18,14 @@ public class OrebfuscatorGeneralConfig implements GeneralConfig {
 		this.proximityHiderRunnerSize = section.getInt("proximityHiderRunnerSize", 4);
 	}
 
+	protected void store(ConfigurationSection section) {
+		section.set("updateOnBlockDamage", this.updateOnBlockDamage);
+		section.set("bypassNotification", this.bypassNotification);
+		section.set("initialRadius", this.initialRadius);
+		section.set("updateRadius", this.updateRadius);
+		section.set("proximityHiderRunnerSize", this.proximityHiderRunnerSize);
+	}
+
 	@Override
 	public boolean updateOnBlockDamage() {
 		return this.updateOnBlockDamage;

@@ -19,7 +19,7 @@ import net.imprex.orebfuscator.util.WeightedRandom;
 
 public class OrebfuscatorWorldConfig implements WorldConfig {	
 
-	private boolean enabled;
+	private boolean enabled = false;
 	private final List<World> worlds = new ArrayList<>();
 	private final Set<Material> hiddenBlocks = new HashSet<>();
 	private final Set<Material> darknessBlocks = new HashSet<>();
@@ -58,6 +58,13 @@ public class OrebfuscatorWorldConfig implements WorldConfig {
 			this.failSerialize(
 					String.format("config section '%s.randomBlocks' is missing or empty", section.getCurrentPath()));
 		}
+	}
+
+	protected void store(ConfigurationSection section) {
+		section.set("enabled", this.enabled);
+		section.set("worlds", this.worlds);
+		section.set("hiddenBlocks", this.hiddenBlocks);
+		section.set("darknessBlocks", this.darknessBlocks);
 	}
 
 	private void serializeMaterialSet(ConfigurationSection section, Set<Material> materials, String path) {
