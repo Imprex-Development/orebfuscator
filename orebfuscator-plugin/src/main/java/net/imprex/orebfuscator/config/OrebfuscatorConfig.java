@@ -24,7 +24,7 @@ import net.imprex.orebfuscator.util.OFCLogger;
 
 public class OrebfuscatorConfig implements Config {
 
-	private static final int CONFIG_VERSION = 14;
+	private static final int CONFIG_VERSION = 1;
 
 	private final OrebfuscatorGeneralConfig generalConfig = new OrebfuscatorGeneralConfig();
 	private final OrebfuscatorCacheConfig cacheConfig = new OrebfuscatorCacheConfig();

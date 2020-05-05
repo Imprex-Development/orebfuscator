@@ -7,12 +7,14 @@ import java.util.Set;
 
 import org.bukkit.World;
 import org.bukkit.block.Block;
+import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
+import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
@@ -20,6 +22,7 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerJoinEvent;
 
 import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.Orebfuscator;
@@ -30,13 +33,14 @@ import net.imprex.orebfuscator.config.WorldConfig;
 import net.imprex.orebfuscator.nms.BlockStateHolder;
 import net.imprex.orebfuscator.nms.NmsManager;
 import net.imprex.orebfuscator.util.ChunkPosition;
+import net.imprex.orebfuscator.util.PermissionUtil;
 
-public class BlockListener implements Listener {
+public class ObfuscationListener implements Listener {
 
 	private final OrebfuscatorConfig config;
 	private final ChunkCache chunkCache;
 
-	public BlockListener(Orebfuscator orebfuscator) {
+	public ObfuscationListener(Orebfuscator orebfuscator) {
 		this.config = orebfuscator.getOrebfuscatorConfig();
 		this.chunkCache = orebfuscator.getChunkCache();
 	}
@@ -120,6 +124,13 @@ public class BlockListener implements Listener {
 	}
 
 	@EventHandler
+	public void onBlockDamage(BlockDamageEvent event) {
+		if (this.config.general().updateOnBlockDamage()) {
+			this.onUpdate(event.getBlock());
+		}
+	}
+
+	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
 		this.onUpdate(event.getBlock());
 	}
@@ -165,6 +176,14 @@ public class BlockListener implements Listener {
 				&& event.getItem() != null && event.getItem().getType() != null
 				&& NmsInstance.get().isHoe(event.getItem().getType())) {
 			this.onUpdate(event.getClickedBlock());
+		}
+	}
+
+	@EventHandler
+	public void onJoin(PlayerJoinEvent event) {
+		Player player = event.getPlayer();
+		if (this.config.general().bypassNotification() && PermissionUtil.canDeobfuscate(player)) {
+			player.sendMessage("[OFC] Orebfuscator bypassed.");
 		}
 	}
 }

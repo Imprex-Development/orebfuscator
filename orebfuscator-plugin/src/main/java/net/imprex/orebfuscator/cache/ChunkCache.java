@@ -36,8 +36,7 @@ public class ChunkCache {
 	public ChunkCache(Orebfuscator orebfuscator) {
 		this.cacheConfig = orebfuscator.getOrebfuscatorConfig().cache();
 
-		this.cache = CacheBuilder.newBuilder()
-				.maximumSize(this.cacheConfig.maximumSize())
+		this.cache = CacheBuilder.newBuilder().maximumSize(this.cacheConfig.maximumSize())
 				.expireAfterAccess(this.cacheConfig.expireAfterAccess(), TimeUnit.MILLISECONDS)
 				.removalListener(this::onRemoval).build();
 
@@ -54,7 +53,7 @@ public class ChunkCache {
 		}
 	}
 
-	private ChunkCacheEntry load(ChunkPosition key) {	
+	private ChunkCacheEntry load(ChunkPosition key) {
 		try {
 			return this.serializer.read(key);
 		} catch (IOException e) {
@@ -63,7 +62,8 @@ public class ChunkCache {
 		return null;
 	}
 
-	public ChunkCacheEntry get(ChunkPosition key, byte[] hash, Function<ChunkPosition, ChunkCacheEntry> mappingFunction) {
+	public ChunkCacheEntry get(ChunkPosition key, byte[] hash,
+			Function<ChunkPosition, ChunkCacheEntry> mappingFunction) {
 		Objects.requireNonNull(mappingFunction);
 
 		// check if live cache entry is present and valid

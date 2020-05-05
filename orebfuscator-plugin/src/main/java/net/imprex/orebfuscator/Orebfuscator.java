@@ -3,15 +3,17 @@ package net.imprex.orebfuscator;
 import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import net.imprex.orebfuscator.cache.CacheCleanTask;
 import net.imprex.orebfuscator.cache.ChunkCache;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
-import net.imprex.orebfuscator.obfuscation.BlockListener;
+import net.imprex.orebfuscator.obfuscation.ObfuscationListener;
 import net.imprex.orebfuscator.obfuscation.Obfuscator;
 import net.imprex.orebfuscator.obfuscation.PacketListener;
 import net.imprex.orebfuscator.proximityhider.ProximityHider;
@@ -42,10 +44,11 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 
 			// Load chunk cache	
 			this.chunkCache = new ChunkCache(this);
+			this.getServer().getScheduler().runTaskTimerAsynchronously(this, new CacheCleanTask(this), 0, 3_600_000L);
 
 			// Load obfuscater
 			this.obfuscator = new Obfuscator(this);
-			this.getServer().getPluginManager().registerEvents(new BlockListener(this), this);
+			this.getServer().getPluginManager().registerEvents(new ObfuscationListener(this), this);
 
 			// Load proximity hider
 			this.proximityHider = new ProximityHider(this);
@@ -63,14 +66,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 			OFCLogger.log(e);
 			OFCLogger.log(Level.SEVERE, "An error occurred by enabling plugin");
 
-			this.getServer().getPluginManager().registerEvent(PluginEnableEvent.class, this, EventPriority.NORMAL, (listener, event) -> {
-				PluginEnableEvent enableEvent = (PluginEnableEvent) event;
-
-				if (enableEvent.getPlugin() == this) {
-					HandlerList.unregisterAll(listener);
-					Bukkit.getPluginManager().disablePlugin(this);
-				}
-			}, this);
+			this.getServer().getPluginManager().registerEvent(PluginEnableEvent.class, this, EventPriority.NORMAL, this::onEnableFailed, this);
 		}
 	}
 
@@ -87,8 +83,13 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 		this.config = null;
 	}
 
-	public void runTask(Runnable runnable) {
-		this.getServer().getScheduler().runTask(this, runnable);
+	public void onEnableFailed(Listener listener, Event event) {
+		PluginEnableEvent enableEvent = (PluginEnableEvent) event;
+
+		if (enableEvent.getPlugin() == this) {
+			HandlerList.unregisterAll(listener);
+			Bukkit.getPluginManager().disablePlugin(this);
+		}
 	}
 
 	public OrebfuscatorConfig getOrebfuscatorConfig() {

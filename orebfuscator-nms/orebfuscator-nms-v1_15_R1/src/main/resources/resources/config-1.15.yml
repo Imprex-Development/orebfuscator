@@ -1,4 +1,4 @@
-version: 14
+version: 1
 general:
   updateOnBlockDamage: true
   bypassNotification: true

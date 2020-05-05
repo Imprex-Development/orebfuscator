@@ -62,15 +62,15 @@ public class PlayerBlockTracking {
 	public void incrementHackingIndicator(int value) {
 		this.hackingIndicator += value;
 		if (this.hackingIndicator >= 1 << 14) {
-			this.orebfuscator.runTask(new Runnable() {
-
-				@Override
-				public void run() {
-					String name = PlayerBlockTracking.this.player.getName();
-					OFCLogger.log("Player \"" + name + "\" tried to hack with packet spamming.");
-					PlayerBlockTracking.this.player.kickPlayer("End of Stream");
-				}
-			});
+//			this.orebfuscator.runTask(new Runnable() {
+//
+//				@Override
+//				public void run() {
+//					String name = PlayerBlockTracking.this.player.getName();
+//					OFCLogger.log("Player \"" + name + "\" tried to hack with packet spamming.");
+//					PlayerBlockTracking.this.player.kickPlayer("End of Stream");
+//				}
+//			});
 		}
 	}
 
