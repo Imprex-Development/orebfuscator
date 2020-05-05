@@ -141,7 +141,7 @@ public class BlockListener implements Listener {
 
 	@EventHandler
 	public void onBlockPistonRetract(BlockPistonRetractEvent event) {
-		this.onUpdate(event.getBlock());
+		this.onUpdate(event.getBlocks());
 	}
 
 	@EventHandler

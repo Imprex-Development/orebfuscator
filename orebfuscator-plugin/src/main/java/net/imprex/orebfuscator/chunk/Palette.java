@@ -1,13 +1,15 @@
 package net.imprex.orebfuscator.chunk;
 
+import io.netty.buffer.ByteBuf;
+
 public interface Palette {
 
 	int fromBlockId(int blockId);
 
 	int toBlockId(int id);
 
-	void read(ChunkBuffer buffer);
+	void read(ByteBuf buffer);
 
-	void write(ChunkBuffer buffer);
+	void write(ByteBuf buffer);
 
 }

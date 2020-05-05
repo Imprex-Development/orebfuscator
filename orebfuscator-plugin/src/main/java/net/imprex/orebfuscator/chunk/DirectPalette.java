@@ -1,5 +1,7 @@
 package net.imprex.orebfuscator.chunk;
 
+import io.netty.buffer.ByteBuf;
+
 public class DirectPalette implements Palette {
 
 	@Override
@@ -13,16 +15,16 @@ public class DirectPalette implements Palette {
 	}
 
 	@Override
-	public void read(ChunkBuffer buffer) {
+	public void read(ByteBuf buffer) {
 		if (ChunkCapabilities.hasDirectPaletteZeroLength) {
-			buffer.readVarInt();
+			ByteBufUtil.readVarInt(buffer);
 		}
 	}
 
 	@Override
-	public void write(ChunkBuffer buffer) {
+	public void write(ByteBuf buffer) {
 		if (ChunkCapabilities.hasDirectPaletteZeroLength) {
-			buffer.writeVarInt(0);
+			ByteBufUtil.writeVarInt(buffer, 0);
 		}
 	}
 }

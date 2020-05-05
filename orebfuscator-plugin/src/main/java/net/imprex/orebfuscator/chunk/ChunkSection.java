@@ -1,14 +1,15 @@
 package net.imprex.orebfuscator.chunk;
 
+import io.netty.buffer.ByteBuf;
 import net.imprex.orebfuscator.NmsInstance;
 
 public class ChunkSection {
 
 	private int blockCount;
-	public int bitsPerBlock;
+	private int bitsPerBlock;
 
-	public Palette palette;
-	public VarBitBuffer data;
+	private Palette palette;
+	private VarBitBuffer data;
 
 	public ChunkSection() {
 		this.setBitsPerBlock(4);
@@ -47,7 +48,7 @@ public class ChunkSection {
 		return this.palette.fromBlockId(blockId);
 	}
 
-	private static int positionToIndex(int x, int y, int z) {
+	static int positionToIndex(int x, int y, int z) {
 		return y << 8 | z << 4 | x;
 	}
 
@@ -78,37 +79,43 @@ public class ChunkSection {
 		return this.palette.toBlockId(this.data.get(index));
 	}
 
-	public void write(ChunkBuffer chunkBuffer) {
+	public void write(ByteBuf buffer) {
 		if (ChunkCapabilities.hasBlockCount) {
-			chunkBuffer.writeShort(this.blockCount);
+			buffer.writeShort(this.blockCount);
 		}
 
-		chunkBuffer.writeByte(this.bitsPerBlock);
-		this.palette.write(chunkBuffer);
+		buffer.writeByte(this.bitsPerBlock);
+		this.palette.write(buffer);
 
 		long[] data = this.data.toArray();
-		chunkBuffer.writeVarInt(data.length);
+		ByteBufUtil.writeVarInt(buffer, data.length);
 		for (long entry : data) {
-			chunkBuffer.writeLong(entry);
+			buffer.writeLong(entry);
 		}
 	}
 
-	public void read(ChunkBuffer chunkBuffer) {
+	public int[] read(ByteBuf buffer) {
 		if (ChunkCapabilities.hasBlockCount) {
-			this.blockCount = chunkBuffer.readShort();
+			this.blockCount = buffer.readShort();
 		}
 
-		this.setBitsPerBlock(chunkBuffer.readUnsignedByte());
+		this.setBitsPerBlock(buffer.readUnsignedByte());
 
-		this.palette.read(chunkBuffer);
+		this.palette.read(buffer);
 
 		long[] data = this.data.toArray();
-		if (data.length != chunkBuffer.readVarInt()) {
+		if (data.length != ByteBufUtil.readVarInt(buffer)) {
 			throw new IndexOutOfBoundsException("data.length != VarBitBuffer::size");
 		}
 
 		for (int i = 0; i < data.length; i++) {
-			data[i] = chunkBuffer.readLong();
+			data[i] = buffer.readLong();
 		}
+
+		int[] directData = new int[4096];
+		for (int i = 0; i < directData.length; i++) {
+			directData[i] = this.getBlock(i);
+		}
+		return directData;
 	}
 }

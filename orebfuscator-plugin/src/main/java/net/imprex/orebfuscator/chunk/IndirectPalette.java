@@ -2,6 +2,7 @@ package net.imprex.orebfuscator.chunk;
 
 import java.util.Arrays;
 
+import io.netty.buffer.ByteBuf;
 import net.imprex.orebfuscator.NmsInstance;
 
 public class IndirectPalette implements Palette {
@@ -24,7 +25,7 @@ public class IndirectPalette implements Palette {
 
 	@Override
 	public int fromBlockId(int block) {
-		int index = this.blockToIndex[block];
+		int index = this.blockToIndex[block] & 0xFF;
 		if (index == -1) {
 			index = this.index++;
 
@@ -45,20 +46,20 @@ public class IndirectPalette implements Palette {
 	}
 
 	@Override
-	public void read(ChunkBuffer buffer) {
-		int size = buffer.readVarInt();
+	public void read(ByteBuf buffer) {
+		int size = ByteBufUtil.readVarInt(buffer);
 		for (int i = 0; i < size; i++) {
-			this.fromBlockId(buffer.readVarInt());
+			this.fromBlockId(ByteBufUtil.readVarInt(buffer));
 		}
 	}
 
 	@Override
-	public void write(ChunkBuffer buffer) {
+	public void write(ByteBuf buffer) {
 		int size = this.indexToBlock.length;
-		buffer.writeVarInt(size);
+		ByteBufUtil.writeVarInt(buffer, size);
 
 		for (int i = 0; i < size; i++) {
-			buffer.writeVarInt(this.toBlockId(i));
+			ByteBufUtil.writeVarInt(buffer, this.toBlockId(i));
 		}
 	}
 
