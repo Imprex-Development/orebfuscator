@@ -111,7 +111,6 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 			if (materialSection.isInt(materialName + ".y") && materialSection.isBoolean(materialName + ".above")) {
 				hideCondition = createHideCondition(materialSection.getInt(materialName + ".y"), materialSection.getBoolean(materialName + ".above"));
 			}
-			System.out.println(materialName + " " + hideCondition);
 
 			this.hiddenBlocks.put(material, hideCondition);
 		}

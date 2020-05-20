@@ -21,7 +21,6 @@ import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.cache.ChunkCacheEntry;
 import net.imprex.orebfuscator.chunk.ChunkStruct;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
-import net.imprex.orebfuscator.config.WorldConfig;
 import net.imprex.orebfuscator.proximityhider.ProximityHider;
 import net.imprex.orebfuscator.util.BlockCoords;
 import net.imprex.orebfuscator.util.PermissionUtil;
@@ -58,8 +57,7 @@ public class PacketListener extends PacketAdapter {
 		}
 
 		World world = player.getWorld();
-		WorldConfig worldConfig = config.world(world);
-		if (worldConfig == null || !worldConfig.enabled()) {
+		if (!config.needsObfuscation(world)) {
 			return;
 		}
 
@@ -88,20 +86,6 @@ public class PacketListener extends PacketAdapter {
 
 			this.proximityHider.addProximityBlocks(player, chunkStruct.chunkX, chunkStruct.chunkZ, chunkEntry.getProximityBlocks());
 		}
-
-//		ChunkData chunkData = new ChunkData();
-//		chunkData.chunkX = ints.read(0);
-//		chunkData.chunkZ = ints.read(1);
-//		chunkData.groundUpContinuous = true;
-//		chunkData.primaryBitMask = ints.read(2);
-//		chunkData.data = byteArray.read(0);
-//		chunkData.isOverworld = event.getPlayer().getWorld().getEnvironment() == World.Environment.NORMAL;
-//		chunkData.blockEntities = Collections.emptyList();
-//
-//		Result result = Calculations.obfuscateOrUseCache(chunkData, player, worldConfig);
-//		if (result != null) {
-//			byteArray.write(0, result.output);
-//		}
 	}
 
 	private static void removeBlockEntities(List<NbtBase<?>> tileEntityList, Set<BlockCoords> removedTileEntities) {

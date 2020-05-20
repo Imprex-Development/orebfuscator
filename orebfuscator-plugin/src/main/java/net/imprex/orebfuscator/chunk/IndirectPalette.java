@@ -9,7 +9,7 @@ public class IndirectPalette implements Palette {
 
 	private final byte[] blockToIndex;
 	private final int[] indexToBlock;
-	private int index = 0;
+	private int size = 0;
 
 	private final ChunkSection chunkSection;
 	private final int bitsPerBlock;
@@ -19,21 +19,21 @@ public class IndirectPalette implements Palette {
 		this.chunkSection = chunkSection;
 
 		this.blockToIndex = new byte[NmsInstance.get().getMaterialSize()];
-		Arrays.fill(this.blockToIndex, (byte) -1);
+		Arrays.fill(this.blockToIndex, (byte) 0xFF);
 		this.indexToBlock = new int[1 << bitsPerBlock];
 	}
 
 	@Override
 	public int fromBlockId(int block) {
 		int index = this.blockToIndex[block] & 0xFF;
-		if (index == -1) {
-			index = this.index++;
+		if (index == 0xFF) {
+			index = this.size++;
 
-			if (index >= 1 << this.bitsPerBlock) {
-				index = this.chunkSection.grow(this.bitsPerBlock + 1, block);
-			} else {
+			if (index != 0xFF && index < this.indexToBlock.length) {
 				this.blockToIndex[block] = (byte) index;
 				this.indexToBlock[index] = block;
+			} else {
+				index = this.chunkSection.grow(this.bitsPerBlock + 1, block);
 			}
 		}
 
@@ -55,10 +55,9 @@ public class IndirectPalette implements Palette {
 
 	@Override
 	public void write(ByteBuf buffer) {
-		int size = this.indexToBlock.length;
-		ByteBufUtil.writeVarInt(buffer, size);
+		ByteBufUtil.writeVarInt(buffer, this.size);
 
-		for (int i = 0; i < size; i++) {
+		for (int i = 0; i < this.size; i++) {
 			ByteBufUtil.writeVarInt(buffer, this.toBlockId(i));
 		}
 	}

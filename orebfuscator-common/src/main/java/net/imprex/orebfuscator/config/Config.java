@@ -10,6 +10,8 @@ public interface Config {
 
 	BlockMask blockMask(World world);
 
+	boolean needsObfuscation(World world);
+
 	WorldConfig world(World world);
 	
 	boolean proximityEnabled();

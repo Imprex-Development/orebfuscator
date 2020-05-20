@@ -75,8 +75,10 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 		NmsInstance.get().getRegionFileCache().clear();
 		this.chunkCache.invalidateAll(true);
 		this.packetListener.unregister();
-		this.proximityPacketListener.unregister();
-		this.proximityHider.destroy();
+		if (this.config.proximityEnabled()) {
+			this.proximityPacketListener.unregister();
+			this.proximityHider.destroy();
+		}
 
 		this.getServer().getScheduler().cancelTasks(this);
 

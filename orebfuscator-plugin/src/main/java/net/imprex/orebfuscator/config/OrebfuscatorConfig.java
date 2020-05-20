@@ -199,6 +199,13 @@ public class OrebfuscatorConfig implements Config {
 	}
 
 	@Override
+	public boolean needsObfuscation(World world) {
+		WorldConfig worldConfig = this.world(world);
+		ProximityConfig proximityConfig = this.proximity(world);
+		return worldConfig != null && worldConfig.enabled() || proximityConfig != null && proximityConfig.enabled();
+	}
+
+	@Override
 	public OrebfuscatorWorldConfig world(World world) {
 		return this.worldToWorldConfig.get(Objects.requireNonNull(world));
 	}
