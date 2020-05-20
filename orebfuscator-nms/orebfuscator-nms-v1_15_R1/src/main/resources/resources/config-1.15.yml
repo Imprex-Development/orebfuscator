@@ -19,22 +19,22 @@ world:
     darknessBlocks:
       - chest
       - ender_chest
-      - spawner
       - trapped_chest
+      - spawner
     hiddenBlocks:
       - chest
-      - clay
-      - coal_ore
-      - diamond_ore
-      - emerald_ore
       - ender_chest
+      - trapped_chest
+      - emerald_ore
+      - diamond_ore
       - gold_ore
       - iron_ore
+      - coal_ore
       - lapis_ore
       - redstone_ore
       - shulker_box
       - stone
-      - trapped_chest
+      - clay
     randomBlocks:
       cave_air: 45
       clay: 1
@@ -57,49 +57,99 @@ world:
     darknessBlocks:
       - chest
       - ender_chest
-      - spawner
       - trapped_chest
+      - spawner
     hiddenBlocks:
+      - chest
+      - ender_chest
+      - trapped_chest
       - netherrack
       - nether_quartz_ore
     randomBlocks:
-      cave_air: 5
-      gravel: 1
       netherrack: 1
-      nether_bricks: 1
       nether_quartz_ore: 1
-      soul_sand: 1
   - worlds:
       - world_the_end
     enabled: true
     darknessBlocks:
       - chest
       - ender_chest
-      - spawner
       - trapped_chest
+      - spawner
     hiddenBlocks:
-      - end_stone
+      - chest
+      - ender_chest
+      - trapped_chest
+      - netherrack
+      - nether_quartz_ore
     randomBlocks:
-      cave_air: 5
-      bedrock: 1
       end_stone: 1
       end_stone_bricks: 1
+      bedrock: 1
       obsidian: 1
       purpur_block: 1
 
 proximity:
   - worlds:
       - world
+    enabled: true
+    distance: 8
+    useFastGazeCheck: false
+    hiddenBlocks:
+      diamond_ore: {}
+      emerald_ore: {}
+      chest: {}
+      ender_chest: {}
+      trapped_chest: {}
+      anvil: {}
+      chipped_anvil: {}
+      crafting_table: {}
+      damaged_anvil: {}
+      dispenser: {}
+      enchanting_table: {}
+      furnace: {}
+      hopper: {}
+      spawner: {}
+    randomBlocks:
+      stone: 1
+  - worlds:
       - world_nether
+    enabled: true
+    distance: 8
+    useFastGazeCheck: false
+    hiddenBlocks:
+      chest: {}
+      ender_chest: {}
+      trapped_chest: {}
+      anvil: {}
+      chipped_anvil: {}
+      crafting_table: {}
+      damaged_anvil: {}
+      dispenser: {}
+      enchanting_table: {}
+      furnace: {}
+      hopper: {}
+      spawner: {}
+    randomBlocks:
+      netherrack: 4
+      nether_quartz_ore: 1
+  - worlds:
       - world_the_end
     enabled: true
     distance: 8
+    useFastGazeCheck: false
     hiddenBlocks:
-      chest:
-        y: 64
-        above: true
-      trapped_chest:
-        y: 64
-        above: false
+      chest: {}
+      ender_chest: {}
+      trapped_chest: {}
+      anvil: {}
+      chipped_anvil: {}
+      crafting_table: {}
+      damaged_anvil: {}
+      dispenser: {}
+      enchanting_table: {}
+      furnace: {}
+      hopper: {}
+      spawner: {}
     randomBlocks:
-      stone: 1
+      end_stone: 1

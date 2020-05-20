@@ -56,12 +56,6 @@
 		</dependency>
 		<dependency>
 			<groupId>net.imprex</groupId>
-			<artifactId>orebfuscator-nms-v1_9_R1</artifactId>
-			<version>${orebfuscator.version}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>net.imprex</groupId>
 			<artifactId>orebfuscator-nms-v1_9_R2</artifactId>
 			<version>${orebfuscator.version}</version>
 			<scope>compile</scope>

@@ -1,159 +1,155 @@
-ConfigVersion: 13
-Booleans:
-  UseCache: true
-  Enabled: true
-  UpdateOnDamage: true
-  NoObfuscationForMetadata: true
-  NoObfuscationForOps: false
-  NoObfuscationForPermission: false
-  LoginNotification: true
-Integers:
-  MaxLoadedCacheFiles: 64
-  DeleteCacheFilesAfterDays: 0
-  EngineMode: 2
-  InitialRadius: 1
-  UpdateRadius: 2
-Strings:
-  CacheLocation: orebfuscator_cache
-  NoObfuscationForMetadataTagName: NPC
-Worlds:
-  world:
-    Enabled: true
-    Mode1Block: STONE
-    AntiTexturePackAndFreecam: true
-    AirGeneratorMaxChance: 43
-    DarknessHideBlocks: false
-    BypassObfuscationForSignsWithText: false
-    DarknessBlocks:
-    - CHEST
-    - MOB_SPAWNER
-    RandomBlocks:
-    - CLAY
-    - COAL_ORE
-    - COBBLESTONE
-    - DIAMOND_ORE
-    - EMERALD_ORE
-    - GOLD_ORE
-    - IRON_ORE
-    - LAPIS_ORE
-    - MOSSY_COBBLESTONE
-    - OBSIDIAN
-    - REDSTONE_ORE
-    - STONE
-    - TNT
-    - WOOD
-    ObfuscateBlocks:
-    - CHEST
-    - CLAY
-    - COAL_ORE
-    - DIAMOND_ORE
-    - EMERALD_ORE
-    - ENDER_CHEST
-    - GOLD_ORE
-    - IRON_ORE
-    - LAPIS_ORE
-    - REDSTONE_ORE
-    - STONE
-    ProximityHider:
-      Enabled: true
-      Distance: 8
-      SpecialBlock: STONE
-      Y: 255
-      UseSpecialBlock: true
-      ObfuscateAboveY: false
-      ProximityHiderBlocks:
-      - ANVIL
-      - BURNING_FURNACE
-      - CHEST
-      - DIAMOND_ORE
-      - DISPENSER
-      - EMERALD_ORE
-      - ENCHANTMENT_TABLE
-      - ENDER_CHEST
-      - FURNACE
-      - HOPPER
-      - MOB_SPAWNER
-      - TRAPPED_CHEST
-      - WORKBENCH
-      UseFastGazeCheck: true
-  world_the_end:
-    Enabled: true
-    Mode1Block: ENDER_STONE
-    AntiTexturePackAndFreecam: true
-    AirGeneratorMaxChance: 43
-    DarknessHideBlocks: false
-    BypassObfuscationForSignsWithText: false
-    DarknessBlocks:
-    - CHEST
-    - MOB_SPAWNER
-    RandomBlocks:
-    - BEDROCK
-    - ENDER_STONE
-    - END_BRICKS
-    - OBSIDIAN
-    - PURPUR_BLOCK
-    ObfuscateBlocks:
-    - ENDER_STONE
-    ProximityHider:
-      Enabled: true
-      Distance: 8
-      SpecialBlock: STONE
-      Y: 255
-      UseSpecialBlock: true
-      ObfuscateAboveY: false
-      ProximityHiderBlocks:
-      - ANVIL
-      - BURNING_FURNACE
-      - CHEST
-      - DIAMOND_ORE
-      - DISPENSER
-      - EMERALD_ORE
-      - ENCHANTMENT_TABLE
-      - ENDER_CHEST
-      - FURNACE
-      - HOPPER
-      - MOB_SPAWNER
-      - TRAPPED_CHEST
-      - WORKBENCH
-      UseFastGazeCheck: true
-  world_nether:
-    Enabled: true
-    Mode1Block: NETHERRACK
-    AntiTexturePackAndFreecam: true
-    AirGeneratorMaxChance: 43
-    DarknessHideBlocks: false
-    BypassObfuscationForSignsWithText: false
-    DarknessBlocks:
-    - CHEST
-    - MOB_SPAWNER
-    RandomBlocks:
-    - GRAVEL
-    - NETHERRACK
-    - NETHER_BRICK
-    - QUARTZ_ORE
-    - SOUL_SAND
-    ObfuscateBlocks:
-    - NETHERRACK
-    - QUARTZ_ORE
-    ProximityHider:
-      Enabled: true
-      Distance: 8
-      SpecialBlock: STONE
-      Y: 255
-      UseSpecialBlock: true
-      ObfuscateAboveY: false
-      ProximityHiderBlocks:
-      - ANVIL
-      - BURNING_FURNACE
-      - CHEST
-      - DIAMOND_ORE
-      - DISPENSER
-      - EMERALD_ORE
-      - ENCHANTMENT_TABLE
-      - ENDER_CHEST
-      - FURNACE
-      - HOPPER
-      - MOB_SPAWNER
-      - TRAPPED_CHEST
-      - WORKBENCH
-      UseFastGazeCheck: true
+version: 1
+general:
+  updateOnBlockDamage: true
+  bypassNotification: true
+  initialRadius: 1
+  updateRadius: 2
+  proximityHiderRunnerSize: 4
+cache:
+  enabled: true
+  baseDirectory: 'orebfuscator_cache/'
+  maximumOpenRegionFiles: 256
+  deleteRegionFilesAfterAccess: 172800000‬
+  maximumSize: 4096
+  expireAfterAccess: 30000
+world:
+  - worlds:
+      - world
+    enabled: true
+    darknessBlocks:
+      - chest
+      - ender_chest
+      - trapped_chest
+      - mob_spawner
+    hiddenBlocks:
+      - chest
+      - ender_chest
+      - trapped_chest
+      - emerald_ore
+      - diamond_ore
+      - gold_ore
+      - iron_ore
+      - coal_ore
+      - lapis_ore
+      - redstone_ore
+      - shulker_box
+      - stone
+      - clay
+    randomBlocks:
+      cave_air: 45
+      clay: 1
+      coal_ore: 1
+      cobblestone: 1
+      diamond_ore: 25
+      emerald_ore: 10
+      gold_ore: 5
+      iron_ore: 5
+      lapis_ore: 1
+      mossy_cobblestone: 1
+      oak_planks: 1
+      obsidian: 1
+      redstone_ore: 1
+      stone: 1
+      tnt: 1
+  - worlds:
+      - world_nether
+    enabled: true
+    darknessBlocks:
+      - chest
+      - ender_chest
+      - trapped_chest
+      - mob_spawner
+    hiddenBlocks:
+      - chest
+      - ender_chest
+      - trapped_chest
+      - netherrack
+      - nether_quartz_ore
+    randomBlocks:
+      netherrack: 1
+      nether_quartz_ore: 1
+  - worlds:
+      - world_the_end
+    enabled: true
+    darknessBlocks:
+      - chest
+      - ender_chest
+      - trapped_chest
+      - mob_spawner
+    hiddenBlocks:
+      - chest
+      - ender_chest
+      - trapped_chest
+      - netherrack
+      - nether_quartz_ore
+    randomBlocks:
+      end_stone: 1
+      end_stone_bricks: 1
+      bedrock: 1
+      obsidian: 1
+      purpur_block: 1
+
+proximity:
+  - worlds:
+      - world
+    enabled: true
+    distance: 8
+    useFastGazeCheck: false
+    hiddenBlocks:
+      diamond_ore: {}
+      emerald_ore: {}
+      chest: {}
+      ender_chest: {}
+      trapped_chest: {}
+      anvil: {}
+      chipped_anvil: {}
+      crafting_table: {}
+      damaged_anvil: {}
+      dispenser: {}
+      enchanting_table: {}
+      furnace: {}
+      hopper: {}
+      mob_spawner: {}
+    randomBlocks:
+      stone: 1
+  - worlds:
+      - world_nether
+    enabled: true
+    distance: 8
+    useFastGazeCheck: false
+    hiddenBlocks:
+      chest: {}
+      ender_chest: {}
+      trapped_chest: {}
+      anvil: {}
+      chipped_anvil: {}
+      crafting_table: {}
+      damaged_anvil: {}
+      dispenser: {}
+      enchanting_table: {}
+      furnace: {}
+      hopper: {}
+      mob_spawner: {}
+    randomBlocks:
+      netherrack: 4
+      nether_quartz_ore: 1
+  - worlds:
+      - world_the_end
+    enabled: true
+    distance: 8
+    useFastGazeCheck: false
+    hiddenBlocks:
+      chest: {}
+      ender_chest: {}
+      trapped_chest: {}
+      anvil: {}
+      chipped_anvil: {}
+      crafting_table: {}
+      damaged_anvil: {}
+      dispenser: {}
+      enchanting_table: {}
+      furnace: {}
+      hopper: {}
+      mob_spawner: {}
+    randomBlocks:
+      end_stone: 1

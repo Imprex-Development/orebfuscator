@@ -20,7 +20,7 @@ world:
       - chest
       - ender_chest
       - trapped_chest
-      - spawner
+      - mobspawner
     hiddenBlocks:
       - chest
       - ender_chest
@@ -32,7 +32,6 @@ world:
       - coal_ore
       - lapis_ore
       - redstone_ore
-      - shulker_box
       - stone
       - clay
     randomBlocks:
@@ -58,7 +57,7 @@ world:
       - chest
       - ender_chest
       - trapped_chest
-      - spawner
+      - mobspawner
     hiddenBlocks:
       - chest
       - ender_chest
@@ -75,7 +74,7 @@ world:
       - chest
       - ender_chest
       - trapped_chest
-      - spawner
+      - mobspawner
     hiddenBlocks:
       - chest
       - ender_chest
@@ -109,7 +108,7 @@ proximity:
       enchanting_table: {}
       furnace: {}
       hopper: {}
-      spawner: {}
+      mobspawner: {}
     randomBlocks:
       stone: 1
   - worlds:
@@ -129,7 +128,7 @@ proximity:
       enchanting_table: {}
       furnace: {}
       hopper: {}
-      spawner: {}
+      mobspawner: {}
     randomBlocks:
       netherrack: 4
       nether_quartz_ore: 1
@@ -150,6 +149,6 @@ proximity:
       enchanting_table: {}
       furnace: {}
       hopper: {}
-      spawner: {}
+      mobspawner: {}
     randomBlocks:
       end_stone: 1

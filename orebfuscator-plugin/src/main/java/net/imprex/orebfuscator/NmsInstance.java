@@ -66,12 +66,6 @@ public class NmsInstance {
 			ChunkCapabilities.hasLightArray();
 			ChunkCapabilities.hasDirectPaletteZeroLength();
 			break;
-
-		case "v1_9_R1":
-			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_9_R1.NmsManager(config);
-			ChunkCapabilities.hasLightArray();
-			ChunkCapabilities.hasDirectPaletteZeroLength();
-			break;
 		}
 
 		if (NmsInstance.instance != null) {
