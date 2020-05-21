@@ -163,7 +163,7 @@ public class NmsManager extends AbstractNmsManager {
 	@Override
 	public int loadChunkAndGetBlockId(World world, int x, int y, int z) {
 		IBlockData blockData = getBlockData(world, x, y, z, true);
-		return blockData != null ? Block.getCombinedId(blockData) : -1;
+		return blockData != null ? getBlockId(blockData) : -1;
 	}
 
 	@Override
