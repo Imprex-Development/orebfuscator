@@ -4,7 +4,6 @@ import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 
 import net.imprex.orebfuscator.nms.AbstractBlockState;
-import net.minecraft.server.v1_12_R1.Block;
 import net.minecraft.server.v1_12_R1.BlockPosition;
 import net.minecraft.server.v1_12_R1.IBlockData;
 import net.minecraft.server.v1_12_R1.WorldServer;
@@ -17,7 +16,7 @@ public class BlockState extends AbstractBlockState<IBlockData> {
 
 	@Override
 	public int getBlockId() {
-		return Block.getCombinedId(this.state);
+		return NmsManager.getBlockId(this.state);
 	}
 
 	@Override

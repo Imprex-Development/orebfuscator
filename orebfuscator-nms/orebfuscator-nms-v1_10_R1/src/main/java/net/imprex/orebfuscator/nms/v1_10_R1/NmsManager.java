@@ -49,6 +49,15 @@ public class NmsManager extends AbstractNmsManager {
 		return null;
 	}
 
+	static int getBlockId(IBlockData blockData) {
+		if (blockData == null) {
+			return 0;
+		} else {
+			int id = Block.REGISTRY_ID.getId(blockData);
+			return id == -1 ? 0 : id;
+		}
+	}
+
 	private final int blockIdCaveAir;
 	private final BitSet blockAir;
 
@@ -58,8 +67,7 @@ public class NmsManager extends AbstractNmsManager {
 		for (Iterator<IBlockData> iterator = Block.REGISTRY_ID.iterator(); iterator.hasNext();) {
 			IBlockData blockData = iterator.next();
 			Material material = CraftMagicNumbers.getMaterial(blockData.getBlock());
-			int id = Block.getCombinedId(blockData);
-			this.registerMaterialId(material, id);
+			this.registerMaterialId(material, getBlockId(blockData));
 		}
 
 		this.blockIdCaveAir = this.getMaterialIds(Material.AIR).iterator().next();
