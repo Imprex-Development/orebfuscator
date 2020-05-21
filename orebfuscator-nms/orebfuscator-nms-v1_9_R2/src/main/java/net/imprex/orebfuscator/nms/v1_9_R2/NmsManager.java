@@ -58,7 +58,7 @@ public class NmsManager extends AbstractNmsManager {
 		for (Iterator<IBlockData> iterator = Block.REGISTRY_ID.iterator(); iterator.hasNext();) {
 			IBlockData blockData = iterator.next();
 			Material material = CraftMagicNumbers.getMaterial(blockData.getBlock());
-			int id = Block.getCombinedId(blockData);
+			int id = Block.REGISTRY_ID.getId(blockData);
 			this.registerMaterialId(material, id);
 		}
 
