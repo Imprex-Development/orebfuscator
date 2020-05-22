@@ -55,12 +55,14 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 			this.baseDirectory = worldPath.resolve(defaultPath).normalize();
 		}
 
-		try {
-			if (Files.notExists(this.baseDirectory)) {
-				Files.createDirectories(this.baseDirectory);
+		if (this.enabled()) {
+			try {
+				if (Files.notExists(this.baseDirectory)) {
+					Files.createDirectories(this.baseDirectory);
+				}
+			} catch (IOException e) {
+				e.printStackTrace();
 			}
-		} catch (IOException e) {
-			e.printStackTrace();
 		}
 	}
 

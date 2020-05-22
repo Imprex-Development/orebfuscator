@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -65,21 +66,21 @@ public class OrebfuscatorWorldConfig implements WorldConfig {
 	private void serializeMaterialSet(ConfigurationSection section, Set<Material> materials, String path) {
 		materials.clear();
 
-		List<String> materialNameList = section.getStringList(path);
-		if (materialNameList == null || materialNameList.isEmpty()) {
+		List<String> materialNames = section.getStringList(path);
+		if (materialNames == null || materialNames.isEmpty()) {
 			return;
 		}
 
-		for (String materialName : materialNameList) {
-			Material material = Material.matchMaterial(materialName);
+		for (String name : materialNames) {
+			Optional<Material> material = NmsInstance.get().getMaterialByName(name);
 
-			if (material == null) {
+			if (!material.isPresent()) {
 				OFCLogger.warn(String.format("config section '%s.%s' contains unknown block '%s'",
-						section.getCurrentPath(), path, materialName));
+						section.getCurrentPath(), path, name));
 				continue;
 			}
 
-			materials.add(material);
+			materials.add(material.get());
 		}
 	}
 

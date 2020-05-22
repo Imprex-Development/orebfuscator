@@ -5,6 +5,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Map.Entry;
 import java.util.Set;
 
@@ -93,26 +94,21 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 			return;
 		}
 
-		Set<String> materialNames = materialSection.getKeys(false);
-		if (materialNames.isEmpty()) {
-			return;
-		}
+		for (String name : materialSection.getKeys(false)) {
+			Optional<Material> material = NmsInstance.get().getMaterialByName(name);
 
-		for (String materialName : materialNames) {
-			Material material = Material.matchMaterial(materialName);
-
-			if (material == null) {
+			if (!material.isPresent()) {
 				OFCLogger.warn(String.format("config section '%s.hiddenBlocks' contains unknown block '%s'",
-						section.getCurrentPath(), materialName));
+						section.getCurrentPath(), name));
 				continue;
 			}
 
 			short hideCondition = EMPTY_HIDE_CONDITION;
-			if (materialSection.isInt(materialName + ".y") && materialSection.isBoolean(materialName + ".above")) {
-				hideCondition = createHideCondition(materialSection.getInt(materialName + ".y"), materialSection.getBoolean(materialName + ".above"));
+			if (materialSection.isInt(name + ".y") && materialSection.isBoolean(name + ".above")) {
+				hideCondition = createHideCondition(materialSection.getInt(name + ".y"), materialSection.getBoolean(name + ".above"));
 			}
 
-			this.hiddenBlocks.put(material, hideCondition);
+			this.hiddenBlocks.put(material.get(), hideCondition);
 		}
 	}
 

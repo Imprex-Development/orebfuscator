@@ -1,5 +1,6 @@
 package net.imprex.orebfuscator.nms;
 
+import java.util.Optional;
 import java.util.Set;
 
 import org.bukkit.Material;
@@ -15,6 +16,8 @@ public interface NmsManager {
 	int getBitsPerBlock();
 
 	int getMaterialSize();
+
+	Optional<Material> getMaterialByName(String name);
 
 	Set<Integer> getMaterialIds(Material material);
 

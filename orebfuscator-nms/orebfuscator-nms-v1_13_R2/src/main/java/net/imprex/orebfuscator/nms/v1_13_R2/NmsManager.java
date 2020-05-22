@@ -2,12 +2,14 @@ package net.imprex.orebfuscator.nms.v1_13_R2;
 
 import java.util.BitSet;
 import java.util.Iterator;
+import java.util.Optional;
 
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_13_R2.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_13_R2.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
 
 import net.imprex.orebfuscator.config.CacheConfig;
@@ -20,7 +22,9 @@ import net.minecraft.server.v1_13_R2.Block;
 import net.minecraft.server.v1_13_R2.BlockPosition;
 import net.minecraft.server.v1_13_R2.EntityPlayer;
 import net.minecraft.server.v1_13_R2.IBlockData;
+import net.minecraft.server.v1_13_R2.IRegistry;
 import net.minecraft.server.v1_13_R2.MathHelper;
+import net.minecraft.server.v1_13_R2.MinecraftKey;
 import net.minecraft.server.v1_13_R2.Packet;
 import net.minecraft.server.v1_13_R2.PacketPlayOutBlockChange;
 import net.minecraft.server.v1_13_R2.TileEntity;
@@ -87,6 +91,15 @@ public class NmsManager extends AbstractNmsManager {
 	@Override
 	public int getMaterialSize() {
 		return Block.REGISTRY_ID.a();
+	}
+
+	@Override
+	public Optional<Material> getMaterialByName(String name) {
+		Block block = IRegistry.BLOCK.get(new MinecraftKey(name));
+		if (block != null) {
+			return Optional.ofNullable(CraftMagicNumbers.getMaterial(block));
+		}
+		return Optional.empty();
 	}
 
 	@Override

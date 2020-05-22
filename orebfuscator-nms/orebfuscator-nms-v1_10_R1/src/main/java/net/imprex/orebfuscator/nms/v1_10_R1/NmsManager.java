@@ -2,6 +2,7 @@ package net.imprex.orebfuscator.nms.v1_10_R1;
 
 import java.util.BitSet;
 import java.util.Iterator;
+import java.util.Optional;
 
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -21,6 +22,7 @@ import net.minecraft.server.v1_10_R1.BlockPosition;
 import net.minecraft.server.v1_10_R1.EntityPlayer;
 import net.minecraft.server.v1_10_R1.IBlockData;
 import net.minecraft.server.v1_10_R1.MathHelper;
+import net.minecraft.server.v1_10_R1.MinecraftKey;
 import net.minecraft.server.v1_10_R1.Packet;
 import net.minecraft.server.v1_10_R1.PacketPlayOutBlockChange;
 import net.minecraft.server.v1_10_R1.TileEntity;
@@ -88,6 +90,15 @@ public class NmsManager extends AbstractNmsManager {
 	@Override
 	public int getMaterialSize() {
 		return Block.REGISTRY_ID.a();
+	}
+
+	@Override
+	public Optional<Material> getMaterialByName(String name) {
+		MinecraftKey minecraftKey = new MinecraftKey(name);
+		if (Block.REGISTRY.d(minecraftKey)) {
+			return Optional.ofNullable(CraftMagicNumbers.getMaterial(Block.REGISTRY.get(minecraftKey)));
+		}
+		return Optional.empty();
 	}
 
 	@Override

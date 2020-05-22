@@ -3,13 +3,14 @@ package net.imprex.orebfuscator.config;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 
+import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.util.OFCLogger;
 
 public class ConfigParser {
@@ -75,25 +76,17 @@ public class ConfigParser {
 			return;
 		}
 
-		Set<String> materialNames = materialSection.getKeys(false);
-		if (materialNames.isEmpty()) {
-			return;
-		}
+		for (String name : materialSection.getKeys(false)) {
+			Optional<Material> material = NmsInstance.get().getMaterialByName(name);
 
-		for (String materialName : materialNames) {
-			Material material = Material.matchMaterial(materialName);
-
-			if (material == null) {
+			if (!material.isPresent()) {
 				OFCLogger.warn(String.format("config section '%s.%s' contains unknown block '%s'",
-						section.getCurrentPath(), path, materialName));
+						section.getCurrentPath(), path, name));
 				continue;
 			}
 
-			if (materialSection.isInt(materialName)) {
-				randomBlocks.put(material, materialSection.getInt(materialName, 1));
-			} else {
-				randomBlocks.put(material, 1);
-			}
+			int weight = materialSection.isInt(name) ? materialSection.getInt(name, 1) : 1;
+			randomBlocks.put(material.get(), weight);
 		}
 	}
 }
