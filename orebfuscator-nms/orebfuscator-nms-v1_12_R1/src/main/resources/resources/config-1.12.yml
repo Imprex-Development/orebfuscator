@@ -110,8 +110,6 @@ world:
       - chest
       - ender_chest
       - trapped_chest
-      - netherrack
-      - quartz_ore
       - white_shulker_box
       - orange_shulker_box
       - magenta_shulker_box

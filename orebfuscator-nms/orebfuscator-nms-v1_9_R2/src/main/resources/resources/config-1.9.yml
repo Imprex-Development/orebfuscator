@@ -78,8 +78,6 @@ world:
       - chest
       - ender_chest
       - trapped_chest
-      - netherrack
-      - quartz_ore
     randomBlocks:
       end_stone: 1
       end_bricks: 1
