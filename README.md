@@ -40,16 +40,6 @@ ProximityHider is a feature that hides chests that are far from players.
 
 ## Developer
 
-### API
-```java
-Bukkit.getServicesManager().getRegistration(Orebfuscator.class).getProvider();
-```
-or use
-```java
-Orebfuscator.getProvider();
-```
-### Maven
-
 ### Clone
 1. Clone this repo "git clone https://github.com/Imprex-Development/Orebfuscator.git"
 2. Open eclipse and right click on the "Project Explorer"
