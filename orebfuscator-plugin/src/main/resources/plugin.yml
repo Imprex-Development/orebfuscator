@@ -1,4 +1,4 @@
-api-version: 1.15
+api-version: 1.13
 
 name: Orebfuscator
 version: 5.0.1
@@ -15,38 +15,7 @@ load: POSTWORLD
 
 description: 'The most powerful and efficient Anti Xray plugin compatible with any CraftBukkit fork!'
 
-commands:
-  ofc:
-    description: Manage Orebfuscator.
-    usage: |
-           /<command> engine <1/2> - Set engine mode to 1 or 2
-           /<command> initialradius [number] - Set Initial Radius
-           /<command> updateradius [number] - Set Update Radius
-           /<command> airgen [number] - Set AirGeneratorMaxChance value
-           /<command> <proximity|proximityhider> [number] - Set ProximityHiderDistance value
-           /<command> reload - Reload from config
-           /<command> status - Show plugin status
-           /<command> clearcache - Clear all cached chunks
-           /<command> <enable/disable> - Toggle plugin state
-           /<command> <enable/disable> darknesshide - Toggle Darkness obfuscation
-           /<command> <enable/disable> op - Toggle Ops No-Obfuscation
-           /<command> <enable/disable> <perms|permissions> - Toggle Permissions No-Obfuscation
-           /<command> <enable/disable> cache - Toggle cache usage
-           /<command> <enable/disable> axr - Toggle AntiTexturePackAndFreecam
-           /<command> <enable/disable> notification - Toggle Login Notification
-           /<command> <enable/disable> <worldname> - Toggle world's obfuscation
-           /<command> use <blacklist/whitelist> - Toggle if Worlds list is using as blacklist or whitelist  
-
 permissions:
-  orebfuscator.*:
-    description: Own all ofc permissions
-    default: false
-    children:
-      orebfuscator.deobfuscate: true
-      orebfuscator.admin: true
-  orebfuscator.deobfuscate:
-    description: No deobfuscate in all and worlds
-    default: false
-  orebfuscator.admin:
-    description: Use /ofc command
+  orebfuscator.bypass:
+    description: Bypass obfuscation
     default: false
