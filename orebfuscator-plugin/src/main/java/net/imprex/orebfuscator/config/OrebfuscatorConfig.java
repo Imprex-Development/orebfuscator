@@ -1,6 +1,7 @@
 package net.imprex.orebfuscator.config;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
@@ -85,6 +86,7 @@ public class OrebfuscatorConfig implements Config {
 	private byte[] calculateHash(Path path) {
 		try {
 			MessageDigest md5Digest = MessageDigest.getInstance("MD5");
+			md5Digest.update(NmsInstance.SERVER_VERSION.getBytes(StandardCharsets.UTF_8));
 			return md5Digest.digest(Files.readAllBytes(path));
 		} catch (Exception e) {
 			e.printStackTrace();
