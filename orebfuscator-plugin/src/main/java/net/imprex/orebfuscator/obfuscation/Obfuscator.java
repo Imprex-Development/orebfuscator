@@ -1,8 +1,6 @@
 package net.imprex.orebfuscator.obfuscation;
 
-import java.text.DecimalFormat;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.Set;
 
 import org.bukkit.World;
@@ -32,32 +30,7 @@ public class Obfuscator {
 		this.chunkCache = orebfuscator.getChunkCache();
 	}
 
-	private LinkedList<Long> avgTimes = new LinkedList<>();
-	private double calls = 0;
-	private DecimalFormat formatter = new DecimalFormat("###,###,###,###.00");
-
 	public ChunkCacheEntry obfuscateOrUseCache(World world, ChunkStruct chunkStruct) {
-		long time = System.nanoTime();
-		try {
-			return obfuscateOrUseCache0(world, chunkStruct);
-		} finally {
-			long diff = System.nanoTime() - time;
-
-			avgTimes.add(diff);
-			if (avgTimes.size() > 1000) {
-				avgTimes.removeFirst();
-			}
-
-			if (calls++ % 100 == 0) {
-				System.out.println("avg: "
-						+ formatter.format(
-								((double) avgTimes.stream().reduce(0L, Long::sum) / (double) avgTimes.size()) / 1000D)
-						+ "μs");
-			}
-		}
-	}
-
-	public ChunkCacheEntry obfuscateOrUseCache0(World world, ChunkStruct chunkStruct) {
 		if (chunkStruct.primaryBitMask == 0) {
 			return null;
 		}

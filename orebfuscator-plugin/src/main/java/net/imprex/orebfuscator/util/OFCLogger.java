@@ -3,11 +3,10 @@ package net.imprex.orebfuscator.util;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import com.lishid.orebfuscator.utils.Globals;
-
 public class OFCLogger {
 
 	public static final Logger LOGGER = Logger.getLogger("Minecraft.OFC");
+	private static final String LOG_PREFIX = "[OFC] ";
 
 	public static void warn(String message) {
 		OFCLogger.LOGGER.warning(message);
@@ -17,7 +16,7 @@ public class OFCLogger {
 	 * Log an information
 	 */
 	public static void log(String message) {
-		OFCLogger.LOGGER.info(Globals.LOG_PREFIX + message);
+		OFCLogger.LOGGER.info(LOG_PREFIX + message);
 	}
 
 	/**
@@ -31,7 +30,7 @@ public class OFCLogger {
 	 * Log an error
 	 */
 	public static void log(Throwable e) {
-		OFCLogger.LOGGER.severe(Globals.LOG_PREFIX + e.toString());
+		OFCLogger.LOGGER.severe(LOG_PREFIX + e.toString());
 		e.printStackTrace();
 	}
 }

@@ -1,6 +1,6 @@
 package net.imprex.orebfuscator;
 
-import com.lishid.orebfuscator.utils.Globals;
+import org.bukkit.Bukkit;
 
 import net.imprex.orebfuscator.chunk.ChunkCapabilities;
 import net.imprex.orebfuscator.config.Config;
@@ -9,6 +9,8 @@ import net.imprex.orebfuscator.util.OFCLogger;
 
 public class NmsInstance {
 
+	public static final String SERVER_VERSION = Bukkit.getServer().getClass().getPackage().getName().split("\\.")[3];
+
 	private static NmsManager instance;
 
 	public static void initialize(Config config) {
@@ -16,13 +18,13 @@ public class NmsInstance {
 			throw new IllegalStateException("NMS protocol version was already initialized!");
 		}
 
-		OFCLogger.log("Searching NMS protocol for server version \"" + Globals.SERVER_VERSION + "\"!");
+		OFCLogger.log("Searching NMS protocol for server version \"" + SERVER_VERSION + "\"!");
 
 		// hasLight < 1.14
 		// hasDirectPaletteZeroLength < 1.13
 		// hasBlockCount >= 1.14
 
-		switch (Globals.SERVER_VERSION) {
+		switch (SERVER_VERSION) {
 		case "v1_15_R1":
 			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_15_R1.NmsManager(config);
 			ChunkCapabilities.hasBlockCount();
@@ -69,9 +71,9 @@ public class NmsInstance {
 		}
 
 		if (NmsInstance.instance != null) {
-			OFCLogger.log("NMS protocol for server version \"" + Globals.SERVER_VERSION + "\" found!");
+			OFCLogger.log("NMS protocol for server version \"" + SERVER_VERSION + "\" found!");
 		} else {
-			throw new RuntimeException("Server version \"" + Globals.SERVER_VERSION + "\" is currently not supported!");
+			throw new RuntimeException("Server version \"" + SERVER_VERSION + "\" is currently not supported!");
 		}
 	}
 

@@ -1,8 +1,5 @@
 package net.imprex.orebfuscator.util;
 
-import java.text.DecimalFormat;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
 import org.bukkit.Location;
 import org.bukkit.World;
 
@@ -10,31 +7,6 @@ import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.nms.BlockStateHolder;
 
 public class MathUtil {
-
-	private static ConcurrentLinkedQueue<Long> avgTimes = new ConcurrentLinkedQueue<>();
-	private static double calls = 0;
-	private static DecimalFormat formatter = new DecimalFormat("###,###,###,###.00");
-
-	public static boolean doFastCheck(Location block, Location eyes, World player) {
-		long time = System.nanoTime();
-		try {
-			return doFastCheck0(block, eyes, player);
-		} finally {
-			long diff = System.nanoTime() - time;
-
-			avgTimes.add(diff);
-			if (avgTimes.size() > 1000) {
-				avgTimes.poll();
-			}
-
-			if (calls++ % 100 == 0) {
-				System.out.println("Fast avg: "
-						+ formatter.format(
-								((double) avgTimes.stream().reduce(0L, Long::sum) / (double) avgTimes.size()) / 1000D)
-						+ "μs");
-			}
-		}
-	}
 
 	/**
 	 * Basic idea here is to take some rays from the considered block to the
@@ -45,7 +17,7 @@ public class MathUtil {
 	 * @param player the player world we are testing for
 	 * @return true if unimpeded path, false otherwise
 	 */
-	public static boolean doFastCheck0(Location block, Location eyes, World player) {
+	public static boolean doFastCheck(Location block, Location eyes, World player) {
 		double ex = eyes.getX();
 		double ey = eyes.getY();
 		double ez = eyes.getZ();

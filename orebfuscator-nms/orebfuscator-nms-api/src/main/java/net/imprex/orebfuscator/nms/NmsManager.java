@@ -29,6 +29,7 @@ public interface NmsManager {
 
 	boolean isTileEntity(int blockId);
 
+	// TODO use this in later versions
 	boolean canApplyPhysics(Material material);
 
 	void updateBlockTileEntity(Player player, BlockCoords blockCoord);
