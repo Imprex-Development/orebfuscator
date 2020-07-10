@@ -62,6 +62,11 @@ public class Obfuscator {
 				ChunkSection chunkSection = chunk.getSection(sectionIndex);
 				// TODO faster buffer + pre calc palette
 
+				// skip empty chunkSections
+				if (chunkSection == null) {
+					continue;
+				}
+
 				final int baseY = sectionIndex * 16;
 				for (int index = 0; index < 4096; index++) {
 					int blockData = chunkSection.getBlock(index);
