@@ -9,10 +9,6 @@ import io.netty.buffer.Unpooled;
 public class Chunk implements AutoCloseable {
 
 	public static Chunk fromChunkStruct(ChunkStruct chunkStruct) {
-		int sectionCount;
-		for (sectionCount = 0; (chunkStruct.primaryBitMask & (1 << sectionCount)) != 0; sectionCount++) {
-		}
-
 		int extraBytes = ChunkCapabilities.hasLightArray ? 2048 : 0;
 		if (chunkStruct.isOverworld) {
 			extraBytes *= 2;
@@ -52,7 +48,11 @@ public class Chunk implements AutoCloseable {
 	}
 
 	public ChunkSection getSection(int index) {
-		return this.sections[index].chunkSection;
+		ChunkSectionHolder chunkSection = this.sections[index];
+		if (chunkSection != null) {
+			return chunkSection.chunkSection;
+		}
+		return null;
 	}
 
 	public int getBlock(int x, int y, int z) {
