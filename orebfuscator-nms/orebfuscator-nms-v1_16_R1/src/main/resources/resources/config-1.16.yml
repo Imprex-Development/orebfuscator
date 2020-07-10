@@ -99,9 +99,14 @@ world:
       - black_shulker_box
       - ancient_debris
       - nether_gold_ore
+      - basalt
+      - soul_sand
+      - soul_soil
     randomBlocks:
-      netherrack: 1
+      netherrack: 4
       nether_quartz_ore: 1
+      nether_gold_ore: 1
+      ancient_debris: 1
   - worlds:
       - world_the_end
     enabled: true
@@ -239,6 +244,8 @@ proximity:
     randomBlocks:
       netherrack: 4
       nether_quartz_ore: 1
+      nether_gold_ore: 1
+      ancient_debris: 1
   - worlds:
       - world_the_end
     enabled: true
