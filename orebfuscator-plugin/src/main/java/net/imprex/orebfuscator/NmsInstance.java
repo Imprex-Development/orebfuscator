@@ -20,14 +20,16 @@ public class NmsInstance {
 
 		OFCLogger.log("Searching NMS protocol for server version \"" + SERVER_VERSION + "\"!");
 
+		// hasSimpleVarBitBuffer >= 1.16
+		// hasBlockCount >= 1.14
 		// hasLight < 1.14
 		// hasDirectPaletteZeroLength < 1.13
-		// hasBlockCount >= 1.14
 
 		switch (SERVER_VERSION) {
 		case "v1_16_R1":
 			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_16_R1.NmsManager(config);
 			ChunkCapabilities.hasBlockCount();
+			ChunkCapabilities.hasSimpleVarBitBuffer();
 			break;
 
 		case "v1_15_R1":

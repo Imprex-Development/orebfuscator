@@ -30,7 +30,7 @@ public class ChunkSection {
 			}
 
 			this.palette.fromBlockId(0); // add air by default
-			this.data = new VarBitBuffer(this.bitsPerBlock, 4096);
+			this.data = ChunkCapabilities.createVarBitBuffer(this.bitsPerBlock, 4096);
 		}
 	}
 
@@ -104,8 +104,9 @@ public class ChunkSection {
 		this.palette.read(buffer);
 
 		long[] data = this.data.toArray();
-		if (data.length != ByteBufUtil.readVarInt(buffer)) {
-			throw new IndexOutOfBoundsException("data.length != VarBitBuffer::size");
+		int length = ByteBufUtil.readVarInt(buffer);
+		if (data.length != length) {
+			throw new IndexOutOfBoundsException("data.length != VarBitBuffer::size " + length + " " + this.data);
 		}
 
 		for (int i = 0; i < data.length; i++) {
