@@ -21,5 +21,6 @@
 		<module>orebfuscator-nms-v1_14_R1</module>
 		<module>orebfuscator-nms-v1_15_R1</module>
 		<module>orebfuscator-nms-v1_16_R1</module>
+		<module>orebfuscator-nms-v1_16_R2</module>
 	</modules>
 </project>

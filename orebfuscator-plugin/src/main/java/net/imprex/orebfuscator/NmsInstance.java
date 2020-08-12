@@ -26,6 +26,12 @@ public class NmsInstance {
 		// hasDirectPaletteZeroLength < 1.13
 
 		switch (SERVER_VERSION) {
+		case "v1_16_R2":
+			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_16_R2.NmsManager(config);
+			ChunkCapabilities.hasBlockCount();
+			ChunkCapabilities.hasSimpleVarBitBuffer();
+			break;
+
 		case "v1_16_R1":
 			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_16_R1.NmsManager(config);
 			ChunkCapabilities.hasBlockCount();
