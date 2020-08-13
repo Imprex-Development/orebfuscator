@@ -1,36 +1,25 @@
 <img align="right" src="https://user-images.githubusercontent.com/8127996/90168671-bb49c780-dd9d-11ea-989d-479f8c1f3ea3.png" height="200" width="200">
 
 # Orebfuscator - Anti X-Ray
-[![Build Status](https://github.com/Imprex-Development/Orebfuscator/workflows/Build/badge.svg)](https://github.com/Imprex-Development/Orebfuscator/actions?query=workflow%3ABuild) [![Release Status](https://github.com/Imprex-Development/Orebfuscator/workflows/Releases/badge.svg)](https://github.com/Imprex-Development/Orebfuscator/releases/latest)
+[![Release Status](https://github.com/Imprex-Development/Orebfuscator/workflows/Releases/badge.svg)](https://github.com/Imprex-Development/Orebfuscator/releases/latest) [![Build Status](https://github.com/Imprex-Development/Orebfuscator/workflows/Build/badge.svg)](https://github.com/Imprex-Development/Orebfuscator/actions?query=workflow%3ABuild)
 
 ### Description
-The definitive Anti X-Ray plugin for CraftBukkit
-This plugin is used to counter X-RAY client mods, texture packs, chest radar, and other similar exploits
-It modifies data that are sent to clients to hide blocks of your choice, such as ore, chests, dungeons, etc.
-It does not manipulate blocks in the world file, thus is safe to use.
-ProximityHider is a feature that hides chests that are far from players.
+Orebfuscator is plugin for CraftBukkit based Minecraft Servers that modifies packets in order to hide blocks of interest from X-Ray Clients and Texture Packs. Thus it doesn't modify your world and is safe to use.
 
 ### Features:
-- Advanced algorithm that hides ore, chest and and anything you specify in the configuration
-- Spout compatible, but optional
-- No modifications to CraftBukkit.jar is needed
-- Customize the blocks you want to hide
-- HIDES DUNGEONS and other blocks that are in the dark
-- Different hiding mode, or scrambling.
-- Extensive configuration. Change updating methods depending on your bandwidth and processing speed.
-- Hide hidden chests and furnaces until a player is close to it.
-- Hide hidden chests and furnaces until a player can see it.
-
-### Links
-- **[Orebfuscator](https://www.spigotmc.org/resources/orebfuscator.22818/)**
-- **[ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997)**
+* Plug & Play
+* Highly configurable config
+* Support for CraftBukkit based servers 1.9.4+ (only tested on spigot)
+* Obfuscate blocks based on their light level
+* Hide block entities like Chests and Furnaces
+* Make blocks in a players proximity visible based on their distance an
 
 ## IMPORTANT
 
 ### Requirements:
 - Java 8 or higher
-- Spigot/PaperSpigot and any other fork of CraftBukkit (1.9 or higher)
-- ProtocolLib 4.0 or higher
+- Spigot/PaperSpigot and any other fork of CraftBukkit (1.9.4 or higher)
+- [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997) 4.0 or higher
 
 ### Configurate
 1. Download [ProtocolLib](https://github.com/dmulloy2/ProtocolLib/releases)
