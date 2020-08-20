@@ -63,7 +63,6 @@ public class ObfuscationListener implements Listener {
 			return;
 		}
 
-		String worldName = world.getName();
 		BlockMask blockMask = this.config.blockMask(world);
 
 		Set<BlockStateHolder> updateBlocks = new HashSet<>();
@@ -79,7 +78,7 @@ public class ObfuscationListener implements Listener {
 				BlockStateHolder blockState = NmsInstance.getBlockState(world, x, y, z);
 				if (blockState != null) {
 					getAdjacentBlocks(updateBlocks, world, blockMask, blockState, updateRadius);
-					invalidChunks.add(new ChunkPosition(worldName, x >> 4, z >> 4));
+					invalidChunks.add(new ChunkPosition(world, x >> 4, z >> 4));
 				}
 			}
 		}

@@ -2,19 +2,21 @@ package net.imprex.orebfuscator.util;
 
 import java.util.Objects;
 
+import org.bukkit.World;
+
 public class ChunkPosition {
 
-	private final String world;
+	private final World world;
 	private final int x;
 	private final int z;
 
-	public ChunkPosition(String world, int x, int z) {
+	public ChunkPosition(World world, int x, int z) {
 		this.world = Objects.requireNonNull(world);
 		this.x = x;
 		this.z = z;
 	}
 
-	public String getWorld() {
+	public World getWorld() {
 		return this.world;
 	}
 

@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
+import java.util.function.Consumer;
 
 import org.bukkit.Bukkit;
 
@@ -17,6 +17,7 @@ import com.google.common.hash.Hashing;
 
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.config.CacheConfig;
+import net.imprex.orebfuscator.obfuscation.ObfuscatedChunk;
 import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class ChunkCache {
@@ -32,7 +33,7 @@ public class ChunkCache {
 
 	private final CacheConfig cacheConfig;
 
-	private final Cache<ChunkPosition, ChunkCacheEntry> cache;
+	private final Cache<ChunkPosition, ObfuscatedChunk> cache;
 	private final ChunkCacheSerializer serializer;
 
 	public ChunkCache(Orebfuscator orebfuscator) {
@@ -50,7 +51,7 @@ public class ChunkCache {
 		}
 	}
 
-	private void onRemoval(RemovalNotification<ChunkPosition, ChunkCacheEntry> notification) {
+	private void onRemoval(RemovalNotification<ChunkPosition, ObfuscatedChunk> notification) {
 		if (notification.wasEvicted()) {
 			try {
 				this.serializer.write(notification.getKey(), notification.getValue());
@@ -60,7 +61,7 @@ public class ChunkCache {
 		}
 	}
 
-	private ChunkCacheEntry load(ChunkPosition key) {
+	private ObfuscatedChunk load(ChunkPosition key) {
 		try {
 			return this.serializer.read(key);
 		} catch (IOException e) {
@@ -69,27 +70,29 @@ public class ChunkCache {
 		return null;
 	}
 
-	public ChunkCacheEntry get(ChunkPosition key, byte[] hash,
-			Function<ChunkPosition, ChunkCacheEntry> mappingFunction) {
-		Objects.requireNonNull(mappingFunction);
+	public void get(ChunkCacheRequest request, Consumer<ObfuscatedChunk> consumer) {
+		ChunkPosition key = request.getKey();
+		byte[] hash = request.getHash();
 
-		// check if live cache entry is present and valid
-		ChunkCacheEntry cacheEntry = this.cache.getIfPresent(key);
+		ObfuscatedChunk cacheEntry = this.cache.getIfPresent(key);
 		if (cacheEntry != null && Arrays.equals(cacheEntry.getHash(), hash)) {
-			return cacheEntry;
+			consumer.accept(cacheEntry);
+			return;
 		}
 
 		// check if disk cache entry is present and valid
 		cacheEntry = this.load(key);
 		if (cacheEntry != null && Arrays.equals(cacheEntry.getHash(), hash)) {
 			this.cache.put(key, Objects.requireNonNull(cacheEntry));
-			return cacheEntry;
+			consumer.accept(cacheEntry);
+			return;
 		}
 
 		// create new entry no valid ones found
-		cacheEntry = mappingFunction.apply(key);
-		this.cache.put(key, Objects.requireNonNull(cacheEntry));
-		return cacheEntry;
+		request.obfuscate(chunk -> {
+			this.cache.put(key, Objects.requireNonNull(chunk));
+			consumer.accept(chunk);
+		});
 	}
 
 	public void invalidate(ChunkPosition key) {

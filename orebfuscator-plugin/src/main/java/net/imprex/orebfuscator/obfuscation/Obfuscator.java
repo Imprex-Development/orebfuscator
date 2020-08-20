@@ -2,13 +2,15 @@ package net.imprex.orebfuscator.obfuscation;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.function.Consumer;
 
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 
 import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.cache.ChunkCache;
-import net.imprex.orebfuscator.cache.ChunkCacheEntry;
+import net.imprex.orebfuscator.cache.ChunkCacheRequest;
 import net.imprex.orebfuscator.chunk.Chunk;
 import net.imprex.orebfuscator.chunk.ChunkSection;
 import net.imprex.orebfuscator.chunk.ChunkStruct;
@@ -22,30 +24,52 @@ import net.imprex.orebfuscator.util.MaterialUtil;
 
 public class Obfuscator {
 
+	private final Orebfuscator orebfuscator;
 	private final OrebfuscatorConfig config;
 	private final ChunkCache chunkCache;
 
+	private final Thread mainThread;
+
 	public Obfuscator(Orebfuscator orebfuscator) {
+		this.orebfuscator = orebfuscator;
 		this.config = orebfuscator.getOrebfuscatorConfig();
 		this.chunkCache = orebfuscator.getChunkCache();
+
+		this.mainThread = Thread.currentThread();
 	}
 
-	public ChunkCacheEntry obfuscateOrUseCache(World world, ChunkStruct chunkStruct) {
+	public void obfuscateOrUseCache(World world, ChunkStruct chunkStruct, Consumer<ObfuscatedChunk> consumer) {
 		if (chunkStruct.primaryBitMask == 0) {
-			return null;
+			consumer.accept(null);
+			return;
 		}
 
-		final ChunkPosition position = new ChunkPosition(world.getName(), chunkStruct.chunkX, chunkStruct.chunkZ);
+		final ChunkPosition position = new ChunkPosition(world, chunkStruct.chunkX, chunkStruct.chunkZ);
 		final byte[] hash = ChunkCache.hash(this.config.hash(), chunkStruct.data);
+		final ChunkCacheRequest request = new ChunkCacheRequest(this, position, hash, chunkStruct);
 
 		if (this.config.cache().enabled()) {
-			return this.chunkCache.get(position, hash, key -> this.obfuscate(hash, world, chunkStruct));
+			this.chunkCache.get(request, consumer);
 		} else {
-			return this.obfuscate(hash, world, chunkStruct);
+			this.obfuscate(request, consumer);
 		}
 	}
 
-	private ChunkCacheEntry obfuscate(byte[] hash, World world, ChunkStruct chunkStruct) {
+	public void obfuscate(ChunkCacheRequest request, Consumer<ObfuscatedChunk> consumer) {
+		if (Thread.currentThread() == this.mainThread) {
+			consumer.accept(this.obfuscate(request));
+		} else {
+			Bukkit.getScheduler().runTask(this.orebfuscator, () -> {
+				consumer.accept(this.obfuscate(request));
+			});
+		}
+	}
+
+	private ObfuscatedChunk obfuscate(ChunkCacheRequest request) {
+		World world = request.getKey().getWorld();
+		byte[] hash = request.getHash();
+		ChunkStruct chunkStruct = request.getChunkStruct();
+
 		BlockMask blockMask = this.config.blockMask(world);
 		WorldConfig worldConfig = this.config.world(world);
 		ProximityConfig proximityConfig = this.config.proximity(world);
@@ -117,7 +141,7 @@ public class Obfuscator {
 
 			byte[] data = chunk.finalizeOutput();
 
-			return new ChunkCacheEntry(hash, data, proximityBlocks, removedTileEntities);
+			return new ObfuscatedChunk(hash, data, proximityBlocks, removedTileEntities);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new Error(e);

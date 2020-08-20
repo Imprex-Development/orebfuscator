@@ -7,9 +7,11 @@ import java.util.Set;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import com.comphenix.protocol.AsynchronousManager;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
+import com.comphenix.protocol.async.AsyncListenerHandler;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
@@ -18,7 +20,6 @@ import com.comphenix.protocol.wrappers.nbt.NbtBase;
 import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 
 import net.imprex.orebfuscator.Orebfuscator;
-import net.imprex.orebfuscator.cache.ChunkCacheEntry;
 import net.imprex.orebfuscator.chunk.ChunkStruct;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.proximityhider.ProximityHider;
@@ -28,6 +29,9 @@ import net.imprex.orebfuscator.util.PermissionUtil;
 public class PacketListener extends PacketAdapter {
 
 	private final ProtocolManager protocolManager;
+	private final AsynchronousManager asynchronousManager;
+	private final AsyncListenerHandler asyncListenerHandler;
+	private final boolean async;
 
 	private final OrebfuscatorConfig config;
 	private final Obfuscator obfuscator;
@@ -38,8 +42,17 @@ public class PacketListener extends PacketAdapter {
 		super(orebfuscator, PacketType.Play.Server.MAP_CHUNK);
 
 		this.protocolManager = ProtocolLibrary.getProtocolManager();
-		// TODO async
-		this.protocolManager.addPacketListener(this);
+		this.asynchronousManager = this.protocolManager.getAsynchronousManager();
+
+		if (orebfuscator.getOrebfuscatorConfig().cache().enabled()) {
+			this.asyncListenerHandler = this.asynchronousManager.registerAsyncHandler(this);
+			this.asyncListenerHandler.start();
+			this.async = true;
+		} else {
+			this.async = false;
+			this.asyncListenerHandler = null;
+			this.protocolManager.addPacketListener(this);
+		}
 
 		this.config = orebfuscator.getOrebfuscatorConfig();
 		this.obfuscator = orebfuscator.getObfuscator();
@@ -47,7 +60,11 @@ public class PacketListener extends PacketAdapter {
 	}
 
 	public void unregister() {
-		this.protocolManager.removePacketListener(this);
+		if (this.asyncListenerHandler != null) {
+			this.asynchronousManager.unregisterAsyncHandler(this.asyncListenerHandler);
+		} else {
+			this.protocolManager.removePacketListener(this);
+		}
 	}
 
 	@Override
@@ -60,6 +77,10 @@ public class PacketListener extends PacketAdapter {
 		World world = player.getWorld();
 		if (!config.needsObfuscation(world)) {
 			return;
+		}
+
+		if (this.async) {
+			event.getAsyncMarker().incrementProcessingDelay();
 		}
 
 		PacketContainer packet = event.getPacket();
@@ -76,17 +97,22 @@ public class PacketListener extends PacketAdapter {
 		chunkStruct.data = byteArray.read(0);
 		chunkStruct.isOverworld = world.getEnvironment() == World.Environment.NORMAL;
 
-		ChunkCacheEntry chunkEntry = this.obfuscator.obfuscateOrUseCache(world, chunkStruct);
-		if (chunkEntry != null) {
-			byteArray.write(0, chunkEntry.getData());
+		this.obfuscator.obfuscateOrUseCache(world, chunkStruct, chunk -> {
+			if (chunk != null) {
+				byteArray.write(0, chunk.getData());
 
-			if (tileEntityList != null) {
-				PacketListener.removeBlockEntities(tileEntityList, chunkEntry.getRemovedTileEntities());
-				nbtList.write(0, tileEntityList);
+				if (tileEntityList != null) {
+					PacketListener.removeBlockEntities(tileEntityList, chunk.getRemovedTileEntities());
+					nbtList.write(0, tileEntityList);
+				}
+
+				this.proximityHider.addProximityBlocks(player, chunkStruct.chunkX, chunkStruct.chunkZ, chunk.getProximityBlocks());
 			}
 
-			this.proximityHider.addProximityBlocks(player, chunkStruct.chunkX, chunkStruct.chunkZ, chunkEntry.getProximityBlocks());
-		}
+			if (this.async) {
+				this.asynchronousManager.signalPacketTransmission(event);
+			}
+		});
 	}
 
 	private static void removeBlockEntities(List<NbtBase<?>> tileEntityList, Set<BlockCoords> removedTileEntities) {

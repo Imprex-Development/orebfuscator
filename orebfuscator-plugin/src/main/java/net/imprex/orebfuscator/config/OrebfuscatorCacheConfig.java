@@ -78,7 +78,7 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 
 	@Override
 	public Path regionFile(ChunkPosition key) {
-		return this.baseDirectory.resolve(key.getWorld())
+		return this.baseDirectory.resolve(key.getWorld().getName())
 				.resolve("r." + (key.getX() >> 5) + "." + (key.getZ() >> 5) + ".mca");
 	}
 

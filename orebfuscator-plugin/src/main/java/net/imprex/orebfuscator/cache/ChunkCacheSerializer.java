@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.obfuscation.ObfuscatedChunk;
 import net.imprex.orebfuscator.util.BlockCoords;
 import net.imprex.orebfuscator.util.ChunkPosition;
 
@@ -21,7 +22,7 @@ public class ChunkCacheSerializer {
 		return NmsInstance.getRegionFileCache().createOutputStream(key);
 	}
 
-	public ChunkCacheEntry read(ChunkPosition key) throws IOException {
+	public ObfuscatedChunk read(ChunkPosition key) throws IOException {
 		try (DataInputStream dataInputStream = this.createInputStream(key)) {
 			if (dataInputStream != null) {
 				// check if cache entry has right version and if chunk is present
@@ -35,7 +36,7 @@ public class ChunkCacheSerializer {
 				byte[] data = new byte[dataInputStream.readInt()];
 				dataInputStream.readFully(data);
 
-				ChunkCacheEntry chunkCacheEntry = new ChunkCacheEntry(hash, data);
+				ObfuscatedChunk chunkCacheEntry = new ObfuscatedChunk(hash, data);
 
 				Collection<BlockCoords> proximityBlocks = chunkCacheEntry.getProximityBlocks();
 				for (int i = dataInputStream.readInt(); i > 0; i--) {
@@ -56,7 +57,7 @@ public class ChunkCacheSerializer {
 	}
 
 	// TODO consider size limit for cache since RegionFile before 1.14 have a hard limit of 256 * 4kb 
-	public void write(ChunkPosition key, ChunkCacheEntry value) throws IOException {
+	public void write(ChunkPosition key, ObfuscatedChunk value) throws IOException {
 		try (DataOutputStream dataOutputStream = this.createOutputStream(key)) {
 			dataOutputStream.writeInt(CACHE_VERSION);
 
