@@ -25,19 +25,20 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 	private long expireAfterAccess = TimeUnit.SECONDS.toMillis(30);
 
 	public void serialize(ConfigurationSection section) {
-		this.enabled = section.getBoolean("enabled", true);
+		this.enabled(section.getBoolean("enabled", true));
 		this.serializeBaseDirectory(section, "orebfuscator_cache/");
 
-		this.maximumOpenRegionFiles = section.getInt("maximumOpenRegionFiles", 256);
-		this.deleteRegionFilesAfterAccess = section.getLong("deleteRegionFilesAfterAccess", TimeUnit.DAYS.toMillis(2));
+		this.maximumOpenRegionFiles(section.getInt("maximumOpenRegionFiles", 256));
+		this.deleteRegionFilesAfterAccess(section.getLong("deleteRegionFilesAfterAccess", TimeUnit.DAYS.toMillis(2)));
 
-		this.maximumSize = section.getInt("maximumSize", 4096);
-		this.expireAfterAccess = section.getLong("expireAfterAccess", TimeUnit.SECONDS.toMillis(30));
+		this.maximumSize(section.getInt("maximumSize", 4096));
+		this.expireAfterAccess(section.getLong("expireAfterAccess", TimeUnit.SECONDS.toMillis(30)));
 	}
 
 	public void deserialize(ConfigurationSection section) {
 		section.set("enabled", this.enabled);
-		section.set("baseDirectory", this.baseDirectory.toString());
+		section.set("baseDirectory", Bukkit.getWorldContainer().toPath().toAbsolutePath().normalize()
+				.relativize(this.baseDirectory).normalize().toString());
 
 		section.set("maximumOpenRegionFiles", this.maximumOpenRegionFiles);
 		section.set("deleteRegionFilesAfterAccess", this.deleteRegionFilesAfterAccess);
@@ -110,6 +111,9 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 
 	@Override
 	public void maximumOpenRegionFiles(int count) {
+		if (count < 0) {
+			throw new IllegalArgumentException("maximum open region files can't be negative");
+		}
 		this.maximumOpenRegionFiles = count;
 	}
 
@@ -120,6 +124,9 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 
 	@Override
 	public void deleteRegionFilesAfterAccess(long expire) {
+		if (expire < 0) {
+			throw new IllegalArgumentException("delete region files after access can't be negative");
+		}
 		this.deleteRegionFilesAfterAccess = expire;
 	}
 
@@ -130,6 +137,9 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 
 	@Override
 	public void maximumSize(int size) {
+		if (size < 0) {
+			throw new IllegalArgumentException("maximum size can't be negative");
+		}
 		this.maximumSize = size;
 	}
 
@@ -140,6 +150,9 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 
 	@Override
 	public void expireAfterAccess(long expire) {
+		if (expire < 0) {
+			throw new IllegalArgumentException("expire after access can't be negative");
+		}
 		this.expireAfterAccess = expire;
 	}
 }

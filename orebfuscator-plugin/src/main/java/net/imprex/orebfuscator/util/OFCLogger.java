@@ -27,6 +27,13 @@ public class OFCLogger {
 	}
 
 	/**
+	 * Log with a specified level and throwable
+	 */
+	public static void log(Level level, String message, Throwable throwable) {
+		OFCLogger.LOGGER.log(level, message, throwable);
+	}
+
+	/**
 	 * Log an error
 	 */
 	public static void log(Throwable e) {

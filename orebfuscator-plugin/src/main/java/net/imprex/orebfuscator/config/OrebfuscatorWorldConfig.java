@@ -36,7 +36,7 @@ public class OrebfuscatorWorldConfig implements WorldConfig {
 	}
 
 	protected void serialize(ConfigurationSection section) {
-		this.enabled = section.getBoolean("enabled", true);
+		this.enabled(section.getBoolean("enabled", true));
 
 		List<String> worldNameList = section.getStringList("worlds");
 		if (worldNameList == null || worldNameList.isEmpty()) {

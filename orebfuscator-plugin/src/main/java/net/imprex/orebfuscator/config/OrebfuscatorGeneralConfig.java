@@ -11,11 +11,11 @@ public class OrebfuscatorGeneralConfig implements GeneralConfig {
 	private int proximityHiderRunnerSize = 4;
 
 	public void serialize(ConfigurationSection section) {
-		this.updateOnBlockDamage = section.getBoolean("updateOnBlockDamage", true);
-		this.bypassNotification = section.getBoolean("bypassNotification", true);
-		this.initialRadius = section.getInt("initialRadius", 1);
-		this.updateRadius = section.getInt("updateRadius", 2);
-		this.proximityHiderRunnerSize = section.getInt("proximityHiderRunnerSize", 4);
+		this.updateOnBlockDamage(section.getBoolean("updateOnBlockDamage", true));
+		this.bypassNotification(section.getBoolean("bypassNotification", true));
+		this.initialRadius(section.getInt("initialRadius", 1));
+		this.updateRadius(section.getInt("updateRadius", 2));
+		this.proximityHiderRunnerSize(section.getInt("proximityHiderRunnerSize", 4));
 	}
 
 	public void deserialize(ConfigurationSection section) {
@@ -53,6 +53,9 @@ public class OrebfuscatorGeneralConfig implements GeneralConfig {
 
 	@Override
 	public void initialRadius(int radius) {
+		if (radius < 1) {
+			throw new IllegalArgumentException("update radius must higher than zero");
+		}
 		this.initialRadius = radius;
 	}
 
@@ -63,6 +66,9 @@ public class OrebfuscatorGeneralConfig implements GeneralConfig {
 
 	@Override
 	public void updateRadius(int radius) {
+		if (radius < 1) {
+			throw new IllegalArgumentException("update radius must higher than zero");
+		}
 		this.updateRadius = radius;
 	}
 
@@ -73,6 +79,9 @@ public class OrebfuscatorGeneralConfig implements GeneralConfig {
 
 	@Override
 	public void proximityHiderRunnerSize(int size) {
+		if (size < 1) {
+			throw new IllegalArgumentException("proximity hider runner size must higher than zero");
+		}
 		this.proximityHiderRunnerSize = size;
 	}
 }

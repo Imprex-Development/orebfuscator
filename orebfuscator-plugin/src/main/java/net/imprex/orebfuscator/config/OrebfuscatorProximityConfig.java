@@ -40,7 +40,7 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 	}
 
 	protected void serialize(ConfigurationSection section) {
-		this.enabled = section.getBoolean("enabled", true);
+		this.enabled(section.getBoolean("enabled", true));
 
 		List<String> worldNameList = section.getStringList("worlds");
 		if (worldNameList == null || worldNameList.isEmpty()) {
@@ -51,9 +51,8 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 		this.worlds.clear();
 		this.worlds.addAll(worldNameList);
 
-		this.distance = section.getInt("distance", 8);
-		this.distanceSquared = this.distance * this.distance;
-		this.useFastGazeCheck = section.getBoolean("useFastGazeCheck", true);
+		this.distance(section.getInt("distance", 8));
+		this.useFastGazeCheck(section.getBoolean("useFastGazeCheck", true));
 
 		this.serializeHiddenBlocks(section);
 		if (this.hiddenBlocks.isEmpty()) {
@@ -152,6 +151,9 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 
 	@Override
 	public void distance(int distance) {
+		if (distance < 1) {
+			throw new IllegalArgumentException("distance must higher than zero");
+		}
 		this.distance = distance;
 		this.distanceSquared = this.distance * this.distance;
 	}

@@ -15,6 +15,10 @@ public interface ProximityConfig {
 	List<String> worlds();
 
 	int distance();
+	/**
+	 * @param distance
+	 * @throws IllegalArgumentException When the distance value is lower than one
+	 */
 	void distance(int distance);
 
 	int distanceSquared();
