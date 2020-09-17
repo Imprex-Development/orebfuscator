@@ -111,8 +111,8 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 
 	@Override
 	public void maximumOpenRegionFiles(int count) {
-		if (count < 0) {
-			throw new IllegalArgumentException("maximum open region files can't be negative");
+		if (count < 1) {
+			throw new IllegalArgumentException("maximum open region files is lower than one");
 		}
 		this.maximumOpenRegionFiles = count;
 	}
@@ -124,8 +124,8 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 
 	@Override
 	public void deleteRegionFilesAfterAccess(long expire) {
-		if (expire < 0) {
-			throw new IllegalArgumentException("delete region files after access can't be negative");
+		if (expire < 1) {
+			throw new IllegalArgumentException("delete region files after access is lower than one");
 		}
 		this.deleteRegionFilesAfterAccess = expire;
 	}
@@ -137,8 +137,8 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 
 	@Override
 	public void maximumSize(int size) {
-		if (size < 0) {
-			throw new IllegalArgumentException("maximum size can't be negative");
+		if (size < 1) {
+			throw new IllegalArgumentException("maximum size is lower than one");
 		}
 		this.maximumSize = size;
 	}
@@ -150,8 +150,8 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 
 	@Override
 	public void expireAfterAccess(long expire) {
-		if (expire < 0) {
-			throw new IllegalArgumentException("expire after access can't be negative");
+		if (expire < 1) {
+			throw new IllegalArgumentException("expire is lower than one");
 		}
 		this.expireAfterAccess = expire;
 	}
