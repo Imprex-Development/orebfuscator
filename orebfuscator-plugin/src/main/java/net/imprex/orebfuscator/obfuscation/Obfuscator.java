@@ -2,7 +2,7 @@ package net.imprex.orebfuscator.obfuscation;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.function.Consumer;
+import java.util.concurrent.CompletableFuture;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -38,34 +38,31 @@ public class Obfuscator {
 		this.mainThread = Thread.currentThread();
 	}
 
-	public void obfuscateOrUseCache(World world, ChunkStruct chunkStruct, Consumer<ObfuscatedChunk> consumer) {
-		if (chunkStruct.primaryBitMask == 0) {
-			consumer.accept(null);
-			return;
-		}
-
+	public CompletableFuture<ObfuscatedChunk> obfuscateOrUseCache(World world, ChunkStruct chunkStruct) {
 		final ChunkPosition position = new ChunkPosition(world, chunkStruct.chunkX, chunkStruct.chunkZ);
 		final byte[] hash = ChunkCache.hash(this.config.hash(), chunkStruct.data);
 		final ChunkCacheRequest request = new ChunkCacheRequest(this, position, hash, chunkStruct);
 
 		if (this.config.cache().enabled()) {
-			this.chunkCache.get(request, consumer);
+			return this.chunkCache.get(request);
 		} else {
-			this.obfuscate(request, consumer);
+			return this.obfuscate(request);
 		}
 	}
 
-	public void obfuscate(ChunkCacheRequest request, Consumer<ObfuscatedChunk> consumer) {
+	public CompletableFuture<ObfuscatedChunk> obfuscate(ChunkCacheRequest request) {
+		CompletableFuture<ObfuscatedChunk> future = new CompletableFuture<>();
 		if (Thread.currentThread() == this.mainThread) {
-			consumer.accept(this.obfuscate(request));
+			future.complete(this.obfuscateNow(request));
 		} else {
 			Bukkit.getScheduler().runTask(this.orebfuscator, () -> {
-				consumer.accept(this.obfuscate(request));
+				future.complete(this.obfuscateNow(request));
 			});
 		}
+		return future;
 	}
 
-	private ObfuscatedChunk obfuscate(ChunkCacheRequest request) {
+	private ObfuscatedChunk obfuscateNow(ChunkCacheRequest request) {
 		World world = request.getKey().getWorld();
 		byte[] hash = request.getHash();
 		ChunkStruct chunkStruct = request.getChunkStruct();

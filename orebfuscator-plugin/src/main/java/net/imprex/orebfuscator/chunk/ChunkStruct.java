@@ -9,5 +9,4 @@ public class ChunkStruct {
 
 	public int primaryBitMask;
 	public byte[] data;
-
 }

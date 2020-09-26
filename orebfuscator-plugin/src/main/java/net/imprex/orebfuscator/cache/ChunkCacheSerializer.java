@@ -14,16 +14,16 @@ public class ChunkCacheSerializer {
 
 	private static final int CACHE_VERSION = 1;
 
-	private DataInputStream createInputStream(ChunkPosition key) throws IOException {
+	private static DataInputStream createInputStream(ChunkPosition key) throws IOException {
 		return NmsInstance.getRegionFileCache().createInputStream(key);
 	}
 
-	private DataOutputStream createOutputStream(ChunkPosition key) throws IOException {
+	private static DataOutputStream createOutputStream(ChunkPosition key) throws IOException {
 		return NmsInstance.getRegionFileCache().createOutputStream(key);
 	}
 
-	public ObfuscatedChunk read(ChunkPosition key) throws IOException {
-		try (DataInputStream dataInputStream = this.createInputStream(key)) {
+	public static ObfuscatedChunk read(ChunkPosition key) throws IOException {
+		try (DataInputStream dataInputStream = createInputStream(key)) {
 			if (dataInputStream != null) {
 				// check if cache entry has right version and if chunk is present
 				if (dataInputStream.readInt() != CACHE_VERSION || !dataInputStream.readBoolean()) {
@@ -57,8 +57,8 @@ public class ChunkCacheSerializer {
 	}
 
 	// TODO consider size limit for cache since RegionFile before 1.14 have a hard limit of 256 * 4kb 
-	public void write(ChunkPosition key, ObfuscatedChunk value) throws IOException {
-		try (DataOutputStream dataOutputStream = this.createOutputStream(key)) {
+	public static void write(ChunkPosition key, ObfuscatedChunk value) throws IOException {
+		try (DataOutputStream dataOutputStream = createOutputStream(key)) {
 			dataOutputStream.writeInt(CACHE_VERSION);
 
 			if (value != null) {

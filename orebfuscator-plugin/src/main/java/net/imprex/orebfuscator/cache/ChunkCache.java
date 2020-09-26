@@ -1,10 +1,10 @@
 package net.imprex.orebfuscator.cache;
 
-import java.io.IOException;
-import java.util.Arrays;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 
 import org.bukkit.Bukkit;
 
@@ -34,7 +34,9 @@ public class ChunkCache {
 	private final CacheConfig cacheConfig;
 
 	private final Cache<ChunkPosition, ObfuscatedChunk> cache;
-	private final ChunkCacheSerializer serializer;
+	private final ChunkSerializer serializer;
+
+	private final Executor cacheExecutor = Executors.newWorkStealingPool();
 
 	public ChunkCache(Orebfuscator orebfuscator) {
 		this.cacheConfig = orebfuscator.getOrebfuscatorConfig().cache();
@@ -43,7 +45,7 @@ public class ChunkCache {
 				.expireAfterAccess(this.cacheConfig.expireAfterAccess(), TimeUnit.MILLISECONDS)
 				.removalListener(this::onRemoval).build();
 
-		this.serializer = new ChunkCacheSerializer();
+		this.serializer = new ChunkSerializer();
 
 		if (this.cacheConfig.enabled() && this.cacheConfig.deleteRegionFilesAfterAccess() > 0) {
 			Bukkit.getScheduler().runTaskTimerAsynchronously(orebfuscator, new CacheCleanTask(orebfuscator), 0,
@@ -53,65 +55,48 @@ public class ChunkCache {
 
 	private void onRemoval(RemovalNotification<ChunkPosition, ObfuscatedChunk> notification) {
 		if (notification.wasEvicted()) {
-			try {
-				this.serializer.write(notification.getKey(), notification.getValue());
-			} catch (IOException e) {
-				e.printStackTrace();
+			this.serializer.write(notification.getKey(), notification.getValue());
+		}
+	}
+
+	public CompletableFuture<ObfuscatedChunk> get(ChunkCacheRequest request) {
+		CompletableFuture<ObfuscatedChunk> future = new CompletableFuture<>();
+		this.cacheExecutor.execute(() -> {
+			ChunkPosition key = request.getKey();
+
+			ObfuscatedChunk cacheChunk = this.cache.getIfPresent(key);
+			if (request.isValid(cacheChunk)) {
+				future.complete(cacheChunk);
+				return;
 			}
-		}
-	}
 
-	private ObfuscatedChunk load(ChunkPosition key) {
-		try {
-			return this.serializer.read(key);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		return null;
-	}
+			// check if disk cache entry is present and valid
+			this.serializer.read(key).thenAcceptAsync(diskChunk -> {
+				if (request.isValid(diskChunk)) {
+					this.cache.put(key, diskChunk);
+					future.complete(diskChunk);
+					return;
+				}
 
-	public void get(ChunkCacheRequest request, Consumer<ObfuscatedChunk> consumer) {
-		ChunkPosition key = request.getKey();
-		byte[] hash = request.getHash();
-
-		ObfuscatedChunk cacheEntry = this.cache.getIfPresent(key);
-		if (cacheEntry != null && Arrays.equals(cacheEntry.getHash(), hash)) {
-			consumer.accept(cacheEntry);
-			return;
-		}
-
-		// check if disk cache entry is present and valid
-		cacheEntry = this.load(key);
-		if (cacheEntry != null && Arrays.equals(cacheEntry.getHash(), hash)) {
-			this.cache.put(key, Objects.requireNonNull(cacheEntry));
-			consumer.accept(cacheEntry);
-			return;
-		}
-
-		// create new entry no valid ones found
-		request.obfuscate(chunk -> {
-			this.cache.put(key, Objects.requireNonNull(chunk));
-			consumer.accept(chunk);
+				// create new entry no valid ones found
+				request.obfuscate().thenAcceptAsync(chunk -> {
+					this.cache.put(key, Objects.requireNonNull(chunk));
+					future.complete(chunk);
+				}, this.cacheExecutor);
+			}, this.cacheExecutor);
 		});
+		return future;
 	}
 
 	public void invalidate(ChunkPosition key) {
 		this.cache.invalidate(key);
-		try {
-			this.serializer.write(key, null);
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+		this.serializer.write(key, null);
 	}
 
 	public void invalidateAll(boolean save) {
 		if (save) {
 			this.cache.asMap().entrySet().removeIf(entry -> {
-				try {
-					this.serializer.write(entry.getKey(), entry.getValue());
-				} catch (IOException e) {
-					e.printStackTrace();
-				}
+				this.serializer.write(entry.getKey(), entry.getValue());
 				return true;
 			});
 		} else {

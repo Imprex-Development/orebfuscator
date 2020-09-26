@@ -1,6 +1,7 @@
 package net.imprex.orebfuscator.cache;
 
-import java.util.function.Consumer;
+import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
 
 import net.imprex.orebfuscator.chunk.ChunkStruct;
 import net.imprex.orebfuscator.obfuscation.ObfuscatedChunk;
@@ -21,8 +22,12 @@ public class ChunkCacheRequest {
 		this.chunkStruct = chunkStruct;
 	}
 
-	public void obfuscate(Consumer<ObfuscatedChunk> consumer) {
-		this.obfuscator.obfuscate(this, consumer);
+	public CompletableFuture<ObfuscatedChunk> obfuscate() {
+		return this.obfuscator.obfuscate(this);
+	}
+
+	public boolean isValid(ObfuscatedChunk chunk) {
+		return chunk != null && Arrays.equals(chunk.getHash(), this.hash);
 	}
 
 	public ChunkPosition getKey() {

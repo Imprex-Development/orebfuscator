@@ -79,10 +79,6 @@ public class PacketListener extends PacketAdapter {
 			return;
 		}
 
-		if (this.async) {
-			event.getAsyncMarker().incrementProcessingDelay();
-		}
-
 		PacketContainer packet = event.getPacket();
 		StructureModifier<Integer> ints = packet.getIntegers();
 		StructureModifier<byte[]> byteArray = packet.getByteArrays();
@@ -97,7 +93,15 @@ public class PacketListener extends PacketAdapter {
 		chunkStruct.data = byteArray.read(0);
 		chunkStruct.isOverworld = world.getEnvironment() == World.Environment.NORMAL;
 
-		this.obfuscator.obfuscateOrUseCache(world, chunkStruct, chunk -> {
+		if (chunkStruct.primaryBitMask == 0) {
+			return;
+		}
+
+		if (this.async) {
+			event.getAsyncMarker().incrementProcessingDelay();
+		}
+
+		this.obfuscator.obfuscateOrUseCache(world, chunkStruct).thenAccept(chunk -> {
 			if (chunk != null) {
 				byteArray.write(0, chunk.getData());
 
