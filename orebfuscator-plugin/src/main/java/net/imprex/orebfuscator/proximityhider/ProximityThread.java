@@ -99,7 +99,7 @@ public class ProximityThread extends Thread {
 					}
 				});
 			} catch (Exception e) {
-				OFCLogger.log(e);
+				OFCLogger.err(e);
 			} finally {
 				this.proximityHider.unlockPlayer(player);
 			}
