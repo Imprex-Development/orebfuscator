@@ -2,7 +2,7 @@ package net.imprex.orebfuscator.cache;
 
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -36,7 +36,7 @@ public class ChunkCache {
 	private final Cache<ChunkPosition, ObfuscatedChunk> cache;
 	private final ChunkSerializer serializer;
 
-	private final Executor cacheExecutor = Executors.newWorkStealingPool();
+	private final ExecutorService cacheExecutor = Executors.newWorkStealingPool();
 
 	public ChunkCache(Orebfuscator orebfuscator) {
 		this.cacheConfig = orebfuscator.getOrebfuscatorConfig().cache();
@@ -93,14 +93,12 @@ public class ChunkCache {
 		this.serializer.write(key, null);
 	}
 
-	public void invalidateAll(boolean save) {
-		if (save) {
-			this.cache.asMap().entrySet().removeIf(entry -> {
-				this.serializer.write(entry.getKey(), entry.getValue());
-				return true;
-			});
-		} else {
-			this.cache.invalidateAll();
-		}
+	public void close() {
+		this.cache.asMap().entrySet().removeIf(entry -> {
+			this.serializer.write(entry.getKey(), entry.getValue());
+			return true;
+		});
+		this.cacheExecutor.shutdown();
+		this.serializer.close();
 	}
 }

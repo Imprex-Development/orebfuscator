@@ -25,6 +25,8 @@ public class ChunkSerializer implements Runnable {
 	private final AtomicBoolean suspended = new AtomicBoolean();
 	private final Thread thread;
 
+	private volatile boolean running = true;
+
 	public ChunkSerializer() {
 		this.thread = new Thread(this, "chunk-serializer");
 		this.thread.setDaemon(true);
@@ -57,9 +59,10 @@ public class ChunkSerializer implements Runnable {
 	private void queueTask(ChunkPosition position, Runnable runnable) {
 		this.lock.lock();
 		try {
-			if (this.tasks.replace(position, runnable) == null) {
+			if (this.tasks.put(position, runnable) == null) {
 				this.positions.offer(position);
 			}
+
 			if (this.suspended.compareAndSet(true, false)) {
 				this.condition.signal();
 			}
@@ -70,7 +73,7 @@ public class ChunkSerializer implements Runnable {
 
 	@Override
 	public void run() {
-		while (true) {
+		while (this.running || !this.positions.isEmpty()) {
 			this.lock.lock();
 			try {
 				if (this.positions.isEmpty() && this.suspended.compareAndSet(false, true)) {
@@ -81,6 +84,18 @@ public class ChunkSerializer implements Runnable {
 			} finally {
 				this.lock.unlock();
 			}
+		}
+	}
+
+	public void close() {
+		this.lock.lock();
+		try {
+			this.running = false;
+			if (this.suspended.compareAndSet(true, false)) {
+				this.condition.signal();
+			}
+		} finally {
+			this.lock.unlock();
 		}
 	}
 }
