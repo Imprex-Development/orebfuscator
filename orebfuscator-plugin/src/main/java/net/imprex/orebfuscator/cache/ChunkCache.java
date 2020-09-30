@@ -34,7 +34,7 @@ public class ChunkCache {
 	private final CacheConfig cacheConfig;
 
 	private final Cache<ChunkPosition, ObfuscatedChunk> cache;
-	private final ChunkSerializer serializer;
+	private final AsyncChunkSerializer serializer;
 
 	private final ExecutorService cacheExecutor = Executors.newWorkStealingPool();
 
@@ -45,7 +45,7 @@ public class ChunkCache {
 				.expireAfterAccess(this.cacheConfig.expireAfterAccess(), TimeUnit.MILLISECONDS)
 				.removalListener(this::onRemoval).build();
 
-		this.serializer = new ChunkSerializer();
+		this.serializer = new AsyncChunkSerializer();
 
 		if (this.cacheConfig.enabled() && this.cacheConfig.deleteRegionFilesAfterAccess() > 0) {
 			Bukkit.getScheduler().runTaskTimerAsynchronously(orebfuscator, new CacheCleanTask(orebfuscator), 0,

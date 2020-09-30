@@ -85,11 +85,9 @@ public abstract class AbstractRegionFileCache<T> {
 	}
 
 	public final void close(Path path) throws IOException {
-		T t = null;
-
 		this.lock.writeLock().lock();
 		try {
-			t = this.regionFiles.remove(path);
+			T t = this.regionFiles.remove(path);
 			if (t != null) {
 				this.closeRegionFile(t);
 			}
