@@ -62,9 +62,4 @@ public class IndirectPalette implements Palette {
 			ByteBufUtil.writeVarInt(buffer, this.toBlockId(i));
 		}
 	}
-
-	@Override
-	public String toString() {
-		return Arrays.toString(this.indexToBlock);
-	}
 }

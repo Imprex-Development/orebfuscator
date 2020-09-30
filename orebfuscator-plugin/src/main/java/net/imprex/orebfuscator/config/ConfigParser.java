@@ -3,7 +3,9 @@ package net.imprex.orebfuscator.config;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Optional;
+import java.util.Set;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
@@ -88,5 +90,39 @@ public class ConfigParser {
 			int weight = materialSection.isInt(name) ? materialSection.getInt(name, 1) : 1;
 			randomBlocks.put(material.get(), weight);
 		}
+	}
+
+	public static void deserializeRandomMaterialList(ConfigurationSection section, Map<Material, Integer> randomBlocks,
+			String path) {
+		ConfigurationSection materialSection = section.createSection(path);
+
+		for (Entry<Material, Integer> entry : randomBlocks.entrySet()) {
+			Material material = entry.getKey();
+			Optional<String> optional = NmsInstance.getNameByMaterial(material);
+
+			if (!optional.isPresent()) {
+				OFCLogger.warn(String.format("config section '%s.%s' contains unknown block name '%s'",
+						section.getCurrentPath(), path, material != null ? material.name() : null));
+				continue;
+			}
+
+			materialSection.set(optional.get(), entry.getValue());
+		}
+	}
+
+	public static void deserializeMaterialSet(ConfigurationSection section, Set<Material> materials, String path) {
+		List<String> materialNames = new ArrayList<>();
+		for (Material material : materials) {
+			Optional<String> optional = NmsInstance.getNameByMaterial(material);
+			if (!optional.isPresent()) {
+				OFCLogger.warn(String.format("config section '%s.%s' contains unknown block name '%s'",
+						section.getCurrentPath(), path, material != null ? material.name() : null));
+				continue;
+			}
+
+			materialNames.add(optional.get());
+		}
+
+		section.set(path, materialNames);
 	}
 }

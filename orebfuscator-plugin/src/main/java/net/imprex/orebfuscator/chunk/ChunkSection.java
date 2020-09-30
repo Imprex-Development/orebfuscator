@@ -15,13 +15,14 @@ public class ChunkSection {
 		this.setBitsPerBlock(4);
 	}
 
-	public ChunkSection(int bitsPerBlock) {
-		this.setBitsPerBlock(bitsPerBlock);
-	}
-
 	private void setBitsPerBlock(int bitsPerBlock) {
 		if (this.bitsPerBlock != bitsPerBlock) {
-			if (bitsPerBlock <= 8) {
+			// fix: fawe chunk format incompatibility with bitsPerBlock == 1
+			// https://github.com/Imprex-Development/Orebfuscator/issues/36
+			if (bitsPerBlock == 1) {
+				this.bitsPerBlock = bitsPerBlock;
+				this.palette = new IndirectPalette(this.bitsPerBlock, this);
+			} else if (bitsPerBlock <= 8) {
 				this.bitsPerBlock = Math.max(4, bitsPerBlock);
 				this.palette = new IndirectPalette(this.bitsPerBlock, this);
 			} else {
@@ -29,7 +30,6 @@ public class ChunkSection {
 				this.palette = new DirectPalette();
 			}
 
-			this.palette.fromBlockId(0); // add air by default
 			this.data = ChunkCapabilities.createVarBitBuffer(this.bitsPerBlock, 4096);
 		}
 	}

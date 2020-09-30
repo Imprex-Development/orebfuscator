@@ -1,22 +1,34 @@
 package net.imprex.orebfuscator.config;
 
 import java.util.List;
+import java.util.Map;
 
-import org.bukkit.World;
+import org.bukkit.Material;
 
 public interface ProximityConfig {
 
-	boolean enabled();
+	void initialize();
 
-	List<World> worlds();
+	boolean enabled();
+	void enabled(boolean enabled);
+
+	List<String> worlds();
 
 	int distance();
+	/**
+	 * @param distance
+	 * @throws IllegalArgumentException When the distance value is lower than one
+	 */
+	void distance(int distance);
 
 	int distanceSquared();
 
 	boolean useFastGazeCheck();
+	void useFastGazeCheck(boolean fastGaze);
 
-	List<Integer> randomBlocks();
+	Map<Material, Short> hiddenBlocks();
+
+	Map<Material, Integer> randomBlocks();
 
 	int randomBlockId();
 }

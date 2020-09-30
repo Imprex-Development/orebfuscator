@@ -24,7 +24,7 @@ public class NmsInstance {
 			throw new IllegalStateException("NMS protocol version was already initialized!");
 		}
 
-		OFCLogger.log("Searching NMS protocol for server version \"" + MinecraftVersion.getNmsVersion() + "\"!");
+		OFCLogger.info("Searching NMS protocol for server version \"" + MinecraftVersion.getNmsVersion() + "\"!");
 
 		switch (MinecraftVersion.getNmsVersion()) {
 		case "v1_16_R2":
@@ -69,7 +69,7 @@ public class NmsInstance {
 		}
 
 		if (NmsInstance.instance != null) {
-			OFCLogger.log("NMS protocol for server version \"" + MinecraftVersion.getNmsVersion() + "\" found!");
+			OFCLogger.info("NMS protocol for server version \"" + MinecraftVersion.getNmsVersion() + "\" found!");
 		} else {
 			throw new RuntimeException("Server version \"" + MinecraftVersion.getNmsVersion() + "\" is currently not supported!");
 		}
@@ -89,6 +89,10 @@ public class NmsInstance {
 
 	public static Optional<Material> getMaterialByName(String name) {
 		return instance.getMaterialByName(name);
+	}
+
+	public static Optional<String> getNameByMaterial(Material material) {
+		return instance.getNameByMaterial(material);
 	}
 
 	public static Set<Integer> getMaterialIds(Material material) {

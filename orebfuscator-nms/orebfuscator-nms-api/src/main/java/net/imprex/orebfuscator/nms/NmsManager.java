@@ -19,6 +19,8 @@ public interface NmsManager {
 
 	Optional<Material> getMaterialByName(String name);
 
+	Optional<String> getNameByMaterial(Material material);
+
 	Set<Integer> getMaterialIds(Material material);
 
 	int getCaveAirBlockId();

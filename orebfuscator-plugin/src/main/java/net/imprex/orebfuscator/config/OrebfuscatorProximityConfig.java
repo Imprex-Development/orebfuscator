@@ -1,16 +1,13 @@
 package net.imprex.orebfuscator.config;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Map.Entry;
-import java.util.Set;
+import java.util.Optional;
 
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 
 import net.imprex.orebfuscator.NmsInstance;
@@ -19,22 +16,7 @@ import net.imprex.orebfuscator.util.WeightedRandom;
 
 public class OrebfuscatorProximityConfig implements ProximityConfig {
 
-	private static final short EMPTY_HIDE_CONDITION = createHideCondition(0, true);
-
-	private static short createHideCondition(int y, boolean above) {
-		return (short) ((y & 0xFF) << 8 | (above ? 0x80 : 0x00));
-	}
-
-	static boolean matchHideCondition(short hideCondition, int y) {
-		int expectedY = hideCondition >> 8;
-		if ((hideCondition & 0x80) != 0) {
-			return expectedY < y;
-		} else {
-			return expectedY > y;
-		}
-	}
-
-	private final List<World> worlds = new ArrayList<>();
+	private final List<String> worlds = new ArrayList<>();
 
 	private boolean enabled;
 	private int distance;
@@ -47,7 +29,8 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 	private final List<Integer> randomBlockIds = new ArrayList<>();
 	private WeightedRandom<Integer> randomMaterials = new WeightedRandom<>();
 
-	protected void initialize() {
+	@Override
+	public void initialize() {
 		this.randomMaterials.clear();
 		for (Entry<Material, Integer> entry : this.randomBlocks.entrySet()) {
 			int blockId = NmsInstance.getMaterialIds(entry.getKey()).iterator().next();
@@ -57,18 +40,19 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 	}
 
 	protected void serialize(ConfigurationSection section) {
-		this.enabled = section.getBoolean("enabled", true);
+		this.enabled(section.getBoolean("enabled", true));
 
-		ConfigParser.serializeWorldList(section, this.worlds, "worlds");
-		if (this.worlds.isEmpty()) {
+		List<String> worldNameList = section.getStringList("worlds");
+		if (worldNameList == null || worldNameList.isEmpty()) {
 			this.failSerialize(
 					String.format("config section '%s.worlds' is missing or empty", section.getCurrentPath()));
 			return;
 		}
+		this.worlds.clear();
+		this.worlds.addAll(worldNameList);
 
-		this.distance = section.getInt("distance", 8);
-		this.distanceSquared = this.distance * this.distance;
-		this.useFastGazeCheck = section.getBoolean("useFastGazeCheck", true);
+		this.distance(section.getInt("distance", 8));
+		this.useFastGazeCheck(section.getBoolean("useFastGazeCheck", true));
 
 		this.serializeHiddenBlocks(section);
 		if (this.hiddenBlocks.isEmpty()) {
@@ -84,6 +68,16 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 			this.failSerialize(
 					String.format("config section '%s.randomBlocks' is missing or empty", section.getCurrentPath()));
 		}
+	}
+
+	protected void deserialize(ConfigurationSection section) {
+		section.set("enabled", this.enabled);
+		section.set("worlds", this.worlds);
+		section.set("distance", this.distance);
+		section.set("useFastGazeCheck", this.useFastGazeCheck);
+		
+		this.deserializeHiddenBlocks(section, this.hiddenBlocks, "hiddenBlocks");
+		ConfigParser.deserializeRandomMaterialList(section, randomBlocks, "randomBlocks");
 	}
 
 	private void serializeHiddenBlocks(ConfigurationSection section) {
@@ -103,12 +97,30 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 				continue;
 			}
 
-			short hideCondition = EMPTY_HIDE_CONDITION;
+			short hideCondition = HideCondition.EMPTY;
 			if (materialSection.isInt(name + ".y") && materialSection.isBoolean(name + ".above")) {
-				hideCondition = createHideCondition(materialSection.getInt(name + ".y"), materialSection.getBoolean(name + ".above"));
+				hideCondition = HideCondition.create(materialSection.getInt(name + ".y"), materialSection.getBoolean(name + ".above"));
 			}
 
 			this.hiddenBlocks.put(material.get(), hideCondition);
+		}
+	}
+
+	private void deserializeHiddenBlocks(ConfigurationSection section, Map<Material, Short> hiddenBlocks, String path) {
+		ConfigurationSection materialSection = section.createSection(path);
+		for (Entry<Material, Short> entry : this.hiddenBlocks.entrySet()) {
+			Material material = entry.getKey();
+			Optional<String> optional = NmsInstance.getNameByMaterial(material);
+			if (!optional.isPresent()) {
+				OFCLogger.warn(String.format("config section '%s.%s' contains unknown block name '%s'",
+						section.getCurrentPath(), path, material != null ? material.name() : null));
+				continue;
+			}
+
+			String name = optional.get();
+			short condition = entry.getValue();
+			materialSection.set(name + ".y", HideCondition.getY(condition));
+			materialSection.set(name + ".above", HideCondition.getAbove(condition));
 		}
 	}
 
@@ -117,23 +129,33 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 		OFCLogger.warn(message);
 	}
 
-	public Set<Map.Entry<Material, Short>> getHiddenBlocks() {
-		return hiddenBlocks.entrySet();
-	}
-
 	@Override
 	public boolean enabled() {
 		return this.enabled;
 	}
 
 	@Override
-	public List<World> worlds() {
-		return Collections.unmodifiableList(this.worlds);
+	public void enabled(boolean enabled) {
+		this.enabled = enabled;
+	}
+
+	@Override
+	public List<String> worlds() {
+		return this.worlds;
 	}
 
 	@Override
 	public int distance() {
 		return this.distance;
+	}
+
+	@Override
+	public void distance(int distance) {
+		if (distance < 1) {
+			throw new IllegalArgumentException("distance must higher than zero");
+		}
+		this.distance = distance;
+		this.distanceSquared = this.distance * this.distance;
 	}
 
 	@Override
@@ -147,8 +169,18 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 	}
 
 	@Override
-	public List<Integer> randomBlocks() {
-		return this.randomBlockIds;
+	public void useFastGazeCheck(boolean fastGaze) {
+		this.useFastGazeCheck = fastGaze;
+	}
+
+	@Override
+	public Map<Material, Short> hiddenBlocks() {
+		return this.hiddenBlocks;
+	}
+
+	@Override
+	public Map<Material, Integer> randomBlocks() {
+		return this.randomBlocks;
 	}
 
 	@Override

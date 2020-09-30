@@ -6,14 +6,17 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
+import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import net.imprex.orebfuscator.NmsInstance;
@@ -31,9 +34,7 @@ public class OrebfuscatorConfig implements Config {
 	private final List<OrebfuscatorWorldConfig> world = new ArrayList<>();
 	private final List<OrebfuscatorProximityConfig> proximityWorlds = new ArrayList<>();
 
-	private final Map<World, OrebfuscatorBlockMask> worldToBlockMask = new HashMap<>();
-	private final Map<World, OrebfuscatorWorldConfig> worldToWorldConfig = new HashMap<>();
-	private final Map<World, OrebfuscatorProximityConfig> worldToProximityConfig = new HashMap<>();
+	private final Map<World, OrebfuscatorConfig.WorldEntry> worldToEntry = new WeakHashMap<>();
 
 	private final Plugin plugin;
 
@@ -51,6 +52,18 @@ public class OrebfuscatorConfig implements Config {
 
 		this.serialize(this.plugin.getConfig());
 		this.initialize();
+	}
+
+	public void store() {
+		this.createConfigIfNotExist();
+
+		ConfigurationSection section = this.plugin.getConfig();
+		for (String path : section.getKeys(false)) {
+			section.set(path, null);
+		}
+		this.deserialize(section);
+		this.plugin.saveConfig();
+		this.reload();
 	}
 
 	private void createConfigIfNotExist() {
@@ -134,41 +147,68 @@ public class OrebfuscatorConfig implements Config {
 		}
 	}
 
-	private void initialize() {
-		this.worldToWorldConfig.clear();
+	private void deserialize(ConfigurationSection section) {
+		section.set("version", CONFIG_VERSION);
 
+		this.generalConfig.deserialize(section.createSection("general"));
+		this.cacheConfig.deserialize(section.createSection("cache"));
+
+		List<ConfigurationSection> worldSectionList = new ArrayList<>();
+		for (OrebfuscatorWorldConfig worldConfig : this.world) {
+			ConfigurationSection worldSection = new MemoryConfiguration();
+			worldConfig.deserialize(worldSection);
+			worldSectionList.add(worldSection);
+		}
+		section.set("world", worldSectionList);
+
+		List<ConfigurationSection> proximitySectionList = new ArrayList<>();
+		for (OrebfuscatorProximityConfig proximityConfig : this.proximityWorlds) {
+			ConfigurationSection proximitySection = new MemoryConfiguration();
+			proximityConfig.deserialize(proximitySection);
+			proximitySectionList.add(proximitySection);
+		}
+		section.set("proximity", proximitySectionList);
+	}
+
+	private void initialize() {
+		this.worldToEntry.clear();
+
+		Set<String> worldNames = new HashSet<>();
 		for (OrebfuscatorWorldConfig worldConfig : this.world) {
 			worldConfig.initialize();
-			for (World world : worldConfig.worlds()) {
-				if (this.worldToWorldConfig.containsKey(world)) {
-					OFCLogger.warn("world " + world.getName() + " has more than one world config choosing first one");
+			for (String worldName : worldConfig.worlds()) {
+				if (worldNames.contains(worldName)) {
+					OFCLogger.warn("world " + worldName + " has more than one world config choosing first one");
 				} else {
-					this.worldToWorldConfig.put(world, worldConfig);
+					worldNames.add(worldName);
 				}
 			}
 		}
 
+		worldNames.clear();
 		for (OrebfuscatorProximityConfig proximityConfig : this.proximityWorlds) {
 			proximityConfig.initialize();
-			for (World world : proximityConfig.worlds()) {
-				if (this.worldToProximityConfig.containsKey(world)) {
-					OFCLogger.warn("world " + world.getName() + " has more than one proximity config choosing first one");
+			for (String worldName : proximityConfig.worlds()) {
+				if (worldNames.contains(worldName)) {
+					OFCLogger.warn("world " + worldName + " has more than one proximity config choosing first one");
 				} else {
-					this.worldToProximityConfig.put(world, proximityConfig);
+					worldNames.add(worldName);
 				}
 			}
 		}
 
-		// TODO handle dynamic world loading
 		for (World world : Bukkit.getWorlds()) {
-			if (!this.worldToWorldConfig.containsKey(world)) {
-				OFCLogger.warn("world " + world.getName() + " is missing a world config");
-			}
-
-			OrebfuscatorWorldConfig worldConfig = this.worldToWorldConfig.get(world);
-			OrebfuscatorProximityConfig proximityConfig = this.worldToProximityConfig.get(world);
-			this.worldToBlockMask.put(world, new OrebfuscatorBlockMask(worldConfig, proximityConfig));
+			this.worldToEntry.put(world, new WorldEntry(world));
 		}
+	}
+
+	private WorldEntry getWorldEntry(World world) {
+		WorldEntry worldEntry = this.worldToEntry.get(Objects.requireNonNull(world));
+		if (worldEntry == null) {
+			worldEntry = new WorldEntry(world);
+			this.worldToEntry.put(world, worldEntry);
+		}
+		return worldEntry;
 	}
 
 	@Override
@@ -183,24 +223,25 @@ public class OrebfuscatorConfig implements Config {
 
 	@Override
 	public BlockMask blockMask(World world) {
-		return this.worldToBlockMask.get(Objects.requireNonNull(world));
+		return this.getWorldEntry(world).blockMask;
 	}
 
 	@Override
 	public boolean needsObfuscation(World world) {
-		WorldConfig worldConfig = this.world(world);
-		ProximityConfig proximityConfig = this.proximity(world);
+		WorldEntry worldEntry = this.getWorldEntry(world);
+		WorldConfig worldConfig = worldEntry.worldConfig;
+		ProximityConfig proximityConfig = worldEntry.proximityConfig;
 		return worldConfig != null && worldConfig.enabled() || proximityConfig != null && proximityConfig.enabled();
 	}
 
 	@Override
 	public OrebfuscatorWorldConfig world(World world) {
-		return this.worldToWorldConfig.get(Objects.requireNonNull(world));
+		return this.getWorldEntry(world).worldConfig;
 	}
 
 	@Override
 	public boolean proximityEnabled() {
-		for (ProximityConfig proximityConfig : this.worldToProximityConfig.values()) {
+		for (ProximityConfig proximityConfig : this.proximityWorlds) {
 			if (proximityConfig.enabled()) {
 				return true;
 			}
@@ -210,11 +251,45 @@ public class OrebfuscatorConfig implements Config {
 
 	@Override
 	public ProximityConfig proximity(World world) {
-		return this.worldToProximityConfig.get(Objects.requireNonNull(world));
+		return this.getWorldEntry(world).proximityConfig;
 	}
 
 	@Override
 	public byte[] hash() {
 		return hash;
+	}
+
+	private class WorldEntry {
+
+		private final OrebfuscatorWorldConfig worldConfig;
+		private final OrebfuscatorProximityConfig proximityConfig;
+		private final OrebfuscatorBlockMask blockMask;
+
+		public WorldEntry(World world) {
+			OrebfuscatorWorldConfig worldConfig = null;
+			OrebfuscatorProximityConfig proximityConfig = null;
+
+			for (OrebfuscatorWorldConfig config : OrebfuscatorConfig.this.world) {
+				for (String worldName : config.worlds()) {
+					if (worldName.equalsIgnoreCase(world.getName())) {
+						worldConfig = config;
+						break;
+					}
+				}
+			}
+
+			for (OrebfuscatorProximityConfig config : OrebfuscatorConfig.this.proximityWorlds) {
+				for (String worldName : config.worlds()) {
+					if (worldName.equalsIgnoreCase(world.getName())) {
+						proximityConfig = config;
+						break;
+					}
+				}
+			}
+
+			this.worldConfig = worldConfig;
+			this.proximityConfig = proximityConfig;
+			this.blockMask = OrebfuscatorBlockMask.create(worldConfig, proximityConfig);
+		}
 	}
 }

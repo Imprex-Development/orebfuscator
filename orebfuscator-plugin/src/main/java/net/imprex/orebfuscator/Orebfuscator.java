@@ -34,7 +34,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 		try {
 			// Check if protocolLib is enabled
 			if (this.getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
-				OFCLogger.log("[OFC] ProtocolLib is not found! Plugin cannot be enabled.");
+				OFCLogger.info("[OFC] ProtocolLib is not found! Plugin cannot be enabled.");
 				return;
 			}
 
@@ -60,9 +60,10 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 
 			// Load packet listener
 			this.packetListener = new PacketListener(this);
+
 		} catch(Exception e) {
-			OFCLogger.log(e);
-			OFCLogger.log(Level.SEVERE, "An error occurred by enabling plugin");
+			OFCLogger.log(Level.SEVERE, "An error occurred while enabling plugin");
+			OFCLogger.err(e);
 
 			this.getServer().getPluginManager().registerEvent(PluginEnableEvent.class, this, EventPriority.NORMAL, this::onEnableFailed, this);
 		}
