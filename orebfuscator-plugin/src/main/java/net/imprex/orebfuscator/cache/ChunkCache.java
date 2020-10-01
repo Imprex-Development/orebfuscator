@@ -31,6 +31,7 @@ public class ChunkCache {
 		return hasher.hash().asBytes();
 	}
 
+	private final Orebfuscator orebfuscator;
 	private final CacheConfig cacheConfig;
 
 	private final Cache<ChunkPosition, ObfuscatedChunk> cache;
@@ -39,6 +40,7 @@ public class ChunkCache {
 	private final ExecutorService cacheExecutor = Executors.newWorkStealingPool();
 
 	public ChunkCache(Orebfuscator orebfuscator) {
+		this.orebfuscator = orebfuscator;
 		this.cacheConfig = orebfuscator.getOrebfuscatorConfig().cache();
 
 		this.cache = CacheBuilder.newBuilder().maximumSize(this.cacheConfig.maximumSize())
@@ -89,8 +91,14 @@ public class ChunkCache {
 	}
 
 	public void invalidate(ChunkPosition key) {
-		this.cache.invalidate(key);
-		this.serializer.write(key, null);
+		if (this.orebfuscator.isMainThread()) {
+			this.cacheExecutor.execute(() -> {
+				this.invalidate(key);
+			});
+		} else {
+			this.cache.invalidate(key);
+			this.serializer.write(key, null);
+		}
 	}
 
 	public void close() {

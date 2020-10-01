@@ -28,14 +28,10 @@ public class Obfuscator {
 	private final OrebfuscatorConfig config;
 	private final ChunkCache chunkCache;
 
-	private final Thread mainThread;
-
 	public Obfuscator(Orebfuscator orebfuscator) {
 		this.orebfuscator = orebfuscator;
 		this.config = orebfuscator.getOrebfuscatorConfig();
 		this.chunkCache = orebfuscator.getChunkCache();
-
-		this.mainThread = Thread.currentThread();
 	}
 
 	public CompletableFuture<ObfuscatedChunk> obfuscateOrUseCache(World world, ChunkStruct chunkStruct) {
@@ -52,7 +48,7 @@ public class Obfuscator {
 
 	public CompletableFuture<ObfuscatedChunk> obfuscate(ChunkCacheRequest request) {
 		CompletableFuture<ObfuscatedChunk> future = new CompletableFuture<>();
-		if (Thread.currentThread() == this.mainThread) {
+		if (this.orebfuscator.isMainThread()) {
 			future.complete(this.obfuscateNow(request));
 		} else {
 			Bukkit.getScheduler().runTask(this.orebfuscator, () -> {

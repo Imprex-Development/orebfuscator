@@ -6,7 +6,6 @@ import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
@@ -16,15 +15,16 @@ import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class AsyncChunkSerializer implements Runnable {
 
+	private static final int TASK_QUEUE_SIZE = 20_000; // roughly 200-400mb TODO add to config
+
 	private final Lock lock = new ReentrantLock();
-	private final Condition condition = lock.newCondition();
+	private final Condition notFull = lock.newCondition();
+	private final Condition notEmpty = lock.newCondition();
 
 	private final Map<ChunkPosition, Runnable> tasks = new HashMap<>();
 	private final Queue<ChunkPosition> positions = new LinkedList<>();
 
-	private final AtomicBoolean suspended = new AtomicBoolean();
 	private final Thread thread;
-
 	private volatile boolean running = true;
 
 	public AsyncChunkSerializer() {
@@ -64,28 +64,37 @@ public class AsyncChunkSerializer implements Runnable {
 	}
 
 	private Runnable queueTask(ChunkPosition position, Runnable nextTask) {
+		while (this.positions.size() == TASK_QUEUE_SIZE) {
+			this.notFull.awaitUninterruptibly();
+		}
+
+		if (!this.running) {
+			throw new IllegalStateException("AsyncChunkSerializer already closed");
+		}
+
 		Runnable prevTask = this.tasks.put(position, nextTask);
 		if (prevTask == null) {
 			this.positions.offer(position);
 		}
 
-		if (this.suspended.compareAndSet(true, false)) {
-			this.condition.signal();
-		}
-
+		this.notEmpty.signal();
 		return prevTask;
 	}
 
 	@Override
 	public void run() {
-		while (this.running || !this.positions.isEmpty()) {
+		while (this.running) {
 			this.lock.lock();
 			try {
-				if (this.positions.isEmpty() && this.suspended.compareAndSet(false, true)) {
-					this.condition.awaitUninterruptibly();
-				} else {
-					this.tasks.remove(this.positions.poll()).run();
+				if (this.positions.isEmpty()) {
+					this.notEmpty.await();
 				}
+
+				this.tasks.remove(this.positions.poll()).run();
+
+				this.notFull.signal();
+			} catch (InterruptedException e) {
+				break;
 			} finally {
 				this.lock.unlock();
 			}
@@ -96,8 +105,13 @@ public class AsyncChunkSerializer implements Runnable {
 		this.lock.lock();
 		try {
 			this.running = false;
-			if (this.suspended.compareAndSet(true, false)) {
-				this.condition.signal();
+			this.thread.interrupt();
+
+			while (!this.positions.isEmpty()) {
+				Runnable task = this.tasks.remove(this.positions.poll());
+				if (task instanceof WriteTask) {
+					task.run();
+				}
 			}
 		} finally {
 			this.lock.unlock();

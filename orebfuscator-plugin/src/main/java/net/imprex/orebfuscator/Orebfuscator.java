@@ -22,6 +22,8 @@ import net.imprex.orebfuscator.util.OFCLogger;
 
 public class Orebfuscator extends JavaPlugin implements Listener {
 
+	private final Thread mainThread = Thread.currentThread();
+
 	private OrebfuscatorConfig config;
 	private ChunkCache chunkCache;
 	private Obfuscator obfuscator;
@@ -93,6 +95,10 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 			HandlerList.unregisterAll(listener);
 			Bukkit.getPluginManager().disablePlugin(this);
 		}
+	}
+
+	public boolean isMainThread() {
+		return Thread.currentThread() == this.mainThread;
 	}
 
 	public OrebfuscatorConfig getOrebfuscatorConfig() {
