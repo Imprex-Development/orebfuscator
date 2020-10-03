@@ -17,7 +17,6 @@ import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.config.ProximityConfig;
 import net.imprex.orebfuscator.util.BlockCoords;
 import net.imprex.orebfuscator.util.MathUtil;
-import net.imprex.orebfuscator.util.OFCLogger;
 
 public class ProximityThread extends Thread {
 
@@ -36,77 +35,81 @@ public class ProximityThread extends Thread {
 	@Override
 	public void run() {
 		while (this.running.get()) {
-			Player player = this.proximityHider.pollPlayer();
-
 			try {
-				if (player == null || !player.isOnline()) {
-					continue;
-				}
+				Player player = this.proximityHider.pollPlayer();
+				try {
+					if (player == null || !player.isOnline()) {
+						continue;
+					}
 
-				Location location = player.getLocation();
-				World world = location.getWorld();
+					Location location = player.getLocation();
+					World world = location.getWorld();
 
-				ProximityConfig proximityConfig = this.config.proximity(world);
-				ProximityPlayerData proximityPlayer = this.proximityHider.getPlayer(player);
-				if (proximityPlayer == null || proximityConfig == null || !proximityConfig.enabled() || !proximityPlayer.getWorld().equals(world)) {
-					continue;
-				}
+					ProximityConfig proximityConfig = this.config.proximity(world);
+					ProximityPlayerData proximityPlayer = this.proximityHider.getPlayer(player);
+					if (proximityPlayer == null || proximityConfig == null || !proximityConfig.enabled() || !proximityPlayer.getWorld().equals(world)) {
+						continue;
+					}
 
-				int distance = proximityConfig.distance();
-				int distanceSquared = proximityConfig.distanceSquared();
+					int distance = proximityConfig.distance();
+					int distanceSquared = proximityConfig.distanceSquared();
 
-				List<BlockCoords> updateBlocks = new ArrayList<>();
-				Location eyeLocation = player.getEyeLocation();
+					List<BlockCoords> updateBlocks = new ArrayList<>();
+					Location eyeLocation = player.getEyeLocation();
 
-				int minChunkX = (location.getBlockX() - distance) >> 4;
-				int maxChunkX = (location.getBlockX() + distance) >> 4;
-				int minChunkZ = (location.getBlockZ() - distance) >> 4;
-				int maxChunkZ = (location.getBlockZ() + distance) >> 4;
+					int minChunkX = (location.getBlockX() - distance) >> 4;
+					int maxChunkX = (location.getBlockX() + distance) >> 4;
+					int minChunkZ = (location.getBlockZ() - distance) >> 4;
+					int maxChunkZ = (location.getBlockZ() + distance) >> 4;
 
-				for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
-					for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
-						Set<BlockCoords> blocks = proximityPlayer.getBlocks(chunkX, chunkZ);
+					for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
+						for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
+							Set<BlockCoords> blocks = proximityPlayer.getBlocks(chunkX, chunkZ);
 
-						if (blocks == null) {
-							continue;
+							if (blocks == null) {
+								continue;
+							}
+
+							for (Iterator<BlockCoords> iterator = blocks.iterator(); iterator.hasNext(); ) {
+								BlockCoords blockCoords = iterator.next();
+								Location blockLocation = new Location(world, blockCoords.x, blockCoords.y, blockCoords.z);
+
+								if (location.distanceSquared(blockLocation) < distanceSquared) {
+									if (!proximityConfig.useFastGazeCheck() || MathUtil.doFastCheck(blockLocation, eyeLocation, world)) {
+										iterator.remove();
+										updateBlocks.add(blockCoords);
+									}
+								}
+							}
+
+							if (blocks.isEmpty()) {
+								proximityPlayer.removeChunk(chunkX, chunkZ);
+							}
 						}
+					}
 
-						for (Iterator<BlockCoords> iterator = blocks.iterator(); iterator.hasNext(); ) {
-							BlockCoords blockCoords = iterator.next();
-							Location blockLocation = new Location(world, blockCoords.x, blockCoords.y, blockCoords.z);
-
-							if (location.distanceSquared(blockLocation) < distanceSquared) {
-								if (!proximityConfig.useFastGazeCheck() || MathUtil.doFastCheck(blockLocation, eyeLocation, world)) {
-									iterator.remove();
-									updateBlocks.add(blockCoords);
+					Bukkit.getScheduler().runTask(this.orebfuscator, () -> {
+						if (player.isOnline()) {
+							for (BlockCoords blockCoords : updateBlocks) {
+								if (NmsInstance.sendBlockChange(player, blockCoords)) {
+									NmsInstance.updateBlockTileEntity(player, blockCoords);
 								}
 							}
 						}
-
-						if (blocks.isEmpty()) {
-							proximityPlayer.removeChunk(chunkX, chunkZ);
-						}
-					}
+					});
+				} finally {
+					this.proximityHider.unlockPlayer(player);
 				}
-
-				Bukkit.getScheduler().runTask(this.orebfuscator, () -> {
-					if (player.isOnline()) {
-						for (BlockCoords blockCoords : updateBlocks) {
-							if (NmsInstance.sendBlockChange(player, blockCoords)) {
-								NmsInstance.updateBlockTileEntity(player, blockCoords);
-							}
-						}
-					}
-				});
+			} catch (InterruptedException e) {
+				break;
 			} catch (Exception e) {
-				OFCLogger.err(e);
-			} finally {
-				this.proximityHider.unlockPlayer(player);
+				e.printStackTrace();
 			}
 		}
 	}
 
 	public void destroy() {
 		this.running.set(false);
+		this.interrupt();
 	}
 }

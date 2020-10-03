@@ -36,11 +36,11 @@ public class ProximityQueue {
 		}
 	}
 
-	public Player poll() {
+	public Player poll() throws InterruptedException {
 		lock.lock();
 		try {
 			if (this.queue.isEmpty()) {
-				this.notEmpty.awaitUninterruptibly();
+				this.notEmpty.await();
 			}
 			return this.queue.poll();
 		} finally {
@@ -63,6 +63,16 @@ public class ProximityQueue {
 			if (this.lockedPlayer.remove(player)) {
 				this.queue.remove(player);
 			}
+		} finally {
+			lock.unlock();
+		}
+	}
+
+	public void clear() {
+		lock.lock();
+		try {
+			this.lockedPlayer.clear();
+			this.queue.clear();
 		} finally {
 			lock.unlock();
 		}

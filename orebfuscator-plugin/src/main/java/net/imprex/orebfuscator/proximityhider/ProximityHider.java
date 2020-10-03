@@ -58,7 +58,7 @@ public class ProximityHider {
 		}
 	}
 
-	public Player pollPlayer() {
+	public Player pollPlayer() throws InterruptedException {
 		return this.queue.poll();
 	}
 
@@ -115,6 +115,9 @@ public class ProximityHider {
 		if (!this.running.compareAndSet(true, false)) {
 			throw new IllegalStateException("proximity hider isn't running");
 		}
+
+		this.queue.clear();
+		this.playerData.invalidateAll();
 
 		for (ProximityThread thread : this.queueThreads) {
 			if (thread != null) {
