@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
@@ -20,6 +21,8 @@ import net.imprex.orebfuscator.util.MathUtil;
 
 public class ProximityThread extends Thread {
 
+	private static final AtomicInteger NEXT_ID = new AtomicInteger();
+
 	private final Orebfuscator orebfuscator;
 	private final OrebfuscatorConfig config;
 
@@ -27,6 +30,7 @@ public class ProximityThread extends Thread {
 	private final AtomicBoolean running = new AtomicBoolean(true);
 
 	public ProximityThread(ProximityHider proximityHider, Orebfuscator orebfuscator) {
+		super(Orebfuscator.THREAD_GROUP, "ofc-proximity-hider-" + NEXT_ID.getAndIncrement());
 		this.proximityHider = proximityHider;
 		this.orebfuscator = orebfuscator;
 		this.config = orebfuscator.getOrebfuscatorConfig();

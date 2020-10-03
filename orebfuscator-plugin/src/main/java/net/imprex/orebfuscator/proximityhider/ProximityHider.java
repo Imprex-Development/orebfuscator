@@ -51,7 +51,6 @@ public class ProximityHider {
 			if (this.queueThreads[i] == null) {
 				ProximityThread thread = new ProximityThread(this, this.orebfuscator);
 				thread.setDaemon(true);
-				thread.setName("OFC - ProximityHider Thread - #" + i);
 				thread.start();
 				this.queueThreads[i] = thread;
 			}

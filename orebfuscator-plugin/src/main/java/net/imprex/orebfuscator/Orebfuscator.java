@@ -22,6 +22,8 @@ import net.imprex.orebfuscator.util.OFCLogger;
 
 public class Orebfuscator extends JavaPlugin implements Listener {
 
+	public static final ThreadGroup THREAD_GROUP = new ThreadGroup("ofc");
+
 	private final Thread mainThread = Thread.currentThread();
 
 	private OrebfuscatorConfig config;

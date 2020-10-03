@@ -3,7 +3,8 @@ package net.imprex.orebfuscator.cache;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ForkJoinPool;
+import java.util.concurrent.ForkJoinWorkerThread;
 import java.util.concurrent.TimeUnit;
 
 import org.bukkit.Bukkit;
@@ -37,11 +38,18 @@ public class ChunkCache {
 	private final Cache<ChunkPosition, ObfuscatedChunk> cache;
 	private final AsyncChunkSerializer serializer;
 
-	private final ExecutorService cacheExecutor = Executors.newWorkStealingPool();
+	private final ExecutorService cacheExecutor;
 
 	public ChunkCache(Orebfuscator orebfuscator) {
 		this.orebfuscator = orebfuscator;
 		this.cacheConfig = orebfuscator.getOrebfuscatorConfig().cache();
+
+		this.cacheExecutor = new ForkJoinPool(Runtime.getRuntime().availableProcessors(),
+				pool -> {
+			        ForkJoinWorkerThread worker = ForkJoinPool.defaultForkJoinWorkerThreadFactory.newThread(pool);
+			        worker.setName("ofc-cache-pool-" + worker.getPoolIndex());
+			        return worker;
+				}, null, true);
 
 		this.cache = CacheBuilder.newBuilder().maximumSize(this.cacheConfig.maximumSize())
 				.expireAfterAccess(this.cacheConfig.expireAfterAccess(), TimeUnit.MILLISECONDS)
