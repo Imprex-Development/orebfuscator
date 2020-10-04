@@ -76,7 +76,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 	@Override
 	public void onDisable() {
 		this.chunkCache.close();
-		NmsInstance.close();
+		this.config.store();
 
 		this.packetListener.unregister();
 
@@ -87,6 +87,8 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 
 		this.getServer().getScheduler().cancelTasks(this);
 
+
+		NmsInstance.close();
 		this.config = null;
 	}
 

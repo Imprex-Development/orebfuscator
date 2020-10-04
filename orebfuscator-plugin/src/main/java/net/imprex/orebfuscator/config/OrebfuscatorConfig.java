@@ -63,7 +63,6 @@ public class OrebfuscatorConfig implements Config {
 		}
 		this.deserialize(section);
 		this.plugin.saveConfig();
-		this.reload();
 	}
 
 	private void createConfigIfNotExist() {

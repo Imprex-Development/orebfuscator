@@ -119,8 +119,12 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 
 			String name = optional.get();
 			short condition = entry.getValue();
-			materialSection.set(name + ".y", HideCondition.getY(condition));
-			materialSection.set(name + ".above", HideCondition.getAbove(condition));
+			if (condition == HideCondition.EMPTY) {
+				materialSection.createSection(name);
+			} else {
+				materialSection.set(name + ".y", HideCondition.getY(condition));
+				materialSection.set(name + ".above", HideCondition.getAbove(condition));
+			}
 		}
 	}
 

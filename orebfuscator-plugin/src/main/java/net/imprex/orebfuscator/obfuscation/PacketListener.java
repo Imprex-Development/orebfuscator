@@ -46,7 +46,7 @@ public class PacketListener extends PacketAdapter {
 
 		if (orebfuscator.getOrebfuscatorConfig().cache().enabled()) {
 			this.asyncListenerHandler = this.asynchronousManager.registerAsyncHandler(this);
-			this.asyncListenerHandler.start();
+			this.asyncListenerHandler.start(orebfuscator.getOrebfuscatorConfig().cache().protocolLibThreads());
 			this.async = true;
 		} else {
 			this.async = false;

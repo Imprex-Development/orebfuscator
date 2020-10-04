@@ -21,8 +21,12 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 	private int maximumOpenRegionFiles = 256;
 	private long deleteRegionFilesAfterAccess = TimeUnit.DAYS.toMillis(2);
 
-	private int maximumSize = 4096;
+	private int maximumSize = 8192;
 	private long expireAfterAccess = TimeUnit.SECONDS.toMillis(30);
+
+	private int maximumTaskQueueSize = 32768;
+	private int protocolLibThreads = -1;
+	private boolean protocolLibThreadsSet = false;
 
 	public void serialize(ConfigurationSection section) {
 		this.enabled(section.getBoolean("enabled", true));
@@ -31,8 +35,11 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 		this.maximumOpenRegionFiles(section.getInt("maximumOpenRegionFiles", 256));
 		this.deleteRegionFilesAfterAccess(section.getLong("deleteRegionFilesAfterAccess", TimeUnit.DAYS.toMillis(2)));
 
-		this.maximumSize(section.getInt("maximumSize", 4096));
+		this.maximumSize(section.getInt("maximumSize", 8192));
 		this.expireAfterAccess(section.getLong("expireAfterAccess", TimeUnit.SECONDS.toMillis(30)));
+
+		this.maximumTaskQueueSize(section.getInt("maximumTaskQueueSize", 32768));
+		this.protocolLibThreads(section.getInt("protocolLibThreads", -1));
 	}
 
 	public void deserialize(ConfigurationSection section) {
@@ -45,6 +52,9 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 
 		section.set("maximumSize", this.maximumSize);
 		section.set("expireAfterAccess", this.expireAfterAccess);
+
+		section.set("maximumTaskQueueSize", this.maximumTaskQueueSize);
+		section.set("protocolLibThreads", this.protocolLibThreadsSet ? this.protocolLibThreads : -1);
 	}
 
 	private void serializeBaseDirectory(ConfigurationSection section, String defaultPath) {
@@ -54,15 +64,15 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 		try {
 			this.baseDirectory = worldPath.resolve(baseDirectory).normalize();
 		} catch (InvalidPathException e) {
-			OFCLogger
-					.log(Level.WARNING, "config path '" + section.getCurrentPath() + ".baseDirectory' contains malformed path '"
+			OFCLogger.log(Level.WARNING,
+					"config path '" + section.getCurrentPath() + ".baseDirectory' contains malformed path '"
 							+ baseDirectory + "', using default path '" + defaultPath + "'");
 			this.baseDirectory = worldPath.resolve(defaultPath).normalize();
 		}
 
 		if (!this.baseDirectory.startsWith(worldPath)) {
-			OFCLogger
-					.log(Level.WARNING, "config path '" + section.getCurrentPath() + ".baseDirectory' is no child directory of '"
+			OFCLogger.log(Level.WARNING,
+					"config path '" + section.getCurrentPath() + ".baseDirectory' is no child directory of '"
 							+ worldPath + "', using default path: '" + defaultPath + "'");
 			this.baseDirectory = worldPath.resolve(defaultPath).normalize();
 		}
@@ -112,7 +122,7 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 	@Override
 	public void maximumOpenRegionFiles(int count) {
 		if (count < 1) {
-			throw new IllegalArgumentException("maximum open region files is lower than one");
+			throw new IllegalArgumentException("cache.maximumOpenRegionFiles is lower than one");
 		}
 		this.maximumOpenRegionFiles = count;
 	}
@@ -125,7 +135,7 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 	@Override
 	public void deleteRegionFilesAfterAccess(long expire) {
 		if (expire < 1) {
-			throw new IllegalArgumentException("delete region files after access is lower than one");
+			throw new IllegalArgumentException("cache.deleteRegionFilesAfterAccess is lower than one");
 		}
 		this.deleteRegionFilesAfterAccess = expire;
 	}
@@ -138,7 +148,7 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 	@Override
 	public void maximumSize(int size) {
 		if (size < 1) {
-			throw new IllegalArgumentException("maximum size is lower than one");
+			throw new IllegalArgumentException("cache.maximumSize is lower than one");
 		}
 		this.maximumSize = size;
 	}
@@ -151,8 +161,39 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 	@Override
 	public void expireAfterAccess(long expire) {
 		if (expire < 1) {
-			throw new IllegalArgumentException("expire is lower than one");
+			throw new IllegalArgumentException("cache.expireAfterAccess is lower than one");
 		}
 		this.expireAfterAccess = expire;
+	}
+
+	@Override
+	public int maximumTaskQueueSize() {
+		return this.maximumTaskQueueSize;
+	}
+
+	@Override
+	public void maximumTaskQueueSize(int size) {
+		if (size < 1) {
+			throw new IllegalArgumentException("cache.maximumTaskQueueSize is lower than one");
+		}
+		this.maximumTaskQueueSize = size;
+	}
+
+	@Override
+	public int protocolLibThreads() {
+		return this.protocolLibThreads;
+	}
+
+	@Override
+	public void protocolLibThreads(int threads) {
+		if (threads < 1) {
+			this.protocolLibThreads = Runtime.getRuntime().availableProcessors();
+			OFCLogger.info("cache.protocolLibThreads is less than one, choosing processor count as value = "
+					+ this.protocolLibThreads);
+			this.protocolLibThreadsSet = false;
+		} else {
+			this.protocolLibThreads = threads;
+			this.protocolLibThreadsSet = true;
+		}
 	}
 }

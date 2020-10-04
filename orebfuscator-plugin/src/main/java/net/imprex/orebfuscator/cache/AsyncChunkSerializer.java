@@ -16,19 +16,20 @@ import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class AsyncChunkSerializer implements Runnable {
 
-	private static final int TASK_QUEUE_SIZE = 20_000; // roughly 200-400mb TODO add to config
-
 	private final Lock lock = new ReentrantLock();
 	private final Condition notFull = lock.newCondition();
 	private final Condition notEmpty = lock.newCondition();
 
 	private final Map<ChunkPosition, Runnable> tasks = new HashMap<>();
 	private final Queue<ChunkPosition> positions = new LinkedList<>();
+	private final int maxTaskQueueSize;
 
 	private final Thread thread;
 	private volatile boolean running = true;
 
-	public AsyncChunkSerializer() {
+	public AsyncChunkSerializer(Orebfuscator orebfuscator) {
+		this.maxTaskQueueSize = orebfuscator.getOrebfuscatorConfig().cache().maximumTaskQueueSize();
+
 		this.thread = new Thread(Orebfuscator.THREAD_GROUP, this, "ofc-chunk-serializer");
 		this.thread.setDaemon(true);
 		this.thread.start();
@@ -65,7 +66,7 @@ public class AsyncChunkSerializer implements Runnable {
 	}
 
 	private Runnable queueTask(ChunkPosition position, Runnable nextTask) {
-		while (this.positions.size() == TASK_QUEUE_SIZE) {
+		while (this.positions.size() >= this.maxTaskQueueSize) {
 			this.notFull.awaitUninterruptibly();
 		}
 

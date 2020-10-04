@@ -10,8 +10,10 @@ cache:
   baseDirectory: 'orebfuscator_cache/'
   maximumOpenRegionFiles: 256
   deleteRegionFilesAfterAccess: 172800000‬
-  maximumSize: 4096
+  maximumSize: 8192
   expireAfterAccess: 30000
+  maximumTaskQueueSize: 32768
+  protocolLibThreads: -1
 world:
   - worlds:
       - world

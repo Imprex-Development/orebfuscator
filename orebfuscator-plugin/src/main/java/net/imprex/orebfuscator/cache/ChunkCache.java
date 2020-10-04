@@ -55,7 +55,7 @@ public class ChunkCache {
 				.expireAfterAccess(this.cacheConfig.expireAfterAccess(), TimeUnit.MILLISECONDS)
 				.removalListener(this::onRemoval).build();
 
-		this.serializer = new AsyncChunkSerializer();
+		this.serializer = new AsyncChunkSerializer(orebfuscator);
 
 		if (this.cacheConfig.enabled() && this.cacheConfig.deleteRegionFilesAfterAccess() > 0) {
 			Bukkit.getScheduler().runTaskTimerAsynchronously(orebfuscator, new CacheCleanTask(orebfuscator), 0,
