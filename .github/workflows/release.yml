@@ -32,7 +32,7 @@ jobs:
         mvn clean package -pl orebfuscator-plugin -B --also-make -Dorebfuscator.version=$RELEASE_VERSION
         mkdir dist
         mv orebfuscator-plugin/target/orebfuscator-*.jar ./dist
-    - uses: ncipollo/release-action@v2
+    - uses: ncipollo/release-action@v1
       with:
         artifacts: "dist/*"
         name: Release ${{ env.RELEASE_VERSION }}
