@@ -28,7 +28,7 @@ jobs:
         sh ./.github/workflows/buildtools.sh
     - name: Build
       run: |
-        mvn clean package -pl orebfuscator-plugin -B --also-make "-Dorebfuscator.version=$(git describe --tags `git rev-list --tags --max-count=1`)"
+        mvn clean package -pl orebfuscator-plugin -B --also-make "-Drevision=$(git describe --tags `git rev-list --tags --max-count=1`)"
         mkdir dist
         mv orebfuscator-plugin/target/orebfuscator-*.jar ./dist
     - name: Upload artifacts

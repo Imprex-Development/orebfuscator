@@ -1,7 +1,7 @@
 api-version: 1.13
 
 name: Orebfuscator
-version: 5.0.0
+version: ${project.version}
 
 main: net.imprex.orebfuscator.Orebfuscator
 
@@ -13,7 +13,7 @@ loadbefore: [ProtocolLib]
 
 load: POSTWORLD
 
-description: 'The most powerful and efficient Anti Xray plugin compatible with any CraftBukkit fork!'
+description: 'The most powerful and efficient Anti Xray plugin compatible with most CraftBukkit forks!'
 
 permissions:
   orebfuscator.bypass:
