@@ -27,11 +27,14 @@ public class ProximityThread extends Thread {
 	private final OrebfuscatorConfig config;
 
 	private final ProximityHider proximityHider;
+	private final ProximityQueue proximityQueue;
+
 	private final AtomicBoolean running = new AtomicBoolean(true);
 
 	public ProximityThread(ProximityHider proximityHider, Orebfuscator orebfuscator) {
 		super(Orebfuscator.THREAD_GROUP, "ofc-proximity-hider-" + NEXT_ID.getAndIncrement());
 		this.proximityHider = proximityHider;
+		this.proximityQueue = proximityHider.getQueue();
 		this.orebfuscator = orebfuscator;
 		this.config = orebfuscator.getOrebfuscatorConfig();
 	}
@@ -40,7 +43,7 @@ public class ProximityThread extends Thread {
 	public void run() {
 		while (this.running.get()) {
 			try {
-				Player player = this.proximityHider.pollPlayer();
+				Player player = this.proximityQueue.poll();
 				try {
 					if (player == null || !player.isOnline()) {
 						continue;
@@ -50,7 +53,7 @@ public class ProximityThread extends Thread {
 					World world = location.getWorld();
 
 					ProximityConfig proximityConfig = this.config.proximity(world);
-					ProximityPlayerData proximityPlayer = this.proximityHider.getPlayer(player);
+					ProximityData proximityPlayer = this.proximityHider.getPlayerData(player);
 					if (proximityPlayer == null || proximityConfig == null || !proximityConfig.enabled() || !proximityPlayer.getWorld().equals(world)) {
 						continue;
 					}
@@ -68,7 +71,7 @@ public class ProximityThread extends Thread {
 
 					for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
 						for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
-							Set<BlockCoords> blocks = proximityPlayer.getBlocks(chunkX, chunkZ);
+							Set<BlockCoords> blocks = proximityPlayer.getChunk(chunkX, chunkZ);
 
 							if (blocks == null) {
 								continue;
@@ -102,7 +105,7 @@ public class ProximityThread extends Thread {
 						}
 					});
 				} finally {
-					this.proximityHider.unlockPlayer(player);
+					this.proximityQueue.unlock(player);
 				}
 			} catch (InterruptedException e) {
 				break;

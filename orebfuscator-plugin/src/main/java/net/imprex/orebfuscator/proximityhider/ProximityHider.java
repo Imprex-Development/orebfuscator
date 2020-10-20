@@ -18,14 +18,8 @@ import net.imprex.orebfuscator.util.BlockCoords;
 
 public class ProximityHider {
 
-	private final LoadingCache<Player, ProximityPlayerData> playerData = CacheBuilder.newBuilder()
-			.build(new CacheLoader<Player, ProximityPlayerData>() {
-
-				@Override
-				public ProximityPlayerData load(Player player) throws Exception {
-					return new ProximityPlayerData(player.getWorld());
-				}
-			});
+	private final LoadingCache<Player, ProximityData> playerDataCache = CacheBuilder.newBuilder()
+			.build(CacheLoader.from(ProximityData::new));
 
 	private final Orebfuscator orebfuscator;
 	private final OrebfuscatorConfig config;
@@ -57,36 +51,30 @@ public class ProximityHider {
 		}
 	}
 
-	public Player pollPlayer() throws InterruptedException {
-		return this.queue.poll();
+	ProximityQueue getQueue() {
+		return queue;
 	}
 
-	public void queuePlayer(Player player) {
+	public void queuePlayerUpdate(Player player) {
 		ProximityConfig proximityConfig = this.config.proximity(player.getWorld());
 		if (proximityConfig != null && proximityConfig.enabled()) {
 			this.queue.offerAndLock(player);
 		}
 	}
 
-	public void unlockPlayer(Player player) {
-		this.queue.unlock(player);
-	}
-
-	public void removePlayer(Player player) {
+	public void invalidatePlayer(Player player) {
 		this.queue.remove(player);
-		this.playerData.invalidate(player);
+		this.playerDataCache.invalidate(player);
 	}
 
-	public ProximityPlayerData getPlayer(Player player) {
+	public ProximityData getPlayerData(Player player) {
 		try {
-			ProximityPlayerData proximityWorldData = playerData.get(player);
-
-			if (proximityWorldData.getWorld() != player.getWorld()) {
-				proximityWorldData = new ProximityPlayerData(player.getWorld());
-				playerData.put(player, proximityWorldData);
+			ProximityData playerData = this.playerDataCache.get(player);
+			if (playerData.getWorld() != player.getWorld()) {
+				playerData = new ProximityData(player);
+				this.playerDataCache.put(player, playerData);
 			}
-
-			return proximityWorldData;
+			return playerData;
 		} catch (ExecutionException e) {
 			e.printStackTrace();
 		}
@@ -95,19 +83,19 @@ public class ProximityHider {
 	}
 
 	public void addProximityBlocks(Player player, int chunkX, int chunkZ, Set<BlockCoords> blocks) {
-		ProximityPlayerData worldData = this.getPlayer(player);
+		ProximityData playerData = this.getPlayerData(player);
 
 		if (blocks.size() > 0) {
-			worldData.putBlocks(chunkX, chunkZ, blocks);
+			playerData.addChunk(chunkX, chunkZ, blocks);
 		} else {
-			worldData.removeChunk(chunkX, chunkZ);
+			playerData.removeChunk(chunkX, chunkZ);
 		}
 
-		this.queuePlayer(player);
+		this.queuePlayerUpdate(player);
 	}
 
 	public void removeProximityChunks(Player player, World world, int chunkX, int chunkZ) {
-		this.getPlayer(player).removeChunk(chunkX, chunkZ);
+		this.getPlayerData(player).removeChunk(chunkX, chunkZ);
 	}
 
 	public void destroy() {
@@ -116,7 +104,7 @@ public class ProximityHider {
 		}
 
 		this.queue.clear();
-		this.playerData.invalidateAll();
+		this.playerDataCache.invalidateAll();
 
 		for (ProximityThread thread : this.queueThreads) {
 			if (thread != null) {

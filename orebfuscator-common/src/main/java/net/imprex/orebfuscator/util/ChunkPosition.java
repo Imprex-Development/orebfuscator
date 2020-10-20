@@ -6,6 +6,10 @@ import org.bukkit.World;
 
 public class ChunkPosition {
 
+	public static long toLong(int chunkX, int chunkZ) {
+		return (chunkZ & 0xffffffffL) << 32 | chunkX & 0xffffffffL;
+	}
+
 	private final World world;
 	private final int x;
 	private final int z;
