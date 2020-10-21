@@ -16,7 +16,7 @@ import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.config.ProximityConfig;
-import net.imprex.orebfuscator.util.BlockCoords;
+import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.MathUtil;
 
 public class ProximityThread extends Thread {
@@ -26,14 +26,14 @@ public class ProximityThread extends Thread {
 	private final Orebfuscator orebfuscator;
 	private final OrebfuscatorConfig config;
 
-	private final ProximityHider proximityHider;
 	private final ProximityQueue proximityQueue;
+	private final ProximityPlayerManager dataManager;
 
 	private final AtomicBoolean running = new AtomicBoolean(true);
 
 	public ProximityThread(ProximityHider proximityHider, Orebfuscator orebfuscator) {
 		super(Orebfuscator.THREAD_GROUP, "ofc-proximity-hider-" + NEXT_ID.getAndIncrement());
-		this.proximityHider = proximityHider;
+		this.dataManager = proximityHider.getPlayerManager();
 		this.proximityQueue = proximityHider.getQueue();
 		this.orebfuscator = orebfuscator;
 		this.config = orebfuscator.getOrebfuscatorConfig();
@@ -53,7 +53,7 @@ public class ProximityThread extends Thread {
 					World world = location.getWorld();
 
 					ProximityConfig proximityConfig = this.config.proximity(world);
-					ProximityData proximityPlayer = this.proximityHider.getPlayerData(player);
+					ProximityPlayer proximityPlayer = this.dataManager.get(player);
 					if (proximityPlayer == null || proximityConfig == null || !proximityConfig.enabled() || !proximityPlayer.getWorld().equals(world)) {
 						continue;
 					}
@@ -61,7 +61,7 @@ public class ProximityThread extends Thread {
 					int distance = proximityConfig.distance();
 					int distanceSquared = proximityConfig.distanceSquared();
 
-					List<BlockCoords> updateBlocks = new ArrayList<>();
+					List<BlockPos> updateBlocks = new ArrayList<>();
 					Location eyeLocation = player.getEyeLocation();
 
 					int minChunkX = (location.getBlockX() - distance) >> 4;
@@ -71,14 +71,14 @@ public class ProximityThread extends Thread {
 
 					for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
 						for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
-							Set<BlockCoords> blocks = proximityPlayer.getChunk(chunkX, chunkZ);
+							Set<BlockPos> blocks = proximityPlayer.getChunk(chunkX, chunkZ);
 
 							if (blocks == null) {
 								continue;
 							}
 
-							for (Iterator<BlockCoords> iterator = blocks.iterator(); iterator.hasNext(); ) {
-								BlockCoords blockCoords = iterator.next();
+							for (Iterator<BlockPos> iterator = blocks.iterator(); iterator.hasNext(); ) {
+								BlockPos blockCoords = iterator.next();
 								Location blockLocation = new Location(world, blockCoords.x, blockCoords.y, blockCoords.z);
 
 								if (location.distanceSquared(blockLocation) < distanceSquared) {
@@ -97,7 +97,7 @@ public class ProximityThread extends Thread {
 
 					Bukkit.getScheduler().runTask(this.orebfuscator, () -> {
 						if (player.isOnline()) {
-							for (BlockCoords blockCoords : updateBlocks) {
+							for (BlockPos blockCoords : updateBlocks) {
 								if (NmsInstance.sendBlockChange(player, blockCoords)) {
 									NmsInstance.updateBlockTileEntity(player, blockCoords);
 								}

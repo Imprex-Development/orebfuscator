@@ -4,6 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
@@ -22,8 +23,8 @@ import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.chunk.ChunkStruct;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
-import net.imprex.orebfuscator.proximityhider.ProximityHider;
-import net.imprex.orebfuscator.util.BlockCoords;
+import net.imprex.orebfuscator.proximityhider.ProximityPlayerManager;
+import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.PermissionUtil;
 
 public class PacketListener extends PacketAdapter {
@@ -36,7 +37,7 @@ public class PacketListener extends PacketAdapter {
 	private final OrebfuscatorConfig config;
 	private final Obfuscator obfuscator;
 
-	private final ProximityHider proximityHider;
+	private final ProximityPlayerManager proximityChunkManager;
 
 	public PacketListener(Orebfuscator orebfuscator) {
 		super(orebfuscator, PacketType.Play.Server.MAP_CHUNK);
@@ -56,7 +57,7 @@ public class PacketListener extends PacketAdapter {
 
 		this.config = orebfuscator.getOrebfuscatorConfig();
 		this.obfuscator = orebfuscator.getObfuscator();
-		this.proximityHider = orebfuscator.getProximityHider();
+		this.proximityChunkManager = orebfuscator.getProximityHider().getPlayerManager();
 	}
 
 	public void unregister() {
@@ -70,30 +71,14 @@ public class PacketListener extends PacketAdapter {
 	@Override
 	public void onPacketSending(PacketEvent event) {
 		Player player = event.getPlayer();
-		if (PermissionUtil.canDeobfuscate(player)) {
-			return;
-		}
-
 		World world = player.getWorld();
-		if (!config.needsObfuscation(world)) {
+		if (PermissionUtil.canDeobfuscate(player) || !config.needsObfuscation(world)) {
 			return;
 		}
 
 		PacketContainer packet = event.getPacket();
-		StructureModifier<Integer> ints = packet.getIntegers();
-		StructureModifier<byte[]> byteArray = packet.getByteArrays();
-		StructureModifier<List<NbtBase<?>>> nbtList = packet.getListNbtModifier();
-
-		List<NbtBase<?>> tileEntityList = nbtList.read(0);
-
-		ChunkStruct chunkStruct = new ChunkStruct();
-		chunkStruct.chunkX = ints.read(0);
-		chunkStruct.chunkZ = ints.read(1);
-		chunkStruct.primaryBitMask = ints.read(2);
-		chunkStruct.data = byteArray.read(0);
-		chunkStruct.isOverworld = world.getEnvironment() == World.Environment.NORMAL;
-
-		if (chunkStruct.primaryBitMask == 0) {
+		ChunkStruct chunkStruct = ChunkStruct.from(packet, world);
+		if (chunkStruct.isEmpty()) {
 			return;
 		}
 
@@ -102,33 +87,44 @@ public class PacketListener extends PacketAdapter {
 		}
 
 		this.obfuscator.obfuscateOrUseCache(world, chunkStruct).thenAccept(chunk -> {
-			if (chunk != null) {
-				byteArray.write(0, chunk.getData());
 
-				if (tileEntityList != null) {
-					PacketListener.removeBlockEntities(tileEntityList, chunk.getRemovedTileEntities());
-					nbtList.write(0, tileEntityList);
-				}
+			packet.getByteArrays().write(0, chunk.getData());
+			this.removeTileEntitiesFromPacket(packet, chunk.getRemovedTileEntities());
 
-				this.proximityHider.addProximityBlocks(player, chunkStruct.chunkX, chunkStruct.chunkZ, chunk.getProximityBlocks());
-			}
+			this.proximityChunkManager.addAndLockChunk(player, chunkStruct.chunkX, chunkStruct.chunkZ,
+					chunk.getProximityBlocks());
 
 			if (this.async) {
-				this.asynchronousManager.signalPacketTransmission(event);
+				Bukkit.getScheduler().runTask(this.plugin, () -> {
+					this.asynchronousManager.signalPacketTransmission(event);
+					this.proximityChunkManager.unlockChunk(player, chunkStruct.chunkX, chunkStruct.chunkZ);
+				});
+			} else {
+				this.proximityChunkManager.unlockChunk(player, chunkStruct.chunkX, chunkStruct.chunkZ);
 			}
 		});
 	}
 
-	private static void removeBlockEntities(List<NbtBase<?>> tileEntityList, Set<BlockCoords> removedTileEntities) {
-		for (Iterator<NbtBase<?>> iterator = tileEntityList.iterator(); iterator.hasNext();) {
+	private void removeTileEntitiesFromPacket(PacketContainer packet, Set<BlockPos> positions) {
+		if (!positions.isEmpty()) {
+			StructureModifier<List<NbtBase<?>>> packetNbtList = packet.getListNbtModifier();
+
+			List<NbtBase<?>> tileEntities = packetNbtList.read(0);
+			this.removeTileEntities(tileEntities, positions);
+			packetNbtList.write(0, tileEntities);
+		}
+	}
+
+	private void removeTileEntities(List<NbtBase<?>> tileEntities, Set<BlockPos> positions) {
+		for (Iterator<NbtBase<?>> iterator = tileEntities.iterator(); iterator.hasNext();) {
 			NbtCompound tileEntity = (NbtCompound) iterator.next();
 
 			int x = tileEntity.getInteger("x");
 			int y = tileEntity.getInteger("y");
 			int z = tileEntity.getInteger("z");
 
-			BlockCoords position = new BlockCoords(x, y, z);
-			if (removedTileEntities.contains(position)) {
+			BlockPos position = new BlockPos(x, y, z);
+			if (positions.contains(position)) {
 				iterator.remove();
 			}
 		}

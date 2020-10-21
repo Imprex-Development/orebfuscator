@@ -2,9 +2,9 @@ package net.imprex.orebfuscator.nms;
 
 import org.bukkit.World;
 
-import net.imprex.orebfuscator.util.BlockCoords;
+import net.imprex.orebfuscator.util.BlockPos;
 
-public abstract class AbstractBlockState<T> extends BlockCoords implements BlockStateHolder {
+public abstract class AbstractBlockState<T> extends BlockPos implements BlockStateHolder {
 
 	public final World world;
 

@@ -21,7 +21,7 @@ public class ProximityPacketListener extends PacketAdapter {
 
 	private final OrebfuscatorConfig config;
 
-	private final ProximityHider proximityHider;
+	private final ProximityPlayerManager playerManager;
 
 	public ProximityPacketListener(Orebfuscator orebfuscator) {
 		super(orebfuscator, PacketType.Play.Server.UNLOAD_CHUNK);
@@ -30,7 +30,7 @@ public class ProximityPacketListener extends PacketAdapter {
 		this.protocolManager.addPacketListener(this);
 
 		this.config = orebfuscator.getOrebfuscatorConfig();
-		this.proximityHider = orebfuscator.getProximityHider();
+		this.playerManager = orebfuscator.getProximityHider().getPlayerManager();
 	}
 
 	public void unregister() {
@@ -51,7 +51,6 @@ public class ProximityPacketListener extends PacketAdapter {
 		}
 
 		StructureModifier<Integer> ints = event.getPacket().getIntegers();
-
-		this.proximityHider.removeProximityChunks(player, world, ints.read(0), ints.read(1));
+		this.playerManager.removeChunk(player, ints.read(0), ints.read(1));
 	}
 }

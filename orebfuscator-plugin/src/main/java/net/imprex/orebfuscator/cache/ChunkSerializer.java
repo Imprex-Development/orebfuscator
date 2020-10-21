@@ -7,7 +7,7 @@ import java.util.Collection;
 
 import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.obfuscation.ObfuscatedChunk;
-import net.imprex.orebfuscator.util.BlockCoords;
+import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class ChunkSerializer {
@@ -38,14 +38,14 @@ public class ChunkSerializer {
 
 				ObfuscatedChunk chunkCacheEntry = new ObfuscatedChunk(hash, data);
 
-				Collection<BlockCoords> proximityBlocks = chunkCacheEntry.getProximityBlocks();
+				Collection<BlockPos> proximityBlocks = chunkCacheEntry.getProximityBlocks();
 				for (int i = dataInputStream.readInt(); i > 0; i--) {
-					proximityBlocks.add(BlockCoords.fromLong(dataInputStream.readLong()));
+					proximityBlocks.add(BlockPos.fromLong(dataInputStream.readLong()));
 				}
 
-				Collection<BlockCoords> removedEntities = chunkCacheEntry.getRemovedTileEntities();
+				Collection<BlockPos> removedEntities = chunkCacheEntry.getRemovedTileEntities();
 				for (int i = dataInputStream.readInt(); i > 0; i--) {
-					removedEntities.add(BlockCoords.fromLong(dataInputStream.readLong()));
+					removedEntities.add(BlockPos.fromLong(dataInputStream.readLong()));
 				}
 
 				return chunkCacheEntry;
@@ -72,15 +72,15 @@ public class ChunkSerializer {
 				dataOutputStream.writeInt(data.length);
 				dataOutputStream.write(data, 0, data.length);
 
-				Collection<BlockCoords> proximityBlocks = value.getProximityBlocks();
+				Collection<BlockPos> proximityBlocks = value.getProximityBlocks();
 				dataOutputStream.writeInt(proximityBlocks.size());
-				for (BlockCoords blockPosition : proximityBlocks) {
+				for (BlockPos blockPosition : proximityBlocks) {
 					dataOutputStream.writeLong(blockPosition.toLong());
 				}
 
-				Collection<BlockCoords> removedEntities = value.getRemovedTileEntities();
+				Collection<BlockPos> removedEntities = value.getRemovedTileEntities();
 				dataOutputStream.writeInt(removedEntities.size());
-				for (BlockCoords blockPosition : removedEntities) {
+				for (BlockPos blockPosition : removedEntities) {
 					dataOutputStream.writeLong(blockPosition.toLong());
 				}	
 			} else {

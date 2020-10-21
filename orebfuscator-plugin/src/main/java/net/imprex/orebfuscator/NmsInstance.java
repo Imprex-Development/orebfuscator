@@ -11,7 +11,7 @@ import net.imprex.orebfuscator.config.Config;
 import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.nms.BlockStateHolder;
 import net.imprex.orebfuscator.nms.NmsManager;
-import net.imprex.orebfuscator.util.BlockCoords;
+import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 import net.imprex.orebfuscator.util.OFCLogger;
 
@@ -119,7 +119,7 @@ public class NmsInstance {
 		return instance.canApplyPhysics(material);
 	}
 
-	public static void updateBlockTileEntity(Player player, BlockCoords blockCoord) {
+	public static void updateBlockTileEntity(Player player, BlockPos blockCoord) {
 		instance.updateBlockTileEntity(player, blockCoord);
 	}
 
@@ -135,7 +135,7 @@ public class NmsInstance {
 		return instance.loadChunkAndGetBlockId(world, x, y, z);
 	}
 
-	public static boolean sendBlockChange(Player player, BlockCoords blockCoords) {
+	public static boolean sendBlockChange(Player player, BlockPos blockCoords) {
 		return instance.sendBlockChange(player, blockCoords);
 	}
 

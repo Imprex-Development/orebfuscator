@@ -18,7 +18,7 @@ import net.imprex.orebfuscator.config.BlockMask;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.config.ProximityConfig;
 import net.imprex.orebfuscator.config.WorldConfig;
-import net.imprex.orebfuscator.util.BlockCoords;
+import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.util.MaterialUtil;
 
@@ -68,8 +68,8 @@ public class Obfuscator {
 		ProximityConfig proximityConfig = this.config.proximity(world);
 		int initialRadius = this.config.general().initialRadius();
 
-		Set<BlockCoords> proximityBlocks = new HashSet<>();
-		Set<BlockCoords> removedTileEntities = new HashSet<>();
+		Set<BlockPos> proximityBlocks = new HashSet<>();
+		Set<BlockPos> removedTileEntities = new HashSet<>();
 
 		int baseX = chunkStruct.chunkX << 4;
 		int baseZ = chunkStruct.chunkZ << 4;
@@ -111,7 +111,7 @@ public class Obfuscator {
 
 					// Check if the block should be obfuscated because of proximity check
 					if (!obfuscate && proximityFlag) {
-						proximityBlocks.add(new BlockCoords(x, y, z));
+						proximityBlocks.add(new BlockPos(x, y, z));
 						obfuscate = true;
 					}
 
@@ -127,7 +127,7 @@ public class Obfuscator {
 
 					// remove obfuscated tile entities
 					if (obfuscate && tileEntityFlag) {
-						removedTileEntities.add(new BlockCoords(x, y, z));
+						removedTileEntities.add(new BlockPos(x, y, z));
 					}
 				}
 			}
@@ -164,23 +164,6 @@ public class Obfuscator {
 					|| areAjacentBlocksTransparent(chunk, world, x - 1, y, z, true, depth)
 					|| areAjacentBlocksTransparent(chunk, world, x, y, z + 1, true, depth)
 					|| areAjacentBlocksTransparent(chunk, world, x, y, z - 1, true, depth);
-		}
-
-		return false;
-	}
-
-	public static boolean areAjacentBlocksBright(World world, int x, int y, int z, int depth) {
-		if (NmsInstance.getBlockLightLevel(world, x, y, z) > 0) {
-			return true;
-		}
-
-		if (depth-- > 0) {
-			return areAjacentBlocksBright(world, x, y + 1, z, depth)
-					|| areAjacentBlocksBright(world, x, y - 1, z, depth)
-					|| areAjacentBlocksBright(world, x + 1, y, z, depth)
-					|| areAjacentBlocksBright(world, x - 1, y, z, depth)
-					|| areAjacentBlocksBright(world, x, y, z + 1, depth)
-					|| areAjacentBlocksBright(world, x, y, z - 1, depth);
 		}
 
 		return false;

@@ -27,7 +27,7 @@ public class ProximityListener implements Listener {
 
 	@EventHandler
 	public void onPlayerQuit(PlayerQuitEvent event) {
-		this.proximityHider.invalidatePlayer(event.getPlayer());
+		this.proximityHider.removePlayer(event.getPlayer());
 	}
 
 	@EventHandler

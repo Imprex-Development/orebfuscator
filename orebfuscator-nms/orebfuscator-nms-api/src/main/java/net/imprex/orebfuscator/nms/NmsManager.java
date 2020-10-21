@@ -7,7 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import net.imprex.orebfuscator.util.BlockCoords;
+import net.imprex.orebfuscator.util.BlockPos;
 
 public interface NmsManager {
 
@@ -34,7 +34,7 @@ public interface NmsManager {
 	// TODO use this in later versions
 	boolean canApplyPhysics(Material material);
 
-	void updateBlockTileEntity(Player player, BlockCoords blockCoord);
+	void updateBlockTileEntity(Player player, BlockPos blockCoord);
 
 	int getBlockLightLevel(World world, int x, int y, int z);
 
@@ -42,7 +42,7 @@ public interface NmsManager {
 
 	int loadChunkAndGetBlockId(World world, int x, int y, int z);
 
-	boolean sendBlockChange(Player player, BlockCoords blockCoords);
+	boolean sendBlockChange(Player player, BlockPos blockCoords);
 
 	void close();
 }

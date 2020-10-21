@@ -16,7 +16,7 @@ import net.imprex.orebfuscator.config.Config;
 import net.imprex.orebfuscator.nms.AbstractBlockState;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
 import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
-import net.imprex.orebfuscator.util.BlockCoords;
+import net.imprex.orebfuscator.util.BlockPos;
 import net.minecraft.server.v1_10_R1.Block;
 import net.minecraft.server.v1_10_R1.BlockPosition;
 import net.minecraft.server.v1_10_R1.Chunk;
@@ -160,7 +160,7 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public void updateBlockTileEntity(Player player, BlockCoords blockCoord) {
+	public void updateBlockTileEntity(Player player, BlockPos blockCoord) {
 		EntityPlayer entityPlayer = player(player);
 		net.minecraft.server.v1_10_R1.World world = entityPlayer.getWorld();
 
@@ -193,7 +193,7 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public boolean sendBlockChange(Player player, BlockCoords blockCoord) {
+	public boolean sendBlockChange(Player player, BlockPos blockCoord) {
 		WorldServer world = world(player.getWorld());
 		if (!isChunkLoaded(world, blockCoord.x >> 4, blockCoord.z >> 4)) {
 			return false;

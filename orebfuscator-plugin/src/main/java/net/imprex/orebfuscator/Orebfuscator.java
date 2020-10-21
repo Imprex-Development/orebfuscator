@@ -82,7 +82,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 
 		if (this.config.proximityEnabled()) {
 			this.proximityPacketListener.unregister();
-			this.proximityHider.destroy();
+			this.proximityHider.close();
 		}
 
 		this.getServer().getScheduler().cancelTasks(this);

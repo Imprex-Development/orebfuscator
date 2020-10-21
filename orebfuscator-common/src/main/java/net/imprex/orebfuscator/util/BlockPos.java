@@ -1,6 +1,6 @@
 package net.imprex.orebfuscator.util;
 
-public class BlockCoords {
+public class BlockPos {
 
 	private static final int bitsPerX = 26;
 	private static final int bitsPerZ = bitsPerX;
@@ -18,7 +18,7 @@ public class BlockCoords {
 	public final int y;
 	public final int z;
 
-	public BlockCoords(int x, int y, int z) {
+	public BlockPos(int x, int y, int z) {
 		this.x = x;
 		this.y = y;
 		this.z = z;
@@ -28,21 +28,21 @@ public class BlockCoords {
 		return (this.x & maskX) << offsetX | (this.y & maskY) << offsetY | (this.z & maskZ) << offsetZ;
 	}
 
-	public static BlockCoords fromLong(long value) {
+	public static BlockPos fromLong(long value) {
 		int x = (int) (value << (64 - bitsPerX - offsetX) >> (64 - bitsPerX));
 		int y = (int) (value << (64 - bitsPerY - offsetY) >> (64 - bitsPerY));
 		int z = (int) (value << (64 - bitsPerZ - offsetZ) >> (64 - bitsPerZ));
-		return new BlockCoords(x, y, z);
+		return new BlockPos(x, y, z);
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
-		} else if (!(obj instanceof BlockCoords)) {
+		} else if (!(obj instanceof BlockPos)) {
 			return false;
 		} else {
-			BlockCoords other = (BlockCoords) obj;
+			BlockPos other = (BlockPos) obj;
 			return this.x == other.x && this.y == other.y && this.z == other.z;
 		}
 	}
