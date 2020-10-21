@@ -1,7 +1,6 @@
 package net.imprex.orebfuscator.proximityhider;
 
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -54,7 +53,9 @@ public class ProximityPlayer {
 
 	public void addAndLockChunk(int chunkX, int chunkZ, Set<BlockPos> blocks) {
 		long key = ChunkPosition.toLong(chunkX, chunkZ);
-		this.chunks.computeIfAbsent(key, k -> new HashSet<>()).addAll(blocks);
+		this.chunks.computeIfAbsent(key, k -> {
+			return Collections.newSetFromMap(new ConcurrentHashMap<>());
+		}).addAll(blocks);
 		this.lockedChunks.add(key);
 	}
 
