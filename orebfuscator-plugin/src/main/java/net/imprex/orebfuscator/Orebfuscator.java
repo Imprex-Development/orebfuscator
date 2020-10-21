@@ -42,11 +42,11 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 				return;
 			}
 
-			// Initialize metrics
-			new MetricsSystem(this);
-
 			// Load configurations
 			this.config = new OrebfuscatorConfig(this);
+
+			// Initialize metrics
+			new MetricsSystem(this);
 
 			// Load chunk cache
 			this.chunkCache = new ChunkCache(this);

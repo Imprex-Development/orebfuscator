@@ -5,6 +5,8 @@ import java.util.Map;
 
 import org.bstats.bukkit.Metrics;
 
+import net.imprex.orebfuscator.config.OrebfuscatorConfig;
+
 public class MetricsSystem {
 
 	private final Metrics metrics;
@@ -12,6 +14,7 @@ public class MetricsSystem {
 	public MetricsSystem(Orebfuscator orebfuscator) {
 		this.metrics = new Metrics(orebfuscator, 8942);
 		this.addMemoryChart();
+		this.addFastGazeChart(orebfuscator.getOrebfuscatorConfig());
 	}
 
 	public void addMemoryChart() {
@@ -31,6 +34,12 @@ public class MetricsSystem {
 			}
 
 			return result;
+		}));
+	}
+
+	public void addFastGazeChart(OrebfuscatorConfig config) {
+		this.metrics.addCustomChart(new Metrics.SimplePie("fast_gaze", () -> {
+			return Boolean.toString(config.usesFastGaze());
 		}));
 	}
 }

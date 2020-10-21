@@ -258,6 +258,15 @@ public class OrebfuscatorConfig implements Config {
 		return hash;
 	}
 
+	public boolean usesFastGaze() {
+		for (ProximityConfig config : this.proximityWorlds) {
+			if (config.useFastGazeCheck()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
 	private class WorldEntry {
 
 		private final OrebfuscatorWorldConfig worldConfig;
