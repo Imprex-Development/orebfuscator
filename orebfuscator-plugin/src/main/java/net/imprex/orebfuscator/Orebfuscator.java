@@ -42,10 +42,13 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 				return;
 			}
 
+			// Initialize metrics
+			new MetricsSystem(this);
+
 			// Load configurations
 			this.config = new OrebfuscatorConfig(this);
 
-			// Load chunk cache	
+			// Load chunk cache
 			this.chunkCache = new ChunkCache(this);
 
 			// Load obfuscater
@@ -65,11 +68,12 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 			// Load packet listener
 			this.packetListener = new PacketListener(this);
 
-		} catch(Exception e) {
+		} catch (Exception e) {
 			OFCLogger.log(Level.SEVERE, "An error occurred while enabling plugin");
 			OFCLogger.err(e);
 
-			this.getServer().getPluginManager().registerEvent(PluginEnableEvent.class, this, EventPriority.NORMAL, this::onEnableFailed, this);
+			this.getServer().getPluginManager().registerEvent(PluginEnableEvent.class, this, EventPriority.NORMAL,
+					this::onEnableFailed, this);
 		}
 	}
 
@@ -86,7 +90,6 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 		}
 
 		this.getServer().getScheduler().cancelTasks(this);
-
 
 		NmsInstance.close();
 		this.config = null;
