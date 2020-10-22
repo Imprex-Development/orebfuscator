@@ -97,9 +97,7 @@ public class PacketListener extends PacketAdapter {
 			if (this.async) {
 				Bukkit.getScheduler().runTask(this.plugin, () -> {
 					this.asynchronousManager.signalPacketTransmission(event);
-					Bukkit.getScheduler().runTaskLater(this.plugin, () -> {
-						this.proximityChunkManager.unlockChunk(player, chunkStruct.chunkX, chunkStruct.chunkZ);
-					}, 1L);
+					this.proximityChunkManager.unlockChunk(player, chunkStruct.chunkX, chunkStruct.chunkZ);
 				});
 			} else {
 				this.proximityChunkManager.unlockChunk(player, chunkStruct.chunkX, chunkStruct.chunkZ);
