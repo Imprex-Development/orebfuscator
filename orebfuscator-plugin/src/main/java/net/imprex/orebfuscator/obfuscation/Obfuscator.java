@@ -9,7 +9,6 @@ import org.bukkit.World;
 
 import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.Orebfuscator;
-import net.imprex.orebfuscator.cache.ChunkCache;
 import net.imprex.orebfuscator.cache.ChunkCacheRequest;
 import net.imprex.orebfuscator.chunk.Chunk;
 import net.imprex.orebfuscator.chunk.ChunkSection;
@@ -19,31 +18,16 @@ import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.config.ProximityConfig;
 import net.imprex.orebfuscator.config.WorldConfig;
 import net.imprex.orebfuscator.util.BlockPos;
-import net.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.util.MaterialUtil;
 
 public class Obfuscator {
 
 	private final Orebfuscator orebfuscator;
 	private final OrebfuscatorConfig config;
-	private final ChunkCache chunkCache;
 
 	public Obfuscator(Orebfuscator orebfuscator) {
 		this.orebfuscator = orebfuscator;
 		this.config = orebfuscator.getOrebfuscatorConfig();
-		this.chunkCache = orebfuscator.getChunkCache();
-	}
-
-	public CompletableFuture<ObfuscatedChunk> obfuscateOrUseCache(World world, ChunkStruct chunkStruct) {
-		final ChunkPosition position = new ChunkPosition(world, chunkStruct.chunkX, chunkStruct.chunkZ);
-		final byte[] hash = ChunkCache.hash(this.config.hash(), chunkStruct.data);
-		final ChunkCacheRequest request = new ChunkCacheRequest(this, position, hash, chunkStruct);
-
-		if (this.config.cache().enabled()) {
-			return this.chunkCache.get(request);
-		} else {
-			return this.obfuscate(request);
-		}
 	}
 
 	public CompletableFuture<ObfuscatedChunk> obfuscate(ChunkCacheRequest request) {

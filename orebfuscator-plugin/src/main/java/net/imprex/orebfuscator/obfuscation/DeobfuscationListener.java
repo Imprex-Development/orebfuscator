@@ -34,12 +34,12 @@ import net.imprex.orebfuscator.nms.BlockStateHolder;
 import net.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.util.PermissionUtil;
 
-public class ObfuscationListener implements Listener {
+public class DeobfuscationListener implements Listener {
 
 	private final OrebfuscatorConfig config;
 	private final ChunkCache chunkCache;
 
-	public ObfuscationListener(Orebfuscator orebfuscator) {
+	public DeobfuscationListener(Orebfuscator orebfuscator) {
 		this.config = orebfuscator.getOrebfuscatorConfig();
 		this.chunkCache = orebfuscator.getChunkCache();
 	}

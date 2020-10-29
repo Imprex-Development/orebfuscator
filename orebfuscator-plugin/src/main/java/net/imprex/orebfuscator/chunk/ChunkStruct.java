@@ -7,27 +7,26 @@ import com.comphenix.protocol.reflect.StructureModifier;
 
 public class ChunkStruct {
 
-	public static ChunkStruct from(PacketContainer packet, World world) {
+	public final World world;
+	public final int chunkX;
+	public final int chunkZ;
+
+	public final boolean isOverworld;
+
+	public final int primaryBitMask;
+	public final byte[] data;
+
+	public ChunkStruct(PacketContainer packet, World world) {
 		StructureModifier<Integer> packetInteger = packet.getIntegers();
 		StructureModifier<byte[]> packetByteArray = packet.getByteArrays();
 
-		ChunkStruct chunkStruct = new ChunkStruct();
-		chunkStruct.chunkX = packetInteger.read(0);
-		chunkStruct.chunkZ = packetInteger.read(1);
-		chunkStruct.primaryBitMask = packetInteger.read(2);
-		chunkStruct.data = packetByteArray.read(0);
-		chunkStruct.isOverworld = world.getEnvironment() == World.Environment.NORMAL;
-
-		return chunkStruct;
+		this.world = world;
+		this.chunkX = packetInteger.read(0);
+		this.chunkZ = packetInteger.read(1);
+		this.primaryBitMask = packetInteger.read(2);
+		this.data = packetByteArray.read(0);
+		this.isOverworld = world.getEnvironment() == World.Environment.NORMAL;
 	}
-
-	public int chunkX;
-	public int chunkZ;
-
-	public boolean isOverworld;
-
-	public int primaryBitMask;
-	public byte[] data;
 
 	public boolean isEmpty() {
 		return this.primaryBitMask == 0;

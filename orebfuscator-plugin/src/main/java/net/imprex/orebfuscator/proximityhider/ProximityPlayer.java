@@ -51,6 +51,13 @@ public class ProximityPlayer {
 		this.lockedChunks.remove(ChunkPosition.toLong(chunkX, chunkZ));
 	}
 
+	public void addChunk(int chunkX, int chunkZ, Set<BlockPos> blocks) {
+		long key = ChunkPosition.toLong(chunkX, chunkZ);
+		this.chunks.computeIfAbsent(key, k -> {
+			return Collections.newSetFromMap(new ConcurrentHashMap<>());
+		}).addAll(blocks);
+	}
+
 	public void addAndLockChunk(int chunkX, int chunkZ, Set<BlockPos> blocks) {
 		long key = ChunkPosition.toLong(chunkX, chunkZ);
 		this.chunks.computeIfAbsent(key, k -> {
