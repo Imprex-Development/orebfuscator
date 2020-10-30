@@ -101,7 +101,7 @@ public class DeobfuscationListener implements Listener {
 		}
 
 		int blockId = blockState.getBlockId();
-		if ((blockMask.mask(blockId) & BlockMask.BLOCK_MASK_OBFUSCATE) != 0) {
+		if ((blockMask.mask(blockId) & BlockMask.FLAG_OBFUSCATE) != 0) {
 			updateBlocks.add(blockState);
 		}
 
