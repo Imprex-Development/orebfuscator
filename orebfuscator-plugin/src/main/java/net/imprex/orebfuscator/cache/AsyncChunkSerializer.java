@@ -1,6 +1,5 @@
 package net.imprex.orebfuscator.cache;
 
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.Map;
@@ -20,7 +19,7 @@ public class AsyncChunkSerializer implements Runnable {
 	private final Condition notFull = lock.newCondition();
 	private final Condition notEmpty = lock.newCondition();
 
-	private final Map<ChunkPosition, Runnable> tasks = new HashMap<>();
+	private final Map<ChunkPosition, SerializerTask> tasks = new HashMap<>();
 	private final Queue<ChunkPosition> positions = new LinkedList<>();
 	private final int maxTaskQueueSize;
 
@@ -38,7 +37,7 @@ public class AsyncChunkSerializer implements Runnable {
 	public CompletableFuture<ObfuscatedChunk> read(ChunkPosition position) {
 		this.lock.lock();
 		try {
-			Runnable task = this.tasks.get(position);
+			SerializerTask task = this.tasks.get(position);
 			if (task instanceof WriteTask) {
 				return CompletableFuture.completedFuture(((WriteTask) task).chunk);
 			} else if (task instanceof ReadTask) {
@@ -56,7 +55,7 @@ public class AsyncChunkSerializer implements Runnable {
 	public void write(ChunkPosition position, ObfuscatedChunk chunk) {
 		this.lock.lock();
 		try {
-			Runnable prevTask = this.queueTask(position, new WriteTask(position, chunk));
+			SerializerTask prevTask = this.queueTask(position, new WriteTask(position, chunk));
 			if (prevTask instanceof ReadTask) {
 				((ReadTask) prevTask).future.complete(chunk);
 			}
@@ -65,8 +64,13 @@ public class AsyncChunkSerializer implements Runnable {
 		}
 	}
 
-	private Runnable queueTask(ChunkPosition position, Runnable nextTask) {
+	private SerializerTask queueTask(ChunkPosition position, SerializerTask nextTask) {
 		while (this.positions.size() >= this.maxTaskQueueSize) {
+			// skip read task if queue is full, live obfuscation is cheaper
+			if (nextTask instanceof ReadTask) {
+				((ReadTask) nextTask).completeEmpty();
+				return null;
+			}
 			this.notFull.awaitUninterruptibly();
 		}
 
@@ -74,7 +78,7 @@ public class AsyncChunkSerializer implements Runnable {
 			throw new IllegalStateException("AsyncChunkSerializer already closed");
 		}
 
-		Runnable prevTask = this.tasks.put(position, nextTask);
+		SerializerTask prevTask = this.tasks.put(position, nextTask);
 		if (prevTask == null) {
 			this.positions.offer(position);
 		}
@@ -110,51 +114,13 @@ public class AsyncChunkSerializer implements Runnable {
 			this.thread.interrupt();
 
 			while (!this.positions.isEmpty()) {
-				Runnable task = this.tasks.remove(this.positions.poll());
+				SerializerTask task = this.tasks.remove(this.positions.poll());
 				if (task instanceof WriteTask) {
 					task.run();
 				}
 			}
 		} finally {
 			this.lock.unlock();
-		}
-	}
-
-	private class WriteTask implements Runnable {
-		private final ChunkPosition position;
-		private final ObfuscatedChunk chunk;
-
-		public WriteTask(ChunkPosition position, ObfuscatedChunk chunk) {
-			this.position = position;
-			this.chunk = chunk;
-		}
-
-		@Override
-		public void run() {
-			try {
-				ChunkSerializer.write(position, chunk);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
-		}
-	}
-
-	private class ReadTask implements Runnable {
-		private final ChunkPosition position;
-		private final CompletableFuture<ObfuscatedChunk> future;
-
-		public ReadTask(ChunkPosition position, CompletableFuture<ObfuscatedChunk> future) {
-			this.position = position;
-			this.future = future;
-		}
-
-		@Override
-		public void run() {
-			try {
-				future.complete(ChunkSerializer.read(position));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
 		}
 	}
 }
