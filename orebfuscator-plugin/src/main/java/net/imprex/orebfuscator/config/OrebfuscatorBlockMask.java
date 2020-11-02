@@ -17,7 +17,7 @@ public class OrebfuscatorBlockMask implements BlockMask {
 		return EMPTY_MASK;
 	}
 
-	private final short[] blockMask = new short[NmsInstance.getMaterialSize()];
+	private final short[] blockMask = new short[NmsInstance.getTotalBlockCount()];
 
 	private OrebfuscatorBlockMask(OrebfuscatorWorldConfig worldConfig, OrebfuscatorProximityConfig proximityConfig) {
 		if (worldConfig != null && worldConfig.enabled()) {

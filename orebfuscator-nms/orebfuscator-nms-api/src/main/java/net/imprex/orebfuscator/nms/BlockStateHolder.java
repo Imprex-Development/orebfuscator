@@ -10,5 +10,5 @@ public interface BlockStateHolder {
 
 	int getBlockId();
 
-	void notifyBlockChange();
+	void markBlockForUpdate();
 }

@@ -15,7 +15,7 @@ public interface NmsManager {
 
 	int getBitsPerBlock();
 
-	int getMaterialSize();
+	int getTotalBlockCount();
 
 	Optional<Material> getMaterialByName(String name);
 

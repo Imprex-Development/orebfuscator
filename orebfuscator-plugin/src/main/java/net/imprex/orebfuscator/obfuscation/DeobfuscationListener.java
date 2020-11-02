@@ -84,7 +84,7 @@ public class DeobfuscationListener implements Listener {
 		}
 
 		for (BlockStateHolder blockState : updateBlocks) {
-			blockState.notifyBlockChange();
+			blockState.markBlockForUpdate();
 		}
 
 		if (!invalidChunks.isEmpty() && config.cache().enabled()) {

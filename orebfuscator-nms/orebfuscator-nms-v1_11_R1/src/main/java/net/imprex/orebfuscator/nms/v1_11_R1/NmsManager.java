@@ -1,6 +1,5 @@
 package net.imprex.orebfuscator.nms.v1_11_R1;
 
-import java.util.BitSet;
 import java.util.Iterator;
 import java.util.Optional;
 
@@ -18,6 +17,7 @@ import net.imprex.orebfuscator.nms.AbstractNmsManager;
 import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.minecraft.server.v1_11_R1.Block;
+import net.minecraft.server.v1_11_R1.BlockAir;
 import net.minecraft.server.v1_11_R1.BlockPosition;
 import net.minecraft.server.v1_11_R1.Chunk;
 import net.minecraft.server.v1_11_R1.ChunkProviderServer;
@@ -65,7 +65,6 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	private final int blockIdCaveAir;
-	private final BitSet blockAir;
 
 	public NmsManager(Config config) {
 		super(config);
@@ -73,11 +72,13 @@ public class NmsManager extends AbstractNmsManager {
 		for (Iterator<IBlockData> iterator = Block.REGISTRY_ID.iterator(); iterator.hasNext();) {
 			IBlockData blockData = iterator.next();
 			Material material = CraftMagicNumbers.getMaterial(blockData.getBlock());
-			this.registerMaterialId(material, getBlockId(blockData));
+			int blockId = getBlockId(blockData);
+			this.registerMaterialId(material, blockId);
+			Block block = blockData.getBlock();
+			this.setBlockFlags(blockId, block instanceof BlockAir, block.isTileEntity());
 		}
 
 		this.blockIdCaveAir = this.getMaterialIds(Material.AIR).iterator().next();
-		this.blockAir = this.materialsToBitSet(Material.AIR);
 	}
 
 	@Override
@@ -91,7 +92,7 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public int getMaterialSize() {
+	public int getTotalBlockCount() {
 		return Block.REGISTRY_ID.a();
 	}
 
@@ -131,16 +132,6 @@ public class NmsManager extends AbstractNmsManager {
 		default:
 			return false;
 		}
-	}
-
-	@Override
-	public boolean isAir(int blockId) {
-		return this.blockAir.get(blockId);
-	}
-
-	@Override
-	public boolean isTileEntity(int blockId) {
-		return Block.getByCombinedId(blockId).getBlock().isTileEntity();
 	}
 
 	@Override

@@ -1,6 +1,5 @@
 package net.imprex.orebfuscator.nms.v1_13_R2;
 
-import java.util.BitSet;
 import java.util.Iterator;
 import java.util.Optional;
 
@@ -67,7 +66,6 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	private final int blockIdCaveAir;
-	private final BitSet blockAir;
 
 	public NmsManager(Config config) {
 		super(config);
@@ -75,11 +73,12 @@ public class NmsManager extends AbstractNmsManager {
 		for (Iterator<IBlockData> iterator = Block.REGISTRY_ID.iterator(); iterator.hasNext();) {
 			IBlockData blockData = iterator.next();
 			Material material = CraftBlockData.fromData(blockData).getMaterial();
-			this.registerMaterialId(material, getBlockId(blockData));
+			int blockId = getBlockId(blockData);
+			this.registerMaterialId(material, blockId);
+			this.setBlockFlags(blockId, blockData.isAir(), blockData.getBlock().isTileEntity());
 		}
 
 		this.blockIdCaveAir = this.getMaterialIds(Material.CAVE_AIR).iterator().next();
-		this.blockAir = this.materialsToBitSet(Material.AIR, Material.CAVE_AIR, Material.VOID_AIR);
 	}
 
 	@Override
@@ -93,7 +92,7 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public int getMaterialSize() {
+	public int getTotalBlockCount() {
 		return Block.REGISTRY_ID.a();
 	}
 
@@ -133,16 +132,6 @@ public class NmsManager extends AbstractNmsManager {
 		default:
 			return false;
 		}
-	}
-
-	@Override
-	public boolean isAir(int blockId) {
-		return this.blockAir.get(blockId);
-	}
-
-	@Override
-	public boolean isTileEntity(int blockId) {
-		return Block.getByCombinedId(blockId).getBlock().isTileEntity();
 	}
 
 	@Override

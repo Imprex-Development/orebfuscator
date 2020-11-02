@@ -21,7 +21,7 @@ public class BlockState extends AbstractBlockState<IBlockData> {
 	}
 
 	@Override
-	public void notifyBlockChange() {
+	public void markBlockForUpdate() {
 		WorldServer worldServer = ((CraftWorld) this.world).getHandle();
 		PlayerChunkMap chunkMap = worldServer.getPlayerChunkMap();
 		PlayerChunk playerChunk = chunkMap.getChunk(this.x >> 4, this.z >> 4);

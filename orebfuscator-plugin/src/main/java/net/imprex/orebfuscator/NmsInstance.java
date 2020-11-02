@@ -83,8 +83,8 @@ public class NmsInstance {
 		return instance.getBitsPerBlock();
 	}
 
-	public static int getMaterialSize() {
-		return instance.getMaterialSize();
+	public static int getTotalBlockCount() {
+		return instance.getTotalBlockCount();
 	}
 
 	public static Optional<Material> getMaterialByName(String name) {
