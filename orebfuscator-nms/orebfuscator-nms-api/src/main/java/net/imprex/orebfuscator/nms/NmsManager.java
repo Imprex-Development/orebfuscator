@@ -34,10 +34,6 @@ public interface NmsManager {
 	// TODO use this in later versions
 	boolean canApplyPhysics(Material material);
 
-	void updateBlockTileEntity(Player player, BlockPos blockCoord);
-
-	int getBlockLightLevel(World world, int x, int y, int z);
-
 	BlockStateHolder getBlockState(World world, int x, int y, int z);
 
 	int loadChunkAndGetBlockId(World world, int x, int y, int z);

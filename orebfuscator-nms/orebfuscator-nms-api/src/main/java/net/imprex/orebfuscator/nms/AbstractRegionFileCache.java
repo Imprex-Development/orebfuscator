@@ -14,10 +14,10 @@ import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.util.SimpleCache;
 
-public abstract class AbstractRegionFileCache<T> {
+public abstract class AbstractRegionFileCache<RegionFile> {
 
 	protected final ReadWriteLock lock = new ReentrantReadWriteLock(true);
-	protected final Map<Path, T> regionFiles;
+	protected final Map<Path, RegionFile> regionFiles;
 
 	protected final CacheConfig cacheConfig;
 
@@ -27,25 +27,25 @@ public abstract class AbstractRegionFileCache<T> {
 		this.regionFiles = new SimpleCache<>(cacheConfig.maximumOpenRegionFiles(), this::remove);
 	}
 
-	protected abstract T createRegionFile(Path path) throws IOException;
+	protected abstract RegionFile createRegionFile(Path path) throws IOException;
 
-	protected abstract void closeRegionFile(T t) throws IOException;
+	protected abstract void closeRegionFile(RegionFile t) throws IOException;
 
-	protected abstract DataInputStream createInputStream(T t, ChunkPosition key) throws IOException;
+	protected abstract DataInputStream createInputStream(RegionFile t, ChunkPosition key) throws IOException;
 
-	protected abstract DataOutputStream createOutputStream(T t, ChunkPosition key) throws IOException;
+	protected abstract DataOutputStream createOutputStream(RegionFile t, ChunkPosition key) throws IOException;
 
 	public final DataInputStream createInputStream(ChunkPosition key) throws IOException {
-		T t = this.get(this.cacheConfig.regionFile(key));
+		RegionFile t = this.get(this.cacheConfig.regionFile(key));
 		return t != null ? this.createInputStream(t, key) : null;
 	}
 
 	public final DataOutputStream createOutputStream(ChunkPosition key) throws IOException {
-		T t = this.get(this.cacheConfig.regionFile(key));
+		RegionFile t = this.get(this.cacheConfig.regionFile(key));
 		return t != null ? this.createOutputStream(t, key) : null;
 	}
 
-	private final void remove(Map.Entry<Path, T> entry) {
+	private final void remove(Map.Entry<Path, RegionFile> entry) {
 		try {
 			this.closeRegionFile(entry.getValue());
 		} catch (IOException e) {
@@ -53,10 +53,10 @@ public abstract class AbstractRegionFileCache<T> {
 		}
 	}
 
-	protected final T get(Path path) throws IOException {
+	protected final RegionFile get(Path path) throws IOException {
 		this.lock.readLock().lock();
 		try {
-			T t = this.regionFiles.get(path);
+			RegionFile t = this.regionFiles.get(path);
 			if (t != null) {
 				return t;
 			}
@@ -73,7 +73,7 @@ public abstract class AbstractRegionFileCache<T> {
 					this.regionFiles.size(), this.cacheConfig.maximumOpenRegionFiles()));
 		}
 
-		T t = Objects.requireNonNull(this.createRegionFile(path));
+		RegionFile t = Objects.requireNonNull(this.createRegionFile(path));
 
 		this.lock.writeLock().lock();
 		try {
@@ -87,7 +87,7 @@ public abstract class AbstractRegionFileCache<T> {
 	public final void close(Path path) throws IOException {
 		this.lock.writeLock().lock();
 		try {
-			T t = this.regionFiles.remove(path);
+			RegionFile t = this.regionFiles.remove(path);
 			if (t != null) {
 				this.closeRegionFile(t);
 			}
@@ -99,7 +99,7 @@ public abstract class AbstractRegionFileCache<T> {
 	public final void clear() {
 		this.lock.writeLock().lock();
 		try {
-			for (T t : this.regionFiles.values()) {
+			for (RegionFile t : this.regionFiles.values()) {
 				try {
 					if (t != null) {
 						this.closeRegionFile(t);

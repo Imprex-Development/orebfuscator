@@ -25,7 +25,6 @@ import net.minecraft.server.v1_9_R2.EntityPlayer;
 import net.minecraft.server.v1_9_R2.IBlockData;
 import net.minecraft.server.v1_9_R2.MathHelper;
 import net.minecraft.server.v1_9_R2.MinecraftKey;
-import net.minecraft.server.v1_9_R2.Packet;
 import net.minecraft.server.v1_9_R2.PacketPlayOutBlockChange;
 import net.minecraft.server.v1_9_R2.TileEntity;
 import net.minecraft.server.v1_9_R2.WorldServer;
@@ -159,27 +158,6 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public void updateBlockTileEntity(Player player, BlockPos blockCoord) {
-		EntityPlayer entityPlayer = player(player);
-		net.minecraft.server.v1_9_R2.World world = entityPlayer.getWorld();
-
-		TileEntity tileEntity = world.getTileEntity(new BlockPosition(blockCoord.x, blockCoord.y, blockCoord.z));
-		if (tileEntity == null) {
-			return;
-		}
-
-		Packet<?> packet = tileEntity.getUpdatePacket();
-		if (packet != null) {
-			entityPlayer.playerConnection.sendPacket(packet);
-		}
-	}
-
-	@Override
-	public int getBlockLightLevel(World world, int x, int y, int z) {
-		return world(world).getLightLevel(new BlockPosition(x, y, z));
-	}
-
-	@Override
 	public AbstractBlockState<?> getBlockState(World world, int x, int y, int z) {
 		IBlockData blockData = getBlockData(world, x, y, z, false);
 		return blockData != null ? new BlockState(x, y, z, world, blockData) : null;
@@ -192,16 +170,28 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public boolean sendBlockChange(Player player, BlockPos blockCoord) {
-		WorldServer world = world(player.getWorld());
+	public boolean sendBlockChange(Player bukkitPlayer, BlockPos blockCoord) {
+		EntityPlayer player = player(bukkitPlayer);
+		WorldServer world = player.x();
 		if (!isChunkLoaded(world, blockCoord.x >> 4, blockCoord.z >> 4)) {
 			return false;
 		}
 
 		BlockPosition position = new BlockPosition(blockCoord.x, blockCoord.y, blockCoord.z);
 		PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(world, position);
-		player(player).playerConnection.sendPacket(packet);
+		player.playerConnection.sendPacket(packet);
+		updateTileEntity(player, position, packet.block);
 
 		return true;
+	}
+
+	private void updateTileEntity(EntityPlayer player, BlockPosition position, IBlockData blockData) {
+		if (blockData.getBlock().isTileEntity()) {
+			WorldServer worldServer = player.x();
+			TileEntity tileEntity = worldServer.getTileEntity(position);
+			if (tileEntity != null) {
+				player.playerConnection.sendPacket(tileEntity.getUpdatePacket());
+			}
+		}
 	}
 }

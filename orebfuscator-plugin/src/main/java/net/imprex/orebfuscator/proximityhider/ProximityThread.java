@@ -98,9 +98,7 @@ public class ProximityThread extends Thread {
 					Bukkit.getScheduler().runTask(this.orebfuscator, () -> {
 						if (player.isOnline()) {
 							for (BlockPos blockCoords : updateBlocks) {
-								if (NmsInstance.sendBlockChange(player, blockCoords)) {
-									NmsInstance.updateBlockTileEntity(player, blockCoords);
-								}
+								NmsInstance.sendBlockChange(player, blockCoords);
 							}
 						}
 					});

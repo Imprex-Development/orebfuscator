@@ -119,14 +119,6 @@ public class NmsInstance {
 		return instance.canApplyPhysics(material);
 	}
 
-	public static void updateBlockTileEntity(Player player, BlockPos blockCoord) {
-		instance.updateBlockTileEntity(player, blockCoord);
-	}
-
-	public static int getBlockLightLevel(World world, int x, int y, int z) {
-		return instance.getBlockLightLevel(world, x, y, z);
-	}
-
 	public static BlockStateHolder getBlockState(World world, int x, int y, int z) {
 		return instance.getBlockState(world, x, y, z);
 	}
