@@ -1,7 +1,5 @@
 package net.imprex.orebfuscator;
 
-import java.util.logging.Level;
-
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
@@ -64,8 +62,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 			this.obfuscatorSystem.registerChunkListener();
 
 		} catch (Exception e) {
-			OFCLogger.log(Level.SEVERE, "An error occurred while enabling plugin");
-			OFCLogger.err(e);
+			OFCLogger.err("An error occurred while enabling plugin", e);
 
 			this.getServer().getPluginManager().registerEvent(PluginEnableEvent.class, this, EventPriority.NORMAL,
 					this::onEnableFailed, this);

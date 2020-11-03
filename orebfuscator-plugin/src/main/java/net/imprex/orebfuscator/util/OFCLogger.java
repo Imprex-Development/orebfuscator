@@ -20,22 +20,24 @@ public class OFCLogger {
 	}
 
 	/**
+	 * Log an error
+	 */
+	public static void err(String message, Throwable throwable) {
+		log(Level.SEVERE, message, throwable);
+	}
+
+	/**
 	 * Log with a specified level
 	 */
+	@Deprecated
 	public static void log(Level level, String message) {
 		OFCLogger.LOGGER.log(level, LOG_PREFIX + message);
 	}
 
 	/**
-	 * Log an error
-	 */
-	public static void err(Throwable e) {
-		log(Level.SEVERE, e.getMessage(), e);
-	}
-
-	/**
 	 * Log with a specified level and throwable
 	 */
+	@Deprecated
 	public static void log(Level level, String message, Throwable throwable) {
 		OFCLogger.LOGGER.log(level, LOG_PREFIX + message, throwable);
 	}

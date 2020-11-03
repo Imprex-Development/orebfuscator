@@ -95,13 +95,15 @@ public class ProximityThread extends Thread {
 						}
 					}
 
-					Bukkit.getScheduler().runTask(this.orebfuscator, () -> {
-						if (player.isOnline()) {
-							for (BlockPos blockCoords : updateBlocks) {
-								NmsInstance.sendBlockChange(player, blockCoords);
+					if (!updateBlocks.isEmpty()) {
+						Bukkit.getScheduler().runTask(this.orebfuscator, () -> {
+							if (player.isOnline()) {
+								for (BlockPos blockCoords : updateBlocks) {
+									NmsInstance.sendBlockChange(player, blockCoords);
+								}
 							}
-						}
-					});
+						});
+					}
 				} finally {
 					this.proximityQueue.unlock(player);
 				}
