@@ -4,8 +4,8 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Level;
 
 import org.bukkit.Bukkit;
 import org.bukkit.configuration.ConfigurationSection;
@@ -44,8 +44,7 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 
 	public void deserialize(ConfigurationSection section) {
 		section.set("enabled", this.enabled);
-		section.set("baseDirectory", Bukkit.getWorldContainer().toPath().toAbsolutePath().normalize()
-				.relativize(this.baseDirectory).normalize().toString());
+		section.set("baseDirectory", this.baseDirectory.toString());
 
 		section.set("maximumOpenRegionFiles", this.maximumOpenRegionFiles);
 		section.set("deleteRegionFilesAfterAccess", this.deleteRegionFilesAfterAccess);
@@ -62,19 +61,16 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 		String baseDirectory = section.getString("baseDirectory", defaultPath);
 
 		try {
-			this.baseDirectory = worldPath.resolve(baseDirectory).normalize();
+			this.baseDirectory = Paths.get(baseDirectory).normalize();
 		} catch (InvalidPathException e) {
-			OFCLogger.log(Level.WARNING,
-					"config path '" + section.getCurrentPath() + ".baseDirectory' contains malformed path '"
-							+ baseDirectory + "', using default path '" + defaultPath + "'");
+			OFCLogger.warn("config path '" + section.getCurrentPath() + ".baseDirectory' contains malformed path '"
+					+ baseDirectory + "', using default path '" + defaultPath + "'");
 			this.baseDirectory = worldPath.resolve(defaultPath).normalize();
 		}
 
 		if (!this.baseDirectory.startsWith(worldPath)) {
-			OFCLogger.log(Level.WARNING,
-					"config path '" + section.getCurrentPath() + ".baseDirectory' is no child directory of '"
-							+ worldPath + "', using default path: '" + defaultPath + "'");
-			this.baseDirectory = worldPath.resolve(defaultPath).normalize();
+			OFCLogger.warn("config path '" + section.getCurrentPath() + ".baseDirectory' is no child directory of '"
+					+ worldPath + "'");
 		}
 
 		if (this.enabled()) {
