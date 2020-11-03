@@ -29,9 +29,6 @@ public interface NmsManager {
 
 	boolean isTileEntity(int blockId);
 
-	// TODO use this in later versions
-	boolean canApplyPhysics(Material material);
-
 	BlockStateHolder getBlockState(World world, int x, int y, int z);
 
 	int loadChunkAndGetBlockId(World world, int x, int y, int z);

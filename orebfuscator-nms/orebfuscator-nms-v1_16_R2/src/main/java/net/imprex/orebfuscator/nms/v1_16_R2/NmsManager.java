@@ -125,22 +125,6 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public boolean canApplyPhysics(Material material) {
-		switch (material) {
-		case AIR:
-		case CAVE_AIR:
-		case VOID_AIR:
-		case FIRE:
-		case WATER:
-		case LAVA:
-			return true;
-
-		default:
-			return false;
-		}
-	}
-
-	@Override
 	public AbstractBlockState<?> getBlockState(World world, int x, int y, int z) {
 		IBlockData blockData = getBlockData(world, x, y, z, false);
 		return blockData != null ? new BlockState(x, y, z, world, blockData) : null;

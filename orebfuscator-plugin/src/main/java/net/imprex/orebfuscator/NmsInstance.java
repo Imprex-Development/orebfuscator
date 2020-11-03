@@ -115,10 +115,6 @@ public class NmsInstance {
 		return instance.isTileEntity(blockId);
 	}
 
-	public static boolean canApplyPhysics(Material material) {
-		return instance.canApplyPhysics(material);
-	}
-
 	public static BlockStateHolder getBlockState(World world, int x, int y, int z) {
 		return instance.getBlockState(world, x, y, z);
 	}
