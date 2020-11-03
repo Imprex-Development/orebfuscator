@@ -27,6 +27,10 @@ public class NmsInstance {
 		OFCLogger.info("Searching NMS protocol for server version \"" + MinecraftVersion.getNmsVersion() + "\"!");
 
 		switch (MinecraftVersion.getNmsVersion()) {
+		case "v1_16_R3":
+			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_16_R3.NmsManager(config);
+			break;
+
 		case "v1_16_R2":
 			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_16_R2.NmsManager(config);
 			break;
