@@ -1,7 +1,7 @@
 package net.imprex.orebfuscator.config;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -23,9 +23,9 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 	private int distanceSquared;
 	private boolean useFastGazeCheck;
 
-	private Map<Material, Short> hiddenBlocks = new HashMap<>();
+	private Map<Material, Short> hiddenBlocks = new LinkedHashMap<>();
 
-	private Map<Material, Integer> randomBlocks = new HashMap<>();
+	private Map<Material, Integer> randomBlocks = new LinkedHashMap<>();
 	private final List<Integer> randomBlockIds = new ArrayList<>();
 	private WeightedRandom<Integer> randomMaterials = new WeightedRandom<>();
 

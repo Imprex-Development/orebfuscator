@@ -1,8 +1,8 @@
 package net.imprex.orebfuscator.config;
 
 import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
@@ -20,9 +20,9 @@ public class OrebfuscatorWorldConfig implements WorldConfig {
 
 	private boolean enabled;
 	private final List<String> worlds = new ArrayList<>();
-	private final Set<Material> hiddenBlocks = new HashSet<>();
+	private final Set<Material> hiddenBlocks = new LinkedHashSet<>();
 
-	private final Map<Material, Integer> randomBlocks = new HashMap<>();
+	private final Map<Material, Integer> randomBlocks = new LinkedHashMap<>();
 	private final List<Integer> randomBlockIds = new ArrayList<>();
 	private final WeightedRandom<Integer> randomMaterials = new WeightedRandom<>();
 
