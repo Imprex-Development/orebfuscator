@@ -1,6 +1,5 @@
 package net.imprex.orebfuscator.nms.v1_9_R2;
 
-import java.util.BitSet;
 import java.util.Iterator;
 import java.util.Optional;
 
@@ -18,6 +17,7 @@ import net.imprex.orebfuscator.nms.AbstractNmsManager;
 import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.minecraft.server.v1_9_R2.Block;
+import net.minecraft.server.v1_9_R2.BlockAir;
 import net.minecraft.server.v1_9_R2.BlockPosition;
 import net.minecraft.server.v1_9_R2.Chunk;
 import net.minecraft.server.v1_9_R2.ChunkProviderServer;
@@ -25,7 +25,6 @@ import net.minecraft.server.v1_9_R2.EntityPlayer;
 import net.minecraft.server.v1_9_R2.IBlockData;
 import net.minecraft.server.v1_9_R2.MathHelper;
 import net.minecraft.server.v1_9_R2.MinecraftKey;
-import net.minecraft.server.v1_9_R2.Packet;
 import net.minecraft.server.v1_9_R2.PacketPlayOutBlockChange;
 import net.minecraft.server.v1_9_R2.TileEntity;
 import net.minecraft.server.v1_9_R2.WorldServer;
@@ -65,20 +64,17 @@ public class NmsManager extends AbstractNmsManager {
 		}
 	}
 
-	private final int blockIdCaveAir;
-	private final BitSet blockAir;
-
 	public NmsManager(Config config) {
 		super(config);
 
 		for (Iterator<IBlockData> iterator = Block.REGISTRY_ID.iterator(); iterator.hasNext();) {
 			IBlockData blockData = iterator.next();
 			Material material = CraftMagicNumbers.getMaterial(blockData.getBlock());
-			this.registerMaterialId(material, getBlockId(blockData));
+			int blockId = getBlockId(blockData);
+			this.registerMaterialId(material, blockId);
+			Block block = blockData.getBlock();
+			this.setBlockFlags(blockId, block instanceof BlockAir, block.isTileEntity());
 		}
-
-		this.blockIdCaveAir = this.getMaterialIds(Material.AIR).iterator().next();
-		this.blockAir = this.materialsToBitSet(Material.AIR);
 	}
 
 	@Override
@@ -92,7 +88,7 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public int getMaterialSize() {
+	public int getTotalBlockCount() {
 		return Block.REGISTRY_ID.a();
 	}
 
@@ -115,11 +111,6 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public int getCaveAirBlockId() {
-		return this.blockIdCaveAir;
-	}
-
-	@Override
 	public boolean isHoe(Material material) {
 		switch (material) {
 		case WOOD_HOE:
@@ -132,16 +123,6 @@ public class NmsManager extends AbstractNmsManager {
 		default:
 			return false;
 		}
-	}
-
-	@Override
-	public boolean isAir(int blockId) {
-		return this.blockAir.get(blockId);
-	}
-
-	@Override
-	public boolean isTileEntity(int blockId) {
-		return Block.getByCombinedId(blockId).getBlock().isTileEntity();
 	}
 
 	@Override
@@ -159,27 +140,6 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public void updateBlockTileEntity(Player player, BlockPos blockCoord) {
-		EntityPlayer entityPlayer = player(player);
-		net.minecraft.server.v1_9_R2.World world = entityPlayer.getWorld();
-
-		TileEntity tileEntity = world.getTileEntity(new BlockPosition(blockCoord.x, blockCoord.y, blockCoord.z));
-		if (tileEntity == null) {
-			return;
-		}
-
-		Packet<?> packet = tileEntity.getUpdatePacket();
-		if (packet != null) {
-			entityPlayer.playerConnection.sendPacket(packet);
-		}
-	}
-
-	@Override
-	public int getBlockLightLevel(World world, int x, int y, int z) {
-		return world(world).getLightLevel(new BlockPosition(x, y, z));
-	}
-
-	@Override
 	public AbstractBlockState<?> getBlockState(World world, int x, int y, int z) {
 		IBlockData blockData = getBlockData(world, x, y, z, false);
 		return blockData != null ? new BlockState(x, y, z, world, blockData) : null;
@@ -193,15 +153,27 @@ public class NmsManager extends AbstractNmsManager {
 
 	@Override
 	public boolean sendBlockChange(Player player, BlockPos blockCoord) {
-		WorldServer world = world(player.getWorld());
+		EntityPlayer entityPlayer = player(player);
+		WorldServer world = entityPlayer.x();
 		if (!isChunkLoaded(world, blockCoord.x >> 4, blockCoord.z >> 4)) {
 			return false;
 		}
 
 		BlockPosition position = new BlockPosition(blockCoord.x, blockCoord.y, blockCoord.z);
 		PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(world, position);
-		player(player).playerConnection.sendPacket(packet);
+		entityPlayer.playerConnection.sendPacket(packet);
+		updateTileEntity(entityPlayer, position, packet.block);
 
 		return true;
+	}
+
+	private void updateTileEntity(EntityPlayer player, BlockPosition position, IBlockData blockData) {
+		if (blockData.getBlock().isTileEntity()) {
+			WorldServer worldServer = player.x();
+			TileEntity tileEntity = worldServer.getTileEntity(position);
+			if (tileEntity != null) {
+				player.playerConnection.sendPacket(tileEntity.getUpdatePacket());
+			}
+		}
 	}
 }

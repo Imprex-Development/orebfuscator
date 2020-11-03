@@ -88,7 +88,7 @@ public class NmsInstance {
 	}
 
 	public static int getMaterialSize() {
-		return instance.getMaterialSize();
+		return instance.getTotalBlockCount();
 	}
 
 	public static Optional<Material> getMaterialByName(String name) {
@@ -101,10 +101,6 @@ public class NmsInstance {
 
 	public static Set<Integer> getMaterialIds(Material material) {
 		return instance.getMaterialIds(material);
-	}
-
-	public static int getCaveAirBlockId() {
-		return instance.getCaveAirBlockId();
 	}
 
 	public static boolean isHoe(Material material) {
@@ -121,14 +117,6 @@ public class NmsInstance {
 
 	public static boolean canApplyPhysics(Material material) {
 		return instance.canApplyPhysics(material);
-	}
-
-	public static void updateBlockTileEntity(Player player, BlockPos blockCoord) {
-		instance.updateBlockTileEntity(player, blockCoord);
-	}
-
-	public static int getBlockLightLevel(World world, int x, int y, int z) {
-		return instance.getBlockLightLevel(world, x, y, z);
 	}
 
 	public static BlockStateHolder getBlockState(World world, int x, int y, int z) {
