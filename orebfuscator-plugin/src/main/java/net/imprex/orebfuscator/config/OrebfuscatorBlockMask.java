@@ -22,7 +22,7 @@ public class OrebfuscatorBlockMask implements BlockMask {
 	private OrebfuscatorBlockMask(OrebfuscatorWorldConfig worldConfig, OrebfuscatorProximityConfig proximityConfig) {
 		if (worldConfig != null && worldConfig.enabled()) {
 			for (Material material : worldConfig.hiddenBlocks()) {
-				this.setBlockMask(material, BLOCK_MASK_OBFUSCATE);
+				this.setBlockMask(material, FLAG_OBFUSCATE);
 			}
 		}
 		if (proximityConfig != null && proximityConfig.enabled()) {
@@ -37,7 +37,7 @@ public class OrebfuscatorBlockMask implements BlockMask {
 			int blockMask = this.blockMask[blockId] | mask;
 
 			if (NmsInstance.isTileEntity(blockId)) {
-				blockMask |= BLOCK_MASK_TILEENTITY;
+				blockMask |= FLAG_TILE_ENTITY;
 			}
 
 			this.blockMask[blockId] = (short) blockMask;
@@ -53,7 +53,7 @@ public class OrebfuscatorBlockMask implements BlockMask {
 	public int mask(int blockId, int y) {
 		short blockMask = this.blockMask[blockId];
 		if (HideCondition.match(blockMask, y)) {
-			blockMask |= BLOCK_MASK_PROXIMITY;
+			blockMask |= FLAG_PROXIMITY;
 		}
 		return blockMask;
 	}

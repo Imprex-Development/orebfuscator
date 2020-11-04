@@ -68,6 +68,17 @@ public class ProximityPlayerManager {
 		}
 	}
 
+	public void addChunk(Player player, int chunkX, int chunkZ, Set<BlockPos> blocks) {
+		if (this.proximityHider.isInProximityWorld(player)) {
+			ProximityPlayer data = this.get(player);
+			if (blocks.isEmpty()) {
+				data.removeChunk(chunkX, chunkZ);
+			} else {
+				data.addChunk(chunkX, chunkZ, blocks);
+			}
+		}
+	}
+
 	public void unlockChunk(Player player, int chunkX, int chunkZ) {
 		if (this.proximityHider.isInProximityWorld(player)) {
 			this.get(player).unlockChunk(chunkX, chunkZ);
