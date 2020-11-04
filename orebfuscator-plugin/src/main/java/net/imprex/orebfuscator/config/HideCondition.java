@@ -2,10 +2,18 @@ package net.imprex.orebfuscator.config;
 
 public class HideCondition {
 
-	public static final short EMPTY = HideCondition.create(0, true);
+	public static final short MATCH_ALL = HideCondition.create(0, true);
 
 	public static short create(int y, boolean above) {
 		return (short) ((y & 0xFF) << 8 | (above ? 0x80 : 0x00));
+	}
+
+	public static short clear(short hideCondition) {
+		return (short) (hideCondition & 0x7F);
+	}
+
+	public static boolean isMatchAll(short hideCondition) {
+		return (hideCondition & 0xFF80) == MATCH_ALL;
 	}
 
 	public static boolean match(short hideCondition, int y) {
