@@ -23,6 +23,8 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 	private int distanceSquared;
 	private boolean useFastGazeCheck;
 
+	private short defaultHideCondition = (short) (HideCondition.EMPTY | BlockMask.FLAG_USE_BLOCK_BELOW);
+
 	private Map<Material, Short> hiddenBlocks = new LinkedHashMap<>();
 
 	private Map<Material, Integer> randomBlocks = new LinkedHashMap<>();
@@ -54,6 +56,13 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 		this.distance(section.getInt("distance", 8));
 		this.useFastGazeCheck(section.getBoolean("useFastGazeCheck", true));
 
+		int y = section.getInt("defaults.y", 0);
+		boolean above = section.getBoolean("defaults.above", true);
+		this.defaultHideCondition = HideCondition.create(y, above);
+		if (section.getBoolean("defaults.useBlockBelow", true)) {
+			this.defaultHideCondition |= BlockMask.FLAG_USE_BLOCK_BELOW;
+		}
+
 		this.serializeHiddenBlocks(section);
 		if (this.hiddenBlocks.isEmpty()) {
 			this.enabled = false;
@@ -75,6 +84,10 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 		section.set("worlds", this.worlds);
 		section.set("distance", this.distance);
 		section.set("useFastGazeCheck", this.useFastGazeCheck);
+
+		section.set("defaults.y", HideCondition.getY(this.defaultHideCondition));
+		section.set("defaults.above", HideCondition.getAbove(this.defaultHideCondition));
+		section.set("defaults.useBlockBelow", BlockMask.isUseBlockBelowSet(this.defaultHideCondition));
 		
 		this.deserializeHiddenBlocks(section, this.hiddenBlocks, "hiddenBlocks");
 		ConfigParser.deserializeRandomMaterialList(section, randomBlocks, "randomBlocks");
@@ -97,9 +110,18 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 				continue;
 			}
 
-			short hideCondition = HideCondition.EMPTY;
+			short hideCondition = this.defaultHideCondition;
 			if (materialSection.isInt(name + ".y") && materialSection.isBoolean(name + ".above")) {
-				hideCondition = HideCondition.create(materialSection.getInt(name + ".y"), materialSection.getBoolean(name + ".above"));
+				hideCondition = HideCondition.create(materialSection.getInt(name + ".y"),
+						materialSection.getBoolean(name + ".above"));
+			}
+
+			if (materialSection.isBoolean(name + ".useBlockBelow")) {
+				if (materialSection.getBoolean(name + ".useBlockBelow")) {
+					hideCondition |= BlockMask.FLAG_USE_BLOCK_BELOW;
+				} else {
+					hideCondition &= ~BlockMask.FLAG_USE_BLOCK_BELOW;
+				}
 			}
 
 			this.hiddenBlocks.put(material.get(), hideCondition);
@@ -124,6 +146,10 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 			} else {
 				materialSection.set(name + ".y", HideCondition.getY(condition));
 				materialSection.set(name + ".above", HideCondition.getAbove(condition));
+			}
+
+			if (BlockMask.isUseBlockBelowSet(condition) != BlockMask.isUseBlockBelowSet(this.defaultHideCondition)) {
+				materialSection.set(name + ".useBlockBelow", BlockMask.isUseBlockBelowSet(condition));
 			}
 		}
 	}

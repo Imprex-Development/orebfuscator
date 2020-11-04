@@ -81,6 +81,10 @@ proximity:
     enabled: true
     distance: 16
     useFastGazeCheck: false
+    defaults:
+      y: 0
+      above: true
+      useBlockBelow: true
     hiddenBlocks:
       diamond_ore: {}
       emerald_ore: {}
@@ -101,6 +105,10 @@ proximity:
     enabled: true
     distance: 16
     useFastGazeCheck: false
+    defaults:
+      y: 0
+      above: true
+      useBlockBelow: true
     hiddenBlocks:
       chest: {}
       ender_chest: {}
@@ -120,6 +128,10 @@ proximity:
     enabled: true
     distance: 16
     useFastGazeCheck: false
+    defaults:
+      y: 0
+      above: true
+      useBlockBelow: true
     hiddenBlocks:
       chest: {}
       ender_chest: {}
