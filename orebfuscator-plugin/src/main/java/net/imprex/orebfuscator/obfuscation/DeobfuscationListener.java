@@ -78,13 +78,13 @@ public class DeobfuscationListener implements Listener {
 				BlockStateHolder blockState = NmsInstance.getBlockState(world, x, y, z);
 				if (blockState != null) {
 					getAdjacentBlocks(updateBlocks, world, blockMask, blockState, updateRadius);
-					invalidChunks.add(new ChunkPosition(world, x >> 4, z >> 4));
 				}
 			}
 		}
 
 		for (BlockStateHolder blockState : updateBlocks) {
 			blockState.notifyBlockChange();
+			invalidChunks.add(new ChunkPosition(world, blockState.getX() >> 4, blockState.getZ() >> 4));
 		}
 
 		if (!invalidChunks.isEmpty() && config.cache().enabled()) {
