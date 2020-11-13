@@ -6,7 +6,6 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Optional;
 import java.util.Set;
 
 import org.bukkit.Material;
@@ -16,41 +15,36 @@ import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.util.OFCLogger;
 import net.imprex.orebfuscator.util.WeightedRandom;
 
-public class OrebfuscatorWorldConfig implements WorldConfig {	
+public class OrebfuscatorWorldConfig implements WorldConfig {
 
 	private boolean enabled;
 	private final List<String> worlds = new ArrayList<>();
 	private final Set<Material> hiddenBlocks = new LinkedHashSet<>();
 
 	private final Map<Material, Integer> randomBlocks = new LinkedHashMap<>();
-	private final List<Integer> randomBlockIds = new ArrayList<>();
 	private final WeightedRandom<Integer> randomMaterials = new WeightedRandom<>();
 
 	protected void initialize() {
-		this.randomMaterials.clear();
 		for (Entry<Material, Integer> entry : this.randomBlocks.entrySet()) {
 			int blockId = NmsInstance.getMaterialIds(entry.getKey()).iterator().next();
 			this.randomMaterials.add(entry.getValue(), blockId);
-			this.randomBlockIds.add(blockId);
 		}
 	}
 
 	protected void serialize(ConfigurationSection section) {
 		this.enabled(section.getBoolean("enabled", true));
 
-		List<String> worldNameList = section.getStringList("worlds");
-		if (worldNameList == null || worldNameList.isEmpty()) {
+		this.worlds.addAll(section.getStringList("worlds"));
+		if (this.worlds.isEmpty()) {
 			this.failSerialize(
 					String.format("config section '%s.worlds' is missing or empty", section.getCurrentPath()));
 			return;
 		}
-		this.worlds.clear();
-		this.worlds.addAll(worldNameList);
 
-		this.serializeMaterialSet(section, this.hiddenBlocks, "hiddenBlocks");
+		ConfigParser.serializeMaterialSet(section, this.hiddenBlocks, "hiddenBlocks");
 		if (this.hiddenBlocks.isEmpty()) {
-			this.failSerialize(String.format("config section '%s' is missing 'hiddenBlocks'",
-					section.getCurrentPath()));
+			this.failSerialize(
+					String.format("config section '%s.hiddenBlocks' is missing or empty", section.getCurrentPath()));
 			return;
 		}
 
@@ -67,27 +61,6 @@ public class OrebfuscatorWorldConfig implements WorldConfig {
 
 		ConfigParser.deserializeMaterialSet(section, this.hiddenBlocks, "hiddenBlocks");
 		ConfigParser.deserializeRandomMaterialList(section, this.randomBlocks, "randomBlocks");
-	}
-
-	private void serializeMaterialSet(ConfigurationSection section, Set<Material> materials, String path) {
-		materials.clear();
-
-		List<String> materialNames = section.getStringList(path);
-		if (materialNames == null || materialNames.isEmpty()) {
-			return;
-		}
-
-		for (String name : materialNames) {
-			Optional<Material> material = NmsInstance.getMaterialByName(name);
-
-			if (!material.isPresent()) {
-				OFCLogger.warn(String.format("config section '%s.%s' contains unknown block '%s'",
-						section.getCurrentPath(), path, name));
-				continue;
-			}
-
-			materials.add(material.get());
-		}
 	}
 
 	private void failSerialize(String message) {
@@ -118,11 +91,6 @@ public class OrebfuscatorWorldConfig implements WorldConfig {
 	@Override
 	public Set<Material> randomBlocks() {
 		return this.randomBlocks.keySet();
-	}
-
-	@Override
-	public List<Integer> randomBlockIds() {
-		return this.randomBlockIds;
 	}
 
 	@Override

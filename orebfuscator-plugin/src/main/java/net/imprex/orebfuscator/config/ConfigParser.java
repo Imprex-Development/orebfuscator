@@ -7,9 +7,7 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.Set;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Material;
-import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 
 import net.imprex.orebfuscator.NmsInstance;
@@ -48,31 +46,8 @@ public class ConfigParser {
 		return section;
 	}
 
-	public static void serializeWorldList(ConfigurationSection section, List<World> worlds, String path) {
-		worlds.clear();
-
-		List<String> worldNameList = section.getStringList(path);
-		if (worldNameList == null || worldNameList.isEmpty()) {
-			return;
-		}
-
-		for (String worldName : worldNameList) {
-			World world = Bukkit.getWorld(worldName);
-
-			if (world == null) {
-				OFCLogger.warn(String.format("config section '%s.%s' contains unknown world '%s'",
-						section.getCurrentPath(), path, worldName));
-				continue;
-			}
-
-			worlds.add(world);
-		}
-	}
-
 	public static void serializeRandomMaterialList(ConfigurationSection section, Map<Material, Integer> randomBlocks,
 			String path) {
-		randomBlocks.clear();
-
 		ConfigurationSection materialSection = section.getConfigurationSection(path);
 		if (materialSection == null) {
 			return;
@@ -110,10 +85,25 @@ public class ConfigParser {
 		}
 	}
 
+	public static void serializeMaterialSet(ConfigurationSection section, Set<Material> materials, String path) {
+		for (String materialName : section.getStringList(path)) {
+			Optional<Material> material = NmsInstance.getMaterialByName(materialName);
+
+			if (!material.isPresent()) {
+				OFCLogger.warn(String.format("config section '%s.%s' contains unknown block '%s'",
+						section.getCurrentPath(), path, materialName));
+				continue;
+			}
+
+			materials.add(material.get());
+		}
+	}
+
 	public static void deserializeMaterialSet(ConfigurationSection section, Set<Material> materials, String path) {
 		List<String> materialNames = new ArrayList<>();
 		for (Material material : materials) {
 			Optional<String> optional = NmsInstance.getNameByMaterial(material);
+
 			if (!optional.isPresent()) {
 				OFCLogger.warn(String.format("config section '%s.%s' contains unknown block name '%s'",
 						section.getCurrentPath(), path, material != null ? material.name() : null));

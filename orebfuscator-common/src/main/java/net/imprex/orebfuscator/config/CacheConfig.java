@@ -10,7 +10,6 @@ public interface CacheConfig {
 	void enabled(boolean enabled);
 
 	Path baseDirectory();
-	void baseDirectory(Path path);
 
 	Path regionFile(ChunkPosition chunkPosition);
 

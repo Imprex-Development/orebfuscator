@@ -16,49 +16,44 @@ import net.imprex.orebfuscator.util.WeightedRandom;
 
 public class OrebfuscatorProximityConfig implements ProximityConfig {
 
-	private final List<String> worlds = new ArrayList<>();
-
 	private boolean enabled;
 	private int distance;
 	private int distanceSquared;
 	private boolean useFastGazeCheck;
+
+	private final List<String> worlds = new ArrayList<>();
 
 	private short defaultBlockFlags = (short) (HideCondition.MATCH_ALL | BlockMask.FLAG_USE_BLOCK_BELOW);
 
 	private Map<Material, Short> hiddenBlocks = new LinkedHashMap<>();
 
 	private Map<Material, Integer> randomBlocks = new LinkedHashMap<>();
-	private final List<Integer> randomBlockIds = new ArrayList<>();
 	private WeightedRandom<Integer> randomMaterials = new WeightedRandom<>();
 
 	@Override
 	public void initialize() {
-		this.randomMaterials.clear();
 		for (Entry<Material, Integer> entry : this.randomBlocks.entrySet()) {
 			int blockId = NmsInstance.getMaterialIds(entry.getKey()).iterator().next();
 			this.randomMaterials.add(entry.getValue(), blockId);
-			this.randomBlockIds.add(blockId);
 		}
 	}
 
 	protected void serialize(ConfigurationSection section) {
 		this.enabled(section.getBoolean("enabled", true));
 
-		List<String> worldNameList = section.getStringList("worlds");
-		if (worldNameList == null || worldNameList.isEmpty()) {
+		this.worlds.addAll(section.getStringList("worlds"));
+		if (this.worlds.isEmpty()) {
 			this.failSerialize(
 					String.format("config section '%s.worlds' is missing or empty", section.getCurrentPath()));
 			return;
 		}
-		this.worlds.clear();
-		this.worlds.addAll(worldNameList);
 
 		this.distance(section.getInt("distance", 8));
 		this.useFastGazeCheck(section.getBoolean("useFastGazeCheck", true));
 
-		int y = section.getInt("defaults.y", 0);
-		boolean above = section.getBoolean("defaults.above", true);
-		this.defaultBlockFlags = HideCondition.create(y, above);
+		int defaultY = section.getInt("defaults.y", 0);
+		boolean defaultAbove = section.getBoolean("defaults.above", true);
+		this.defaultBlockFlags = HideCondition.create(defaultY, defaultAbove);
 		if (section.getBoolean("defaults.useBlockBelow", true)) {
 			this.defaultBlockFlags |= BlockMask.FLAG_USE_BLOCK_BELOW;
 		}
@@ -88,14 +83,12 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 		section.set("defaults.y", HideCondition.getY(this.defaultBlockFlags));
 		section.set("defaults.above", HideCondition.getAbove(this.defaultBlockFlags));
 		section.set("defaults.useBlockBelow", BlockMask.isUseBlockBelowSet(this.defaultBlockFlags));
-		
+
 		this.deserializeHiddenBlocks(section, this.hiddenBlocks, "hiddenBlocks");
 		ConfigParser.deserializeRandomMaterialList(section, randomBlocks, "randomBlocks");
 	}
 
 	private void serializeHiddenBlocks(ConfigurationSection section) {
-		this.hiddenBlocks.clear();
-
 		ConfigurationSection materialSection = section.getConfigurationSection("hiddenBlocks");
 		if (materialSection == null) {
 			return;
@@ -112,7 +105,7 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 
 			short blockFlags = this.defaultBlockFlags;
 			if (materialSection.isInt(name + ".y") && materialSection.isBoolean(name + ".above")) {
-				blockFlags = HideCondition.clear(blockFlags);
+				blockFlags = HideCondition.remove(blockFlags);
 				blockFlags |= HideCondition.create(materialSection.getInt(name + ".y"),
 						materialSection.getBoolean(name + ".above"));
 			}
@@ -130,27 +123,26 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 	}
 
 	private void deserializeHiddenBlocks(ConfigurationSection section, Map<Material, Short> hiddenBlocks, String path) {
-		ConfigurationSection materialSection = section.createSection(path);
+		ConfigurationSection parentSection = section.createSection(path);
 		for (Entry<Material, Short> entry : this.hiddenBlocks.entrySet()) {
 			Material material = entry.getKey();
 			Optional<String> optional = NmsInstance.getNameByMaterial(material);
+
 			if (!optional.isPresent()) {
 				OFCLogger.warn(String.format("config section '%s.%s' contains unknown block name '%s'",
 						section.getCurrentPath(), path, material != null ? material.name() : null));
 				continue;
 			}
 
-			String name = optional.get();
+			ConfigurationSection childSection = parentSection.createSection(optional.get());
 			short blockFlags = entry.getValue();
-			if (HideCondition.isMatchAll(blockFlags)) {
-				materialSection.createSection(name);
-			} else {
-				materialSection.set(name + ".y", HideCondition.getY(blockFlags));
-				materialSection.set(name + ".above", HideCondition.getAbove(blockFlags));
+			if (!HideCondition.equals(blockFlags, this.defaultBlockFlags)) {
+				childSection.set("y", HideCondition.getY(blockFlags));
+				childSection.set("above", HideCondition.getAbove(blockFlags));
 			}
 
 			if (BlockMask.isUseBlockBelowSet(blockFlags) != BlockMask.isUseBlockBelowSet(this.defaultBlockFlags)) {
-				materialSection.set(name + ".useBlockBelow", BlockMask.isUseBlockBelowSet(blockFlags));
+				childSection.set("useBlockBelow", BlockMask.isUseBlockBelowSet(blockFlags));
 			}
 		}
 	}

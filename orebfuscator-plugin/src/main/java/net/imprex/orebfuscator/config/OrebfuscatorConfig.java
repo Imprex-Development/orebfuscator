@@ -12,6 +12,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.WeakHashMap;
+import java.util.concurrent.locks.ReadWriteLock;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -35,6 +37,7 @@ public class OrebfuscatorConfig implements Config {
 	private final List<OrebfuscatorProximityConfig> proximityWorlds = new ArrayList<>();
 
 	private final Map<World, OrebfuscatorConfig.WorldEntry> worldToEntry = new WeakHashMap<>();
+	private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
 	private final Plugin plugin;
 
@@ -43,10 +46,10 @@ public class OrebfuscatorConfig implements Config {
 	public OrebfuscatorConfig(Plugin plugin) {
 		this.plugin = plugin;
 
-		this.reload();
+		this.load();
 	}
 
-	public void reload() {
+	public void load() {
 		this.createConfigIfNotExist();
 		this.plugin.reloadConfig();
 
@@ -55,12 +58,11 @@ public class OrebfuscatorConfig implements Config {
 	}
 
 	public void store() {
-		this.createConfigIfNotExist();
-
 		ConfigurationSection section = this.plugin.getConfig();
 		for (String path : section.getKeys(false)) {
 			section.set(path, null);
 		}
+
 		this.deserialize(section);
 		this.plugin.saveConfig();
 	}
@@ -176,10 +178,8 @@ public class OrebfuscatorConfig implements Config {
 		for (OrebfuscatorWorldConfig worldConfig : this.world) {
 			worldConfig.initialize();
 			for (String worldName : worldConfig.worlds()) {
-				if (worldNames.contains(worldName)) {
+				if (!worldNames.add(worldName)) {
 					OFCLogger.warn("world " + worldName + " has more than one world config choosing first one");
-				} else {
-					worldNames.add(worldName);
 				}
 			}
 		}
@@ -188,10 +188,8 @@ public class OrebfuscatorConfig implements Config {
 		for (OrebfuscatorProximityConfig proximityConfig : this.proximityWorlds) {
 			proximityConfig.initialize();
 			for (String worldName : proximityConfig.worlds()) {
-				if (worldNames.contains(worldName)) {
+				if (!worldNames.add(worldName)) {
 					OFCLogger.warn("world " + worldName + " has more than one proximity config choosing first one");
-				} else {
-					worldNames.add(worldName);
 				}
 			}
 		}
@@ -202,12 +200,24 @@ public class OrebfuscatorConfig implements Config {
 	}
 
 	private WorldEntry getWorldEntry(World world) {
-		WorldEntry worldEntry = this.worldToEntry.get(Objects.requireNonNull(world));
-		if (worldEntry == null) {
-			worldEntry = new WorldEntry(world);
-			this.worldToEntry.put(world, worldEntry);
+		this.lock.readLock().lock();
+		try {
+			WorldEntry worldEntry = this.worldToEntry.get(Objects.requireNonNull(world));
+			if (worldEntry != null) {
+				return worldEntry;
+			}
+		} finally {
+			this.lock.readLock().unlock();
 		}
-		return worldEntry;
+
+		WorldEntry worldEntry = new WorldEntry(world);
+		this.lock.writeLock().lock();
+		try {
+			this.worldToEntry.putIfAbsent(world, worldEntry);
+			return this.worldToEntry.get(world);
+		} finally {
+			this.lock.writeLock().unlock();
+		}
 	}
 
 	@Override

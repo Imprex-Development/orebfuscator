@@ -68,10 +68,7 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 			this.baseDirectory = worldPath.resolve(defaultPath).normalize();
 		}
 
-		if (!this.baseDirectory.startsWith(worldPath)) {
-			OFCLogger.warn("config path '" + section.getCurrentPath() + ".baseDirectory' is no child directory of '"
-					+ worldPath + "'");
-		}
+		OFCLogger.info("Using '" + this.baseDirectory + "' as chunk cache path");
 
 		if (this.enabled()) {
 			try {
@@ -97,11 +94,6 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 	@Override
 	public Path baseDirectory() {
 		return this.baseDirectory;
-	}
-
-	@Override
-	public void baseDirectory(Path path) {
-		this.baseDirectory = path;
 	}
 
 	@Override

@@ -1,5 +1,6 @@
 package net.imprex.orebfuscator;
 
+import java.lang.reflect.Constructor;
 import java.util.Optional;
 import java.util.Set;
 
@@ -21,62 +22,24 @@ public class NmsInstance {
 
 	public static void initialize(Config config) {
 		if (NmsInstance.instance != null) {
-			throw new IllegalStateException("NMS protocol version was already initialized!");
+			throw new IllegalStateException("NMS adapter is already initialized!");
 		}
 
-		OFCLogger.info("Searching NMS protocol for server version \"" + MinecraftVersion.getNmsVersion() + "\"!");
+		String nmsVersion = MinecraftVersion.getNmsVersion();
+		OFCLogger.info("Searching NMS adapter for server version \"" + nmsVersion + "\"!");
 
-		switch (MinecraftVersion.getNmsVersion()) {
-		case "v1_16_R3":
-			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_16_R3.NmsManager(config);
-			break;
-
-		case "v1_16_R2":
-			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_16_R2.NmsManager(config);
-			break;
-
-		case "v1_16_R1":
-			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_16_R1.NmsManager(config);
-			break;
-
-		case "v1_15_R1":
-			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_15_R1.NmsManager(config);
-			break;
-
-		case "v1_14_R1":
-			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_14_R1.NmsManager(config);
-			break;
-
-		case "v1_13_R2":
-			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_13_R2.NmsManager(config);
-			break;
-
-		case "v1_13_R1":
-			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_13_R1.NmsManager(config);
-			break;
-
-		case "v1_12_R1":
-			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_12_R1.NmsManager(config);
-			break;
-
-		case "v1_11_R1":
-			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_11_R1.NmsManager(config);
-			break;
-
-		case "v1_10_R1":
-			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_10_R1.NmsManager(config);
-			break;
-
-		case "v1_9_R2":
-			NmsInstance.instance = new net.imprex.orebfuscator.nms.v1_9_R2.NmsManager(config);
-			break;
+		try {
+			String className = "net.imprex.orebfuscator.nms." + nmsVersion + ".NmsManager";
+			Class<? extends NmsManager> nmsManager = Class.forName(className).asSubclass(NmsManager.class);
+			Constructor<? extends NmsManager> constructor = nmsManager.getConstructor(Config.class);
+			NmsInstance.instance = constructor.newInstance(config);
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException("Server version \"" + nmsVersion + "\" is currently not supported!");
+		} catch (Exception e) {
+			throw new RuntimeException("Couldn't initialize NMS adapter", e);
 		}
 
-		if (NmsInstance.instance != null) {
-			OFCLogger.info("NMS protocol for server version \"" + MinecraftVersion.getNmsVersion() + "\" found!");
-		} else {
-			throw new RuntimeException("Server version \"" + MinecraftVersion.getNmsVersion() + "\" is currently not supported!");
-		}
+		OFCLogger.info("NMS adapter for server version \"" + nmsVersion + "\" found!");
 	}
 
 	public static AbstractRegionFileCache<?> getRegionFileCache() {

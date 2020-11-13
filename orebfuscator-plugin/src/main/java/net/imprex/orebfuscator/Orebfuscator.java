@@ -64,6 +64,8 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 			// Load packet listener
 			this.obfuscatorSystem.registerChunkListener();
 
+			// Store formatted config
+			this.config.store();
 		} catch (Exception e) {
 			OFCLogger.log(Level.SEVERE, "An error occurred while enabling plugin");
 			OFCLogger.err(e);
@@ -76,7 +78,6 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 	@Override
 	public void onDisable() {
 		this.chunkCache.close();
-		this.config.store();
 
 		this.obfuscatorSystem.close();
 

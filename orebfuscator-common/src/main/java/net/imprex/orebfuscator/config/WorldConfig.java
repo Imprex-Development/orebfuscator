@@ -16,7 +16,5 @@ public interface WorldConfig {
 
 	Set<Material> randomBlocks();
 
-	List<Integer> randomBlockIds();
-
 	int randomBlockId();
 }
