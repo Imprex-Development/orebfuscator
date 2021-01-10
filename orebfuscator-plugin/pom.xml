@@ -50,6 +50,12 @@
 		</dependency>
 		<dependency>
 			<groupId>net.imprex</groupId>
+			<artifactId>orebfuscator-api</artifactId>
+			<version>${revision}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.imprex</groupId>
 			<artifactId>orebfuscator-common</artifactId>
 			<version>${revision}</version>
 			<scope>compile</scope>

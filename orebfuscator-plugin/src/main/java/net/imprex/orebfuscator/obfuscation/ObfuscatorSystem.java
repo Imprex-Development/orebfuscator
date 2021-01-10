@@ -1,8 +1,10 @@
 package net.imprex.orebfuscator.obfuscation;
 
+import java.util.Collection;
 import java.util.concurrent.CompletableFuture;
 
 import org.bukkit.Bukkit;
+import org.bukkit.block.Block;
 
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.cache.ChunkCache;
@@ -18,6 +20,7 @@ public class ObfuscatorSystem {
 	private final ChunkCache chunkCache;
 
 	private final Obfuscator obfuscator;
+	private final Deobfuscator deobfuscator;
 	private AbstractChunkListener chunkListener;
 
 	public ObfuscatorSystem(Orebfuscator orebfuscator) {
@@ -26,7 +29,8 @@ public class ObfuscatorSystem {
 		this.chunkCache = orebfuscator.getChunkCache();
 
 		this.obfuscator = new Obfuscator(orebfuscator);
-		Bukkit.getPluginManager().registerEvents(new DeobfuscationListener(orebfuscator), orebfuscator);
+		this.deobfuscator = new Deobfuscator(orebfuscator);
+		Bukkit.getPluginManager().registerEvents(new DeobfuscationListener(orebfuscator, this.deobfuscator), orebfuscator);
 	}
 
 	public void registerChunkListener() {
@@ -47,6 +51,10 @@ public class ObfuscatorSystem {
 		} else {
 			return this.obfuscator.obfuscate(request);
 		}
+	}
+
+	public void deobfuscate(Collection<? extends Block> blocks) {
+		this.deobfuscator.deobfuscate(blocks);
 	}
 
 	public void close() {

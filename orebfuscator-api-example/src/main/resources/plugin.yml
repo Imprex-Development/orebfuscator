@@ -1,0 +1,13 @@
+api-version: 1.13
+
+name: orebfuscator-api-example
+version: ${project.version}
+
+main: net.imprex.api.example.Example
+
+author: Ingrim4
+
+depend: [Orebfuscator]
+loadbefore: [Orebfuscator]
+
+description: 'orebfuscator api example project'

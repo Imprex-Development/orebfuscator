@@ -1,12 +1,5 @@
 package net.imprex.orebfuscator.obfuscation;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
-import org.bukkit.World;
-import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
@@ -27,146 +20,66 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.UpdateSystem;
-import net.imprex.orebfuscator.cache.ChunkCache;
-import net.imprex.orebfuscator.config.BlockMask;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
-import net.imprex.orebfuscator.config.WorldConfig;
-import net.imprex.orebfuscator.nms.BlockStateHolder;
-import net.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.util.PermissionUtil;
 
 public class DeobfuscationListener implements Listener {
 
 	private final UpdateSystem updateSystem;
 	private final OrebfuscatorConfig config;
-	private final ChunkCache chunkCache;
+	private final Deobfuscator deobfuscator;
 
-	public DeobfuscationListener(Orebfuscator orebfuscator) {
+	public DeobfuscationListener(Orebfuscator orebfuscator, Deobfuscator deobfuscator) {
 		this.updateSystem = orebfuscator.getUpdateSystem();
 		this.config = orebfuscator.getOrebfuscatorConfig();
-		this.chunkCache = orebfuscator.getChunkCache();
-	}
-
-	private void onUpdate(Block block) {
-		if (block == null || !block.getType().isOccluding()) {
-			return;
-		}
-
-		onUpdate(Arrays.asList(block));
-	}
-
-	private void onUpdate(List<Block> blocks) {
-		if (blocks.isEmpty()) {
-			return;
-		}
-
-		World world = blocks.get(0).getWorld();
-		WorldConfig worldConfig = this.config.world(world);
-		if (worldConfig == null || !worldConfig.enabled()) {
-			return;
-		}
-
-		BlockMask blockMask = this.config.blockMask(world);
-
-		Set<BlockStateHolder> updateBlocks = new HashSet<>();
-		Set<ChunkPosition> invalidChunks = new HashSet<>();
-		int updateRadius = this.config.general().updateRadius();
-
-		for (Block block : blocks) {
-			if (block.getType().isOccluding()) {
-				int x = block.getX();
-				int y = block.getY();
-				int z = block.getZ();
-
-				BlockStateHolder blockState = NmsInstance.getBlockState(world, x, y, z);
-				if (blockState != null) {
-					getAdjacentBlocks(updateBlocks, world, blockMask, blockState, updateRadius);
-				}
-			}
-		}
-
-		for (BlockStateHolder blockState : updateBlocks) {
-			blockState.notifyBlockChange();
-			invalidChunks.add(new ChunkPosition(world, blockState.getX() >> 4, blockState.getZ() >> 4));
-		}
-
-		if (!invalidChunks.isEmpty() && config.cache().enabled()) {
-			for (ChunkPosition chunk : invalidChunks) {
-				chunkCache.invalidate(chunk);
-			}
-		}
-	}
-
-	private void getAdjacentBlocks(Set<BlockStateHolder> updateBlocks, World world, BlockMask blockMask,
-			BlockStateHolder blockState, int depth) {
-		if (blockState == null) {
-			return;
-		}
-
-		int blockId = blockState.getBlockId();
-		if (BlockMask.isObfuscateSet(blockMask.mask(blockId))) {
-			updateBlocks.add(blockState);
-		}
-
-		if (depth-- > 0) {
-			int x = blockState.getX();
-			int y = blockState.getY();
-			int z = blockState.getZ();
-
-			getAdjacentBlocks(updateBlocks, world, blockMask, NmsInstance.getBlockState(world, x + 1, y, z), depth);
-			getAdjacentBlocks(updateBlocks, world, blockMask, NmsInstance.getBlockState(world, x - 1, y, z), depth);
-			getAdjacentBlocks(updateBlocks, world, blockMask, NmsInstance.getBlockState(world, x, y + 1, z), depth);
-			getAdjacentBlocks(updateBlocks, world, blockMask, NmsInstance.getBlockState(world, x, y - 1, z), depth);
-			getAdjacentBlocks(updateBlocks, world, blockMask, NmsInstance.getBlockState(world, x, y, z + 1), depth);
-			getAdjacentBlocks(updateBlocks, world, blockMask, NmsInstance.getBlockState(world, x, y, z - 1), depth);
-		}
+		this.deobfuscator = deobfuscator;
 	}
 
 	@EventHandler
 	public void onBlockDamage(BlockDamageEvent event) {
 		if (this.config.general().updateOnBlockDamage()) {
-			this.onUpdate(event.getBlock());
+			this.deobfuscator.deobfuscate(event.getBlock());
 		}
 	}
 
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
-		this.onUpdate(event.getBlock());
+		this.deobfuscator.deobfuscate(event.getBlock());
 	}
 
 	@EventHandler
 	public void onBlockBurn(BlockBurnEvent event) {
-		this.onUpdate(event.getBlock());
+		this.deobfuscator.deobfuscate(event.getBlock());
 	}
 
 	@EventHandler
 	public void onBlockExplode(BlockExplodeEvent event) {
-		this.onUpdate(event.blockList());
+		this.deobfuscator.deobfuscate(event.blockList());
 	}
 
 	@EventHandler
 	public void onBlockPistonExtend(BlockPistonExtendEvent event) {
-		this.onUpdate(event.getBlocks());
+		this.deobfuscator.deobfuscate(event.getBlocks());
 	}
 
 	@EventHandler
 	public void onBlockPistonRetract(BlockPistonRetractEvent event) {
-		this.onUpdate(event.getBlocks());
+		this.deobfuscator.deobfuscate(event.getBlocks());
 	}
 
 	@EventHandler
 	public void onEntityExplode(EntityExplodeEvent event) {
-		this.onUpdate(event.blockList());
+		this.deobfuscator.deobfuscate(event.blockList());
 	}
 
 	@EventHandler
 	public void onEntityInteract(EntityInteractEvent event) {
-		this.onUpdate(event.getBlock());
+		this.deobfuscator.deobfuscate(event.getBlock());
 	}
 
 	@EventHandler
 	public void onEntityChangeBlock(EntityChangeBlockEvent event) {
-		this.onUpdate(event.getBlock());
+		this.deobfuscator.deobfuscate(event.getBlock());
 	}
 
 	@EventHandler
@@ -174,7 +87,7 @@ public class DeobfuscationListener implements Listener {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.useInteractedBlock() != Result.DENY
 				&& event.getItem() != null && event.getItem().getType() != null
 				&& NmsInstance.isHoe(event.getItem().getType())) {
-			this.onUpdate(event.getClickedBlock());
+			this.deobfuscator.deobfuscate(event.getClickedBlock());
 		}
 	}
 

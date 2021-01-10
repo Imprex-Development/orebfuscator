@@ -8,8 +8,10 @@ import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import net.imprex.orebfuscator.api.OrebfuscatorService;
 import net.imprex.orebfuscator.cache.ChunkCache;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.obfuscation.ObfuscatorSystem;
@@ -70,6 +72,12 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 
 			// Store formatted config
 			this.config.store();
+			
+			// initialize service
+			Bukkit.getServicesManager().register(
+					OrebfuscatorService.class,
+					new DefaultOrebfuscatorService(this),
+					this, ServicePriority.Normal);
 		} catch (Exception e) {
 			OFCLogger.log(Level.SEVERE, "An error occurred while enabling plugin");
 			OFCLogger.err(e);
