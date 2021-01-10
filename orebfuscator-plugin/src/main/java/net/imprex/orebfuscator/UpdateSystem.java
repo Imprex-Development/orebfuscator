@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.logging.Level;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.entity.Player;
@@ -46,7 +45,8 @@ public class UpdateSystem {
 					this.updateTimestamp = systemTime;
 				}
 			} catch (IOException e) {
-				OFCLogger.log(Level.WARNING, "Unable to fetch latest update from: " + API_LATEST, e);
+				OFCLogger.warn("Unable to fetch latest update from: " + API_LATEST);
+				OFCLogger.warn(e.toString());
 			}
 		}
 		return this.releaseData;
@@ -54,7 +54,7 @@ public class UpdateSystem {
 
 	private String getTagName() {
 		JsonObject releaseData = this.getReleaseData();
-		if (releaseData.has("tag_name")) {
+		if (releaseData != null && releaseData.has("tag_name")) {
 			return releaseData.getAsJsonPrimitive("tag_name").getAsString();
 		}
 		return null;
@@ -62,15 +62,16 @@ public class UpdateSystem {
 
 	private String getHtmlUrl() {
 		JsonObject releaseData = this.getReleaseData();
-		if (releaseData.has("html_url")) {
+		if (releaseData != null && releaseData.has("html_url")) {
 			return releaseData.getAsJsonPrimitive("html_url").getAsString();
 		}
 		return null;
 	}
 
 	private boolean isUpdateAvailable() {
+		String tagName = this.getTagName();
 		String version = this.orebfuscator.getDescription().getVersion();
-		return this.generalConfig.checkForUpdates() && !version.equals(this.getTagName());
+		return this.generalConfig.checkForUpdates() && tagName != null && !version.equals(tagName);
 	}
 
 	private void checkForUpdates() {
