@@ -2,6 +2,9 @@ package net.imprex.orebfuscator.config;
 
 public interface GeneralConfig {
 
+	boolean checkForUpdates();
+	void checkForUpdates(boolean enabled);
+
 	boolean updateOnBlockDamage();
 	void updateOnBlockDamage(boolean enabled);
 

@@ -5,17 +5,19 @@ version: ${project.version}
 
 main: net.imprex.orebfuscator.Orebfuscator
 
-author: lishid
-authors: [Ingrim4, NgLoader, SydMontague, ProgrammerDan, Aleksey-Terzi]
+author: Ingrim4
+authors: [NgLoader, lishid, SydMontague, ProgrammerDan, Aleksey-Terzi]
 
 depend: [ProtocolLib]
 loadbefore: [ProtocolLib]
 
 load: POSTWORLD
 
-description: 'The most powerful and efficient Anti Xray plugin compatible with most CraftBukkit forks!'
+description: 'High-Performance Anti X-Ray'
 
 permissions:
+  orebfuscator.admin:
+    default: true
   orebfuscator.bypass:
     description: Bypass obfuscation
     default: false

@@ -4,6 +4,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 public class OrebfuscatorGeneralConfig implements GeneralConfig {
 
+	private boolean checkForUpdates = true;
 	private boolean updateOnBlockDamage = true;
 	private boolean bypassNotification = true;
 	private int initialRadius = 1;
@@ -11,6 +12,7 @@ public class OrebfuscatorGeneralConfig implements GeneralConfig {
 	private int proximityHiderRunnerSize = 4;
 
 	public void serialize(ConfigurationSection section) {
+		this.checkForUpdates(section.getBoolean("checkForUpdates", true));
 		this.updateOnBlockDamage(section.getBoolean("updateOnBlockDamage", true));
 		this.bypassNotification(section.getBoolean("bypassNotification", true));
 		this.initialRadius(section.getInt("initialRadius", 1));
@@ -19,11 +21,22 @@ public class OrebfuscatorGeneralConfig implements GeneralConfig {
 	}
 
 	public void deserialize(ConfigurationSection section) {
+		section.set("checkForUpdates", this.checkForUpdates);
 		section.set("updateOnBlockDamage", this.updateOnBlockDamage);
 		section.set("bypassNotification", this.bypassNotification);
 		section.set("initialRadius", this.initialRadius);
 		section.set("updateRadius", this.updateRadius);
 		section.set("proximityHiderRunnerSize", this.proximityHiderRunnerSize);
+	}
+
+	@Override
+	public boolean checkForUpdates() {
+		return this.checkForUpdates;
+	}
+
+	@Override
+	public void checkForUpdates(boolean enabled) {
+		this.checkForUpdates = enabled;
 	}
 
 	@Override

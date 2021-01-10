@@ -4,12 +4,12 @@
 [![Release Status](https://github.com/Imprex-Development/Orebfuscator/workflows/Releases/badge.svg)](https://github.com/Imprex-Development/Orebfuscator/releases/latest) [![Build Status](https://github.com/Imprex-Development/Orebfuscator/workflows/Build/badge.svg)](https://github.com/Imprex-Development/Orebfuscator/actions?query=workflow%3ABuild)
 
 ### Description
-Orebfuscator is plugin for CraftBukkit based Minecraft Servers that modifies packets in order to hide blocks of interest from X-Ray Clients and Texture Packs. Thus it doesn't modify your world and is safe to use.
+Orebfuscator is plugin for Spigot based Minecraft Servers that modifies packets in order to hide blocks of interest from X-Ray Clients and Texture Packs. Thus it doesn't modify your world and is safe to use.
 
 ### Features:
 * Plug & Play
 * Highly configurable config
-* Support for CraftBukkit based servers 1.9.4+ (only tested on spigot)
+* Support for Spigot based servers 1.9.4+ (only tested on spigot)
 * Obfuscate blocks based on their light level
 * Hide block entities like Chests and Furnaces
 * Make blocks in a players proximity visible based on their distance an
@@ -18,7 +18,7 @@ Orebfuscator is plugin for CraftBukkit based Minecraft Servers that modifies pac
 
 ### Requirements:
 - Java 8 or higher
-- Spigot/PaperSpigot and any other fork of CraftBukkit (1.9.4 or higher)
+- Spigot and (proably) any other fork of Spigot (1.9.4 or higher)
 - [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997) 4.0 or higher
 
 ### Configurate
@@ -49,7 +49,7 @@ Orebfuscator is plugin for CraftBukkit based Minecraft Servers that modifies pac
 ## License:
 
 Almost completely rewritten by Imprex-Development to support v1.14 and higher Minecraft version's; these portions as permissible:
-Copyright (C) 2020 by Imprex-Development. All rights reserved.
+Copyright (C) 2020-2021 by Imprex-Development. All rights reserved.
 
 Released under the same license as original.
 

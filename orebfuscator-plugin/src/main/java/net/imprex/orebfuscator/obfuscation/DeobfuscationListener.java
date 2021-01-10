@@ -26,6 +26,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 
 import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.Orebfuscator;
+import net.imprex.orebfuscator.UpdateSystem;
 import net.imprex.orebfuscator.cache.ChunkCache;
 import net.imprex.orebfuscator.config.BlockMask;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
@@ -36,10 +37,12 @@ import net.imprex.orebfuscator.util.PermissionUtil;
 
 public class DeobfuscationListener implements Listener {
 
+	private final UpdateSystem updateSystem;
 	private final OrebfuscatorConfig config;
 	private final ChunkCache chunkCache;
 
 	public DeobfuscationListener(Orebfuscator orebfuscator) {
+		this.updateSystem = orebfuscator.getUpdateSystem();
 		this.config = orebfuscator.getOrebfuscatorConfig();
 		this.chunkCache = orebfuscator.getChunkCache();
 	}
@@ -178,8 +181,13 @@ public class DeobfuscationListener implements Listener {
 	@EventHandler
 	public void onJoin(PlayerJoinEvent event) {
 		Player player = event.getPlayer();
+
 		if (this.config.general().bypassNotification() && PermissionUtil.canDeobfuscate(player)) {
-			player.sendMessage("[OFC] Orebfuscator bypassed.");
+			player.sendMessage("[§bOrebfuscator§f]§7 Orebfuscator bypassed.");
+		}
+
+		if (PermissionUtil.canCheckForUpdates(player)) {
+			this.updateSystem.checkForUpdates(player);
 		}
 	}
 }

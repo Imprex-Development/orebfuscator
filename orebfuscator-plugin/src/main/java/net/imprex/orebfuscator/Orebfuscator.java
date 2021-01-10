@@ -20,11 +20,12 @@ import net.imprex.orebfuscator.util.OFCLogger;
 
 public class Orebfuscator extends JavaPlugin implements Listener {
 
-	public static final ThreadGroup THREAD_GROUP = new ThreadGroup("ofc");
+	public static final ThreadGroup THREAD_GROUP = new ThreadGroup("orebfuscator");
 
 	private final Thread mainThread = Thread.currentThread();
 
 	private OrebfuscatorConfig config;
+	private UpdateSystem updateSystem;
 	private ChunkCache chunkCache;
 	private ObfuscatorSystem obfuscatorSystem;
 	private ProximityHider proximityHider;
@@ -35,7 +36,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 		try {
 			// Check if protocolLib is enabled
 			if (this.getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
-				OFCLogger.info("[OFC] ProtocolLib is not found! Plugin cannot be enabled.");
+				OFCLogger.info("ProtocolLib is not found! Plugin cannot be enabled.");
 				return;
 			}
 
@@ -44,6 +45,9 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 
 			// Initialize metrics
 			new MetricsSystem(this);
+
+			// initialize update system and check for updates
+			this.updateSystem = new UpdateSystem(this);
 
 			// Load chunk cache
 			this.chunkCache = new ChunkCache(this);
@@ -107,6 +111,10 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 
 	public OrebfuscatorConfig getOrebfuscatorConfig() {
 		return this.config;
+	}
+
+	public UpdateSystem getUpdateSystem() {
+		return updateSystem;
 	}
 
 	public ChunkCache getChunkCache() {
