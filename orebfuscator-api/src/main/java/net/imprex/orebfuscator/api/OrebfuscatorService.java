@@ -14,8 +14,9 @@ import org.bukkit.block.Block;
 public interface OrebfuscatorService {
 
 	/**
-	 * Deobfuscates a list of blocks.
-	 * All blocks are expected to be located in the same world and non air.
+	 * Deobfuscates a list of blocks. All blocks are expected to be located in the
+	 * same world and non air. This means this method should be called before the
+	 * actual block update happens.
 	 * 
 	 * @param blocks list of blocks to deobfuscate
 	 */
