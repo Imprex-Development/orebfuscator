@@ -22,6 +22,6 @@ public class BlockState extends AbstractBlockState<IBlockData> {
 	@Override
 	public void notifyBlockChange() {
 		WorldServer worldServer = ((CraftWorld) this.world).getHandle();
-		worldServer.getChunkProvider().flagDirty(new BlockPosition(this.x, this.y, this.z));
+		worldServer.getChunkProvider().flagDirty(new BlockPosition(this.getX(), this.getY(), this.getZ()));
 	}
 }

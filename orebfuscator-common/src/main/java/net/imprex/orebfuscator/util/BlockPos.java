@@ -1,5 +1,7 @@
 package net.imprex.orebfuscator.util;
 
+import org.bukkit.World;
+
 public class BlockPos {
 
 	private static final int bitsPerX = 26;
@@ -22,6 +24,10 @@ public class BlockPos {
 		this.x = x;
 		this.y = y;
 		this.z = z;
+	}
+
+	public ChunkPosition toChunkPosition(World world) {
+		return new ChunkPosition(world, this.x >> 4, this.z >> 4);
 	}
 
 	public long toLong() {

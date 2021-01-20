@@ -11,24 +11,24 @@ public interface BlockMask {
 		return (mask & 0x7F) == 0;
 	}
 
-	public static boolean isSet(int mask, int flag) {
+	public static boolean isBitSet(int mask, int flag) {
 		return (mask & flag) != 0;
 	}
 
-	public static boolean isObfuscateSet(int mask) {
-		return isSet(mask, FLAG_OBFUSCATE);
+	public static boolean isObfuscateBitSet(int mask) {
+		return isBitSet(mask, FLAG_OBFUSCATE);
 	}
 
-	public static boolean isTileEntitySet(int mask) {
-		return isSet(mask, FLAG_TILE_ENTITY);
+	public static boolean isTileEntityBitSet(int mask) {
+		return isBitSet(mask, FLAG_TILE_ENTITY);
 	}
 
-	public static boolean isProximitySet(int mask) {
-		return isSet(mask, FLAG_PROXIMITY);
+	public static boolean isProximityBitSet(int mask) {
+		return isBitSet(mask, FLAG_PROXIMITY);
 	}
 
-	public static boolean isUseBlockBelowSet(int mask) {
-		return isSet(mask, FLAG_USE_BLOCK_BELOW);
+	public static boolean isUseBlockBelowBitSet(int mask) {
+		return isBitSet(mask, FLAG_USE_BLOCK_BELOW);
 	}
 
 	int mask(int blockId);

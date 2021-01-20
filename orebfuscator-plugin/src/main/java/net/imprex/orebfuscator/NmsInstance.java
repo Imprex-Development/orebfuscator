@@ -6,6 +6,7 @@ import java.util.Set;
 
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
 
 import net.imprex.orebfuscator.config.Config;
@@ -76,6 +77,10 @@ public class NmsInstance {
 
 	public static boolean isTileEntity(int blockId) {
 		return instance.isTileEntity(blockId);
+	}
+
+	public static BlockStateHolder getBlockState(World world, Block block) {
+		return instance.getBlockState(world, block.getX(), block.getY(), block.getZ());
 	}
 
 	public static BlockStateHolder getBlockState(World world, int x, int y, int z) {

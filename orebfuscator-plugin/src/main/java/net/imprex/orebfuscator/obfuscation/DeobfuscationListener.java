@@ -54,22 +54,22 @@ public class DeobfuscationListener implements Listener {
 
 	@EventHandler
 	public void onBlockExplode(BlockExplodeEvent event) {
-		this.deobfuscator.deobfuscate(event.blockList());
+		this.deobfuscator.deobfuscate(event.blockList(), true);
 	}
 
 	@EventHandler
 	public void onBlockPistonExtend(BlockPistonExtendEvent event) {
-		this.deobfuscator.deobfuscate(event.getBlocks());
+		this.deobfuscator.deobfuscate(event.getBlocks(), true);
 	}
 
 	@EventHandler
 	public void onBlockPistonRetract(BlockPistonRetractEvent event) {
-		this.deobfuscator.deobfuscate(event.getBlocks());
+		this.deobfuscator.deobfuscate(event.getBlocks(), true);
 	}
 
 	@EventHandler
 	public void onEntityExplode(EntityExplodeEvent event) {
-		this.deobfuscator.deobfuscate(event.blockList());
+		this.deobfuscator.deobfuscate(event.blockList(), true);
 	}
 
 	@EventHandler

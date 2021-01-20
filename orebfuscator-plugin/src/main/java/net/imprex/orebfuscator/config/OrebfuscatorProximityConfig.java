@@ -82,7 +82,7 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 
 		section.set("defaults.y", HideCondition.getY(this.defaultBlockFlags));
 		section.set("defaults.above", HideCondition.getAbove(this.defaultBlockFlags));
-		section.set("defaults.useBlockBelow", BlockMask.isUseBlockBelowSet(this.defaultBlockFlags));
+		section.set("defaults.useBlockBelow", BlockMask.isUseBlockBelowBitSet(this.defaultBlockFlags));
 
 		this.deserializeHiddenBlocks(section, this.hiddenBlocks, "hiddenBlocks");
 		ConfigParser.deserializeRandomMaterialList(section, randomBlocks, "randomBlocks");
@@ -141,8 +141,8 @@ public class OrebfuscatorProximityConfig implements ProximityConfig {
 				childSection.set("above", HideCondition.getAbove(blockFlags));
 			}
 
-			if (BlockMask.isUseBlockBelowSet(blockFlags) != BlockMask.isUseBlockBelowSet(this.defaultBlockFlags)) {
-				childSection.set("useBlockBelow", BlockMask.isUseBlockBelowSet(blockFlags));
+			if (BlockMask.isUseBlockBelowBitSet(blockFlags) != BlockMask.isUseBlockBelowBitSet(this.defaultBlockFlags)) {
+				childSection.set("useBlockBelow", BlockMask.isUseBlockBelowBitSet(blockFlags));
 			}
 		}
 	}

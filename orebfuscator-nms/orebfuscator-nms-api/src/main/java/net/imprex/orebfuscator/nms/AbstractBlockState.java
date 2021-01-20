@@ -4,36 +4,46 @@ import org.bukkit.World;
 
 import net.imprex.orebfuscator.util.BlockPos;
 
-public abstract class AbstractBlockState<T> extends BlockPos implements BlockStateHolder {
+public abstract class AbstractBlockState<T> implements BlockStateHolder {
 
-	public final World world;
+	protected final World world;
+	private final BlockPos position;
 
 	protected final T state;
 
 	public AbstractBlockState(int x, int y, int z, World world, T state) {
-		super(x, y, z);
-
 		this.world = world;
+		this.position = new BlockPos(x, y, z);
 		this.state = state;
 	}
 
 	@Override
+	public World getWorld() {
+		return this.world;
+	}
+
+	@Override
+	public BlockPos getPosition() {
+		return position;
+	}
+
+	@Override
 	public int getX() {
-		return this.x;
+		return this.position.x;
 	}
 
 	@Override
 	public int getY() {
-		return this.y;
+		return this.position.y;
 	}
 
 	@Override
 	public int getZ() {
-		return this.z;
+		return this.position.z;
 	}
 
 	@Override
 	public String toString() {
-		return "[" + this.x + ", " + this.y + ", " + this.z + ", " + this.state + "]";
+		return "[" + this.world + ", " + this.position + ", " + this.state + "]";
 	}
 }

@@ -17,6 +17,7 @@ import net.imprex.orebfuscator.config.BlockMask;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.config.WorldConfig;
 import net.imprex.orebfuscator.nms.BlockStateHolder;
+import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class Deobfuscator {
@@ -34,10 +35,10 @@ public class Deobfuscator {
 			return;
 		}
 
-		deobfuscate(Arrays.asList(block));
+		deobfuscate(Arrays.asList(block), true);
 	}
 
-	public void deobfuscate(Collection<? extends Block> blocks) {
+	public void deobfuscate(Collection<? extends Block> blocks, boolean occluding) {
 		if (blocks.isEmpty()) {
 			return;
 		}
@@ -48,59 +49,62 @@ public class Deobfuscator {
 			return;
 		}
 
+		int updateRadius = this.config.general().updateRadius();
 		BlockMask blockMask = this.config.blockMask(world);
 
-		Set<BlockStateHolder> updateBlocks = new HashSet<>();
-		Set<ChunkPosition> invalidChunks = new HashSet<>();
-		int updateRadius = this.config.general().updateRadius();
-
+		Processor processor = new Processor(blockMask);
 		for (Block block : blocks) {
-			if (block.getType().isOccluding()) {
-				int x = block.getX();
-				int y = block.getY();
-				int z = block.getZ();
-
-				BlockStateHolder blockState = NmsInstance.getBlockState(world, x, y, z);
-				if (blockState != null) {
-					getAdjacentBlocks(updateBlocks, world, blockMask, blockState, updateRadius);
-				}
-			}
-		}
-
-		for (BlockStateHolder blockState : updateBlocks) {
-			blockState.notifyBlockChange();
-			invalidChunks.add(new ChunkPosition(world, blockState.getX() >> 4, blockState.getZ() >> 4));
-		}
-
-		if (!invalidChunks.isEmpty() && config.cache().enabled()) {
-			for (ChunkPosition chunk : invalidChunks) {
-				chunkCache.invalidate(chunk);
+			if (!occluding || block.getType().isOccluding()) {
+				BlockStateHolder blockState = NmsInstance.getBlockState(world, block);
+				processor.updateAdjacentBlocks(blockState, updateRadius);
 			}
 		}
 	}
 
-	private void getAdjacentBlocks(Set<BlockStateHolder> updateBlocks, World world, BlockMask blockMask,
-			BlockStateHolder blockState, int depth) {
-		if (blockState == null) {
-			return;
+	public class Processor {
+
+		private final Set<BlockPos> updatedBlocks = new HashSet<>();
+		private final Set<ChunkPosition> invalidChunks = new HashSet<>();
+
+		private final BlockMask blockMask;
+
+		public Processor(BlockMask blockMask) {
+			this.blockMask = blockMask;
 		}
 
-		int blockId = blockState.getBlockId();
-		if (BlockMask.isObfuscateSet(blockMask.mask(blockId))) {
-			updateBlocks.add(blockState);
-		}
+		public void updateAdjacentBlocks(BlockStateHolder blockState, int depth) {
+			if (blockState == null) {
+				return;
+			}
+			
+			World world = blockState.getWorld();
+			BlockPos position = blockState.getPosition();
 
-		if (depth-- > 0) {
-			int x = blockState.getX();
-			int y = blockState.getY();
-			int z = blockState.getZ();
+			int blockId = blockState.getBlockId();
+			if (BlockMask.isObfuscateBitSet(blockMask.mask(blockId)) && updatedBlocks.add(position)) {
+				blockState.notifyBlockChange();
 
-			getAdjacentBlocks(updateBlocks, world, blockMask, NmsInstance.getBlockState(world, x + 1, y, z), depth);
-			getAdjacentBlocks(updateBlocks, world, blockMask, NmsInstance.getBlockState(world, x - 1, y, z), depth);
-			getAdjacentBlocks(updateBlocks, world, blockMask, NmsInstance.getBlockState(world, x, y + 1, z), depth);
-			getAdjacentBlocks(updateBlocks, world, blockMask, NmsInstance.getBlockState(world, x, y - 1, z), depth);
-			getAdjacentBlocks(updateBlocks, world, blockMask, NmsInstance.getBlockState(world, x, y, z + 1), depth);
-			getAdjacentBlocks(updateBlocks, world, blockMask, NmsInstance.getBlockState(world, x, y, z - 1), depth);
+				if (config.cache().enabled()) {
+
+					ChunkPosition chunkPosition = position.toChunkPosition(world);
+					if (this.invalidChunks.add(chunkPosition)) {
+						chunkCache.invalidate(chunkPosition);
+					}
+				}
+			}
+
+			if (depth-- > 0) {
+				int x = blockState.getX();
+				int y = blockState.getY();
+				int z = blockState.getZ();
+
+				updateAdjacentBlocks(NmsInstance.getBlockState(world, x + 1, y, z), depth);
+				updateAdjacentBlocks(NmsInstance.getBlockState(world, x - 1, y, z), depth);
+				updateAdjacentBlocks(NmsInstance.getBlockState(world, x, y + 1, z), depth);
+				updateAdjacentBlocks(NmsInstance.getBlockState(world, x, y - 1, z), depth);
+				updateAdjacentBlocks(NmsInstance.getBlockState(world, x, y, z + 1), depth);
+				updateAdjacentBlocks(NmsInstance.getBlockState(world, x, y, z - 1), depth);
+			}
 		}
 	}
 }

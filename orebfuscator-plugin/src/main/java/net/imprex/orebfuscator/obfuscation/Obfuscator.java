@@ -82,17 +82,17 @@ public class Obfuscator {
 					boolean obfuscated = false;
 
 					// should current block be obfuscated
-					if (BlockMask.isObfuscateSet(obfuscateBits)
+					if (BlockMask.isObfuscateBitSet(obfuscateBits)
 							&& shouldObfuscate(chunk, world, x, y, z, initialRadius)) {
 						blockData = worldConfig.randomBlockId();
 						obfuscated = true;
 					}
 
 					// should current block be proximity hidden
-					if (!obfuscated && BlockMask.isProximitySet(obfuscateBits)) {
+					if (!obfuscated && BlockMask.isProximityBitSet(obfuscateBits)) {
 						proximityBlocks.add(new BlockPos(x, y, z));
 						obfuscated = true;
-						if (BlockMask.isUseBlockBelowSet(obfuscateBits)) {
+						if (BlockMask.isUseBlockBelowBitSet(obfuscateBits)) {
 							blockData = getBlockBelow(blockMask, chunk, x, y, z);
 						} else {
 							blockData = proximityConfig.randomBlockId();
@@ -102,7 +102,7 @@ public class Obfuscator {
 					// update block state if needed
 					if (obfuscated) {
 						chunkSection.setBlock(index, blockData);
-						if (BlockMask.isTileEntitySet(obfuscateBits)) {
+						if (BlockMask.isTileEntityBitSet(obfuscateBits)) {
 							removedTileEntities.add(new BlockPos(x, y, z));
 						}
 					}

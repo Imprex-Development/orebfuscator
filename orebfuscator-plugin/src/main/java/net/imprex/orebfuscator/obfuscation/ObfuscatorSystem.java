@@ -54,7 +54,7 @@ public class ObfuscatorSystem {
 	}
 
 	public void deobfuscate(Collection<? extends Block> blocks) {
-		this.deobfuscator.deobfuscate(blocks);
+		this.deobfuscator.deobfuscate(blocks, false);
 	}
 
 	public void close() {
