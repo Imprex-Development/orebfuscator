@@ -45,12 +45,12 @@ public class Example extends JavaPlugin implements Listener {
 
 			if (item.getType() == Material.DIAMOND_PICKAXE) {
 				List<Block> blocks = this.getBlocks(block, 2);
-				this.orebfuscatorService.deobfuscate(blocks);
 				blocks.forEach(b -> b.setType(Material.AIR));
+				this.orebfuscatorService.deobfuscate(blocks);
 				event.setCancelled(true);
 			} else if (item.getType() == Material.WOODEN_PICKAXE) {
-				this.orebfuscatorService.deobfuscate(Arrays.asList(block));
 				block.setType(Material.AIR);
+				this.orebfuscatorService.deobfuscate(Arrays.asList(block));
 				event.setCancelled(true);
 			}
 		}
