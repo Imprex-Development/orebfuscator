@@ -24,6 +24,7 @@ import net.md_5.bungee.api.chat.HoverEvent;
 public class UpdateSystem {
 
 	private static final String API_LATEST = "https://api.github.com/repos/Imprex-Development/Orebfuscator/releases/latest";
+	private static final long UPDATE_COOLDOWN = 1_800_000L; // 30min
 
 	private final Lock lock = new ReentrantLock();
 
@@ -31,7 +32,8 @@ public class UpdateSystem {
 	private final GeneralConfig generalConfig;
 
 	private JsonObject releaseData;
-	private long updateTimestamp = -1;
+	private long updateCooldown = -1;
+	private int failedAttempts = 0;
 
 	public UpdateSystem(Orebfuscator orebfuscator) {
 		this.orebfuscator = orebfuscator;
@@ -44,19 +46,33 @@ public class UpdateSystem {
 		this.lock.lock();
 		try {
 			long systemTime = System.currentTimeMillis();
-			if (this.releaseData != null || systemTime - this.updateTimestamp > 1_800_000) {
-				try {
-					URL url = new URL(API_LATEST);
-					HttpURLConnection connection = (HttpURLConnection) url.openConnection();
-					try (InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream())) {
-						this.releaseData = new JsonParser().parse(inputStreamReader).getAsJsonObject();
-						this.updateTimestamp = systemTime;
+
+			if (this.failedAttempts < 5) {
+
+				if (this.releaseData != null || systemTime - this.updateCooldown > UPDATE_COOLDOWN) {
+					try {
+						URL url = new URL(API_LATEST);
+						HttpURLConnection connection = (HttpURLConnection) url.openConnection();
+						try (InputStreamReader inputStreamReader = new InputStreamReader(connection.getInputStream())) {
+							this.releaseData = new JsonParser().parse(inputStreamReader).getAsJsonObject();
+							this.updateCooldown = systemTime;
+						}
+					} catch (IOException e) {
+						OFCLogger.warn("Unable to fetch latest update from: " + API_LATEST);
+						OFCLogger.warn(e.toString());
+
+						if (++this.failedAttempts == 5) {
+							this.updateCooldown = systemTime;
+						}
 					}
-				} catch (IOException e) {
-					OFCLogger.warn("Unable to fetch latest update from: " + API_LATEST);
-					OFCLogger.warn(e.toString());
 				}
+
+			} else if (systemTime - this.updateCooldown > UPDATE_COOLDOWN) {
+				this.failedAttempts = 0;
+				this.updateCooldown = -1;
+				return this.getReleaseData();
 			}
+
 			return this.releaseData;
 		} finally {
 			this.lock.unlock();
