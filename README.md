@@ -36,6 +36,15 @@ Orebfuscator is plugin for Spigot based Minecraft Servers that modifies packets 
 4. Maven -> Existing Maven Projects
 5. Select the downloaded repo
 
+## Maven
+```maven
+       <dependency>
+            <groupId>net.imprex</groupId>
+            <artifactId>orebfuscator-api</artifactId>
+            <version>VERSION</version>
+       </dependency>
+```
+
 ## Build
 1. Click right click on the Orebfuscator-repo folder and select "Run as" -> "Maven Build..."
 2. Put into Goals this "clean compile package -pl Plugin -Dorebfuscator-version=5.0.0 --also-make"
