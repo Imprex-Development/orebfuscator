@@ -7,8 +7,6 @@ import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
-import net.imprex.orebfuscator.util.BlockPos;
-
 public interface NmsManager {
 
 	AbstractRegionFileCache<?> getRegionFileCache();
@@ -33,7 +31,7 @@ public interface NmsManager {
 
 	int loadChunkAndGetBlockId(World world, int x, int y, int z);
 
-	boolean sendBlockChange(Player player, BlockPos blockCoords);
+	boolean sendBlockChange(Player player, int x, int y, int z);
 
 	void close();
 }

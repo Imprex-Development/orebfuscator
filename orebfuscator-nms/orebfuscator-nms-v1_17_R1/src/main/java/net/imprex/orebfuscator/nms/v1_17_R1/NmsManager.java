@@ -136,14 +136,14 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public boolean sendBlockChange(Player player, net.imprex.orebfuscator.util.BlockPos blockCoord) {
+	public boolean sendBlockChange(Player player, int x, int y, int z) {
 		ServerPlayer serverPlayer = player(player);
 		ServerLevel level = serverPlayer.getLevel();
-		if (!isChunkLoaded(level, blockCoord.x >> 4, blockCoord.z >> 4)) {
+		if (!isChunkLoaded(level, x >> 4, z >> 4)) {
 			return false;
 		}
 
-		BlockPos position = new BlockPos(blockCoord.x, blockCoord.y, blockCoord.z);
+		BlockPos position = new BlockPos(x, y, z);
 		ClientboundBlockUpdatePacket packet = new ClientboundBlockUpdatePacket(level, position);
 		serverPlayer.connection.send(packet);
 		updateBlockEntity(serverPlayer, position, packet.blockState);

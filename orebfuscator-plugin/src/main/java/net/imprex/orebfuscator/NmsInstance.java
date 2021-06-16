@@ -92,7 +92,7 @@ public class NmsInstance {
 	}
 
 	public static boolean sendBlockChange(Player player, BlockPos blockCoords) {
-		return instance.sendBlockChange(player, blockCoords);
+		return instance.sendBlockChange(player, blockCoords.x, blockCoords.y, blockCoords.z);
 	}
 
 	public static void close() {
