@@ -8,7 +8,7 @@ public interface BlockMask {
 	public static final int FLAG_USE_BLOCK_BELOW = 8;
 
 	public static boolean isEmpty(int mask) {
-		return (mask & 0xFFFF) == 0;
+		return (mask & 0xFFF) == 0;
 	}
 
 	public static boolean isBitSet(int mask, int flag) {

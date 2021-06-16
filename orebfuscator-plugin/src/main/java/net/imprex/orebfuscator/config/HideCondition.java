@@ -1,27 +1,27 @@
 package net.imprex.orebfuscator.config;
 
 /**
- * Only use MSBs (16 bit) for HideCondition
- * 15 bit y | 1 bit above flag
+ * Only use MSBs (24 bit) for HideCondition
+ * 16 bit y | 1 bit above flag | 1 present bit
  */
 public class HideCondition {
 
-	public static final int MATCH_ALL = HideCondition.create(0, true);
+	public static final int MATCH_ALL = HideCondition.create(Short.MIN_VALUE, true);
+
+	public static int clampY(int y) {
+		return Math.min(Short.MAX_VALUE, Math.max(Short.MIN_VALUE, y));
+	}
 
 	public static int create(int y, boolean above) {
-		return (y << 17 | (above ? 0x10000 : 0x0));
+		return (clampY(y) << 16 | (above ? 0xC000 : 0x4000));
 	}
 
 	public static int remove(int hideCondition) {
-		return hideCondition & 0xFFFF;
+		return hideCondition & 0xFFF;
 	}
 
 	private static int extractHideCondition(int hideCondition) {
-		return hideCondition & 0xFFFF0000;
-	}
-
-	public static boolean isMatchAll(int hideCondition) {
-		return extractHideCondition(hideCondition) == MATCH_ALL;
+		return hideCondition & 0xFFFFF000;
 	}
 
 	public static boolean equals(int a, int b) {
@@ -29,19 +29,26 @@ public class HideCondition {
 	}
 
 	public static boolean match(int hideCondition, int y) {
-		int expectedY = getY(hideCondition);
-		if (getAbove(hideCondition)) {
-			return expectedY < y;
-		} else {
-			return expectedY > y;
+		if (isPresent(hideCondition)) {
+			int expectedY = getY(hideCondition);
+			if (getAbove(hideCondition)) {
+				return expectedY < y;
+			} else {
+				return expectedY > y;
+			}
 		}
+		return false;
+	}
+
+	public static boolean isPresent(int hideCondition) {
+		return (hideCondition & 0x4000) != 0;
 	}
 
 	public static int getY(int hideCondition) {
-		return hideCondition >> 17;
+		return (short) (hideCondition >> 16);
 	}
 
 	public static boolean getAbove(int hideCondition) {
-		return (hideCondition & 0x10000) != 0;
+		return (hideCondition & 0x8000) != 0;
 	}
 }
