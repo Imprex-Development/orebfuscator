@@ -3,20 +3,34 @@ name: Deploy
 on: workflow_dispatch
 
 jobs:
-  deploy-api:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v1
+    - name: Checkout
+      uses: actions/checkout@v1
+    - name: Set up JDK 8
+      uses: actions/setup-java@v2
+      with:
+        java-version: '8'
+        distribution: 'adopt'
+    - name: BuildTools cache
+      uses: actions/cache@v2
+      with:
+        path: ~/.m2/repository/org/spigotmc
+        key: ${{ runner.os }}-maven-${{ secrets.CACHE_VERSION }}-${{ hashFiles('./.github/workflows/buildtools.sh') }}
+    - name: BuildTools Java 8
+      run: |
+        sh ./.github/workflows/buildtools.sh java-8
     - name: Set up JDK 16
       uses: actions/setup-java@v2
       with:
         java-version: '16'
         distribution: 'adopt'
-    - name: Build API
+    - name: BuildTools Java 16
       run: |
-        mvn clean package -pl orebfuscator-api -B --also-make "-Drevision=$(git describe --tags `git rev-list --tags --max-count=1`)"
+        sh ./.github/workflows/buildtools.sh java-16
     - name: Publish to GitHub Packages
-      run: mvn --batch-mode deploy "-Drevision=$(git describe --tags `git rev-list --tags --max-count=1`)"
+      run: mvn deploy "-Drevision=$(git describe --tags `git rev-list --tags --max-count=1`)"
       env:
-        GITHUB_TOKEN: ${{ secrets.GH_PACKAGE_PAT }}
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
