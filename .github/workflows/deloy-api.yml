@@ -9,28 +9,12 @@ jobs:
     steps:
     - name: Checkout
       uses: actions/checkout@v1
-    - name: Set up JDK 8
-      uses: actions/setup-java@v2
-      with:
-        java-version: '8'
-        distribution: 'adopt'
-    - name: BuildTools cache
-      uses: actions/cache@v2
-      with:
-        path: ~/.m2/repository/org/spigotmc
-        key: ${{ runner.os }}-maven-${{ secrets.CACHE_VERSION }}-${{ hashFiles('./.github/workflows/buildtools.sh') }}
-    - name: BuildTools Java 8
-      run: |
-        sh ./.github/workflows/buildtools.sh java-8
     - name: Set up JDK 16
       uses: actions/setup-java@v2
       with:
         java-version: '16'
         distribution: 'adopt'
-    - name: BuildTools Java 16
-      run: |
-        sh ./.github/workflows/buildtools.sh java-16
     - name: Publish to GitHub Packages
-      run: mvn deploy "-Drevision=$(git describe --tags `git rev-list --tags --max-count=1`)"
+      run: mvn deploy -pl orebfuscator-api "-Drevision=$(git describe --tags `git rev-list --tags --max-count=1`)"
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
