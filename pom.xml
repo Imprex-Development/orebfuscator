@@ -39,6 +39,14 @@
 		</repository>
 	</repositories>
 
+	<distributionManagement>
+		<repository>
+			<id>github</id>
+			<name>GitHub Imprex-Development Apache Maven Packages</name>
+			<url>https://maven.pkg.github.com/Imprex-Development/Orebfuscator</url>
+		</repository>
+	</distributionManagement>
+
 	<build>
 		<defaultGoal>clean package -pl orebfuscator-plugin --also-make</defaultGoal>
 	</build>
