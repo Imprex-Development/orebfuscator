@@ -19,4 +19,4 @@ jobs:
     - name: Publish to GitHub Packages
       run: mvn --batch-mode deploy "-Drevision=$(git describe --tags `git rev-list --tags --max-count=1`)"
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_PACKAGE_PAT }}
+        GITHUB_TOKEN: ${{ secrets.GH_PACKAGE_PAT }}
