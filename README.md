@@ -38,11 +38,21 @@ Orebfuscator is plugin for Spigot based Minecraft Servers that modifies packets 
 
 ## Maven
 ```maven
-       <dependency>
-            <groupId>net.imprex</groupId>
-            <artifactId>orebfuscator-api</artifactId>
-            <version>VERSION</version>
-       </dependency>
+<repositories>
+  <repository>
+    <id>imprex-repo</id>
+    <url>https://imprex.ingrim4.me/repository/maven-public/</url>
+  </repository>
+  ...
+</repositories>
+
+<dependencies>
+  <dependency>
+    <groupId>net.imprex</groupId>
+    <artifactId>orebfuscator-api</artifactId>
+    <version>5.1.5</version>
+  </dependency>
+</dependencies>
 ```
 
 ## Build
