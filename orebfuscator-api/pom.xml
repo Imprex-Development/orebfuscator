@@ -6,6 +6,7 @@
 	<parent>
 		<groupId>net.imprex</groupId>
 		<artifactId>orebfuscator</artifactId>
+	<version>${revision}</version>
 	</parent>
 
 	<artifactId>orebfuscator-api</artifactId>
