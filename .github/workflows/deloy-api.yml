@@ -14,7 +14,9 @@ jobs:
       with:
         java-version: '16'
         distribution: 'adopt'
+    - name: Create maven settings.xml
+      uses: s4u/maven-settings-action@v2.4.0
+      with:
+        servers: '[{ "id": "nexus", "username": "${{ secrets.MAVEN_USER }}", "password": "${{ secrets.MAVEN_PASSWORD }}" }]'
     - name: Publish to GitHub Packages
-      run: mvn deploy -pl orebfuscator-api "-Drevision=$(git describe --tags `git rev-list --tags --max-count=1`)"
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: mvn -Daether.connector.basic.threads=1 -s ~/.m2/settings.xml deploy -pl orebfuscator-api "-Drevision=$(git describe --tags `git rev-list --tags --max-count=1`)"

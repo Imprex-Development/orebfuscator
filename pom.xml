@@ -41,9 +41,9 @@
 
 	<distributionManagement>
 		<repository>
-			<id>github</id>
-			<name>GitHub Imprex-Development Apache Maven Packages</name>
-			<url>https://maven.pkg.github.com/Imprex-Development/Orebfuscator</url>
+			<id>nexus</id>
+			<name>Nexus</name>
+			<url>https://imprex.ingrim4.me/repository/maven-releases</url>
 		</repository>
 	</distributionManagement>
 
