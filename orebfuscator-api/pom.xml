@@ -6,10 +6,10 @@
 	<parent>
 		<groupId>net.imprex</groupId>
 		<artifactId>orebfuscator</artifactId>
-		<version>${revision}</version>
 	</parent>
 
 	<artifactId>orebfuscator-api</artifactId>
+	<version>5.1.5</version>
 	<packaging>jar</packaging>
 
 	<dependencies>
