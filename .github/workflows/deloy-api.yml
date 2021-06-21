@@ -19,4 +19,4 @@ jobs:
       with:
         servers: '[{ "id": "nexus", "username": "${{ secrets.MAVEN_USER }}", "password": "${{ secrets.MAVEN_PASSWORD }}" }]'
     - name: Publish to Imprex Nexus
-      run: mvn -Daether.connector.basic.threads=1 -s ~/.m2/settings.xml deploy -pl orebfuscator-api "-Drevision=$(git describe --tags `git rev-list --tags --max-count=1`)"
+      run: mvn -Daether.connector.basic.threads=1 -s ~/.m2/settings.xml deploy -pl orebfuscator-api

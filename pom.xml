@@ -11,6 +11,7 @@
 	<properties>
 		<revision>5.1.0</revision>
 
+		<dependency.orebfuscator-api.version>1.0.0</dependency.orebfuscator-api.version>
 		<dependency.netty.version>4.1.20.Final</dependency.netty.version>
 		<dependency.bukkit.version>1.15.1-R0.1-SNAPSHOT</dependency.bukkit.version>
 		<dependency.protocollib.version>4.4.0</dependency.protocollib.version>
@@ -38,14 +39,6 @@
 			<url>https://repo.codemc.org/repository/maven-public</url>
 		</repository>
 	</repositories>
-
-	<distributionManagement>
-		<repository>
-			<id>nexus</id>
-			<name>Nexus</name>
-			<url>https://imprex.ingrim4.me/repository/maven-releases</url>
-		</repository>
-	</distributionManagement>
 
 	<build>
 		<defaultGoal>clean package -pl orebfuscator-plugin --also-make</defaultGoal>

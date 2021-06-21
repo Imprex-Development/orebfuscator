@@ -3,21 +3,40 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>net.imprex</groupId>
-		<artifactId>orebfuscator</artifactId>
-	<version>${revision}</version>
-	</parent>
-
+	<groupId>net.imprex</groupId>
 	<artifactId>orebfuscator-api</artifactId>
-	<version>5.1.5</version>
+	<version>1.0.0</version>
 	<packaging>jar</packaging>
+
+	<properties>
+		<plugin.shade.version>3.2.1</plugin.shade.version>
+
+		<maven.compiler.source>1.8</maven.compiler.source>
+		<maven.compiler.target>1.8</maven.compiler.target>
+
+		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+	</properties>
+
+	<repositories>
+		<repository>
+			<id>spigot-repo</id>
+			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+		</repository>
+	</repositories>
+
+	<distributionManagement>
+		<repository>
+			<id>nexus</id>
+			<name>Nexus</name>
+			<url>https://imprex.ingrim4.me/repository/maven-releases</url>
+		</repository>
+	</distributionManagement>
 
 	<dependencies>
 		<dependency>
 			<groupId>org.bukkit</groupId>
 			<artifactId>bukkit</artifactId>
-			<version>${dependency.bukkit.version}</version>
+			<version>1.9.4-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 	</dependencies>
