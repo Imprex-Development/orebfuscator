@@ -50,7 +50,7 @@ Orebfuscator is plugin for Spigot based Minecraft Servers that modifies packets 
   <dependency>
     <groupId>net.imprex</groupId>
     <artifactId>orebfuscator-api</artifactId>
-    <version>5.1.5</version>
+    <version>1.0.0</version>
   </dependency>
 </dependencies>
 ```
