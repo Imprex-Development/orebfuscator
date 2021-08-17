@@ -18,6 +18,7 @@ import net.imprex.orebfuscator.obfuscation.ObfuscatorSystem;
 import net.imprex.orebfuscator.proximityhider.ProximityHider;
 import net.imprex.orebfuscator.proximityhider.ProximityListener;
 import net.imprex.orebfuscator.proximityhider.ProximityPacketListener;
+import net.imprex.orebfuscator.util.HeightAccessor;
 import net.imprex.orebfuscator.util.OFCLogger;
 
 public class Orebfuscator extends JavaPlugin implements Listener {
@@ -41,6 +42,9 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 				OFCLogger.info("ProtocolLib is not found! Plugin cannot be enabled.");
 				return;
 			}
+
+			// Check if HeightAccessor can be loaded
+			HeightAccessor.ThisMethodIsUsedToInitializeStaticFields();
 
 			// Load configurations
 			this.config = new OrebfuscatorConfig(this);
