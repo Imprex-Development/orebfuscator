@@ -1,5 +1,8 @@
 package net.imprex.orebfuscator;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import org.bstats.bukkit.Metrics;
 
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
@@ -16,9 +19,20 @@ public class MetricsSystem {
 	}
 
 	public void addMemoryChart() {
-		this.metrics.addCustomChart(new Metrics.SimplePie("systemMemory", () -> {
-			int memory = (int) (Runtime.getRuntime().maxMemory() / 1073741824L);
-			return MathUtil.ceilToPowerOfTwo(memory) + "GiB";
+		this.metrics.addCustomChart(new Metrics.DrilldownPie("systemMemory", () -> {
+			final Map<String, Map<String, Integer>> result = new HashMap<>();
+			final Map<String, Integer> exact = new HashMap<>();
+
+			long memory = Runtime.getRuntime().maxMemory();
+			if (memory == Long.MAX_VALUE) {
+				result.put("unlimited", exact);
+			} else {
+				int gibiByte = (int) (memory / 1073741824L);
+				exact.put(gibiByte + "GiB", 1);
+				result.put(MathUtil.ceilToPowerOfTwo(gibiByte) + "GiB", exact);
+			}
+
+			return result;
 		}));
 	}
 
