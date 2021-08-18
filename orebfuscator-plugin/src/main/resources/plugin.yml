@@ -2,6 +2,7 @@ api-version: 1.13
 
 name: Orebfuscator
 version: ${project.version}
+description: 'High-Performance Anti X-Ray'
 
 main: net.imprex.orebfuscator.Orebfuscator
 
@@ -9,15 +10,17 @@ author: Ingrim4
 authors: [NgLoader, lishid, SydMontague, ProgrammerDan, Aleksey-Terzi]
 
 depend: [ProtocolLib]
-loadbefore: [ProtocolLib]
-
-load: POSTWORLD
-
-description: 'High-Performance Anti X-Ray'
 
 permissions:
-  orebfuscator.admin:
-    default: true
-  orebfuscator.bypass:
-    description: Bypass obfuscation
+  orebfuscator.*:
     default: false
+    description: Access to all of Orebfuscator's features
+    children:
+      orebfuscator.admin: true
+      orebfuscator.bypass: true
+  orebfuscator.admin:
+    default: op
+    description: Access to update notifications
+  orebfuscator.bypass:
+    default: false
+    description: Bypass the obfuscation
