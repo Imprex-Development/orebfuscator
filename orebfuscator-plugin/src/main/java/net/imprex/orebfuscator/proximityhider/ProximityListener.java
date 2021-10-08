@@ -1,6 +1,5 @@
 package net.imprex.orebfuscator.proximityhider;
 
-import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.BlockBreakEvent;
@@ -32,14 +31,13 @@ public class ProximityListener implements Listener {
 
 	@EventHandler
 	public void onPlayerChangedWorld(PlayerChangedWorldEvent event) {
-		Player player = event.getPlayer();
-
-		this.proximityHider.queuePlayerUpdate(player);
+		this.proximityHider.queuePlayerUpdate(event.getPlayer());
 	}
 
 	@EventHandler
 	public void onPlayerTeleport(PlayerTeleportEvent event) {
-		if (!event.getFrom().getWorld().equals(event.getTo().getWorld())) { // already called in PlayerChangedWorldEvent event
+		// already called in PlayerChangedWorldEvent event
+		if (!event.getFrom().getWorld().equals(event.getTo().getWorld())) {
 			return;
 		}
 

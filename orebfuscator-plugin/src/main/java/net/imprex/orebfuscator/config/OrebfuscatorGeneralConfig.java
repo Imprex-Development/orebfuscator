@@ -7,6 +7,7 @@ public class OrebfuscatorGeneralConfig implements GeneralConfig {
 	private boolean checkForUpdates = true;
 	private boolean updateOnBlockDamage = true;
 	private boolean bypassNotification = true;
+	private boolean ignoreSpectator = false;
 	private int initialRadius = 1;
 	private int updateRadius = 2;
 	private int proximityHiderRunnerSize = 4;
@@ -15,6 +16,7 @@ public class OrebfuscatorGeneralConfig implements GeneralConfig {
 		this.checkForUpdates(section.getBoolean("checkForUpdates", true));
 		this.updateOnBlockDamage(section.getBoolean("updateOnBlockDamage", true));
 		this.bypassNotification(section.getBoolean("bypassNotification", true));
+		this.ignoreSpectator(section.getBoolean("ignoreSpectator", false));
 		this.initialRadius(section.getInt("initialRadius", 1));
 		this.updateRadius(section.getInt("updateRadius", 2));
 		this.proximityHiderRunnerSize(section.getInt("proximityHiderRunnerSize", 4));
@@ -24,6 +26,7 @@ public class OrebfuscatorGeneralConfig implements GeneralConfig {
 		section.set("checkForUpdates", this.checkForUpdates);
 		section.set("updateOnBlockDamage", this.updateOnBlockDamage);
 		section.set("bypassNotification", this.bypassNotification);
+		section.set("ignoreSpectator", this.ignoreSpectator);
 		section.set("initialRadius", this.initialRadius);
 		section.set("updateRadius", this.updateRadius);
 		section.set("proximityHiderRunnerSize", this.proximityHiderRunnerSize);
@@ -57,6 +60,16 @@ public class OrebfuscatorGeneralConfig implements GeneralConfig {
 	@Override
 	public void bypassNotification(boolean enabled) {
 		this.bypassNotification = enabled;
+	}
+
+	@Override
+	public boolean ignoreSpectator() {
+		return this.ignoreSpectator;
+	}
+
+	@Override
+	public void ignoreSpectator(boolean value) {
+		this.ignoreSpectator = value;
 	}
 
 	@Override

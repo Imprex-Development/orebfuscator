@@ -2,6 +2,7 @@ package net.imprex.orebfuscator.proximityhider;
 
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
 
 import net.imprex.orebfuscator.Orebfuscator;
@@ -39,8 +40,12 @@ public class ProximityHider {
 		return proximityConfig != null && proximityConfig.isEnabled();
 	}
 
+	public boolean shouldIgnorePlayer(Player player) {
+		return player.getGameMode() == GameMode.SPECTATOR && this.config.general().ignoreSpectator();
+	}
+
 	public void queuePlayerUpdate(Player player) {
-		if (this.isInProximityWorld(player)) {
+		if (this.isInProximityWorld(player) && !shouldIgnorePlayer(player)) {
 			this.queue.offerAndLock(player);
 		}
 	}

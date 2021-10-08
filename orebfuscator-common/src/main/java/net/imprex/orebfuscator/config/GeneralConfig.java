@@ -10,6 +10,9 @@ public interface GeneralConfig {
 
 	boolean bypassNotification();
 	void bypassNotification(boolean enabled);
+	
+	boolean ignoreSpectator();
+	void ignoreSpectator(boolean value);
 
 	int initialRadius();
 	/**
