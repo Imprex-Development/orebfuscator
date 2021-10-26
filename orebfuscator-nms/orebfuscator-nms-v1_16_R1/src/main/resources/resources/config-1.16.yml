@@ -1,7 +1,9 @@
 version: 1
 general:
+  checkForUpdates: true
   updateOnBlockDamage: true
   bypassNotification: true
+  ignoreSpectator: false
   initialRadius: 1
   updateRadius: 2
   proximityHiderRunnerSize: 4
