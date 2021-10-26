@@ -77,7 +77,7 @@ public class OrebfuscatorConfig implements Config {
 					Files.createDirectories(dataFolder);
 				}
 
-				Files.copy(Orebfuscator.class.getResourceAsStream("/resources/config-" + configVersion + ".yml"), path);
+				Files.copy(Orebfuscator.class.getResourceAsStream("/config/config-" + configVersion + ".yml"), path);
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
