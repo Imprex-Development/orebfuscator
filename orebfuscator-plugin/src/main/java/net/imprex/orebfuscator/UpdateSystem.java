@@ -6,6 +6,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
@@ -22,6 +24,8 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 
 public class UpdateSystem {
+
+	private static final Pattern VERSION_PATTERN = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)(?:-b(\\d+))?");
 
 	private static final String API_LATEST = "https://api.github.com/repos/Imprex-Development/Orebfuscator/releases/latest";
 	private static final long UPDATE_COOLDOWN = 1_800_000L; // 30min
@@ -95,10 +99,15 @@ public class UpdateSystem {
 		return null;
 	}
 
+	private boolean isDevVersion(String version) {
+		Matcher matcher = VERSION_PATTERN.matcher(version);
+		return matcher.find() && matcher.groupCount() == 4;
+	}
+
 	private boolean isUpdateAvailable() {
-		if (this.generalConfig.checkForUpdates()) {
+		String version = this.orebfuscator.getDescription().getVersion();
+		if (this.generalConfig.checkForUpdates() && !this.isDevVersion(version)) {
 			String tagName = this.getTagName();
-			String version = this.orebfuscator.getDescription().getVersion();
 			return tagName != null && !version.equals(tagName);
 		}
 		return false;
