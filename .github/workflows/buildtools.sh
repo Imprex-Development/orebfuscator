@@ -31,6 +31,7 @@ if [ $1 = "java-8" ]; then
 	checkVersion 1.16.1
 	checkVersion 1.16.2
 	checkVersion 1.16.4
-elif [ $1 = "java-16" ]; then
+elif [ $1 = "java-17" ]; then
 	checkVersion 1.17
+	checkVersion 1.18
 fi
