@@ -2,6 +2,10 @@ package net.imprex.orebfuscator.chunk;
 
 public class SimpleVarBitBuffer implements VarBitBuffer {
 
+	public static int calculateArraySize(int bitsPerEntry, int size) {
+		return bitsPerEntry == 0 ? 0 : (int) Math.ceil((float) size / (64 / bitsPerEntry));
+	}
+
 	private final int bitsPerEntry;
 	private final int entriesPerLong;
 	private final long adjustmentMask;

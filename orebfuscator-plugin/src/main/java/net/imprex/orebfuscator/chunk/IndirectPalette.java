@@ -7,52 +7,56 @@ import net.imprex.orebfuscator.NmsInstance;
 
 public class IndirectPalette implements Palette {
 
-	private final byte[] blockToIndex;
-	private final int[] indexToBlock;
+	private final int bitsPerValue;
+	private final ChunkSection chunkSection;
+
+	private final byte[] byValue;
+	private final int[] byId;
+
 	private int size = 0;
 
-	private final ChunkSection chunkSection;
-	private final int bitsPerBlock;
-
-	public IndirectPalette(int bitsPerBlock, ChunkSection chunkSection) {
-		this.bitsPerBlock = bitsPerBlock;
+	public IndirectPalette(int bitsPerValue, ChunkSection chunkSection) {
+		this.bitsPerValue = bitsPerValue;
 		this.chunkSection = chunkSection;
 
 		// TODO improve block to index
-		this.blockToIndex = new byte[NmsInstance.getMaterialSize()];
-		Arrays.fill(this.blockToIndex, (byte) 0xFF);
-		this.indexToBlock = new int[1 << bitsPerBlock];
+		this.byValue = new byte[NmsInstance.getMaterialSize()];
+		Arrays.fill(this.byValue, (byte) 0xFF);
+		this.byId = new int[1 << bitsPerValue];
 	}
 
 	@Override
-	public int fromBlockId(int block) {
-		int index = this.blockToIndex[block] & 0xFF;
-		if (index == 0xFF) {
-			index = this.size++;
+	public int idFor(int value) {
+		int id = this.byValue[value] & 0xFF;
+		if (id == 0xFF) {
+			id = this.size++;
 
-			if (index != 0xFF && index < this.indexToBlock.length) {
-				this.blockToIndex[block] = (byte) index;
-				this.indexToBlock[index] = block;
+			if (id != 0xFF && id < this.byId.length) {
+				this.byValue[value] = (byte) id;
+				this.byId[id] = value;
 			} else {
-				index = this.chunkSection.grow(this.bitsPerBlock + 1, block);
+				id = this.chunkSection.grow(this.bitsPerValue + 1, value);
 			}
 		}
-
-		return index;
+		return id;
 	}
 
 	@Override
-	public int toBlockId(int index) {
-		return this.indexToBlock[index];
+	public int valueFor(int id) {
+		if (id < 0 || id >= this.size) {
+			throw new IndexOutOfBoundsException();
+		} else {
+			return this.byId[id];
+		}
 	}
 
 	@Override
 	public void read(ByteBuf buffer) {
 		this.size = ByteBufUtil.readVarInt(buffer);
-		for (int i = 0; i < size; i++) {
-			int blockId = ByteBufUtil.readVarInt(buffer);
-			this.indexToBlock[i] = blockId;
-			this.blockToIndex[blockId] = (byte) i;
+		for (int id = 0; id < size; id++) {
+			int value = ByteBufUtil.readVarInt(buffer);
+			this.byId[id] = value;
+			this.byValue[value] = (byte) id;
 		}
 	}
 
@@ -60,8 +64,8 @@ public class IndirectPalette implements Palette {
 	public void write(ByteBuf buffer) {
 		ByteBufUtil.writeVarInt(buffer, this.size);
 
-		for (int i = 0; i < this.size; i++) {
-			ByteBufUtil.writeVarInt(buffer, this.toBlockId(i));
+		for (int id = 0; id < this.size; id++) {
+			ByteBufUtil.writeVarInt(buffer, this.valueFor(id));
 		}
 	}
 }

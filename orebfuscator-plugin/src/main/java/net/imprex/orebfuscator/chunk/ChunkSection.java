@@ -6,20 +6,23 @@ import net.imprex.orebfuscator.NmsInstance;
 public class ChunkSection {
 
 	private int blockCount;
-	private int bitsPerBlock;
+	private int bitsPerBlock = -1;
 
 	private Palette palette;
 	private VarBitBuffer data;
 
 	public ChunkSection() {
-		this.setBitsPerBlock(4);
+		this.setBitsPerBlock(0, true);
 	}
 
-	private void setBitsPerBlock(int bitsPerBlock) {
+	private void setBitsPerBlock(int bitsPerBlock, boolean grow) {
 		if (this.bitsPerBlock != bitsPerBlock) {
-			// fix: fawe chunk format incompatibility with bitsPerBlock == 1
-			// https://github.com/Imprex-Development/Orebfuscator/issues/36
-			if (bitsPerBlock == 1) {
+			if (ChunkCapabilities.hasSingleValuePalette() && bitsPerBlock == 0) {
+				this.bitsPerBlock = 0;
+				this.palette = new SingleValuePalette(this, 0);
+			} else if (!grow && bitsPerBlock == 1) {
+				// fix: fawe chunk format incompatibility with bitsPerBlock == 1
+				// https://github.com/Imprex-Development/Orebfuscator/issues/36
 				this.bitsPerBlock = bitsPerBlock;
 				this.palette = new IndirectPalette(this.bitsPerBlock, this);
 			} else if (bitsPerBlock <= 8) {
@@ -30,7 +33,11 @@ public class ChunkSection {
 				this.palette = new DirectPalette();
 			}
 
-			this.data = ChunkCapabilities.createVarBitBuffer(this.bitsPerBlock, 4096);
+			if (this.bitsPerBlock == 0) {
+				this.data = new ZeroVarBitBuffer(4096);
+			} else {
+				this.data = ChunkCapabilities.createVarBitBuffer(this.bitsPerBlock, 4096);
+			}
 		}
 	}
 
@@ -38,14 +45,14 @@ public class ChunkSection {
 		Palette palette = this.palette;
 		VarBitBuffer data = this.data;
 
-		this.setBitsPerBlock(bitsPerBlock);
+		this.setBitsPerBlock(bitsPerBlock, true);
 
 		for (int i = 0; i < data.size(); i++) {
-			int preBlockId = palette.toBlockId(data.get(i));
-			this.data.set(i, this.palette.fromBlockId(preBlockId));
+			int preBlockId = palette.valueFor(data.get(i));
+			this.data.set(i, this.palette.idFor(preBlockId));
 		}
 
-		return this.palette.fromBlockId(blockId);
+		return this.palette.idFor(blockId);
 	}
 
 	static int positionToIndex(int x, int y, int z) {
@@ -67,7 +74,7 @@ public class ChunkSection {
 			++this.blockCount;
 		}
 
-		int paletteIndex = this.palette.fromBlockId(blockId);
+		int paletteIndex = this.palette.idFor(blockId);
 		this.data.set(index, paletteIndex);
 	}
 
@@ -76,7 +83,7 @@ public class ChunkSection {
 	}
 
 	public int getBlock(int index) {
-		return this.palette.toBlockId(this.data.get(index));
+		return this.palette.valueFor(this.data.get(index));
 	}
 
 	public void write(ByteBuf buffer) {
@@ -99,7 +106,7 @@ public class ChunkSection {
 			this.blockCount = buffer.readShort();
 		}
 
-		this.setBitsPerBlock(buffer.readUnsignedByte());
+		this.setBitsPerBlock(buffer.readUnsignedByte(), false);
 
 		this.palette.read(buffer);
 

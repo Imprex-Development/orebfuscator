@@ -4,19 +4,43 @@ import net.imprex.orebfuscator.util.MinecraftVersion;
 
 public final class ChunkCapabilities {
 
+	// hasClientboundLevelChunkPacketData >= 18;
+	// hasBiomePalettedContainer >= 1.18
+	// hasSingleValuePalette >= 1.18
+	// hasHeightBitMask <= 1.17
 	// hasDynamicHeight >= 1.17
 	// hasSimpleVarBitBuffer >= 1.16
 	// hasBlockCount >= 1.14
 	// hasDirectPaletteZeroLength < 1.13
 	// hasLight < 1.14
 
-	private static boolean hasDynamicHeight = MinecraftVersion.getMinorVersion() >= 17;
-	private static boolean hasSimpleVarBitBuffer = MinecraftVersion.getMinorVersion() >= 16;
-	private static boolean hasBlockCount = MinecraftVersion.getMinorVersion() >= 14;
-	private static boolean hasDirectPaletteZeroLength = MinecraftVersion.getMinorVersion() < 13;
-	private static boolean hasLightArray = MinecraftVersion.getMinorVersion() < 14;
+	private static final boolean hasClientboundLevelChunkPacketData = MinecraftVersion.getMinorVersion() >= 18;
+	private static final boolean hasBiomePalettedContainer = MinecraftVersion.getMinorVersion() >= 18;
+	private static final boolean hasSingleValuePalette = MinecraftVersion.getMinorVersion() >= 18;
+	private static final boolean hasHeightBitMask = MinecraftVersion.getMinorVersion() <= 17;
+	private static final boolean hasDynamicHeight = MinecraftVersion.getMinorVersion() >= 17;
+	private static final boolean hasSimpleVarBitBuffer = MinecraftVersion.getMinorVersion() >= 16;
+	private static final boolean hasBlockCount = MinecraftVersion.getMinorVersion() >= 14;
+	private static final boolean hasDirectPaletteZeroLength = MinecraftVersion.getMinorVersion() < 13;
+	private static final boolean hasLightArray = MinecraftVersion.getMinorVersion() < 14;
 
 	private ChunkCapabilities() {
+	}
+
+	public static boolean hasClientboundLevelChunkPacketData() {
+		return hasClientboundLevelChunkPacketData;
+	}
+
+	public static boolean hasBiomePalettedContainer() {
+		return hasBiomePalettedContainer;
+	}
+
+	public static boolean hasSingleValuePalette() {
+		return hasSingleValuePalette;
+	}
+
+	public static boolean hasHeightBitMask() {
+		return hasHeightBitMask;
 	}
 
 	public static boolean hasDynamicHeight() {

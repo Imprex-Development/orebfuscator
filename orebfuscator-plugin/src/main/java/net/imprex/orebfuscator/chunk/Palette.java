@@ -4,9 +4,9 @@ import io.netty.buffer.ByteBuf;
 
 public interface Palette {
 
-	int fromBlockId(int blockId);
+	int idFor(int value);
 
-	int toBlockId(int id);
+	int valueFor(int id);
 
 	void read(ByteBuf buffer);
 

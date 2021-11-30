@@ -14,9 +14,9 @@ import net.imprex.orebfuscator.chunk.Chunk;
 import net.imprex.orebfuscator.chunk.ChunkSection;
 import net.imprex.orebfuscator.chunk.ChunkStruct;
 import net.imprex.orebfuscator.config.BlockFlags;
+import net.imprex.orebfuscator.config.ObfuscationConfig;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.config.ProximityConfig;
-import net.imprex.orebfuscator.config.ObfuscationConfig;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.HeightAccessor;
 

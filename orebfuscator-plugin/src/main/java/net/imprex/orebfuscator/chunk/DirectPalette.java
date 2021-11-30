@@ -5,12 +5,12 @@ import io.netty.buffer.ByteBuf;
 public class DirectPalette implements Palette {
 
 	@Override
-	public int fromBlockId(int blockId) {
-		return blockId;
+	public int idFor(int value) {
+		return value;
 	}
 
 	@Override
-	public int toBlockId(int id) {
+	public int valueFor(int id) {
 		return id;
 	}
 

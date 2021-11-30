@@ -44,7 +44,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 			}
 
 			// Check if HeightAccessor can be loaded
-			HeightAccessor.ThisMethodIsUsedToInitializeStaticFields();
+			HeightAccessor.thisMethodIsUsedToInitializeStaticFields();
 
 			// Load configurations
 			this.config = new OrebfuscatorConfig(this);

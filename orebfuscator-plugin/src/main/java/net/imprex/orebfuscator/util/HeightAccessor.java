@@ -23,28 +23,31 @@ public class HeightAccessor {
 
 	private static MethodAccessor getWorldMethod(String methodName) {
 		if (ChunkCapabilities.hasDynamicHeight()) {
-			MethodAccessor methodAccessor = getWorldMethod0(methodName);
+			MethodAccessor methodAccessor = getWorldMethod0(World.class, methodName);
+			if (methodAccessor == null) {
+				throw new RuntimeException("unable to find method: World::" + methodName + "()");
+			}
 			OFCLogger.info("HeightAccessor found method: World::" + methodName + "()");
 			return methodAccessor;
 		}
 		return null;
 	}
 
-	private static MethodAccessor getWorldMethod0(String methodName) {
+	private static MethodAccessor getWorldMethod0(Class<?> target, String methodName) {
 		try {
-			return Accessors.getMethodAccessor(World.class, methodName);
+			return Accessors.getMethodAccessor(target, methodName);
 		} catch (IllegalArgumentException e) {
-			for (Class<?> iterface : World.class.getInterfaces()) {
-				try {
-					return Accessors.getMethodAccessor(iterface, methodName);
-				} catch (IllegalArgumentException e2) {
+			for (Class<?> iterface : target.getInterfaces()) {
+				MethodAccessor methodAccessor = getWorldMethod0(iterface, methodName);
+				if (methodAccessor != null) {
+					return methodAccessor;
 				}
 			}
 		}
-		throw new RuntimeException("unable to find method: World::" + methodName + "()");
+		return null;
 	}
 
-	public static void ThisMethodIsUsedToInitializeStaticFields() {
+	public static void thisMethodIsUsedToInitializeStaticFields() {
 	}
 
 	private final int maxHeight;

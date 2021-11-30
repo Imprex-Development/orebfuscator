@@ -16,8 +16,6 @@ public class Chunk implements AutoCloseable {
 	private final int chunkX;
 	private final int chunkZ;
 
-	private final int extraBytes;
-
 	private final HeightAccessor heightAccessor;
 	private final ChunkSectionHolder[] sections;
 
@@ -28,8 +26,6 @@ public class Chunk implements AutoCloseable {
 		this.chunkX = chunkStruct.chunkX;
 		this.chunkZ = chunkStruct.chunkZ;
 
-		this.extraBytes = extraBytes;
-
 		this.heightAccessor = HeightAccessor.get(chunkStruct.world);
 		this.sections = new ChunkSectionHolder[this.heightAccessor.getSectionCount()];
 
@@ -38,7 +34,7 @@ public class Chunk implements AutoCloseable {
 
 		for (int sectionIndex = 0; sectionIndex < this.sections.length; sectionIndex++) {
 			if (chunkStruct.sectionMask.get(sectionIndex)) {
-				this.sections[sectionIndex] = new ChunkSectionHolder();
+				this.sections[sectionIndex] = new ChunkSectionHolder(extraBytes);
 			}
 		}
 	}
@@ -57,6 +53,13 @@ public class Chunk implements AutoCloseable {
 			return chunkSection.chunkSection;
 		}
 		return null;
+	}
+
+	public void setSection(int index, ChunkSection section) {
+		ChunkSectionHolder chunkSection = this.sections[index];
+		if (chunkSection != null) {
+			chunkSection.chunkSection = section;
+		}
 	}
 
 	public int getBlock(int x, int y, int z) {
@@ -87,17 +90,48 @@ public class Chunk implements AutoCloseable {
 		this.outputBuffer.release();
 	}
 
+	private void skipBiomePalettedContainer() {
+		int bitsPerValue = this.inputBuffer.readUnsignedByte();
+
+		if (bitsPerValue == 0) {
+			ByteBufUtil.readVarInt(this.inputBuffer);
+		} else if (bitsPerValue <= 3) {
+			for (int i = ByteBufUtil.readVarInt(this.inputBuffer); i > 0; i--) {
+				ByteBufUtil.readVarInt(this.inputBuffer);
+			}
+		}
+
+		int dataLength = ByteBufUtil.readVarInt(this.inputBuffer);
+		if (SimpleVarBitBuffer.calculateArraySize(bitsPerValue, 64) != dataLength) {
+			throw new IndexOutOfBoundsException("data.length != VarBitBuffer::size " + dataLength + " " +
+					SimpleVarBitBuffer.calculateArraySize(bitsPerValue, 64));
+		}
+
+		this.inputBuffer.skipBytes(Long.BYTES * dataLength);
+	}
+
 	private class ChunkSectionHolder {
 
-		public final ChunkSection chunkSection;
+		public ChunkSection chunkSection;
+
 		public final int[] data;
 		public final int offset;
 
-		public ChunkSectionHolder() {
+		private int extraBytes;
+
+		public ChunkSectionHolder(int extraBytes) {
 			this.chunkSection = new ChunkSection();
+
 			this.data = this.chunkSection.read(inputBuffer);
 			this.offset = inputBuffer.readerIndex();
-			inputBuffer.skipBytes(extraBytes);
+
+			if (ChunkCapabilities.hasBiomePalettedContainer()) {
+				skipBiomePalettedContainer();
+				this.extraBytes = inputBuffer.readerIndex() - this.offset;
+			} else {
+				this.extraBytes = extraBytes;
+				inputBuffer.skipBytes(extraBytes);
+			}
 		}
 
 		public void write() {

@@ -26,6 +26,10 @@ public class BlockPos {
 		this.z = z;
 	}
 
+	public BlockPos add(int x, int y, int z) {
+		return x == 0 && y == 0 && z == 0 ? this : new BlockPos(this.x + x, this.y + y, this.z + z);
+	}
+
 	public ChunkPosition toChunkPosition(World world) {
 		return new ChunkPosition(world, this.x >> 4, this.z >> 4);
 	}

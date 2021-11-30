@@ -1,18 +1,12 @@
 package net.imprex.orebfuscator.obfuscation;
 
-import java.util.Iterator;
-import java.util.List;
 import java.util.Set;
 
 import org.bukkit.entity.Player;
 
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketAdapter;
-import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
-import com.comphenix.protocol.reflect.StructureModifier;
-import com.comphenix.protocol.wrappers.nbt.NbtBase;
-import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.chunk.ChunkStruct;
@@ -39,8 +33,7 @@ public abstract class AbstractChunkListener extends PacketAdapter {
 			return;
 		}
 
-		PacketContainer packet = event.getPacket();
-		ChunkStruct chunkStruct = new ChunkStruct(packet, player.getWorld());
+		ChunkStruct chunkStruct = new ChunkStruct(event.getPacket(), player.getWorld());
 		if (chunkStruct.isEmpty()) {
 			this.skipChunkForProcessing(event);
 			return;
@@ -49,9 +42,12 @@ public abstract class AbstractChunkListener extends PacketAdapter {
 		this.preChunkProcessing(event, chunkStruct);
 
 		this.obfuscatorSystem.obfuscateOrUseCache(chunkStruct).thenAccept(chunk -> {
+			chunkStruct.setDataBuffer(chunk.getData());
 
-			packet.getByteArrays().write(0, chunk.getData());
-			this.removeTileEntitiesFromPacket(packet, chunk.getRemovedTileEntities());
+			Set<BlockPos> removedBlockEntities = chunk.getRemovedTileEntities();
+			if (!removedBlockEntities.isEmpty()) {
+				chunkStruct.removeBlockEntityIf(removedBlockEntities::contains);
+			}
 
 			this.postChunkProcessing(event, chunkStruct, chunk);
 		});
@@ -70,30 +66,5 @@ public abstract class AbstractChunkListener extends PacketAdapter {
 
 	private boolean shouldNotObfuscate(Player player) {
 		return PermissionUtil.canDeobfuscate(player) || !config.needsObfuscation(player.getWorld());
-	}
-
-	private void removeTileEntitiesFromPacket(PacketContainer packet, Set<BlockPos> positions) {
-		if (!positions.isEmpty()) {
-			StructureModifier<List<NbtBase<?>>> packetNbtList = packet.getListNbtModifier();
-
-			List<NbtBase<?>> tileEntities = packetNbtList.read(0);
-			this.removeTileEntities(tileEntities, positions);
-			packetNbtList.write(0, tileEntities);
-		}
-	}
-
-	private void removeTileEntities(List<NbtBase<?>> tileEntities, Set<BlockPos> positions) {
-		for (Iterator<NbtBase<?>> iterator = tileEntities.iterator(); iterator.hasNext();) {
-			NbtCompound tileEntity = (NbtCompound) iterator.next();
-
-			int x = tileEntity.getInteger("x");
-			int y = tileEntity.getInteger("y");
-			int z = tileEntity.getInteger("z");
-
-			BlockPos position = new BlockPos(x, y, z);
-			if (positions.contains(position)) {
-				iterator.remove();
-			}
-		}
 	}
 }
