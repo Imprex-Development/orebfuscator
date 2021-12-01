@@ -39,3 +39,4 @@ local.properties
 
 # Maven
 dependency-reduced-pom.xml
+.flattened-pom.xml

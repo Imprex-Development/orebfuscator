@@ -125,7 +125,7 @@ public class NmsManager extends AbstractNmsManager {
 
 	@Override
 	public AbstractBlockState<?> getBlockState(World world, int x, int y, int z) {
-		BlockState blockData = getBlockData(world, x, y, z, false);	
+		BlockState blockData = getBlockData(world, x, y, z, false);
 		return blockData != null ? new BlockStateWrapper(x, y, z, world, blockData) : null;
 	}
 

@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import org.bstats.bukkit.Metrics;
+import org.bstats.charts.DrilldownPie;
+import org.bstats.charts.SimplePie;
 
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.util.MathUtil;
@@ -19,7 +21,7 @@ public class MetricsSystem {
 	}
 
 	public void addMemoryChart() {
-		this.metrics.addCustomChart(new Metrics.DrilldownPie("systemMemory", () -> {
+		this.metrics.addCustomChart(new DrilldownPie("systemMemory", () -> {
 			final Map<String, Map<String, Integer>> result = new HashMap<>();
 			final Map<String, Integer> exact = new HashMap<>();
 
@@ -37,7 +39,7 @@ public class MetricsSystem {
 	}
 
 	public void addFastGazeChart(OrebfuscatorConfig config) {
-		this.metrics.addCustomChart(new Metrics.SimplePie("fast_gaze", () -> {
+		this.metrics.addCustomChart(new SimplePie("fast_gaze", () -> {
 			return Boolean.toString(config.usesFastGaze());
 		}));
 	}

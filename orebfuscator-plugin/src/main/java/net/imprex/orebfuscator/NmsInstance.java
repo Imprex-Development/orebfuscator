@@ -36,7 +36,7 @@ public class NmsInstance {
 			Constructor<? extends NmsManager> constructor = nmsManager.getConstructor(Config.class);
 			NmsInstance.instance = constructor.newInstance(config);
 		} catch (ClassNotFoundException e) {
-			throw new RuntimeException("Server version \"" + nmsVersion + "\" is currently not supported!");
+			throw new RuntimeException("Server version \"" + nmsVersion + "\" is currently not supported!", e);
 		} catch (Exception e) {
 			throw new RuntimeException("Couldn't initialize NMS adapter", e);
 		}

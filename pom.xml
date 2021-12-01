@@ -8,16 +8,19 @@
 	<version>${revision}</version>
 	<packaging>pom</packaging>
 
+	<name>Orebfuscator</name>
+	<description>High-Performance Anti X-Ray</description>
+
 	<properties>
 		<revision>5.0.0-b0</revision>
 
-		<dependency.orebfuscator-api.version>1.0.0</dependency.orebfuscator-api.version>
-		<dependency.netty.version>4.1.20.Final</dependency.netty.version>
-		<dependency.bukkit.version>1.15.1-R0.1-SNAPSHOT</dependency.bukkit.version>
+		<dependency.netty.version>4.1.68.Final</dependency.netty.version>
+		<dependency.bukkit.version>1.13-R0.1-SNAPSHOT</dependency.bukkit.version>
 		<dependency.protocollib.version>4.4.0</dependency.protocollib.version>
-		<dependency.bstats.version>1.7</dependency.bstats.version>
+		<dependency.bstats.version>2.2.1</dependency.bstats.version>
 
 		<plugin.shade.version>3.2.1</plugin.shade.version>
+		<plugin.flatten.version>1.2.7</plugin.flatten.version>
 
 		<maven.compiler.source>1.8</maven.compiler.source>
 		<maven.compiler.target>1.8</maven.compiler.target>
@@ -28,20 +31,80 @@
 	<repositories>
 		<repository>
 			<id>spigot-repo</id>
-			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
+			<url>https://hub.spigotmc.org/nexus/content/groups/public/</url>
 		</repository>
 		<repository>
 			<id>dmulloy2-repo</id>
 			<url>https://repo.dmulloy2.net/nexus/repository/public/</url>
 		</repository>
 		<repository>
-			<id>CodeMC</id>
-			<url>https://repo.codemc.org/repository/maven-public</url>
+			<id>nms-repo</id>
+			<url>https://repo.codemc.io/repository/nms/</url>
 		</repository>
 	</repositories>
 
+	<distributionManagement>
+		<repository>
+			<id>imprex</id>
+			<url>https://imprex.ingrim4.me/repository/maven-releases</url>
+		</repository>
+	</distributionManagement>
+
 	<build>
-		<defaultGoal>clean package -pl orebfuscator-plugin --also-make</defaultGoal>
+		<resources>
+			<resource>
+				<directory>src/main/resources</directory>
+				<filtering>true</filtering>
+			</resource>
+		</resources>
+		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<version>${plugin.shade.version}</version>
+				<configuration>
+					<relocations>
+						<relocation>
+							<pattern>org.bstats</pattern>
+							<shadedPattern>net.imprex.orebfuscator.metrics</shadedPattern>
+						</relocation>
+					</relocations>
+				</configuration>
+				<executions>
+					<execution>
+						<phase>package</phase>
+						<goals>
+							<goal>shade</goal>
+						</goals>
+					</execution>
+				</executions>
+			</plugin>
+			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>flatten-maven-plugin</artifactId>
+				<version>${plugin.flatten.version}</version>
+				<executions>
+					<execution>
+						<id>flatten</id>
+						<phase>package</phase>
+						<goals>
+							<goal>flatten</goal>
+						</goals>
+					</execution>
+					<execution>
+						<id>flatten.clean</id>
+						<phase>clean</phase>
+						<goals>
+							<goal>clean</goal>
+						</goals>
+					</execution>
+				</executions>
+				<configuration>
+					<updatePomFile>true</updatePomFile>
+					<flattenMode>clean</flattenMode>
+				</configuration>
+			</plugin>
+		</plugins>
 	</build>
 
 	<modules>

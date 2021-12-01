@@ -1,8 +1,8 @@
 api-version: 1.13
 
-name: Orebfuscator
+name: ${project.parent.name}
 version: ${project.version}
-description: 'High-Performance Anti X-Ray'
+description: '${project.parent.description}'
 
 main: net.imprex.orebfuscator.Orebfuscator
 
