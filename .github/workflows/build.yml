@@ -49,7 +49,7 @@ jobs:
         sh ./.github/workflows/buildtools.sh java-17
     - name: Build
       run: |
-        mvn clean package -pl orebfuscator-plugin -B --also-make -Drevision=$BUILD_VERSION
+        mvn clean package -pl orebfuscator-plugin --batch-mode --also-make -Drevision=$BUILD_VERSION
         mv orebfuscator-plugin/target/orebfuscator-*.jar ./
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
