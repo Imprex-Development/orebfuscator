@@ -53,7 +53,7 @@ jobs:
         servers: '[{ "id": "imprex", "username": "${{ secrets.MAVEN_USER }}", "password": "${{ secrets.MAVEN_PASSWORD }}" }]'
     - name: Build
       run: |
-        mvn deploy orebfuscator -Drevision=$RELEASE_VERSION -Daether.connector.basic.threads=1
+        mvn deploy -Drevision=$RELEASE_VERSION -Daether.connector.basic.threads=1
         mv orebfuscator-plugin/target/orebfuscator-*.jar ./
     - uses: ncipollo/release-action@v1
       with:
