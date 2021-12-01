@@ -11,7 +11,7 @@ cache:
   enabled: true
   baseDirectory: 'orebfuscator_cache/'
   maximumOpenRegionFiles: 256
-  deleteRegionFilesAfterAccess: 172800000‬
+  deleteRegionFilesAfterAccess: 172800000
   maximumSize: 8192
   expireAfterAccess: 30000
   maximumTaskQueueSize: 32768
@@ -139,6 +139,7 @@ proximity:
       above: true
       useBlockBelow: true
     hiddenBlocks:
+      mossy_cobblestone: {}
       diamond_ore: {}
       emerald_ore: {}
       chest: {}

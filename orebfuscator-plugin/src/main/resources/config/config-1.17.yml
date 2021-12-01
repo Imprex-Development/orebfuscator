@@ -156,6 +156,7 @@ proximity:
       above: true
       useBlockBelow: true
     hiddenBlocks:
+      mossy_cobblestone: {}
       diamond_ore: {}
       deepslate_diamond_ore: {}
       emerald_ore: {}
