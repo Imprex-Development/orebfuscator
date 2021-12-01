@@ -156,12 +156,6 @@ proximity:
       above: true
       useBlockBelow: true
     hiddenBlocks:
-      amethyst_block: {}
-      budding_amethyst: {}
-      small_amethyst_bud: {}
-      medium_amethyst_bud: {}
-      large_amethyst_bud: {}
-      amethyst_cluster: {}
       diamond_ore: {}
       deepslate_diamond_ore: {}
       emerald_ore: {}
