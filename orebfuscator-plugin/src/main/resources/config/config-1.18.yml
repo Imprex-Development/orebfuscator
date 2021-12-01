@@ -11,7 +11,7 @@ cache:
   enabled: true
   baseDirectory: 'orebfuscator_cache/'
   maximumOpenRegionFiles: 256
-  deleteRegionFilesAfterAccess: 172800000‬
+  deleteRegionFilesAfterAccess: 172800000
   maximumSize: 8192
   expireAfterAccess: 30000
   maximumTaskQueueSize: 32768
@@ -27,8 +27,10 @@ obfuscation:
       - deepslate_diamond_ore
       - gold_ore
       - deepslate_gold_ore
+      - raw_gold_block
       - iron_ore
       - deepslate_iron_ore
+      - raw_iron_block
       - coal_ore
       - deepslate_coal_ore
       - lapis_ore
@@ -36,10 +38,10 @@ obfuscation:
       - redstone_ore
       - deepslate_redstone_ore
       - copper_ore
+      - raw_copper_block
       - deepslate_copper_ore
       - stone
       - deepslate
-      - spawner
       - chest
       - ender_chest
       - trapped_chest
@@ -82,7 +84,6 @@ obfuscation:
     hiddenBlocks:
       - netherrack
       - nether_quartz_ore
-      - spawner
       - chest
       - ender_chest
       - trapped_chest
@@ -117,7 +118,6 @@ obfuscation:
       - world_the_end
     enabled: true
     hiddenBlocks:
-      - spawner
       - chest
       - ender_chest
       - trapped_chest
@@ -152,7 +152,7 @@ proximity:
     distance: 24
     useFastGazeCheck: false
     defaults:
-      y: 0
+      y: -2032
       above: true
       useBlockBelow: true
     hiddenBlocks:
@@ -207,7 +207,7 @@ proximity:
     distance: 24
     useFastGazeCheck: false
     defaults:
-      y: 0
+      y: -2032
       above: true
       useBlockBelow: true
     hiddenBlocks:
@@ -264,7 +264,7 @@ proximity:
     distance: 24
     useFastGazeCheck: false
     defaults:
-      y: 0
+      y: -2032
       above: true
       useBlockBelow: true
     hiddenBlocks:
