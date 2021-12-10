@@ -12,9 +12,9 @@ import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import net.imprex.orebfuscator.api.OrebfuscatorService;
-import net.imprex.orebfuscator.cache.ChunkCache;
+import net.imprex.orebfuscator.cache.ObfuscationCache;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
-import net.imprex.orebfuscator.obfuscation.ObfuscatorSystem;
+import net.imprex.orebfuscator.obfuscation.ObfuscationSystem;
 import net.imprex.orebfuscator.proximityhider.ProximityHider;
 import net.imprex.orebfuscator.proximityhider.ProximityListener;
 import net.imprex.orebfuscator.proximityhider.ProximityPacketListener;
@@ -29,8 +29,8 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 
 	private OrebfuscatorConfig config;
 	private UpdateSystem updateSystem;
-	private ChunkCache chunkCache;
-	private ObfuscatorSystem obfuscatorSystem;
+	private ObfuscationCache obfuscationCache;
+	private ObfuscationSystem obfuscationSystem;
 	private ProximityHider proximityHider;
 	private ProximityPacketListener proximityPacketListener;
 
@@ -56,10 +56,10 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 			this.updateSystem = new UpdateSystem(this);
 
 			// Load chunk cache
-			this.chunkCache = new ChunkCache(this);
+			this.obfuscationCache = new ObfuscationCache(this);
 
 			// Load obfuscater
-			this.obfuscatorSystem = new ObfuscatorSystem(this);
+			this.obfuscationSystem = new ObfuscationSystem(this);
 
 			// Load proximity hider
 			this.proximityHider = new ProximityHider(this);
@@ -72,7 +72,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 			}
 
 			// Load packet listener
-			this.obfuscatorSystem.registerChunkListener();
+			this.obfuscationSystem.registerChunkListener();
 
 			// Store formatted config
 			this.config.store();
@@ -93,9 +93,9 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 
 	@Override
 	public void onDisable() {
-		this.chunkCache.close();
+		this.obfuscationCache.close();
 
-		this.obfuscatorSystem.close();
+		this.obfuscationSystem.shutdown();
 
 		if (this.config.proximityEnabled()) {
 			this.proximityPacketListener.unregister();
@@ -129,12 +129,12 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 		return updateSystem;
 	}
 
-	public ChunkCache getChunkCache() {
-		return this.chunkCache;
+	public ObfuscationCache getObfuscationCache() {
+		return this.obfuscationCache;
 	}
 
-	public ObfuscatorSystem getObfuscatorSystem() {
-		return obfuscatorSystem;
+	public ObfuscationSystem getObfuscationSystem() {
+		return obfuscationSystem;
 	}
 
 	public ProximityHider getProximityHider() {

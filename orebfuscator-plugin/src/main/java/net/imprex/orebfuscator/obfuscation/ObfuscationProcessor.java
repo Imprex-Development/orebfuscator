@@ -2,14 +2,11 @@ package net.imprex.orebfuscator.obfuscation;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.concurrent.CompletableFuture;
 
-import org.bukkit.Bukkit;
 import org.bukkit.World;
 
 import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.Orebfuscator;
-import net.imprex.orebfuscator.cache.ChunkCacheRequest;
 import net.imprex.orebfuscator.chunk.Chunk;
 import net.imprex.orebfuscator.chunk.ChunkSection;
 import net.imprex.orebfuscator.chunk.ChunkStruct;
@@ -20,41 +17,26 @@ import net.imprex.orebfuscator.config.ProximityConfig;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.HeightAccessor;
 
-public class Obfuscator {
+class ObfuscationProcessor {
 
-	private final Orebfuscator orebfuscator;
 	private final OrebfuscatorConfig config;
 
-	public Obfuscator(Orebfuscator orebfuscator) {
-		this.orebfuscator = orebfuscator;
+	ObfuscationProcessor(Orebfuscator orebfuscator) {
 		this.config = orebfuscator.getOrebfuscatorConfig();
 	}
 
-	public CompletableFuture<ObfuscatedChunk> obfuscate(ChunkCacheRequest request) {
-		CompletableFuture<ObfuscatedChunk> future = new CompletableFuture<>();
-		if (this.orebfuscator.isMainThread()) {
-			future.complete(this.obfuscateNow(request));
-		} else {
-			Bukkit.getScheduler().runTask(this.orebfuscator, () -> {
-				future.complete(this.obfuscateNow(request));
-			});
-		}
-		return future;
-	}
+	void process(ObfuscationTask task) {
+		ChunkStruct chunkStruct = task.getChunkStruct();
 
-	private ObfuscatedChunk obfuscateNow(ChunkCacheRequest request) {
-		World world = request.getKey().getWorld();
-		byte[] hash = request.getHash();
-		ChunkStruct chunkStruct = request.getChunkStruct();
+		World world = chunkStruct.world;
 		HeightAccessor heightAccessor = HeightAccessor.get(world);
 
 		BlockFlags blockFlags = this.config.blockFlags(world);
 		ObfuscationConfig obfuscationConfig = this.config.obfuscation(world);
 		ProximityConfig proximityConfig = this.config.proximity(world);
-		int initialRadius = this.config.general().initialRadius();
 
+		Set<BlockPos> blockEntities = new HashSet<>();
 		Set<BlockPos> proximityBlocks = new HashSet<>();
-		Set<BlockPos> removedTileEntities = new HashSet<>();
 
 		int baseX = chunkStruct.chunkX << 4;
 		int baseZ = chunkStruct.chunkZ << 4;
@@ -83,8 +65,7 @@ public class Obfuscator {
 					boolean obfuscated = false;
 
 					// should current block be obfuscated
-					if (BlockFlags.isObfuscateBitSet(obfuscateBits)
-							&& shouldObfuscate(chunk, world, x, y, z, initialRadius)) {
+					if (BlockFlags.isObfuscateBitSet(obfuscateBits) && shouldObfuscate(task, chunk, x, y, z)) {
 						blockData = obfuscationConfig.nextRandomBlockId();
 						obfuscated = true;
 					}
@@ -104,22 +85,21 @@ public class Obfuscator {
 					if (obfuscated) {
 						chunkSection.setBlock(index, blockData);
 						if (BlockFlags.isTileEntityBitSet(obfuscateBits)) {
-							removedTileEntities.add(new BlockPos(x, y, z));
+							blockEntities.add(new BlockPos(x, y, z));
 						}
 					}
 				}
 			}
 
-			byte[] data = chunk.finalizeOutput();
-
-			return new ObfuscatedChunk(hash, data, proximityBlocks, removedTileEntities);
+			task.complete(chunk.finalizeOutput(), blockEntities, proximityBlocks);
 		} catch (Exception e) {
 			e.printStackTrace();
 			throw new Error(e);
 		}
 	}
 
-	// returns first block below given position that wouldn't be obfuscated in any way at given position
+	// returns first block below given position that wouldn't be obfuscated in any
+	// way at given position
 	private int getBlockBelow(BlockFlags blockFlags, Chunk chunk, int x, int y, int z) {
 		for (int targetY = y - 1; targetY > chunk.getHeightAccessor().getMinBuildHeight(); targetY--) {
 			int blockData = chunk.getBlock(x, targetY, z);
@@ -130,35 +110,25 @@ public class Obfuscator {
 		return 0;
 	}
 
-	private boolean shouldObfuscate(Chunk chunk, World world, int x, int y, int z, int depth) {
-		return !areAjacentBlocksTransparent(chunk, world, x, y, z, false, depth);
+	private boolean shouldObfuscate(ObfuscationTask task, Chunk chunk, int x, int y, int z) {
+		return isAdjacentBlockOccluding(task, chunk, x, y + 1, z)
+				&& isAdjacentBlockOccluding(task, chunk, x, y - 1, z)
+				&& isAdjacentBlockOccluding(task, chunk, x + 1, y, z)
+				&& isAdjacentBlockOccluding(task, chunk, x - 1, y, z)
+				&& isAdjacentBlockOccluding(task, chunk, x, y, z + 1)
+				&& isAdjacentBlockOccluding(task, chunk, x, y, z - 1);
 	}
 
-	private boolean areAjacentBlocksTransparent(Chunk chunk, World world, int x, int y, int z, boolean check,
-			int depth) {
-		if (y >= world.getMaxHeight() || y < chunk.getHeightAccessor().getMinBuildHeight()) {
-			return true;
+	private boolean isAdjacentBlockOccluding(ObfuscationTask task, Chunk chunk, int x, int y, int z) {
+		if (y >= chunk.getHeightAccessor().getMaxBuildHeight() || y < chunk.getHeightAccessor().getMinBuildHeight()) {
+			return false;
 		}
 
-		if (check) {
-			int blockId = chunk.getBlock(x, y, z);
-			if (blockId == -1) {
-				blockId = NmsInstance.loadChunkAndGetBlockId(world, x, y, z);
-			}
-			if (blockId >= 0 && !NmsInstance.isOccluding(blockId)) {
-				return true;
-			}
+		int blockId = chunk.getBlock(x, y, z);
+		if (blockId == -1) {
+			blockId = task.getBlockState(x, y, z);
 		}
 
-		if (depth-- > 0) {
-			return areAjacentBlocksTransparent(chunk, world, x, y + 1, z, true, depth)
-					|| areAjacentBlocksTransparent(chunk, world, x, y - 1, z, true, depth)
-					|| areAjacentBlocksTransparent(chunk, world, x + 1, y, z, true, depth)
-					|| areAjacentBlocksTransparent(chunk, world, x - 1, y, z, true, depth)
-					|| areAjacentBlocksTransparent(chunk, world, x, y, z + 1, true, depth)
-					|| areAjacentBlocksTransparent(chunk, world, x, y, z - 1, true, depth);
-		}
-
-		return false;
+		return blockId >= 0 && NmsInstance.isOccluding(blockId);
 	}
 }

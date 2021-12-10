@@ -1,5 +1,6 @@
 package net.imprex.orebfuscator.obfuscation;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
@@ -25,61 +26,66 @@ import net.imprex.orebfuscator.util.PermissionUtil;
 
 public class DeobfuscationListener implements Listener {
 
+	public static void createAndRegister(Orebfuscator orebfuscator, DeobfuscationWorker deobfuscationWorker) {
+		Listener listener = new DeobfuscationListener(orebfuscator, deobfuscationWorker);
+		Bukkit.getPluginManager().registerEvents(listener, orebfuscator);
+	}
+
 	private final UpdateSystem updateSystem;
 	private final OrebfuscatorConfig config;
-	private final Deobfuscator deobfuscator;
+	private final DeobfuscationWorker deobfuscationWorker;
 
-	public DeobfuscationListener(Orebfuscator orebfuscator, Deobfuscator deobfuscator) {
+	private DeobfuscationListener(Orebfuscator orebfuscator, DeobfuscationWorker deobfuscationWorker) {
 		this.updateSystem = orebfuscator.getUpdateSystem();
 		this.config = orebfuscator.getOrebfuscatorConfig();
-		this.deobfuscator = deobfuscator;
+		this.deobfuscationWorker = deobfuscationWorker;
 	}
 
 	@EventHandler
 	public void onBlockDamage(BlockDamageEvent event) {
 		if (this.config.general().updateOnBlockDamage()) {
-			this.deobfuscator.deobfuscate(event.getBlock());
+			this.deobfuscationWorker.deobfuscate(event.getBlock());
 		}
 	}
 
 	@EventHandler
 	public void onBlockBreak(BlockBreakEvent event) {
-		this.deobfuscator.deobfuscate(event.getBlock());
+		this.deobfuscationWorker.deobfuscate(event.getBlock());
 	}
 
 	@EventHandler
 	public void onBlockBurn(BlockBurnEvent event) {
-		this.deobfuscator.deobfuscate(event.getBlock());
+		this.deobfuscationWorker.deobfuscate(event.getBlock());
 	}
 
 	@EventHandler
 	public void onBlockExplode(BlockExplodeEvent event) {
-		this.deobfuscator.deobfuscate(event.blockList(), true);
+		this.deobfuscationWorker.deobfuscate(event.blockList(), true);
 	}
 
 	@EventHandler
 	public void onBlockPistonExtend(BlockPistonExtendEvent event) {
-		this.deobfuscator.deobfuscate(event.getBlocks(), true);
+		this.deobfuscationWorker.deobfuscate(event.getBlocks(), true);
 	}
 
 	@EventHandler
 	public void onBlockPistonRetract(BlockPistonRetractEvent event) {
-		this.deobfuscator.deobfuscate(event.getBlocks(), true);
+		this.deobfuscationWorker.deobfuscate(event.getBlocks(), true);
 	}
 
 	@EventHandler
 	public void onEntityExplode(EntityExplodeEvent event) {
-		this.deobfuscator.deobfuscate(event.blockList(), true);
+		this.deobfuscationWorker.deobfuscate(event.blockList(), true);
 	}
 
 	@EventHandler
 	public void onEntityInteract(EntityInteractEvent event) {
-		this.deobfuscator.deobfuscate(event.getBlock());
+		this.deobfuscationWorker.deobfuscate(event.getBlock());
 	}
 
 	@EventHandler
 	public void onEntityChangeBlock(EntityChangeBlockEvent event) {
-		this.deobfuscator.deobfuscate(event.getBlock());
+		this.deobfuscationWorker.deobfuscate(event.getBlock());
 	}
 
 	@EventHandler
@@ -87,7 +93,7 @@ public class DeobfuscationListener implements Listener {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.useInteractedBlock() != Result.DENY
 				&& event.getItem() != null && event.getItem().getType() != null
 				&& NmsInstance.isHoe(event.getItem().getType())) {
-			this.deobfuscator.deobfuscate(event.getClickedBlock());
+			this.deobfuscationWorker.deobfuscate(event.getClickedBlock());
 		}
 	}
 
@@ -96,7 +102,8 @@ public class DeobfuscationListener implements Listener {
 		Player player = event.getPlayer();
 
 		if (this.config.general().bypassNotification() && PermissionUtil.canDeobfuscate(player)) {
-			player.sendMessage("[§bOrebfuscator§f]§7 You bypass Orebfuscator because you have the 'orebfuscator.bypass' permission.");
+			player.sendMessage(
+					"[§bOrebfuscator§f]§7 You bypass Orebfuscator because you have the 'orebfuscator.bypass' permission.");
 		}
 
 		if (PermissionUtil.canCheckForUpdates(player)) {

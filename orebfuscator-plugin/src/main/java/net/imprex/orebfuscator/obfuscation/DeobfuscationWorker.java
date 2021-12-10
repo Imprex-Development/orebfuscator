@@ -12,22 +12,22 @@ import com.google.common.collect.Iterables;
 
 import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.Orebfuscator;
-import net.imprex.orebfuscator.cache.ChunkCache;
+import net.imprex.orebfuscator.cache.ObfuscationCache;
 import net.imprex.orebfuscator.config.BlockFlags;
-import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.config.ObfuscationConfig;
+import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.nms.BlockStateHolder;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.ChunkPosition;
 
-public class Deobfuscator {
+public class DeobfuscationWorker {
 
 	private final OrebfuscatorConfig config;
-	private final ChunkCache chunkCache;
+	private final ObfuscationCache cache;
 
-	public Deobfuscator(Orebfuscator orebfuscator) {
+	public DeobfuscationWorker(Orebfuscator orebfuscator) {
 		this.config = orebfuscator.getOrebfuscatorConfig();
-		this.chunkCache = orebfuscator.getChunkCache();
+		this.cache = orebfuscator.getObfuscationCache();
 	}
 
 	void deobfuscate(Block block) {
@@ -88,7 +88,7 @@ public class Deobfuscator {
 
 					ChunkPosition chunkPosition = position.toChunkPosition(world);
 					if (this.invalidChunks.add(chunkPosition)) {
-						chunkCache.invalidate(chunkPosition);
+						cache.invalidate(chunkPosition);
 					}
 				}
 			}

@@ -29,6 +29,8 @@ public interface NmsManager {
 
 	boolean isTileEntity(int blockId);
 
+	ReadOnlyChunk getReadOnlyChunk(World world, int chunkX, int chunkZ);
+
 	BlockStateHolder getBlockState(World world, int x, int y, int z);
 
 	int loadChunkAndGetBlockId(World world, int x, int y, int z);

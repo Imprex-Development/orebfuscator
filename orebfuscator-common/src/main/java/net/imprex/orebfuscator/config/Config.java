@@ -18,5 +18,5 @@ public interface Config {
 
 	ProximityConfig proximity(World world);
 
-	byte[] configHash();
+	byte[] systemHash();
 }

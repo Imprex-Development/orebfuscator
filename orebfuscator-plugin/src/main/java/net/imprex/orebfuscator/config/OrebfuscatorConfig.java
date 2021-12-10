@@ -4,7 +4,6 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.security.MessageDigest;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -20,6 +19,8 @@ import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.plugin.Plugin;
+
+import com.google.common.hash.Hashing;
 
 import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.Orebfuscator;
@@ -41,7 +42,7 @@ public class OrebfuscatorConfig implements Config {
 
 	private final Plugin plugin;
 
-	private byte[] configHash;
+	private byte[] systemHash;
 
 	public OrebfuscatorConfig(Plugin plugin) {
 		this.plugin = plugin;
@@ -66,11 +67,11 @@ public class OrebfuscatorConfig implements Config {
 	}
 
 	private void createConfigIfNotExist() {
-		Path dataFolder = this.plugin.getDataFolder().toPath();
-		Path path = dataFolder.resolve("config.yml");
+		try {
+			Path dataFolder = this.plugin.getDataFolder().toPath();
+			Path path = dataFolder.resolve("config.yml");
 
-		if (Files.notExists(path)) {
-			try {
+			if (Files.notExists(path)) {
 				String configVersion = MinecraftVersion.getMajorVersion() + "." + MinecraftVersion.getMinorVersion();
 
 				if (Files.notExists(dataFolder)) {
@@ -78,24 +79,19 @@ public class OrebfuscatorConfig implements Config {
 				}
 
 				Files.copy(Orebfuscator.class.getResourceAsStream("/config/config-" + configVersion + ".yml"), path);
-			} catch (IOException e) {
-				e.printStackTrace();
 			}
-		}
 
-		this.configHash = this.calculateHash(path);
+			this.systemHash = this.calculateSystemHash(path);
+		} catch (IOException e) {
+			throw new RuntimeException("unable to create config", e);
+		}
 	}
 
-	private byte[] calculateHash(Path path) {
-		try {
-			MessageDigest md5Digest = MessageDigest.getInstance("MD5");
-			md5Digest.update(MinecraftVersion.getNmsVersion().getBytes(StandardCharsets.UTF_8));
-			return md5Digest.digest(Files.readAllBytes(path));
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-
-		return new byte[0];
+	private byte[] calculateSystemHash(Path path) throws IOException {
+		return Hashing.murmur3_128().newHasher()
+			.putBytes(this.plugin.getDescription().getVersion().getBytes(StandardCharsets.UTF_8))
+			.putBytes(MinecraftVersion.getNmsVersion().getBytes(StandardCharsets.UTF_8))
+			.putBytes(Files.readAllBytes(path)).hash().asBytes();
 	}
 
 	private void deserialize(ConfigurationSection section) {
@@ -210,8 +206,8 @@ public class OrebfuscatorConfig implements Config {
 	}
 
 	@Override
-	public byte[] configHash() {
-		return configHash;
+	public byte[] systemHash() {
+		return systemHash;
 	}
 
 	public boolean usesFastGaze() {

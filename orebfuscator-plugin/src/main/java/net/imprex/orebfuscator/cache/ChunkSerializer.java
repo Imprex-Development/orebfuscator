@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.util.Collection;
 
 import net.imprex.orebfuscator.NmsInstance;
-import net.imprex.orebfuscator.obfuscation.ObfuscatedChunk;
+import net.imprex.orebfuscator.obfuscation.ObfuscationResult;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.ChunkPosition;
 
@@ -22,7 +22,7 @@ public class ChunkSerializer {
 		return NmsInstance.getRegionFileCache().createOutputStream(key);
 	}
 
-	public static ObfuscatedChunk read(ChunkPosition key) throws IOException {
+	public static ObfuscationResult read(ChunkPosition key) throws IOException {
 		try (DataInputStream dataInputStream = createInputStream(key)) {
 			if (dataInputStream != null) {
 				// check if cache entry has right version and if chunk is present
@@ -36,14 +36,14 @@ public class ChunkSerializer {
 				byte[] data = new byte[dataInputStream.readInt()];
 				dataInputStream.readFully(data);
 
-				ObfuscatedChunk chunkCacheEntry = new ObfuscatedChunk(hash, data);
+				ObfuscationResult chunkCacheEntry = new ObfuscationResult(key, hash, data);
 
 				Collection<BlockPos> proximityBlocks = chunkCacheEntry.getProximityBlocks();
 				for (int i = dataInputStream.readInt(); i > 0; i--) {
 					proximityBlocks.add(BlockPos.fromLong(dataInputStream.readLong()));
 				}
 
-				Collection<BlockPos> removedEntities = chunkCacheEntry.getRemovedTileEntities();
+				Collection<BlockPos> removedEntities = chunkCacheEntry.getBlockEntities();
 				for (int i = dataInputStream.readInt(); i > 0; i--) {
 					removedEntities.add(BlockPos.fromLong(dataInputStream.readLong()));
 				}
@@ -57,7 +57,7 @@ public class ChunkSerializer {
 	}
 
 	// TODO consider size limit for cache since RegionFile before 1.14 have a hard limit of 256 * 4kb 
-	public static void write(ChunkPosition key, ObfuscatedChunk value) throws IOException {
+	public static void write(ChunkPosition key, ObfuscationResult value) throws IOException {
 		try (DataOutputStream dataOutputStream = createOutputStream(key)) {
 			dataOutputStream.writeInt(CACHE_VERSION);
 
@@ -78,7 +78,7 @@ public class ChunkSerializer {
 					dataOutputStream.writeLong(blockPosition.toLong());
 				}
 
-				Collection<BlockPos> removedEntities = value.getRemovedTileEntities();
+				Collection<BlockPos> removedEntities = value.getBlockEntities();
 				dataOutputStream.writeInt(removedEntities.size());
 				for (BlockPos blockPosition : removedEntities) {
 					dataOutputStream.writeLong(blockPosition.toLong());

@@ -7,16 +7,16 @@ import org.bukkit.World;
 import org.bukkit.block.Block;
 
 import net.imprex.orebfuscator.api.OrebfuscatorService;
-import net.imprex.orebfuscator.obfuscation.ObfuscatorSystem;
+import net.imprex.orebfuscator.obfuscation.ObfuscationSystem;
 
 public final class DefaultOrebfuscatorService implements OrebfuscatorService {
 
 	private final Orebfuscator orebfuscator;
-	private final ObfuscatorSystem obfuscatorSystem;
+	private final ObfuscationSystem obfuscatorSystem;
 
 	public DefaultOrebfuscatorService(Orebfuscator orebfuscator) {
 		this.orebfuscator = orebfuscator;
-		this.obfuscatorSystem = orebfuscator.getObfuscatorSystem();
+		this.obfuscatorSystem = orebfuscator.getObfuscationSystem();
 	}
 
 	@Override

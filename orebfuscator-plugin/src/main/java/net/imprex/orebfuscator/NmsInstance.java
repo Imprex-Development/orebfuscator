@@ -14,6 +14,7 @@ import net.imprex.orebfuscator.config.Config;
 import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.nms.BlockStateHolder;
 import net.imprex.orebfuscator.nms.NmsManager;
+import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 import net.imprex.orebfuscator.util.OFCLogger;
@@ -87,6 +88,10 @@ public class NmsInstance {
 
 	public static boolean isTileEntity(int blockId) {
 		return instance.isTileEntity(blockId);
+	}
+
+	public static ReadOnlyChunk getReadOnlyChunk(World world, int chunkX, int chunkZ) {
+		return instance.getReadOnlyChunk(world, chunkX, chunkZ);
 	}
 
 	public static BlockStateHolder getBlockState(World world, Block block) {
