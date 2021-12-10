@@ -2,5 +2,5 @@ package net.imprex.orebfuscator.nms;
 
 public interface ReadOnlyChunk {
 
-	int get(int x, int y, int z);
+	int getBlockState(int x, int y, int z);
 }

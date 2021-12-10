@@ -138,12 +138,6 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public int loadChunkAndGetBlockId(World world, int x, int y, int z) {
-		BlockState blockData = getBlockData(world, x, y, z, true);
-		return blockData != null ? getBlockId(blockData) : -1;
-	}
-
-	@Override
 	public boolean sendBlockChange(Player player, int x, int y, int z) {
 		ServerPlayer serverPlayer = player(player);
 		ServerLevel level = serverPlayer.getLevel();

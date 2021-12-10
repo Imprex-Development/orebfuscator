@@ -17,7 +17,7 @@ public class OrebfuscatorBlockFlags implements BlockFlags {
 		return EMPTY_FLAGS;
 	}
 
-	private final int[] blockFlags = new int[NmsInstance.getMaterialSize()];
+	private final int[] blockFlags = new int[NmsInstance.getTotalBlockCount()];
 
 	private OrebfuscatorBlockFlags(OrebfuscatorObfuscationConfig worldConfig, OrebfuscatorProximityConfig proximityConfig) {
 		if (worldConfig != null && worldConfig.isEnabled()) {

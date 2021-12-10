@@ -20,7 +20,7 @@ public class IndirectPalette implements Palette {
 		this.chunkSection = chunkSection;
 
 		// TODO improve block to index
-		this.byValue = new byte[NmsInstance.getMaterialSize()];
+		this.byValue = new byte[NmsInstance.getTotalBlockCount()];
 		Arrays.fill(this.byValue, (byte) 0xFF);
 		this.byId = new int[1 << bitsPerValue];
 	}

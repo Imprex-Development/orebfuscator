@@ -33,8 +33,6 @@ public interface NmsManager {
 
 	BlockStateHolder getBlockState(World world, int x, int y, int z);
 
-	int loadChunkAndGetBlockId(World world, int x, int y, int z);
-
 	boolean sendBlockChange(Player player, int x, int y, int z);
 
 	void close();

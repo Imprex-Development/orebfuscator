@@ -53,7 +53,7 @@ public class NmsInstance {
 		return instance.getBitsPerBlock();
 	}
 
-	public static int getMaterialSize() {
+	public static int getTotalBlockCount() {
 		return instance.getTotalBlockCount();
 	}
 
@@ -100,10 +100,6 @@ public class NmsInstance {
 
 	public static BlockStateHolder getBlockState(World world, int x, int y, int z) {
 		return instance.getBlockState(world, x, y, z);
-	}
-
-	public static int loadChunkAndGetBlockId(World world, int x, int y, int z) {
-		return instance.loadChunkAndGetBlockId(world, x, y, z);
 	}
 
 	public static boolean sendBlockChange(Player player, BlockPos blockCoords) {
