@@ -15,6 +15,7 @@ import net.imprex.orebfuscator.config.Config;
 import net.imprex.orebfuscator.nms.AbstractBlockState;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
 import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
+import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 import net.minecraft.server.v1_16_R1.Block;
 import net.minecraft.server.v1_16_R1.BlockPosition;
 import net.minecraft.server.v1_16_R1.Chunk;
@@ -121,6 +122,13 @@ public class NmsManager extends AbstractNmsManager {
 		default:
 			return false;
 		}
+	}
+
+	@Override
+	public ReadOnlyChunk getReadOnlyChunk(World world, int chunkX, int chunkZ) {
+		ChunkProviderServer chunkProviderServer = world(world).getChunkProvider();
+		Chunk chunk = chunkProviderServer.getChunkAt(chunkX, chunkZ, true);
+		return new ReadOnlyChunkWrapper(chunk);
 	}
 
 	@Override

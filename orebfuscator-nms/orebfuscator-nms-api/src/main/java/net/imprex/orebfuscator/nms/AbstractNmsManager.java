@@ -7,7 +7,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.Material;
-import org.bukkit.World;
 
 import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.config.Config;
@@ -63,11 +62,6 @@ public abstract class AbstractNmsManager implements NmsManager {
 	@Override
 	public final boolean isTileEntity(int blockId) {
 		return (this.blockFlags[blockId] & FLAG_TILE_ENTITY) != 0;
-	}
-
-	@Override
-	public ReadOnlyChunk getReadOnlyChunk(World world, int chunkX, int chunkZ) {
-		return null;
 	}
 
 	@Override
