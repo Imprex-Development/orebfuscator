@@ -34,6 +34,7 @@ public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
 		int availableThreads = Runtime.getRuntime().availableProcessors();
 		this.protocolLibThreads = (int) (protocolLibThreadsSet ? protocolLibThreads : Math.ceil(availableThreads / 2f));
 		this.obfuscationWorkerThreads = (int) (obfuscationWorkerThreadsSet ? obfuscationWorkerThreads : availableThreads);
+		this.proximityHiderThreads = (int) (proximityHiderThreadsSet ? proximityHiderThreads : Math.ceil(availableThreads / 2f));
 
 		OFCLogger.setVerboseLogging(this.verbose);
 		OFCLogger.debug("advanced.maxMillisecondPerTick = " + this.maxMillisecondPerTick);

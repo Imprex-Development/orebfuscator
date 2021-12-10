@@ -111,7 +111,6 @@ public class OrebfuscatorConfig implements Config {
 			OFCLogger.warn("config section 'general' is missing, using default one");
 		}
 
-		// TODO migration
 		ConfigurationSection advancedSection = section.getConfigurationSection("advanced");
 		if (advancedSection != null) {
 			this.advancedConfig.deserialize(advancedSection);
