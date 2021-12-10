@@ -12,11 +12,11 @@ import net.imprex.orebfuscator.obfuscation.ObfuscationSystem;
 public final class DefaultOrebfuscatorService implements OrebfuscatorService {
 
 	private final Orebfuscator orebfuscator;
-	private final ObfuscationSystem obfuscatorSystem;
+	private final ObfuscationSystem obfuscationSystem;
 
 	public DefaultOrebfuscatorService(Orebfuscator orebfuscator) {
 		this.orebfuscator = orebfuscator;
-		this.obfuscatorSystem = orebfuscator.getObfuscationSystem();
+		this.obfuscationSystem = orebfuscator.getObfuscationSystem();
 	}
 
 	@Override
@@ -35,6 +35,6 @@ public final class DefaultOrebfuscatorService implements OrebfuscatorService {
 			}
 		}
 
-		this.obfuscatorSystem.deobfuscate(blocks);
+		this.obfuscationSystem.deobfuscate(blocks);
 	}
 }

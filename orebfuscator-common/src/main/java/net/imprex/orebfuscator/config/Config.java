@@ -6,6 +6,8 @@ public interface Config {
 
 	GeneralConfig general();
 
+	AdvancedConfig advanced();
+
 	CacheConfig cache();
 
 	BlockFlags blockFlags(World world);

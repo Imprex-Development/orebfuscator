@@ -27,7 +27,7 @@ public class HeightAccessor {
 			if (methodAccessor == null) {
 				throw new RuntimeException("unable to find method: World::" + methodName + "()");
 			}
-			OFCLogger.info("HeightAccessor found method: World::" + methodName + "()");
+			OFCLogger.debug("HeightAccessor found method: World::" + methodName + "()");
 			return methodAccessor;
 		}
 		return null;

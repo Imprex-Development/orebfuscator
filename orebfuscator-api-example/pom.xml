@@ -23,7 +23,7 @@
 			<groupId>net.imprex</groupId>
 			<artifactId>orebfuscator-api</artifactId>
 			<version>${revision}</version>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>

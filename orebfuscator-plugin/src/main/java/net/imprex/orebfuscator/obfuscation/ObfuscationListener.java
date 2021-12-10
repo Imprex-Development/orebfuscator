@@ -37,7 +37,7 @@ public class ObfuscationListener extends PacketAdapter {
 
 		this.asynchronousManager = ProtocolLibrary.getProtocolManager().getAsynchronousManager();
 		this.asyncListenerHandler = this.asynchronousManager.registerAsyncHandler(this);
-		this.asyncListenerHandler.start(orebfuscator.getOrebfuscatorConfig().cache().protocolLibThreads());
+		this.asyncListenerHandler.start(orebfuscator.getOrebfuscatorConfig().advanced().protocolLibThreads());
 	}
 
 	@Override

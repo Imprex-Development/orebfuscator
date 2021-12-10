@@ -39,15 +39,15 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 		try {
 			// Check if protocolLib is enabled
 			if (this.getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
-				OFCLogger.info("ProtocolLib is not found! Plugin cannot be enabled.");
+				OFCLogger.log(Level.SEVERE, "ProtocolLib is not found! Plugin cannot be enabled.");
 				return;
 			}
 
-			// Check if HeightAccessor can be loaded
-			HeightAccessor.thisMethodIsUsedToInitializeStaticFields();
-
 			// Load configurations
 			this.config = new OrebfuscatorConfig(this);
+
+			// Check if HeightAccessor can be loaded
+			HeightAccessor.thisMethodIsUsedToInitializeStaticFields();
 
 			// Initialize metrics
 			new MetricsSystem(this);

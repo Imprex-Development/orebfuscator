@@ -32,6 +32,7 @@ public class OrebfuscatorConfig implements Config {
 	private static final int CONFIG_VERSION = 1;
 
 	private final OrebfuscatorGeneralConfig generalConfig = new OrebfuscatorGeneralConfig();
+	private final OrebfuscatorAdvancedConfig advancedConfig = new OrebfuscatorAdvancedConfig();
 	private final OrebfuscatorCacheConfig cacheConfig = new OrebfuscatorCacheConfig();
 
 	private final List<OrebfuscatorObfuscationConfig> obfuscationConfigs = new ArrayList<>();
@@ -110,6 +111,16 @@ public class OrebfuscatorConfig implements Config {
 			OFCLogger.warn("config section 'general' is missing, using default one");
 		}
 
+		// TODO migration
+		ConfigurationSection advancedSection = section.getConfigurationSection("advanced");
+		if (advancedSection != null) {
+			this.advancedConfig.deserialize(advancedSection);
+		} else {
+			OFCLogger.warn("config section 'advanced' is missing, using default one");
+		}
+
+		this.advancedConfig.initialize();
+
 		ConfigurationSection cacheSection = section.getConfigurationSection("cache");
 		if (cacheSection != null) {
 			this.cacheConfig.deserialize(cacheSection);
@@ -146,6 +157,7 @@ public class OrebfuscatorConfig implements Config {
 		section.set("version", CONFIG_VERSION);
 
 		this.generalConfig.serialize(section.createSection("general"));
+		this.advancedConfig.serialize(section.createSection("advanced"));
 		this.cacheConfig.serialize(section.createSection("cache"));
 
 		List<ConfigurationSection> obfuscationSectionList = new ArrayList<>();
@@ -168,6 +180,11 @@ public class OrebfuscatorConfig implements Config {
 	@Override
 	public GeneralConfig general() {
 		return this.generalConfig;
+	}
+
+	@Override
+	public AdvancedConfig advanced() {
+		return this.advancedConfig;
 	}
 
 	@Override

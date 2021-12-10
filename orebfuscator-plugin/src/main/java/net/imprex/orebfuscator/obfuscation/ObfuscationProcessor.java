@@ -17,15 +17,15 @@ import net.imprex.orebfuscator.config.ProximityConfig;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.HeightAccessor;
 
-class ObfuscationProcessor {
+public class ObfuscationProcessor {
 
 	private final OrebfuscatorConfig config;
 
-	ObfuscationProcessor(Orebfuscator orebfuscator) {
+	public ObfuscationProcessor(Orebfuscator orebfuscator) {
 		this.config = orebfuscator.getOrebfuscatorConfig();
 	}
 
-	void process(ObfuscationTask task) {
+	public void process(ObfuscationTask task) {
 		ChunkStruct chunkStruct = task.getChunkStruct();
 
 		World world = chunkStruct.world;

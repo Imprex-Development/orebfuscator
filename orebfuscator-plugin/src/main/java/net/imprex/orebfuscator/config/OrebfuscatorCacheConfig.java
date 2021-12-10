@@ -68,7 +68,7 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 			this.baseDirectory = worldPath.resolve(defaultPath).normalize();
 		}
 
-		OFCLogger.info("Using '" + this.baseDirectory + "' as chunk cache path");
+		OFCLogger.debug("Using '" + this.baseDirectory + "' as chunk cache path");
 
 		if (this.enabled()) {
 			try {
@@ -176,7 +176,7 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 	public void protocolLibThreads(int threads) {
 		if (threads < 1) {
 			this.protocolLibThreads = Runtime.getRuntime().availableProcessors();
-			OFCLogger.info("cache.protocolLibThreads is less than one, choosing processor count as value = "
+			OFCLogger.debug("cache.protocolLibThreads is less than one, choosing processor count as value = "
 					+ this.protocolLibThreads);
 			this.protocolLibThreadsSet = false;
 		} else {

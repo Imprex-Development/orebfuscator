@@ -29,7 +29,7 @@ public class NmsInstance {
 		}
 
 		String nmsVersion = MinecraftVersion.getNmsVersion();
-		OFCLogger.info("Searching NMS adapter for server version \"" + nmsVersion + "\"!");
+		OFCLogger.debug("Searching NMS adapter for server version \"" + nmsVersion + "\"!");
 
 		try {
 			String className = "net.imprex.orebfuscator.nms." + nmsVersion + ".NmsManager";
@@ -42,7 +42,7 @@ public class NmsInstance {
 			throw new RuntimeException("Couldn't initialize NMS adapter", e);
 		}
 
-		OFCLogger.info("NMS adapter for server version \"" + nmsVersion + "\" found!");
+		OFCLogger.debug("NMS adapter for server version \"" + nmsVersion + "\" found!");
 	}
 
 	public static AbstractRegionFileCache<?> getRegionFileCache() {

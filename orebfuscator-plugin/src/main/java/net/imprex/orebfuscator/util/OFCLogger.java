@@ -8,6 +8,21 @@ public class OFCLogger {
 	public static final Logger LOGGER = Logger.getLogger("bukkit.orebfuscator");
 	private static final String LOG_PREFIX = "[Orebfuscator] ";
 
+	private static boolean verbose = false;
+
+	public static void setVerboseLogging(boolean verbose) {
+		OFCLogger.verbose = verbose;
+		if (OFCLogger.verbose) {
+			debug("Verbose logging has been enabled");
+		}
+	}
+
+	public static void debug(String message) {
+		if (OFCLogger.verbose) {
+			info(message);
+		}
+	}
+
 	public static void warn(String message) {
 		log(Level.WARNING, message);
 	}
