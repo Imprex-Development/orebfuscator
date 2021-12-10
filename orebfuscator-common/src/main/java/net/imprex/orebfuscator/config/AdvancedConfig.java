@@ -7,4 +7,6 @@ public interface AdvancedConfig {
 	int protocolLibThreads();
 
 	int obfuscationWorkerThreads();
+
+	int proximityHiderThreads();
 }

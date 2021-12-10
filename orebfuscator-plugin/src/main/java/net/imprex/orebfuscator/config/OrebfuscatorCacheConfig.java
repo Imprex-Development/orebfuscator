@@ -25,8 +25,6 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 	private long expireAfterAccess = TimeUnit.SECONDS.toMillis(30);
 
 	private int maximumTaskQueueSize = 32768;
-	private int protocolLibThreads = -1;
-	private boolean protocolLibThreadsSet = false;
 
 	public void deserialize(ConfigurationSection section) {
 		this.enabled(section.getBoolean("enabled", true));
@@ -39,7 +37,6 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 		this.expireAfterAccess(section.getLong("expireAfterAccess", TimeUnit.SECONDS.toMillis(30)));
 
 		this.maximumTaskQueueSize(section.getInt("maximumTaskQueueSize", 32768));
-		this.protocolLibThreads(section.getInt("protocolLibThreads", -1));
 	}
 
 	public void serialize(ConfigurationSection section) {
@@ -53,7 +50,6 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 		section.set("expireAfterAccess", this.expireAfterAccess);
 
 		section.set("maximumTaskQueueSize", this.maximumTaskQueueSize);
-		section.set("protocolLibThreads", this.protocolLibThreadsSet ? this.protocolLibThreads : -1);
 	}
 
 	private void deserializeBaseDirectory(ConfigurationSection section, String defaultPath) {
@@ -165,23 +161,5 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 			throw new IllegalArgumentException("cache.maximumTaskQueueSize is lower than one");
 		}
 		this.maximumTaskQueueSize = size;
-	}
-
-	@Override
-	public int protocolLibThreads() {
-		return this.protocolLibThreads;
-	}
-
-	@Override
-	public void protocolLibThreads(int threads) {
-		if (threads < 1) {
-			this.protocolLibThreads = Runtime.getRuntime().availableProcessors();
-			OFCLogger.debug("cache.protocolLibThreads is less than one, choosing processor count as value = "
-					+ this.protocolLibThreads);
-			this.protocolLibThreadsSet = false;
-		} else {
-			this.protocolLibThreads = threads;
-			this.protocolLibThreadsSet = true;
-		}
 	}
 }

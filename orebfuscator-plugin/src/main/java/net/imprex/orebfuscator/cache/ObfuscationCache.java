@@ -19,14 +19,12 @@ import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class ObfuscationCache {
 
-	private final Orebfuscator orebfuscator;
 	private final CacheConfig cacheConfig;
 
 	private final Cache<ChunkPosition, ObfuscationResult> cache;
 	private final AsyncChunkSerializer serializer;
 
 	public ObfuscationCache(Orebfuscator orebfuscator) {
-		this.orebfuscator = orebfuscator;
 		this.cacheConfig = orebfuscator.getOrebfuscatorConfig().cache();
 
 		this.cache = CacheBuilder.newBuilder().maximumSize(this.cacheConfig.maximumSize())
@@ -68,13 +66,8 @@ public class ObfuscationCache {
 	}
 
 	public void invalidate(ChunkPosition key) {
-		if (this.orebfuscator.isMainThread()) {
-			this.cache.invalidate(key);
-//			throw new UnsupportedOperationException("can't invalidate from main-thread");
-		} else {
-			this.cache.invalidate(key);
-			this.serializer.write(key, null);
-		}
+		this.cache.invalidate(key);
+		this.serializer.invalidate(key);
 	}
 
 	public void close() {

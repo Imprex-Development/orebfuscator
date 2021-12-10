@@ -47,7 +47,4 @@ public interface CacheConfig {
 	 * @throws IllegalArgumentException When the expire value is lower than one
 	 */
 	void maximumTaskQueueSize(int size);
-
-	int protocolLibThreads();
-	void protocolLibThreads(int threads);
 }

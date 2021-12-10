@@ -24,7 +24,7 @@ public class ProximityHider {
 		this.orebfuscator = orebfuscator;
 		this.config = this.orebfuscator.getOrebfuscatorConfig();
 
-		this.queueThreads = new ProximityThread[this.config.general().proximityHiderRunnerSize()];
+		this.queueThreads = new ProximityThread[this.config.advanced().proximityHiderThreads()];
 	}
 
 	public ProximityPlayerManager getPlayerManager() {
