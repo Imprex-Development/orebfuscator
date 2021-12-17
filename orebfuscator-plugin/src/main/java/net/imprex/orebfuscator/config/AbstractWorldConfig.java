@@ -11,12 +11,15 @@ import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 
 import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.OFCLogger;
 import net.imprex.orebfuscator.util.WeightedRandom;
 
 public abstract class AbstractWorldConfig implements WorldConfig {
 
 	protected boolean enabled = false;
+	protected int minY = BlockPos.MIN_Y;
+	protected int maxY = BlockPos.MAX_Y;
 
 	protected final List<WorldMatcher> worldMatchers = new ArrayList<>();
 
@@ -34,6 +37,18 @@ public abstract class AbstractWorldConfig implements WorldConfig {
 	protected final void fail(String message) {
 		this.enabled = false;
 		OFCLogger.warn(message);
+	}
+
+	protected void deserializeBase(ConfigurationSection section) {
+		this.enabled = section.getBoolean("enabled", true);
+		this.minY = Math.max(BlockPos.MIN_Y, section.getInt("minY", BlockPos.MIN_Y));
+		this.maxY = Math.min(BlockPos.MAX_Y, section.getInt("maxY", BlockPos.MAX_Y));
+	}
+
+	protected void serializeBase(ConfigurationSection section) {
+		section.set("enabled", this.enabled);
+		section.set("minY", this.minY);
+		section.set("maxY", this.maxY);
 	}
 
 	protected void deserializeWorlds(ConfigurationSection section, String path) {
@@ -92,6 +107,16 @@ public abstract class AbstractWorldConfig implements WorldConfig {
 	}
 
 	@Override
+	public int getMinY() {
+		return this.minY;
+	}
+
+	@Override
+	public int getMaxY() {
+		return this.maxY;
+	}
+
+	@Override
 	public boolean matchesWorldName(String worldName) {
 		for (WorldMatcher matcher : this.worldMatchers) {
 			if (matcher.test(worldName)) {
@@ -102,7 +127,7 @@ public abstract class AbstractWorldConfig implements WorldConfig {
 	}
 
 	@Override
-	public int nextRandomBlockId() {
+	public int nextRandomBlockState() {
 		return this.weightedBlockIds.next();
 	}
 }

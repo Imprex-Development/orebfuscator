@@ -33,28 +33,28 @@ public class OrebfuscatorBlockFlags implements BlockFlags {
 	}
 
 	private void setBlockBits(Material material, int bits) {
-		for (int blockId : NmsInstance.getBlockIds(material)) {
-			int blockMask = this.blockFlags[blockId] | bits;
+		for (int blockState : NmsInstance.getBlockIds(material)) {
+			int blockMask = this.blockFlags[blockState] | bits;
 
-			if (NmsInstance.isTileEntity(blockId)) {
-				blockMask |= FLAG_TILE_ENTITY;
+			if (NmsInstance.isBlockEntity(blockState)) {
+				blockMask |= FLAG_BLOCK_ENTITY;
 			}
 
-			this.blockFlags[blockId] = blockMask;
+			this.blockFlags[blockState] = blockMask;
 		}
 	}
 
 	@Override
-	public int flags(int blockId) {
-		return this.blockFlags[blockId];
+	public int flags(int blockState) {
+		return this.blockFlags[blockState];
 	}
 
 	@Override
-	public int flags(int blockId, int y) {
-		int blockFlags = this.blockFlags[blockId];
-		if (HideCondition.match(blockFlags, y)) {
-			blockFlags |= FLAG_PROXIMITY;
+	public int flags(int blockState, int y) {
+		int flags = this.blockFlags[blockState];
+		if (ProximityHeightCondition.match(flags, y)) {
+			flags |= FLAG_PROXIMITY;
 		}
-		return blockFlags;
+		return flags;
 	}
 }

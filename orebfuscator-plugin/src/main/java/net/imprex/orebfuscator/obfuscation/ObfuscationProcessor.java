@@ -44,17 +44,17 @@ public class ObfuscationProcessor {
 		try (Chunk chunk = Chunk.fromChunkStruct(chunkStruct)) {
 			for (int sectionIndex = 0; sectionIndex < chunk.getSectionCount(); sectionIndex++) {
 				ChunkSection chunkSection = chunk.getSection(sectionIndex);
-				if (chunkSection == null) {
+				if (chunkSection == null || chunkSection.isEmpty()) {
 					continue;
 				}
 
 				final int baseY = heightAccessor.getMinBuildHeight() + (sectionIndex << 4);
 				for (int index = 0; index < 4096; index++) {
-					int blockData = chunkSection.getBlock(index);
+					int blockState = chunkSection.getBlock(index);
 
 					int y = baseY + (index >> 8 & 15);
 
-					int obfuscateBits = blockFlags.flags(blockData, y);
+					int obfuscateBits = blockFlags.flags(blockState, y);
 					if (BlockFlags.isEmpty(obfuscateBits)) {
 						continue;
 					}
@@ -66,25 +66,25 @@ public class ObfuscationProcessor {
 
 					// should current block be obfuscated
 					if (BlockFlags.isObfuscateBitSet(obfuscateBits) && shouldObfuscate(task, chunk, x, y, z)) {
-						blockData = obfuscationConfig.nextRandomBlockId();
+						blockState = obfuscationConfig.nextRandomBlockState();
 						obfuscated = true;
 					}
 
 					// should current block be proximity hidden
 					if (!obfuscated && BlockFlags.isProximityBitSet(obfuscateBits)) {
 						proximityBlocks.add(new BlockPos(x, y, z));
-						obfuscated = true;
 						if (BlockFlags.isUseBlockBelowBitSet(obfuscateBits)) {
-							blockData = getBlockBelow(blockFlags, chunk, x, y, z);
+							blockState = getBlockBelow(blockFlags, chunk, x, y, z);
 						} else {
-							blockData = proximityConfig.nextRandomBlockId();
+							blockState = proximityConfig.nextRandomBlockState();
 						}
+						obfuscated = true;
 					}
 
 					// update block state if needed
 					if (obfuscated) {
-						chunkSection.setBlock(index, blockData);
-						if (BlockFlags.isTileEntityBitSet(obfuscateBits)) {
+						chunkSection.setBlock(index, blockState);
+						if (BlockFlags.isBlockEntityBitSet(obfuscateBits)) {
 							blockEntities.add(new BlockPos(x, y, z));
 						}
 					}

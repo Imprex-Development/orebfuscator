@@ -60,7 +60,7 @@ public abstract class AbstractNmsManager implements NmsManager {
 	}
 
 	@Override
-	public final boolean isTileEntity(int blockId) {
+	public final boolean isBlockEntity(int blockId) {
 		return (this.blockFlags[blockId] & FLAG_TILE_ENTITY) != 0;
 	}
 

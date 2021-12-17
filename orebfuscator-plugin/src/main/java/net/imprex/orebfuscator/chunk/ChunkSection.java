@@ -86,6 +86,10 @@ public class ChunkSection {
 		return this.palette.valueFor(this.data.get(index));
 	}
 
+	public boolean isEmpty() {
+		return ChunkCapabilities.hasBlockCount() && this.blockCount == 0;
+	}
+
 	public void write(ByteBuf buffer) {
 		if (ChunkCapabilities.hasBlockCount()) {
 			buffer.writeShort(this.blockCount);

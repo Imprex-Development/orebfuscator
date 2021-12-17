@@ -29,9 +29,9 @@ public class MetricsSystem {
 			if (memory == Long.MAX_VALUE) {
 				result.put("unlimited", exact);
 			} else {
-				int gibiByte = (int) (memory / 1073741824L);
+				float gibiByte = Math.round(memory / 1073741824f * 100f) / 100f;
 				exact.put(gibiByte + "GiB", 1);
-				result.put(MathUtil.ceilToPowerOfTwo(gibiByte) + "GiB", exact);
+				result.put(MathUtil.ceilToPowerOfTwo((int) gibiByte) + "GiB", exact);
 			}
 
 			return result;

@@ -47,6 +47,10 @@ public class HeightAccessor {
 		return null;
 	}
 
+	private static int blockToSectionCoord(int block) {
+		return block >> 4;
+	}
+
 	public static void thisMethodIsUsedToInitializeStaticFields() {
 	}
 
@@ -76,14 +80,14 @@ public class HeightAccessor {
 	}
 
 	public int getMinSection() {
-		return SectionPosition.blockToSectionCoord(this.getMinBuildHeight());
+		return blockToSectionCoord(this.getMinBuildHeight());
 	}
 
 	public int getMaxSection() {
-		return SectionPosition.blockToSectionCoord(this.getMaxBuildHeight() - 1) + 1;
+		return blockToSectionCoord(this.getMaxBuildHeight() - 1) + 1;
 	}
 
 	public int getSectionIndex(int y) {
-		return SectionPosition.blockToSectionCoord(y) - getMinSection();
+		return blockToSectionCoord(y) - getMinSection();
 	}
 }

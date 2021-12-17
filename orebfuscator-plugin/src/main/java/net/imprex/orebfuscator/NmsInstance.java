@@ -86,8 +86,8 @@ public class NmsInstance {
 		return instance.isOccluding(blockId);
 	}
 
-	public static boolean isTileEntity(int blockId) {
-		return instance.isTileEntity(blockId);
+	public static boolean isBlockEntity(int blockId) {
+		return instance.isBlockEntity(blockId);
 	}
 
 	public static ReadOnlyChunk getReadOnlyChunk(World world, int chunkX, int chunkZ) {
