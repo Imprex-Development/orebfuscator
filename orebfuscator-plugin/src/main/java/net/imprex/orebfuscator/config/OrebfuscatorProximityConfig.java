@@ -17,11 +17,25 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 
 	private int defaultBlockFlags = (ProximityHeightCondition.MATCH_ALL | BlockFlags.FLAG_USE_BLOCK_BELOW);
 	
+	private boolean usesBlockSpecificConfigs = false;
 	private Map<Material, Integer> hiddenBlocks = new LinkedHashMap<>();
 
 	OrebfuscatorProximityConfig(ConfigurationSection section) {
 		this.deserializeBase(section);
 		this.deserializeWorlds(section, "worlds");
+
+		// LEGACY: transform to post 5.2.2
+		if (section.isConfigurationSection("defaults")) {
+			int y = section.getInt("defaults.y");
+			if (section.getBoolean("defaults.above")) {
+				this.minY = y;
+				this.maxY = BlockPos.MAX_Y;
+			} else {
+				this.minY = BlockPos.MIN_Y;
+				this.minY = y;
+			}
+			section.set("useBlockBelow", section.getBoolean("defaults.useBlockBelow"));
+		}
 
 		if ((this.distance = section.getInt("distance", 8)) < 1) {
 			this.fail("distance must be higher than zero");
@@ -70,6 +84,8 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 					} else {
 						blockFlags |= ProximityHeightCondition.create(BlockPos.MIN_Y, y);
 					}
+
+					usesBlockSpecificConfigs = true;
 				}
 
 				// parse block specific height condition
@@ -78,6 +94,7 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 					blockFlags |= ProximityHeightCondition.create(
 							blockSection.getInt(blockName + ".minY"),
 							blockSection.getInt(blockName + ".maxY"));
+					usesBlockSpecificConfigs = true;
 				}
 
 				// parse block specific flags
@@ -87,6 +104,7 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 					} else {
 						blockFlags &= ~BlockFlags.FLAG_USE_BLOCK_BELOW;
 					}
+					usesBlockSpecificConfigs = true;
 				}
 
 				this.hiddenBlocks.put(optional.get(), blockFlags);
@@ -136,5 +154,9 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 	@Override
 	public Iterable<Map.Entry<Material, Integer>> hiddenBlocks() {
 		return this.hiddenBlocks.entrySet();
+	}
+
+	boolean usesBlockSpecificConfigs() {
+		return usesBlockSpecificConfigs;
 	}
 }

@@ -10,6 +10,8 @@ public interface Config {
 
 	CacheConfig cache();
 
+	WorldConfigBundle bundle(World world);
+
 	BlockFlags blockFlags(World world);
 
 	boolean needsObfuscation(World world);

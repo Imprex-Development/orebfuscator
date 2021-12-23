@@ -127,6 +127,11 @@ public abstract class AbstractWorldConfig implements WorldConfig {
 	}
 
 	@Override
+	public boolean shouldObfuscate(int y) {
+		return y >= this.minY && y <= this.maxY;
+	}
+
+	@Override
 	public int nextRandomBlockState() {
 		return this.weightedBlockIds.next();
 	}

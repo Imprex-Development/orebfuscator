@@ -24,6 +24,8 @@ import com.google.common.hash.Hashing;
 
 import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.Orebfuscator;
+import net.imprex.orebfuscator.util.BlockPos;
+import net.imprex.orebfuscator.util.HeightAccessor;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 import net.imprex.orebfuscator.util.OFCLogger;
 
@@ -38,7 +40,7 @@ public class OrebfuscatorConfig implements Config {
 	private final List<OrebfuscatorObfuscationConfig> obfuscationConfigs = new ArrayList<>();
 	private final List<OrebfuscatorProximityConfig> proximityConfigs = new ArrayList<>();
 
-	private final Map<World, OrebfuscatorConfig.WorldConfigs> worldConfigs = new WeakHashMap<>();
+	private final Map<World, OrebfuscatorConfig.OrebfuscatorWorldConfigBundle> worldConfigBundles = new WeakHashMap<>();
 	private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
 	private final Plugin plugin;
@@ -102,7 +104,7 @@ public class OrebfuscatorConfig implements Config {
 
 		this.obfuscationConfigs.clear();
 		this.proximityConfigs.clear();
-		this.worldConfigs.clear();
+		this.worldConfigBundles.clear();
 
 		ConfigurationSection generalSection = section.getConfigurationSection("general");
 		if (generalSection != null) {
@@ -148,7 +150,7 @@ public class OrebfuscatorConfig implements Config {
 		}
 
 		for (World world : Bukkit.getWorlds()) {
-			this.worldConfigs.put(world, new WorldConfigs(world));
+			this.worldConfigBundles.put(world, new OrebfuscatorWorldConfigBundle(world));
 		}
 	}
 
@@ -192,18 +194,23 @@ public class OrebfuscatorConfig implements Config {
 	}
 
 	@Override
+	public WorldConfigBundle bundle(World world) {
+		return this.getWorldConfigBundle(world);
+	}
+
+	@Override
 	public BlockFlags blockFlags(World world) {
-		return this.getWorldConfigs(world).blockFlags;
+		return this.getWorldConfigBundle(world).blockFlags;
 	}
 
 	@Override
 	public boolean needsObfuscation(World world) {
-		return this.getWorldConfigs(world).needsObfuscation;
+		return this.getWorldConfigBundle(world).needsObfuscation;
 	}
 
 	@Override
 	public ObfuscationConfig obfuscation(World world) {
-		return this.getWorldConfigs(world).obfuscationConfig;
+		return this.getWorldConfigBundle(world).obfuscationConfig;
 	}
 
 	@Override
@@ -218,12 +225,21 @@ public class OrebfuscatorConfig implements Config {
 
 	@Override
 	public ProximityConfig proximity(World world) {
-		return this.getWorldConfigs(world).proximityConfig;
+		return this.getWorldConfigBundle(world).proximityConfig;
 	}
 
 	@Override
 	public byte[] systemHash() {
 		return systemHash;
+	}
+
+	public boolean usesBlockSpecificConfigs() {
+		for (OrebfuscatorProximityConfig config : this.proximityConfigs) {
+			if (config.usesBlockSpecificConfigs()) {
+				return true;
+			}
+		}
+		return false;
 	}
 
 	public boolean usesFastGaze() {
@@ -235,10 +251,10 @@ public class OrebfuscatorConfig implements Config {
 		return false;
 	}
 
-	private WorldConfigs getWorldConfigs(World world) {
+	private OrebfuscatorWorldConfigBundle getWorldConfigBundle(World world) {
 		this.lock.readLock().lock();
 		try {
-			WorldConfigs worldConfigs = this.worldConfigs.get(Objects.requireNonNull(world));
+			OrebfuscatorWorldConfigBundle worldConfigs = this.worldConfigBundles.get(Objects.requireNonNull(world));
 			if (worldConfigs != null) {
 				return worldConfigs;
 			}
@@ -246,17 +262,17 @@ public class OrebfuscatorConfig implements Config {
 			this.lock.readLock().unlock();
 		}
 
-		WorldConfigs worldConfigs = new WorldConfigs(world);
+		OrebfuscatorWorldConfigBundle worldConfigs = new OrebfuscatorWorldConfigBundle(world);
 		this.lock.writeLock().lock();
 		try {
-			this.worldConfigs.putIfAbsent(world, worldConfigs);
-			return this.worldConfigs.get(world);
+			this.worldConfigBundles.putIfAbsent(world, worldConfigs);
+			return this.worldConfigBundles.get(world);
 		} finally {
 			this.lock.writeLock().unlock();
 		}
 	}
 
-	private class WorldConfigs {
+	private class OrebfuscatorWorldConfigBundle implements WorldConfigBundle {
 
 		private final OrebfuscatorObfuscationConfig obfuscationConfig;
 		private final OrebfuscatorProximityConfig proximityConfig;
@@ -264,7 +280,13 @@ public class OrebfuscatorConfig implements Config {
 		private final OrebfuscatorBlockFlags blockFlags;
 		private final boolean needsObfuscation;
 
-		public WorldConfigs(World world) {
+		private final int minY;
+		private final int maxY;
+
+		private final int minSectionIndex;
+		private final int maxSectionIndex;
+
+		public OrebfuscatorWorldConfigBundle(World world) {
 			String worldName = world.getName();
 
 			this.obfuscationConfig = findConfig(obfuscationConfigs.stream(), worldName, "obfuscation");
@@ -273,6 +295,17 @@ public class OrebfuscatorConfig implements Config {
 			this.blockFlags = OrebfuscatorBlockFlags.create(obfuscationConfig, proximityConfig);
 			this.needsObfuscation = obfuscationConfig != null && obfuscationConfig.isEnabled() ||
 					proximityConfig != null && proximityConfig.isEnabled();
+
+			this.minY = Math.min(
+					this.obfuscationConfig != null ? this.obfuscationConfig.getMinY() : BlockPos.MAX_Y,
+					this.proximityConfig != null ? this.proximityConfig.getMinY() : BlockPos.MAX_Y);
+			this.maxY = Math.max(
+					this.obfuscationConfig != null ? this.obfuscationConfig.getMaxY() : BlockPos.MIN_Y,
+					this.proximityConfig != null ? this.proximityConfig.getMaxY() : BlockPos.MIN_Y);
+
+			HeightAccessor heightAccessor = HeightAccessor.get(world);
+			this.minSectionIndex = heightAccessor.getSectionIndex(this.minY);
+			this.maxSectionIndex = heightAccessor.getSectionIndex(this.maxY - 1) + 1;
 		}
 
 		private <T extends AbstractWorldConfig> T findConfig(Stream<? extends T> configs, String worldName, String configName) {
@@ -285,6 +318,36 @@ public class OrebfuscatorConfig implements Config {
 			}
 
 			return matchingConfigs.size() > 0 ? matchingConfigs.get(0) : null;
+		}
+
+		@Override
+		public BlockFlags blockFlags() {
+			return this.blockFlags;
+		}
+
+		@Override
+		public ObfuscationConfig obfuscation() {
+			return this.obfuscationConfig;
+		}
+
+		@Override
+		public ProximityConfig proximity() {
+			return this.proximityConfig;
+		}
+
+		@Override
+		public int minSectionIndex() {
+			return this.minSectionIndex;
+		}
+
+		@Override
+		public int maxSectionIndex() {
+			return this.maxSectionIndex;
+		}
+
+		@Override
+		public boolean shouldObfuscate(int y) {
+			return y >= this.minY && y <= this.maxY;
 		}
 	}
 }

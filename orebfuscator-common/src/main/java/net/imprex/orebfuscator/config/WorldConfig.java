@@ -10,6 +10,8 @@ public interface WorldConfig {
 
 	boolean matchesWorldName(String worldName);
 
+	boolean shouldObfuscate(int y);
+
 	int nextRandomBlockState();
 
 }

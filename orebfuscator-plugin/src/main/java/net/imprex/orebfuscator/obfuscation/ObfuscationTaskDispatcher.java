@@ -24,7 +24,7 @@ class ObfuscationTaskDispatcher implements Runnable {
 		this.processor = processor;
 
 		AdvancedConfig config = orebfuscator.getOrebfuscatorConfig().advanced();
-		this.availableNanosPerTick = TimeUnit.MILLISECONDS.toNanos(config.maxMillisecondPerTick());
+		this.availableNanosPerTick = TimeUnit.MILLISECONDS.toNanos(config.maxMillisecondsPerTick());
 
 		this.worker = new ObfuscationTaskWorker[config.obfuscationWorkerThreads()];
 		for (int i = 0; i < this.worker.length; i++) {

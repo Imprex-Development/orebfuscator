@@ -7,7 +7,7 @@ import net.imprex.orebfuscator.util.OFCLogger;
 public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
 
 	private boolean verbose = false;
-	private int maxMillisecondPerTick = 10;
+	private int maxMillisecondsPerTick = 10;
 	private int protocolLibThreads = -1;
 	private int obfuscationWorkerThreads = -1;
 	private int proximityHiderThreads = -1;
@@ -18,7 +18,12 @@ public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
 
 	public void deserialize(ConfigurationSection section) {
 		this.verbose = section.getBoolean("verbose", false);
-		this.maxMillisecondPerTick = section.getInt("maxMillisecondPerTick", 10);
+		this.maxMillisecondsPerTick = section.getInt("maxMillisecondsPerTick", 10);
+
+		if (this.maxMillisecondsPerTick <= 0 || this.maxMillisecondsPerTick >= 50) {
+			throw new RuntimeException(
+					"maxMillisecondsPerTick has to be between 0 and 50, value: " + this.maxMillisecondsPerTick);
+		}
 
 		this.protocolLibThreads = section.getInt("protocolLibThreads", -1);
 		this.protocolLibThreadsSet = (this.protocolLibThreads > 0);
@@ -37,7 +42,7 @@ public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
 		this.proximityHiderThreads = (int) (proximityHiderThreadsSet ? proximityHiderThreads : Math.ceil(availableThreads / 2f));
 
 		OFCLogger.setVerboseLogging(this.verbose);
-		OFCLogger.debug("advanced.maxMillisecondPerTick = " + this.maxMillisecondPerTick);
+		OFCLogger.debug("advanced.maxMillisecondsPerTick = " + this.maxMillisecondsPerTick);
 		OFCLogger.debug("advanced.protocolLibThreads = " + this.protocolLibThreads);
 		OFCLogger.debug("advanced.obfuscationWorkerThreads = " + this.obfuscationWorkerThreads);
 		OFCLogger.debug("advanced.proximityHiderThreads = " + this.proximityHiderThreads);
@@ -45,15 +50,15 @@ public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
 
 	public void serialize(ConfigurationSection section) {
 		section.set("verbose", this.verbose);
-		section.set("maxMillisecondPerTick", this.maxMillisecondPerTick);
+		section.set("maxMillisecondsPerTick", this.maxMillisecondsPerTick);
 		section.set("protocolLibThreads", this.protocolLibThreadsSet ? this.protocolLibThreads : -1);
 		section.set("obfuscationWorkerThreads", this.obfuscationWorkerThreadsSet ? this.obfuscationWorkerThreads : -1);
 		section.set("proximityHiderThreads", this.proximityHiderThreadsSet ? this.proximityHiderThreads : -1);
 	}
 
 	@Override
-	public int maxMillisecondPerTick() {
-		return this.maxMillisecondPerTick;
+	public int maxMillisecondsPerTick() {
+		return this.maxMillisecondsPerTick;
 	}
 
 	@Override

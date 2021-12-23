@@ -7,7 +7,7 @@ general:
   updateRadius: 2
 advanced:
   verbose: false
-  maxMillisecondPerTick: 10
+  maxMillisecondsPerTick: 10
   protocolLibThreads: -1
   obfuscationWorkerThreads: -1
   proximityHiderThreads: -1
@@ -21,6 +21,8 @@ cache:
   maximumTaskQueueSize: 32768
 obfuscation:
 - enabled: true
+  minY: -2032
+  maxY: 2031
   worlds:
   - world
   hiddenBlocks:
@@ -82,6 +84,8 @@ obfuscation:
     minecraft:obsidian: 1
     minecraft:tnt: 1
 - enabled: true
+  minY: -2032
+  maxY: 2031
   worlds:
   - world_nether
   hiddenBlocks:
@@ -118,6 +122,8 @@ obfuscation:
     minecraft:nether_gold_ore: 1
     minecraft:ancient_debris: 1
 - enabled: true
+  minY: -2032
+  maxY: 2031
   worlds:
   - world_the_end
   hiddenBlocks:
@@ -149,14 +155,13 @@ obfuscation:
     minecraft:purpur_block: 1
 proximity:
 - enabled: true
+  minY: -2032
+  maxY: 2031
   worlds:
   - world
   distance: 24
   useFastGazeCheck: false
-  defaults:
-    y: -2032
-    above: true
-    useBlockBelow: true
+  useBlockBelow: true
   hiddenBlocks:
     minecraft:mossy_cobblestone: {}
     minecraft:diamond_ore: {}
@@ -205,14 +210,13 @@ proximity:
   randomBlocks:
     minecraft:stone: 1
 - enabled: true
+  minY: -2032
+  maxY: 2031
   worlds:
   - world_nether
   distance: 24
   useFastGazeCheck: false
-  defaults:
-    y: -2032
-    above: true
-    useBlockBelow: true
+  useBlockBelow: true
   hiddenBlocks:
     minecraft:chest: {}
     minecraft:ender_chest: {}
@@ -257,19 +261,15 @@ proximity:
     minecraft:nether_gold_ore: {}
     minecraft:respawn_anchor: {}
   randomBlocks:
-    minecraft:netherrack: 4
-    minecraft:nether_quartz_ore: 1
-    minecraft:nether_gold_ore: 1
-    minecraft:ancient_debris: 1
+    minecraft:netherrack: 1
 - enabled: true
+  minY: -2032
+  maxY: 2031
   worlds:
   - world_the_end
   distance: 24
   useFastGazeCheck: false
-  defaults:
-    y: -2032
-    above: true
-    useBlockBelow: true
+  useBlockBelow: true
   hiddenBlocks:
     minecraft:chest: {}
     minecraft:ender_chest: {}

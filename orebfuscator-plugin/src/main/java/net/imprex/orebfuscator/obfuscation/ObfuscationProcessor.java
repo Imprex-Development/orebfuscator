@@ -14,6 +14,7 @@ import net.imprex.orebfuscator.config.BlockFlags;
 import net.imprex.orebfuscator.config.ObfuscationConfig;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.config.ProximityConfig;
+import net.imprex.orebfuscator.config.WorldConfigBundle;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.HeightAccessor;
 
@@ -31,9 +32,10 @@ public class ObfuscationProcessor {
 		World world = chunkStruct.world;
 		HeightAccessor heightAccessor = HeightAccessor.get(world);
 
-		BlockFlags blockFlags = this.config.blockFlags(world);
-		ObfuscationConfig obfuscationConfig = this.config.obfuscation(world);
-		ProximityConfig proximityConfig = this.config.proximity(world);
+		WorldConfigBundle bundle = this.config.bundle(world);
+		BlockFlags blockFlags = bundle.blockFlags();
+		ObfuscationConfig obfuscationConfig = bundle.obfuscation();
+		ProximityConfig proximityConfig = bundle.proximity();
 
 		Set<BlockPos> blockEntities = new HashSet<>();
 		Set<BlockPos> proximityBlocks = new HashSet<>();
@@ -42,7 +44,8 @@ public class ObfuscationProcessor {
 		int baseZ = chunkStruct.chunkZ << 4;
 
 		try (Chunk chunk = Chunk.fromChunkStruct(chunkStruct)) {
-			for (int sectionIndex = 0; sectionIndex < chunk.getSectionCount(); sectionIndex++) {
+			for (int sectionIndex = Math.max(0, bundle.minSectionIndex()); sectionIndex <= Math
+					.min(chunk.getSectionCount() - 1, bundle.maxSectionIndex()); sectionIndex++) {
 				ChunkSection chunkSection = chunk.getSection(sectionIndex);
 				if (chunkSection == null || chunkSection.isEmpty()) {
 					continue;
@@ -50,9 +53,12 @@ public class ObfuscationProcessor {
 
 				final int baseY = heightAccessor.getMinBuildHeight() + (sectionIndex << 4);
 				for (int index = 0; index < 4096; index++) {
-					int blockState = chunkSection.getBlock(index);
-
 					int y = baseY + (index >> 8 & 15);
+					if (!bundle.shouldObfuscate(y)) {
+						continue;
+					}
+
+					int blockState = chunkSection.getBlock(index);
 
 					int obfuscateBits = blockFlags.flags(blockState, y);
 					if (BlockFlags.isEmpty(obfuscateBits)) {
@@ -65,13 +71,14 @@ public class ObfuscationProcessor {
 					boolean obfuscated = false;
 
 					// should current block be obfuscated
-					if (BlockFlags.isObfuscateBitSet(obfuscateBits) && shouldObfuscate(task, chunk, x, y, z)) {
+					if (BlockFlags.isObfuscateBitSet(obfuscateBits) && shouldObfuscate(task, chunk, x, y, z)
+							&& obfuscationConfig.shouldObfuscate(y)) {
 						blockState = obfuscationConfig.nextRandomBlockState();
 						obfuscated = true;
 					}
 
 					// should current block be proximity hidden
-					if (!obfuscated && BlockFlags.isProximityBitSet(obfuscateBits)) {
+					if (!obfuscated && BlockFlags.isProximityBitSet(obfuscateBits) && proximityConfig.shouldObfuscate(y)) {
 						proximityBlocks.add(new BlockPos(x, y, z));
 						if (BlockFlags.isUseBlockBelowBitSet(obfuscateBits)) {
 							blockState = getBlockBelow(blockFlags, chunk, x, y, z);
