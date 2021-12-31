@@ -16,6 +16,7 @@ public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implement
 	private final Set<Material> hiddenBlocks = new LinkedHashSet<>();
 
 	OrebfuscatorObfuscationConfig(ConfigurationSection section) {
+		super(section.getName());
 		this.enabled = section.getBoolean("enabled", true);
 		this.deserializeWorlds(section, "worlds");
 		this.deserializeHiddenBlocks(section, "hiddenBlocks");

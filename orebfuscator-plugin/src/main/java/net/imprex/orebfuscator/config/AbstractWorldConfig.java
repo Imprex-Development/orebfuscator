@@ -16,12 +16,18 @@ import net.imprex.orebfuscator.util.WeightedRandom;
 
 public abstract class AbstractWorldConfig implements WorldConfig {
 
+	private final String name;
+
 	protected boolean enabled = false;
 
 	protected final List<WorldMatcher> worldMatchers = new ArrayList<>();
 
 	protected final Map<Material, Integer> randomBlocks = new LinkedHashMap<>();
 	protected final WeightedRandom<Integer> weightedBlockIds = new WeightedRandom<>();
+
+	public AbstractWorldConfig(String name) {
+		this.name = name;
+	}
 
 	protected static void warnUnkownBlock(String section, String path, String name) {
 		OFCLogger.warn(String.format("config section '%s.%s' contains unknown block '%s'", section, path, name));
@@ -84,6 +90,10 @@ public abstract class AbstractWorldConfig implements WorldConfig {
 				warnUnkownBlock(section.getCurrentPath(), path, material.name());
 			}
 		}
+	}
+
+	public String getName() {
+		return name;
 	}
 
 	@Override

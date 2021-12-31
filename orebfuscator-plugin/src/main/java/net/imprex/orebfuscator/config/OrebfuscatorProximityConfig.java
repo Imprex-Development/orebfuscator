@@ -19,6 +19,7 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 	private Map<Material, Integer> hiddenBlocks = new LinkedHashMap<>();
 
 	OrebfuscatorProximityConfig(ConfigurationSection section) {
+		super(section.getName());
 		this.enabled = section.getBoolean("enabled", true);
 		this.deserializeWorlds(section, "worlds");
 
