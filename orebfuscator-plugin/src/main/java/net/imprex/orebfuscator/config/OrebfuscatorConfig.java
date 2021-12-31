@@ -17,7 +17,6 @@ import java.util.stream.Stream;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.MemoryConfiguration;
 import org.bukkit.plugin.Plugin;
 
 import com.google.common.hash.Hashing;
@@ -31,7 +30,7 @@ import net.imprex.orebfuscator.util.OFCLogger;
 
 public class OrebfuscatorConfig implements Config {
 
-	private static final int CONFIG_VERSION = 1;
+	private static final int CONFIG_VERSION = 2;
 
 	private final OrebfuscatorGeneralConfig generalConfig = new OrebfuscatorGeneralConfig();
 	private final OrebfuscatorAdvancedConfig advancedConfig = new OrebfuscatorAdvancedConfig();
@@ -98,6 +97,14 @@ public class OrebfuscatorConfig implements Config {
 	}
 
 	private void deserialize(ConfigurationSection section) {
+		if (section.getInt("version", -1) == 1) {
+			// check if config is still using old path MemoryConfiguration
+			String obfuscationConfigPath = section.contains("world") ? "world" : "obfuscation";
+			ConfigParser.convertSectionListToSection(section, obfuscationConfigPath);
+			ConfigParser.convertSectionListToSection(section, "proximity");
+			section.set("version", CONFIG_VERSION);
+		}
+
 		if (section.getInt("version", -1) != CONFIG_VERSION) {
 			throw new RuntimeException("config is not up to date, please delete your config");
 		}
@@ -132,17 +139,18 @@ public class OrebfuscatorConfig implements Config {
 		NmsInstance.close();
 		NmsInstance.initialize(this);
 
-		// check if config is still using old path
-		String obfuscationConfigPath = section.contains("world") ? "world" : "obfuscation";
-
-		ConfigParser.deserializeSectionList(section, obfuscationConfigPath).stream()
+		ConfigurationSection obfuscation = section.getConfigurationSection("obfuscation");
+		obfuscation.getKeys(false).stream()
+				.map(obfuscation::getConfigurationSection)
 				.map(OrebfuscatorObfuscationConfig::new)
 				.forEach(this.obfuscationConfigs::add);
 		if (this.obfuscationConfigs.isEmpty()) {
 			OFCLogger.warn("config section 'obfuscation' is missing or empty");
 		}
 
-		ConfigParser.deserializeSectionList(section, "proximity").stream()
+		ConfigurationSection proximity = section.getConfigurationSection("proximity");
+		proximity.getKeys(false).stream()
+				.map(proximity::getConfigurationSection)
 				.map(OrebfuscatorProximityConfig::new)
 				.forEach(this.proximityConfigs::add);
 		if (this.proximityConfigs.isEmpty()) {
@@ -161,21 +169,15 @@ public class OrebfuscatorConfig implements Config {
 		this.advancedConfig.serialize(section.createSection("advanced"));
 		this.cacheConfig.serialize(section.createSection("cache"));
 
-		List<ConfigurationSection> obfuscationSectionList = new ArrayList<>();
+		ConfigurationSection obfuscation = section.createSection("obfuscation");
 		for (OrebfuscatorObfuscationConfig obfuscationConfig : this.obfuscationConfigs) {
-			ConfigurationSection obfuscationSection = new MemoryConfiguration();
-			obfuscationConfig.serialize(obfuscationSection);
-			obfuscationSectionList.add(obfuscationSection);
+			obfuscationConfig.serialize(obfuscation.createSection(obfuscationConfig.getName()));
 		}
-		section.set("obfuscation", obfuscationSectionList);
 
-		List<ConfigurationSection> proximitySectionList = new ArrayList<>();
+		ConfigurationSection proximity = section.createSection("proximity");
 		for (OrebfuscatorProximityConfig proximityConfig : this.proximityConfigs) {
-			ConfigurationSection proximitySection = new MemoryConfiguration();
-			proximityConfig.serialize(proximitySection);
-			proximitySectionList.add(proximitySection);
+			proximityConfig.serialize(proximity.createSection(proximityConfig.getName()));
 		}
-		section.set("proximity", proximitySectionList);
 	}
 
 	@Override
