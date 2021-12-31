@@ -1,4 +1,4 @@
-version: 1
+version: 2
 general:
   checkForUpdates: true
   updateOnBlockDamage: true
@@ -20,238 +20,244 @@ cache:
   expireAfterAccess: 30000
   maximumTaskQueueSize: 32768
 obfuscation:
-- enabled: true
-  minY: -2032
-  maxY: 2031
-  worlds:
-  - world
-  hiddenBlocks:
-  - minecraft:chest
-  - minecraft:ender_chest
-  - minecraft:trapped_chest
-  - minecraft:spawner
-  - minecraft:emerald_ore
-  - minecraft:diamond_ore
-  - minecraft:gold_ore
-  - minecraft:iron_ore
-  - minecraft:coal_ore
-  - minecraft:lapis_ore
-  - minecraft:redstone_ore
-  - minecraft:stone
-  - minecraft:clay
-  - minecraft:shulker_box
-  - minecraft:white_shulker_box
-  - minecraft:orange_shulker_box
-  - minecraft:magenta_shulker_box
-  - minecraft:light_blue_shulker_box
-  - minecraft:yellow_shulker_box
-  - minecraft:lime_shulker_box
-  - minecraft:pink_shulker_box
-  - minecraft:gray_shulker_box
-  - minecraft:light_gray_shulker_box
-  - minecraft:cyan_shulker_box
-  - minecraft:purple_shulker_box
-  - minecraft:blue_shulker_box
-  - minecraft:brown_shulker_box
-  - minecraft:green_shulker_box
-  - minecraft:red_shulker_box
-  - minecraft:black_shulker_box
-  randomBlocks:
-    minecraft:cave_air: 45
-    minecraft:clay: 1
-    minecraft:coal_ore: 1
-    minecraft:cobblestone: 1
-    minecraft:diamond_ore: 25
-    minecraft:emerald_ore: 10
-    minecraft:gold_ore: 5
-    minecraft:iron_ore: 5
-    minecraft:lapis_ore: 1
-    minecraft:mossy_cobblestone: 1
-    minecraft:obsidian: 1
-    minecraft:redstone_ore: 1
-    minecraft:stone: 1
-    minecraft:tnt: 1
-- enabled: true
-  minY: -2032
-  maxY: 2031
-  worlds:
-  - world_nether
-  hiddenBlocks:
-  - minecraft:chest
-  - minecraft:ender_chest
-  - minecraft:trapped_chest
-  - minecraft:spawner
-  - minecraft:netherrack
-  - minecraft:nether_quartz_ore
-  - minecraft:shulker_box
-  - minecraft:white_shulker_box
-  - minecraft:orange_shulker_box
-  - minecraft:magenta_shulker_box
-  - minecraft:light_blue_shulker_box
-  - minecraft:yellow_shulker_box
-  - minecraft:lime_shulker_box
-  - minecraft:pink_shulker_box
-  - minecraft:gray_shulker_box
-  - minecraft:light_gray_shulker_box
-  - minecraft:cyan_shulker_box
-  - minecraft:purple_shulker_box
-  - minecraft:blue_shulker_box
-  - minecraft:brown_shulker_box
-  - minecraft:green_shulker_box
-  - minecraft:red_shulker_box
-  - minecraft:black_shulker_box
-  randomBlocks:
-    minecraft:netherrack: 1
-    minecraft:nether_quartz_ore: 1
-- enabled: true
-  minY: -2032
-  maxY: 2031
-  worlds:
-  - world_the_end
-  hiddenBlocks:
-  - minecraft:chest
-  - minecraft:ender_chest
-  - minecraft:trapped_chest
-  - minecraft:spawner
-  - minecraft:shulker_box
-  - minecraft:white_shulker_box
-  - minecraft:orange_shulker_box
-  - minecraft:magenta_shulker_box
-  - minecraft:light_blue_shulker_box
-  - minecraft:yellow_shulker_box
-  - minecraft:lime_shulker_box
-  - minecraft:pink_shulker_box
-  - minecraft:gray_shulker_box
-  - minecraft:light_gray_shulker_box
-  - minecraft:cyan_shulker_box
-  - minecraft:purple_shulker_box
-  - minecraft:blue_shulker_box
-  - minecraft:brown_shulker_box
-  - minecraft:green_shulker_box
-  - minecraft:red_shulker_box
-  - minecraft:black_shulker_box
-  randomBlocks:
-    minecraft:end_stone: 1
-    minecraft:end_stone_bricks: 1
-    minecraft:bedrock: 1
-    minecraft:obsidian: 1
-    minecraft:purpur_block: 1
+  obfuscation-overworld:
+    enabled: true
+    minY: -2032
+    maxY: 2031
+    worlds:
+    - world
+    hiddenBlocks:
+    - minecraft:chest
+    - minecraft:ender_chest
+    - minecraft:trapped_chest
+    - minecraft:spawner
+    - minecraft:emerald_ore
+    - minecraft:diamond_ore
+    - minecraft:gold_ore
+    - minecraft:iron_ore
+    - minecraft:coal_ore
+    - minecraft:lapis_ore
+    - minecraft:redstone_ore
+    - minecraft:stone
+    - minecraft:clay
+    - minecraft:shulker_box
+    - minecraft:white_shulker_box
+    - minecraft:orange_shulker_box
+    - minecraft:magenta_shulker_box
+    - minecraft:light_blue_shulker_box
+    - minecraft:yellow_shulker_box
+    - minecraft:lime_shulker_box
+    - minecraft:pink_shulker_box
+    - minecraft:gray_shulker_box
+    - minecraft:light_gray_shulker_box
+    - minecraft:cyan_shulker_box
+    - minecraft:purple_shulker_box
+    - minecraft:blue_shulker_box
+    - minecraft:brown_shulker_box
+    - minecraft:green_shulker_box
+    - minecraft:red_shulker_box
+    - minecraft:black_shulker_box
+    randomBlocks:
+      minecraft:cave_air: 45
+      minecraft:clay: 1
+      minecraft:coal_ore: 1
+      minecraft:cobblestone: 1
+      minecraft:diamond_ore: 25
+      minecraft:emerald_ore: 10
+      minecraft:gold_ore: 5
+      minecraft:iron_ore: 5
+      minecraft:lapis_ore: 1
+      minecraft:mossy_cobblestone: 1
+      minecraft:obsidian: 1
+      minecraft:redstone_ore: 1
+      minecraft:stone: 1
+      minecraft:tnt: 1
+  obfuscation-nether:
+    enabled: true
+    minY: -2032
+    maxY: 2031
+    worlds:
+    - world_nether
+    hiddenBlocks:
+    - minecraft:chest
+    - minecraft:ender_chest
+    - minecraft:trapped_chest
+    - minecraft:spawner
+    - minecraft:netherrack
+    - minecraft:nether_quartz_ore
+    - minecraft:shulker_box
+    - minecraft:white_shulker_box
+    - minecraft:orange_shulker_box
+    - minecraft:magenta_shulker_box
+    - minecraft:light_blue_shulker_box
+    - minecraft:yellow_shulker_box
+    - minecraft:lime_shulker_box
+    - minecraft:pink_shulker_box
+    - minecraft:gray_shulker_box
+    - minecraft:light_gray_shulker_box
+    - minecraft:cyan_shulker_box
+    - minecraft:purple_shulker_box
+    - minecraft:blue_shulker_box
+    - minecraft:brown_shulker_box
+    - minecraft:green_shulker_box
+    - minecraft:red_shulker_box
+    - minecraft:black_shulker_box
+    randomBlocks:
+      minecraft:netherrack: 1
+      minecraft:nether_quartz_ore: 1
+  obfuscation-end:
+    enabled: true
+    minY: -2032
+    maxY: 2031
+    worlds:
+    - world_the_end
+    hiddenBlocks:
+    - minecraft:chest
+    - minecraft:ender_chest
+    - minecraft:trapped_chest
+    - minecraft:spawner
+    - minecraft:shulker_box
+    - minecraft:white_shulker_box
+    - minecraft:orange_shulker_box
+    - minecraft:magenta_shulker_box
+    - minecraft:light_blue_shulker_box
+    - minecraft:yellow_shulker_box
+    - minecraft:lime_shulker_box
+    - minecraft:pink_shulker_box
+    - minecraft:gray_shulker_box
+    - minecraft:light_gray_shulker_box
+    - minecraft:cyan_shulker_box
+    - minecraft:purple_shulker_box
+    - minecraft:blue_shulker_box
+    - minecraft:brown_shulker_box
+    - minecraft:green_shulker_box
+    - minecraft:red_shulker_box
+    - minecraft:black_shulker_box
+    randomBlocks:
+      minecraft:end_stone: 1
+      minecraft:end_stone_bricks: 1
+      minecraft:bedrock: 1
+      minecraft:obsidian: 1
+      minecraft:purpur_block: 1
 proximity:
-- enabled: true
-  minY: 0
-  maxY: 2031
-  worlds:
-  - world
-  distance: 16
-  useFastGazeCheck: false
-  useBlockBelow: true
-  hiddenBlocks:
-    minecraft:mossy_cobblestone: {}
-    minecraft:diamond_ore: {}
-    minecraft:emerald_ore: {}
-    minecraft:chest: {}
-    minecraft:ender_chest: {}
-    minecraft:trapped_chest: {}
-    minecraft:anvil: {}
-    minecraft:crafting_table: {}
-    minecraft:dispenser: {}
-    minecraft:enchanting_table: {}
-    minecraft:furnace: {}
-    minecraft:hopper: {}
-    minecraft:spawner: {}
-    minecraft:shulker_box: {}
-    minecraft:white_shulker_box: {}
-    minecraft:orange_shulker_box: {}
-    minecraft:magenta_shulker_box: {}
-    minecraft:light_blue_shulker_box: {}
-    minecraft:yellow_shulker_box: {}
-    minecraft:lime_shulker_box: {}
-    minecraft:pink_shulker_box: {}
-    minecraft:gray_shulker_box: {}
-    minecraft:light_gray_shulker_box: {}
-    minecraft:cyan_shulker_box: {}
-    minecraft:purple_shulker_box: {}
-    minecraft:blue_shulker_box: {}
-    minecraft:brown_shulker_box: {}
-    minecraft:green_shulker_box: {}
-    minecraft:red_shulker_box: {}
-    minecraft:black_shulker_box: {}
-  randomBlocks:
-    minecraft:stone: 1
-- enabled: true
-  minY: 0
-  maxY: 2031
-  worlds:
-  - world_nether
-  distance: 16
-  useFastGazeCheck: false
-  useBlockBelow: true
-  hiddenBlocks:
-    minecraft:chest: {}
-    minecraft:ender_chest: {}
-    minecraft:trapped_chest: {}
-    minecraft:anvil: {}
-    minecraft:crafting_table: {}
-    minecraft:dispenser: {}
-    minecraft:enchanting_table: {}
-    minecraft:furnace: {}
-    minecraft:hopper: {}
-    minecraft:spawner: {}
-    minecraft:shulker_box: {}
-    minecraft:white_shulker_box: {}
-    minecraft:orange_shulker_box: {}
-    minecraft:magenta_shulker_box: {}
-    minecraft:light_blue_shulker_box: {}
-    minecraft:yellow_shulker_box: {}
-    minecraft:lime_shulker_box: {}
-    minecraft:pink_shulker_box: {}
-    minecraft:gray_shulker_box: {}
-    minecraft:light_gray_shulker_box: {}
-    minecraft:cyan_shulker_box: {}
-    minecraft:purple_shulker_box: {}
-    minecraft:blue_shulker_box: {}
-    minecraft:brown_shulker_box: {}
-    minecraft:green_shulker_box: {}
-    minecraft:red_shulker_box: {}
-    minecraft:black_shulker_box: {}
-  randomBlocks:
-    minecraft:netherrack: 4
-    minecraft:nether_quartz_ore: 1
-- enabled: true
-  minY: 0
-  maxY: 2031
-  worlds:
-  - world_the_end
-  distance: 16
-  useFastGazeCheck: false
-  useBlockBelow: true
-  hiddenBlocks:
-    minecraft:chest: {}
-    minecraft:ender_chest: {}
-    minecraft:trapped_chest: {}
-    minecraft:anvil: {}
-    minecraft:crafting_table: {}
-    minecraft:dispenser: {}
-    minecraft:enchanting_table: {}
-    minecraft:furnace: {}
-    minecraft:hopper: {}
-    minecraft:spawner: {}
-    minecraft:shulker_box: {}
-    minecraft:white_shulker_box: {}
-    minecraft:orange_shulker_box: {}
-    minecraft:magenta_shulker_box: {}
-    minecraft:light_blue_shulker_box: {}
-    minecraft:yellow_shulker_box: {}
-    minecraft:lime_shulker_box: {}
-    minecraft:pink_shulker_box: {}
-    minecraft:gray_shulker_box: {}
-    minecraft:light_gray_shulker_box: {}
-    minecraft:cyan_shulker_box: {}
-    minecraft:purple_shulker_box: {}
-    minecraft:blue_shulker_box: {}
-    minecraft:brown_shulker_box: {}
-    minecraft:green_shulker_box: {}
-    minecraft:red_shulker_box: {}
-    minecraft:black_shulker_box: {}
-  randomBlocks:
-    minecraft:end_stone: 1
+  proximity-overworld:
+    enabled: true
+    minY: 0
+    maxY: 2031
+    worlds:
+    - world
+    distance: 16
+    useFastGazeCheck: false
+    useBlockBelow: true
+    hiddenBlocks:
+      minecraft:mossy_cobblestone: {}
+      minecraft:diamond_ore: {}
+      minecraft:emerald_ore: {}
+      minecraft:chest: {}
+      minecraft:ender_chest: {}
+      minecraft:trapped_chest: {}
+      minecraft:anvil: {}
+      minecraft:crafting_table: {}
+      minecraft:dispenser: {}
+      minecraft:enchanting_table: {}
+      minecraft:furnace: {}
+      minecraft:hopper: {}
+      minecraft:spawner: {}
+      minecraft:shulker_box: {}
+      minecraft:white_shulker_box: {}
+      minecraft:orange_shulker_box: {}
+      minecraft:magenta_shulker_box: {}
+      minecraft:light_blue_shulker_box: {}
+      minecraft:yellow_shulker_box: {}
+      minecraft:lime_shulker_box: {}
+      minecraft:pink_shulker_box: {}
+      minecraft:gray_shulker_box: {}
+      minecraft:light_gray_shulker_box: {}
+      minecraft:cyan_shulker_box: {}
+      minecraft:purple_shulker_box: {}
+      minecraft:blue_shulker_box: {}
+      minecraft:brown_shulker_box: {}
+      minecraft:green_shulker_box: {}
+      minecraft:red_shulker_box: {}
+      minecraft:black_shulker_box: {}
+    randomBlocks:
+      minecraft:stone: 1
+  proximity-nether:
+    enabled: true
+    minY: 0
+    maxY: 2031
+    worlds:
+    - world_nether
+    distance: 16
+    useFastGazeCheck: false
+    useBlockBelow: true
+    hiddenBlocks:
+      minecraft:chest: {}
+      minecraft:ender_chest: {}
+      minecraft:trapped_chest: {}
+      minecraft:anvil: {}
+      minecraft:crafting_table: {}
+      minecraft:dispenser: {}
+      minecraft:enchanting_table: {}
+      minecraft:furnace: {}
+      minecraft:hopper: {}
+      minecraft:spawner: {}
+      minecraft:shulker_box: {}
+      minecraft:white_shulker_box: {}
+      minecraft:orange_shulker_box: {}
+      minecraft:magenta_shulker_box: {}
+      minecraft:light_blue_shulker_box: {}
+      minecraft:yellow_shulker_box: {}
+      minecraft:lime_shulker_box: {}
+      minecraft:pink_shulker_box: {}
+      minecraft:gray_shulker_box: {}
+      minecraft:light_gray_shulker_box: {}
+      minecraft:cyan_shulker_box: {}
+      minecraft:purple_shulker_box: {}
+      minecraft:blue_shulker_box: {}
+      minecraft:brown_shulker_box: {}
+      minecraft:green_shulker_box: {}
+      minecraft:red_shulker_box: {}
+      minecraft:black_shulker_box: {}
+    randomBlocks:
+      minecraft:netherrack: 4
+      minecraft:nether_quartz_ore: 1
+  proximity-end:
+    enabled: true
+    minY: 0
+    maxY: 2031
+    worlds:
+    - world_the_end
+    distance: 16
+    useFastGazeCheck: false
+    useBlockBelow: true
+    hiddenBlocks:
+      minecraft:chest: {}
+      minecraft:ender_chest: {}
+      minecraft:trapped_chest: {}
+      minecraft:anvil: {}
+      minecraft:crafting_table: {}
+      minecraft:dispenser: {}
+      minecraft:enchanting_table: {}
+      minecraft:furnace: {}
+      minecraft:hopper: {}
+      minecraft:spawner: {}
+      minecraft:shulker_box: {}
+      minecraft:white_shulker_box: {}
+      minecraft:orange_shulker_box: {}
+      minecraft:magenta_shulker_box: {}
+      minecraft:light_blue_shulker_box: {}
+      minecraft:yellow_shulker_box: {}
+      minecraft:lime_shulker_box: {}
+      minecraft:pink_shulker_box: {}
+      minecraft:gray_shulker_box: {}
+      minecraft:light_gray_shulker_box: {}
+      minecraft:cyan_shulker_box: {}
+      minecraft:purple_shulker_box: {}
+      minecraft:blue_shulker_box: {}
+      minecraft:brown_shulker_box: {}
+      minecraft:green_shulker_box: {}
+      minecraft:red_shulker_box: {}
+      minecraft:black_shulker_box: {}
+    randomBlocks:
+      minecraft:end_stone: 1
