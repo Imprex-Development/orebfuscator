@@ -100,8 +100,7 @@ public class ObfuscationProcessor {
 
 			task.complete(chunk.finalizeOutput(), blockEntities, proximityBlocks);
 		} catch (Exception e) {
-			e.printStackTrace();
-			throw new Error(e);
+			task.completeExceptionally(e);
 		}
 	}
 

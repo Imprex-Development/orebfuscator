@@ -34,6 +34,6 @@ public enum ChunkDirection {
 			return WEST;
 		}
 
-		throw new IllegalArgumentException();
+		throw new IllegalArgumentException(String.format("invalid offset (origin: %s, x: %d, z: %d)", position, targetX, targetZ));
 	}
 }

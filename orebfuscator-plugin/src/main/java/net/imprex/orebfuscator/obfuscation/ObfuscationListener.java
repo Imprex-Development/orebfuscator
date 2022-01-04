@@ -17,6 +17,7 @@ import net.imprex.orebfuscator.chunk.ChunkStruct;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.proximityhider.ProximityPlayerManager;
 import net.imprex.orebfuscator.util.BlockPos;
+import net.imprex.orebfuscator.util.OFCLogger;
 import net.imprex.orebfuscator.util.PermissionUtil;
 
 public class ObfuscationListener extends PacketAdapter {
@@ -48,23 +49,24 @@ public class ObfuscationListener extends PacketAdapter {
 			return;
 		}
 
-		ChunkStruct chunkStruct = new ChunkStruct(event.getPacket(), player.getWorld());
-		if (chunkStruct.isEmpty()) {
+		ChunkStruct struct = new ChunkStruct(event.getPacket(), player.getWorld());
+		if (struct.isEmpty()) {
 			this.skipChunkForProcessing(event);
 			return;
 		}
 
-		this.preChunkProcessing(event, chunkStruct);
+		event.getAsyncMarker().incrementProcessingDelay();
 
-		this.obfuscationSystem.obfuscate(chunkStruct).thenAccept(chunk -> {
-			chunkStruct.setDataBuffer(chunk.getData());
-
-			Set<BlockPos> blockEntities = chunk.getBlockEntities();
-			if (!blockEntities.isEmpty()) {
-				chunkStruct.removeBlockEntityIf(blockEntities::contains);
+		this.obfuscationSystem.obfuscate(struct).whenComplete((chunk, throwable) -> {
+			if (throwable != null) {
+				this.completeExceptionally(event, throwable);
+			} else if (chunk != null) {
+				this.complete(event, struct, chunk);
+			} else {
+				this.skipChunkForProcessing(event);
+				OFCLogger.warn(String.format("skipping chunk[x=%d, z=%d] because obfuscation result is missing",
+						struct.chunkX, struct.chunkZ));
 			}
-
-			this.postChunkProcessing(event, chunkStruct, chunk);
 		});
 	}
 
@@ -72,15 +74,27 @@ public class ObfuscationListener extends PacketAdapter {
 		this.asynchronousManager.unregisterAsyncHandler(this.asyncListenerHandler);
 	}
 
-	protected void skipChunkForProcessing(PacketEvent event) {
+	private boolean shouldNotObfuscate(Player player) {
+		return PermissionUtil.canDeobfuscate(player) || !config.needsObfuscation(player.getWorld());
+	}
+
+	private void skipChunkForProcessing(PacketEvent event) {
 		this.asynchronousManager.signalPacketTransmission(event);
 	}
 
-	protected void preChunkProcessing(PacketEvent event, ChunkStruct struct) {
-		event.getAsyncMarker().incrementProcessingDelay();
+	private void completeExceptionally(PacketEvent event, Throwable throwable) {
+		throwable.printStackTrace();
+		this.skipChunkForProcessing(event);
 	}
 
-	protected void postChunkProcessing(PacketEvent event, ChunkStruct struct, ObfuscationResult chunk) {
+	private void complete(PacketEvent event, ChunkStruct struct, ObfuscationResult chunk) {
+		struct.setDataBuffer(chunk.getData());
+
+		Set<BlockPos> blockEntities = chunk.getBlockEntities();
+		if (!blockEntities.isEmpty()) {
+			struct.removeBlockEntityIf(blockEntities::contains);
+		}
+
 		Player player = event.getPlayer();
 		this.proximityManager.addAndLockChunk(player, struct.chunkX, struct.chunkZ, chunk.getProximityBlocks());
 
@@ -88,9 +102,5 @@ public class ObfuscationListener extends PacketAdapter {
 			this.asynchronousManager.signalPacketTransmission(event);
 			this.proximityManager.unlockChunk(player, struct.chunkX, struct.chunkZ);
 		});
-	}
-
-	private boolean shouldNotObfuscate(Player player) {
-		return PermissionUtil.canDeobfuscate(player) || !config.needsObfuscation(player.getWorld());
 	}
 }

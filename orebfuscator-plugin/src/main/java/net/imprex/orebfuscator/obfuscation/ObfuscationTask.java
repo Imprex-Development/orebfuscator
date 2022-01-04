@@ -40,6 +40,10 @@ public class ObfuscationTask {
 		this.request.complete(this.request.createResult(data, blockEntities, proximityBlocks));
 	}
 
+	public void completeExceptionally(Throwable throwable) {
+		this.request.completeExceptionally(throwable);
+	}
+
 	public int getBlockState(int x, int y, int z) {
 		ChunkDirection direction = ChunkDirection.fromPosition(request.getPosition(), x, z);
 		return this.neighboringChunks[direction.ordinal()].getBlockState(x, y, z);

@@ -61,6 +61,7 @@ public class Chunk implements AutoCloseable {
 			if (chunkSection != null) {
 				return chunkSection.data[ChunkSection.positionToIndex(x & 0xF, y & 0xF, z & 0xF)];
 			}
+			return 0;
 		}
 
 		return -1;

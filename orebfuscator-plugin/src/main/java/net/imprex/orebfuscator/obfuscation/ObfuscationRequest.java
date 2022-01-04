@@ -68,4 +68,8 @@ public class ObfuscationRequest {
 	public void complete(ObfuscationResult result) {
 		this.future.complete(result);
 	}
+
+	public void completeExceptionally(Throwable throwable) {
+		this.future.completeExceptionally(throwable);
+	}
 }
