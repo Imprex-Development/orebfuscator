@@ -58,7 +58,7 @@ public class ObfuscationProcessor {
 						continue;
 					}
 
-					int blockState = chunkSection.getBlock(index);
+					int blockState = chunkSection.getBlockState(index);
 
 					int obfuscateBits = blockFlags.flags(blockState, y);
 					if (BlockFlags.isEmpty(obfuscateBits)) {
@@ -81,7 +81,7 @@ public class ObfuscationProcessor {
 					if (!obfuscated && BlockFlags.isProximityBitSet(obfuscateBits) && proximityConfig.shouldObfuscate(y)) {
 						proximityBlocks.add(new BlockPos(x, y, z));
 						if (BlockFlags.isUseBlockBelowBitSet(obfuscateBits)) {
-							blockState = getBlockBelow(blockFlags, chunk, x, y, z);
+							blockState = getBlockStateBelow(blockFlags, chunk, x, y, z);
 						} else {
 							blockState = proximityConfig.nextRandomBlockState();
 						}
@@ -90,7 +90,7 @@ public class ObfuscationProcessor {
 
 					// update block state if needed
 					if (obfuscated) {
-						chunkSection.setBlock(index, blockState);
+						chunkSection.setBlockState(index, blockState);
 						if (BlockFlags.isBlockEntityBitSet(obfuscateBits)) {
 							blockEntities.add(new BlockPos(x, y, z));
 						}
@@ -106,9 +106,9 @@ public class ObfuscationProcessor {
 
 	// returns first block below given position that wouldn't be obfuscated in any
 	// way at given position
-	private int getBlockBelow(BlockFlags blockFlags, Chunk chunk, int x, int y, int z) {
+	private int getBlockStateBelow(BlockFlags blockFlags, Chunk chunk, int x, int y, int z) {
 		for (int targetY = y - 1; targetY > chunk.getHeightAccessor().getMinBuildHeight(); targetY--) {
-			int blockData = chunk.getBlock(x, targetY, z);
+			int blockData = chunk.getBlockState(x, targetY, z);
 			if (blockData != -1 && BlockFlags.isEmpty(blockFlags.flags(blockData, y))) {
 				return blockData;
 			}
@@ -130,7 +130,7 @@ public class ObfuscationProcessor {
 			return false;
 		}
 
-		int blockId = chunk.getBlock(x, y, z);
+		int blockId = chunk.getBlockState(x, y, z);
 		if (blockId == -1) {
 			blockId = task.getBlockState(x, y, z);
 		}

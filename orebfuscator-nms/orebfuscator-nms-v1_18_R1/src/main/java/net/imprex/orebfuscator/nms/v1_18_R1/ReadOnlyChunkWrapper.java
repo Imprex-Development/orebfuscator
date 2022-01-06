@@ -19,7 +19,7 @@ public class ReadOnlyChunkWrapper implements ReadOnlyChunk {
 		LevelChunkSection[] sections = chunk.getSections();
 		if (sectionIndex >= 0 && sectionIndex < sections.length) {
 			LevelChunkSection section = sections[sectionIndex];
-			if (!section.hasOnlyAir()) {
+			if (sections != null && !section.hasOnlyAir()) {
 				return section.getBlockState(x & 0xF, y & 0xF, z & 0xF);
 			}
 		}

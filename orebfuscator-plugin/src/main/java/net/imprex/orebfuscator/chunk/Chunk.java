@@ -55,7 +55,7 @@ public class Chunk implements AutoCloseable {
 		return null;
 	}
 
-	public int getBlock(int x, int y, int z) {
+	public int getBlockState(int x, int y, int z) {
 		if (x >> 4 == this.chunkX && z >> 4 == this.chunkZ) {
 			ChunkSectionHolder chunkSection = this.sections[this.heightAccessor.getSectionIndex(y)];
 			if (chunkSection != null) {

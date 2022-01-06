@@ -59,12 +59,12 @@ public class ChunkSection {
 		return y << 8 | z << 4 | x;
 	}
 
-	public void setBlock(int x, int y, int z, int blockId) {
-		this.setBlock(positionToIndex(x, y, z), blockId);
+	public void setBlockState(int x, int y, int z, int blockId) {
+		this.setBlockState(positionToIndex(x, y, z), blockId);
 	}
 
-	public void setBlock(int index, int blockId) {
-		int prevBlockId = this.getBlock(index);
+	public void setBlockState(int index, int blockId) {
+		int prevBlockId = this.getBlockState(index);
 
 		if (!NmsInstance.isAir(prevBlockId)) {
 			--this.blockCount;
@@ -79,10 +79,10 @@ public class ChunkSection {
 	}
 
 	public int getBlock(int x, int y, int z) {
-		return this.getBlock(positionToIndex(x, y, z));
+		return this.getBlockState(positionToIndex(x, y, z));
 	}
 
-	public int getBlock(int index) {
+	public int getBlockState(int index) {
 		return this.palette.valueFor(this.data.get(index));
 	}
 
@@ -126,7 +126,7 @@ public class ChunkSection {
 
 		int[] directData = new int[4096];
 		for (int i = 0; i < directData.length; i++) {
-			directData[i] = this.getBlock(i);
+			directData[i] = this.getBlockState(i);
 		}
 		return directData;
 	}
