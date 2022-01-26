@@ -59,13 +59,13 @@ public class ObfuscationListener extends PacketAdapter {
 
 		this.obfuscationSystem.obfuscate(struct).whenComplete((chunk, throwable) -> {
 			if (throwable != null) {
-				this.completeExceptionally(event, throwable);
+				this.completeExceptionally(event, struct, throwable);
 			} else if (chunk != null) {
 				this.complete(event, struct, chunk);
 			} else {
 				this.skipChunkForProcessing(event);
-				OFCLogger.warn(String.format("skipping chunk[x=%d, z=%d] because obfuscation result is missing",
-						struct.chunkX, struct.chunkZ));
+				OFCLogger.warn(String.format("skipping chunk[world=%s, x=%d, z=%d] because obfuscation result is missing",
+						struct.world.getName(), struct.chunkX, struct.chunkZ));
 			}
 		});
 	}
@@ -82,8 +82,9 @@ public class ObfuscationListener extends PacketAdapter {
 		this.asynchronousManager.signalPacketTransmission(event);
 	}
 
-	private void completeExceptionally(PacketEvent event, Throwable throwable) {
-		throwable.printStackTrace();
+	private void completeExceptionally(PacketEvent event, ChunkStruct struct, Throwable throwable) {
+		OFCLogger.error(String.format("An error occurred while obfuscating chunk[world=%s, x=%d, z=%d]",
+				struct.world.getName(), struct.chunkX, struct.chunkZ), throwable);
 		this.skipChunkForProcessing(event);
 	}
 

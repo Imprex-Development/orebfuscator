@@ -49,7 +49,7 @@ public class NmsManager extends AbstractNmsManager {
 
 		if (isChunkLoaded(worldServer, x >> 4, z >> 4) || loadChunk) {
 			// will load chunk if not loaded already
-			Chunk chunk = chunkProviderServer.getOrLoadChunkAt(x >> 4, z >> 4);
+			Chunk chunk = chunkProviderServer.getChunkAt(x >> 4, z >> 4);
 			return chunk != null ? chunk.getBlockData(x, y, z) : null;
 		}
 		return null;
@@ -127,7 +127,7 @@ public class NmsManager extends AbstractNmsManager {
 	@Override
 	public ReadOnlyChunk getReadOnlyChunk(World world, int chunkX, int chunkZ) {
 		ChunkProviderServer chunkProviderServer = world(world).getChunkProviderServer();
-		Chunk chunk = chunkProviderServer.getOrLoadChunkAt(chunkX, chunkZ);
+		Chunk chunk = chunkProviderServer.getChunkAt(chunkX, chunkZ);
 		return new ReadOnlyChunkWrapper(chunk);
 	}
 

@@ -1,7 +1,5 @@
 package net.imprex.orebfuscator.cache;
 
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionStage;
 import java.util.concurrent.TimeUnit;
 
