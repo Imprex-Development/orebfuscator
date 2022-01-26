@@ -83,8 +83,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 					new DefaultOrebfuscatorService(this),
 					this, ServicePriority.Normal);
 		} catch (Exception e) {
-			OFCLogger.log(Level.SEVERE, "An error occurred while enabling plugin");
-			OFCLogger.error(e);
+			OFCLogger.error("An error occurred while enabling plugin", e);
 
 			this.getServer().getPluginManager().registerEvent(PluginEnableEvent.class, this, EventPriority.NORMAL,
 					this::onEnableFailed, this);
