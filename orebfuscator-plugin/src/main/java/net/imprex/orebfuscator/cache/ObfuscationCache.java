@@ -50,19 +50,22 @@ public class ObfuscationCache {
 
 		ObfuscationResult cacheChunk = this.cache.getIfPresent(key);
 		if (request.isValid(cacheChunk)) {
-			return CompletableFuture.completedFuture(cacheChunk);
+			return request.complete(cacheChunk);
 		}
 
-		return this.serializer.read(key).thenCompose(diskChunk -> {
+		this.serializer.read(key).thenCompose(diskChunk -> {
 			if (request.isValid(diskChunk)) {
-				return CompletableFuture.completedFuture(diskChunk);
+				return request.complete(diskChunk);
+			} else {
+				return request.submitForObfuscation().exceptionally(throwable -> null);
 			}
-
-			return request.submitForObfuscation();
-		}).thenApply(chunk -> {
-			this.cache.put(key, Objects.requireNonNull(chunk));
-			return chunk;
+		}).thenAccept(chunk -> {
+			if (chunk != null) {
+				this.cache.put(key, chunk);
+			}
 		});
+
+		return request.getFuture();
 	}
 
 	public void invalidate(ChunkPosition key) {

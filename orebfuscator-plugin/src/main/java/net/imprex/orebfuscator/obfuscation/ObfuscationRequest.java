@@ -44,6 +44,10 @@ public class ObfuscationRequest {
 		this.chunkStruct = chunkStruct;
 	}
 
+	public CompletableFuture<ObfuscationResult> getFuture() {
+		return future;
+	}
+
 	public ChunkPosition getPosition() {
 		return position;
 	}
@@ -65,11 +69,13 @@ public class ObfuscationRequest {
 		return new ObfuscationResult(this.position, this.chunkHash, data, blockEntities, proximityBlocks);
 	}
 
-	public void complete(ObfuscationResult result) {
+	public CompletionStage<ObfuscationResult> complete(ObfuscationResult result) {
 		this.future.complete(result);
+		return this.future;
 	}
 
-	public void completeExceptionally(Throwable throwable) {
+	public CompletionStage<ObfuscationResult> completeExceptionally(Throwable throwable) {
 		this.future.completeExceptionally(throwable);
+		return this.future;
 	}
 }

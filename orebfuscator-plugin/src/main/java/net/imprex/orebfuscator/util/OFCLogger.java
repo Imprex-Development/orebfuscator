@@ -49,6 +49,13 @@ public class OFCLogger {
 	}
 
 	/**
+	 * Log an error
+	 */
+	public static void err(String message, Throwable e) {
+		log(Level.SEVERE, message, e);
+	}
+
+	/**
 	 * Log with a specified level and throwable
 	 */
 	public static void log(Level level, String message, Throwable throwable) {
