@@ -20,6 +20,7 @@
 		<dependency.bstats.version>2.2.1</dependency.bstats.version>
 
 		<plugin.shade.version>3.2.1</plugin.shade.version>
+		<plugin.surefire.version>3.0.0-M5</plugin.surefire.version>
 		<plugin.flatten.version>1.2.7</plugin.flatten.version>
 
 		<maven.compiler.source>1.8</maven.compiler.source>
@@ -118,12 +119,32 @@
 	<profiles>
 		<profile>
 			<id>codemc</id>
+
+			<properties>
+				<revision>${env.BUILD_VERSION}</revision>
+			</properties>
+
 			<repositories>
 			    <repository>
 			        <id>nms-repo</id>
 			        <url>https://repo.codemc.io/repository/nms/</url>
 			    </repository>
 			</repositories>
+
+			<!--<build>
+				<plugins>
+					<plugin>
+						<groupId>org.apache.maven.plugins</groupId>
+						<artifactId>maven-surefire-plugin</artifactId>
+						<version>${plugin.surefire.version}</version>
+						<configuration>
+							<environmentVariables>
+								<jenkins.buildUrl>${env.BUILD_URL}</jenkins.buildUrl>
+							</environmentVariables>
+						</configuration>
+					</plugin>
+				</plugins>
+			</build>-->
 		</profile>
 	</profiles>
 </project>
