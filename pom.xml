@@ -12,7 +12,7 @@
 	<description>High-Performance Anti X-Ray</description>
 
 	<properties>
-		<revision>5.0.0-b0</revision>
+		<revision>${env.BUILD_VERSION}</revision>
 
 		<dependency.netty.version>4.1.68.Final</dependency.netty.version>
 		<dependency.bukkit.version>1.13-R0.1-SNAPSHOT</dependency.bukkit.version>
@@ -126,21 +126,6 @@
 			        <url>https://repo.codemc.io/repository/nms/</url>
 			    </repository>
 			</repositories>
-
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>org.apache.maven.plugins</groupId>
-						<artifactId>maven-surefire-plugin</artifactId>
-						<version>${plugin.surefire.version}</version>
-						<configuration>
-							<environmentVariables>
-								<revision>${env.BUILD_URL}</revision>
-							</environmentVariables>
-						</configuration>
-					</plugin>
-				</plugins>
-			</build>
 		</profile>
 	</profiles>
 </project>
