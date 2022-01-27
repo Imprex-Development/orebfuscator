@@ -12,7 +12,7 @@
 	<description>High-Performance Anti X-Ray</description>
 
 	<properties>
-		<revision>${env.BUILD_VERSION}</revision>
+		<revision>5.0.0-b0</revision>
 
 		<dependency.netty.version>4.1.68.Final</dependency.netty.version>
 		<dependency.bukkit.version>1.13-R0.1-SNAPSHOT</dependency.bukkit.version>
