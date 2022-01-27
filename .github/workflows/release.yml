@@ -47,13 +47,9 @@ jobs:
     - name: BuildTools Java 17
       run: |
         sh ./.github/workflows/buildtools.sh java-17
-    - name: Create maven settings.xml
-      uses: s4u/maven-settings-action@v2.4.0
-      with:
-        servers: '[{ "id": "imprex", "username": "${{ secrets.MAVEN_USER }}", "password": "${{ secrets.MAVEN_PASSWORD }}" }]'
     - name: Build
       run: |
-        mvn deploy --batch-mode -Drevision=$RELEASE_VERSION -Daether.connector.basic.threads=1
+        mvn package --batch-mode -Drevision=$RELEASE_VERSION
         mv orebfuscator-plugin/target/orebfuscator-*.jar ./
     - uses: ncipollo/release-action@v1
       with:
