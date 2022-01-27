@@ -5,10 +5,7 @@ import java.util.Set;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
-import com.comphenix.protocol.AsynchronousManager;
 import com.comphenix.protocol.PacketType;
-import com.comphenix.protocol.ProtocolLibrary;
-import com.comphenix.protocol.async.AsyncListenerHandler;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 
@@ -20,14 +17,11 @@ import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.OFCLogger;
 import net.imprex.orebfuscator.util.PermissionUtil;
 
-public class ObfuscationListener extends PacketAdapter {
+public abstract class ObfuscationListener extends PacketAdapter {
 
 	private final OrebfuscatorConfig config;
 	private final ProximityPlayerManager proximityManager;
 	private final ObfuscationSystem obfuscationSystem;
-
-	private final AsynchronousManager asynchronousManager;
-	private final AsyncListenerHandler asyncListenerHandler;
 
 	public ObfuscationListener(Orebfuscator orebfuscator) {
 		super(orebfuscator, PacketType.Play.Server.MAP_CHUNK);
@@ -35,11 +29,15 @@ public class ObfuscationListener extends PacketAdapter {
 		this.config = orebfuscator.getOrebfuscatorConfig();
 		this.proximityManager = orebfuscator.getProximityHider().getPlayerManager();
 		this.obfuscationSystem = orebfuscator.getObfuscationSystem();
-
-		this.asynchronousManager = ProtocolLibrary.getProtocolManager().getAsynchronousManager();
-		this.asyncListenerHandler = this.asynchronousManager.registerAsyncHandler(this);
-		this.asyncListenerHandler.start(orebfuscator.getOrebfuscatorConfig().advanced().protocolLibThreads());
 	}
+
+	protected abstract void skipChunkForProcessing(PacketEvent event);
+
+	protected abstract void preChunkProcessing(PacketEvent event);
+
+	protected abstract void postChunkProcessing(PacketEvent event);
+
+	public abstract void unregister();
 
 	@Override
 	public void onPacketSending(PacketEvent event) {
@@ -55,7 +53,7 @@ public class ObfuscationListener extends PacketAdapter {
 			return;
 		}
 
-		event.getAsyncMarker().incrementProcessingDelay();
+		this.preChunkProcessing(event);
 
 		this.obfuscationSystem.obfuscate(struct).whenComplete((chunk, throwable) -> {
 			if (throwable != null) {
@@ -63,29 +61,21 @@ public class ObfuscationListener extends PacketAdapter {
 			} else if (chunk != null) {
 				this.complete(event, struct, chunk);
 			} else {
-				this.skipChunkForProcessing(event);
 				OFCLogger.warn(String.format("skipping chunk[world=%s, x=%d, z=%d] because obfuscation result is missing",
 						struct.world.getName(), struct.chunkX, struct.chunkZ));
+				this.postChunkProcessing(event);
 			}
 		});
-	}
-
-	public void unregister() {
-		this.asynchronousManager.unregisterAsyncHandler(this.asyncListenerHandler);
 	}
 
 	private boolean shouldNotObfuscate(Player player) {
 		return PermissionUtil.canDeobfuscate(player) || !config.needsObfuscation(player.getWorld());
 	}
 
-	private void skipChunkForProcessing(PacketEvent event) {
-		this.asynchronousManager.signalPacketTransmission(event);
-	}
-
 	private void completeExceptionally(PacketEvent event, ChunkStruct struct, Throwable throwable) {
 		OFCLogger.error(String.format("An error occurred while obfuscating chunk[world=%s, x=%d, z=%d]",
 				struct.world.getName(), struct.chunkX, struct.chunkZ), throwable);
-		this.skipChunkForProcessing(event);
+		this.postChunkProcessing(event);
 	}
 
 	private void complete(PacketEvent event, ChunkStruct struct, ObfuscationResult chunk) {
@@ -100,7 +90,7 @@ public class ObfuscationListener extends PacketAdapter {
 		this.proximityManager.addAndLockChunk(player, struct.chunkX, struct.chunkZ, chunk.getProximityBlocks());
 
 		Bukkit.getScheduler().runTask(this.plugin, () -> {
-			this.asynchronousManager.signalPacketTransmission(event);
+			this.postChunkProcessing(event);
 			this.proximityManager.unlockChunk(player, struct.chunkX, struct.chunkZ);
 		});
 	}
