@@ -37,17 +37,17 @@
 			<id>dmulloy2-repo</id>
 			<url>https://repo.dmulloy2.net/nexus/repository/public/</url>
 		</repository>
-		<!-- <repository>
-			<id>nms-repo</id>
-			<url>https://repo.codemc.io/repository/nms/</url>
-		</repository> -->
 	</repositories>
 
 	<distributionManagement>
-		<repository>
-			<id>imprex</id>
-			<url>https://imprex.ingrim4.me/repository/maven-releases</url>
-		</repository>
+	    <repository>
+	        <id>codemc-releases</id>
+	        <url>https://repo.codemc.io/repository/maven-releases/</url>
+	    </repository>
+	    <snapshotRepository>
+	        <id>codemc-snapshots</id>
+	        <url>https://repo.codemc.io/repository/maven-snapshots/</url>
+	    </snapshotRepository>
 	</distributionManagement>
 
 	<build>
@@ -114,4 +114,16 @@
 		<module>orebfuscator-api</module>
 		<module>orebfuscator-api-example</module>
 	</modules>
+
+	<profiles>
+		<profile>
+			<id>codemc</id>
+			<repositories>
+			    <repository>
+			        <id>nms-repo</id>
+			        <url>https://repo.codemc.io/repository/nms/</url>
+			    </repository>
+			</repositories>
+		</profile>
+	</profiles>
 </project>
