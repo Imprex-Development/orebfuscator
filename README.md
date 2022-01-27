@@ -31,8 +31,8 @@ Still having trouble getting Orebfuscator to run check out our [common issues](h
 ```maven
 <repositories>
   <repository>
-    <id>imprex-repo</id>
-    <url>https://imprex.ingrim4.me/repository/maven-public/</url>
+    <id>codemc-repo</id>
+    <url>https://repo.codemc.io/repository/maven-public/</url>
   </repository>
   ...
 </repositories>
@@ -41,7 +41,7 @@ Still having trouble getting Orebfuscator to run check out our [common issues](h
   <dependency>
     <groupId>net.imprex</groupId>
     <artifactId>orebfuscator-api</artifactId>
-    <version>1.0.0</version>
+    <version>5.2.4</version>
   </dependency>
 </dependencies>
 ```
