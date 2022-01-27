@@ -20,7 +20,6 @@
 		<dependency.bstats.version>2.2.1</dependency.bstats.version>
 
 		<plugin.shade.version>3.2.1</plugin.shade.version>
-		<plugin.surefire.version>3.0.0-M5</plugin.surefire.version>
 		<plugin.flatten.version>1.2.7</plugin.flatten.version>
 
 		<maven.compiler.source>1.8</maven.compiler.source>
