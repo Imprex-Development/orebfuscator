@@ -1,6 +1,6 @@
 name: 🐛 Bug report
 description: Report an issue or problem with the way Orebfuscator is functioning.
-labels: ["type: bug"]
+labels: ["bug"]
 body:
   - type: markdown
     attributes:
