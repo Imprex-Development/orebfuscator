@@ -4,7 +4,7 @@ labels: ["enhancement"]
 body:
   - type: markdown
     attributes:
-      value: "Before going any further, please check to see if your suggestion has already been added by checking the [wiki](https://github.com/Imprex-Development/Orebfuscator/wiki).
+      value: "Before going any further, please check to see if your suggestion has already been added by checking the [wiki](https://github.com/Imprex-Development/Orebfuscator/wiki)."
   - type: textarea
     id: description
     attributes:
