@@ -7,6 +7,7 @@ general:
   updateRadius: 2
 advanced:
   verbose: false
+  useAsyncPacketListener: true
   maxMillisecondsPerTick: 10
   protocolLibThreads: -1
   obfuscationWorkerThreads: -1
@@ -16,8 +17,8 @@ cache:
   baseDirectory: orebfuscator_cache
   maximumOpenRegionFiles: 256
   deleteRegionFilesAfterAccess: 172800000
-  maximumSize: 8192
-  expireAfterAccess: 30000
+  maximumSize: 16384
+  expireAfterAccess: 60000
   maximumTaskQueueSize: 32768
 obfuscation:
   obfuscation-overworld:
@@ -71,7 +72,7 @@ obfuscation:
     randomBlocks:
       minecraft:stone: 30
       minecraft:deepslate: 30
-      minecraft:cave_air: 15
+      minecraft:cave_air: 5
       minecraft:cobblestone: 1
       minecraft:diamond_ore: 25
       minecraft:emerald_ore: 10
