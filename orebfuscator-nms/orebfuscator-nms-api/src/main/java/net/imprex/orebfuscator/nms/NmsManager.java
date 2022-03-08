@@ -27,6 +27,8 @@ public interface NmsManager {
 
 	boolean isOccluding(int blockId);
 
+	boolean isFallable(int blockId);
+
 	boolean isBlockEntity(int blockId);
 
 	ReadOnlyChunk getReadOnlyChunk(World world, int chunkX, int chunkZ);

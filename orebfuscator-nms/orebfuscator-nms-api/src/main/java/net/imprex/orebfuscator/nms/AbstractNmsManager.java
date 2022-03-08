@@ -15,7 +15,8 @@ public abstract class AbstractNmsManager implements NmsManager {
 
 	private static final byte FLAG_AIR = 1;
 	private static final byte FLAG_OCCLUDING = 2;
-	private static final byte FLAG_TILE_ENTITY = 4;
+	private static final byte FLAG_FALLABLE = 4;
+	private static final byte FLAG_TILE_ENTITY = 8;
 
 	private final AbstractRegionFileCache<?> regionFileCache;
 	private final Map<Material, Set<Integer>> materialToIds = new HashMap<>();
@@ -31,10 +32,11 @@ public abstract class AbstractNmsManager implements NmsManager {
 		this.materialToIds.computeIfAbsent(material, key -> new HashSet<>()).add(id);
 	}
 
-	protected final void setBlockFlags(int blockId, boolean isAir, boolean canOcclude, boolean isTileEntity) {
+	protected final void setBlockFlags(int blockId, boolean isAir, boolean canOcclude, boolean canFall, boolean isTileEntity) {
 		byte flags = this.blockFlags[blockId];
 		flags |= isAir ? FLAG_AIR : 0;
 		flags |= canOcclude ? FLAG_OCCLUDING : 0;
+		flags |= canFall ? FLAG_FALLABLE : 0;
 		flags |= isTileEntity ? FLAG_TILE_ENTITY : 0;
 		this.blockFlags[blockId] = flags;
 	}
@@ -46,7 +48,7 @@ public abstract class AbstractNmsManager implements NmsManager {
 
 	@Override
 	public final Set<Integer> getBlockIds(Material material) {
-		return Collections.unmodifiableSet(this.materialToIds.get(material));
+		return Collections.unmodifiableSet(this.materialToIds.getOrDefault(material, Collections.emptySet()));
 	}
 
 	@Override
@@ -57,6 +59,11 @@ public abstract class AbstractNmsManager implements NmsManager {
 	@Override
 	public final boolean isOccluding(int blockId) {
 		return (this.blockFlags[blockId] & FLAG_OCCLUDING) != 0;
+	}
+
+	@Override
+	public boolean isFallable(int blockId) {
+		return (this.blockFlags[blockId] & FLAG_FALLABLE) != 0;
 	}
 
 	@Override

@@ -86,6 +86,10 @@ public class NmsInstance {
 		return instance.isOccluding(blockId);
 	}
 
+	public static boolean isFallable(int blockId) {
+		return instance.isFallable(blockId);
+	}
+
 	public static boolean isBlockEntity(int blockId) {
 		return instance.isBlockEntity(blockId);
 	}
