@@ -14,7 +14,6 @@ import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
-import org.bukkit.event.entity.EntityInteractEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
@@ -76,11 +75,6 @@ public class DeobfuscationListener implements Listener {
 	@EventHandler
 	public void onEntityExplode(EntityExplodeEvent event) {
 		this.deobfuscationWorker.deobfuscate(event.blockList(), true);
-	}
-
-	@EventHandler
-	public void onEntityInteract(EntityInteractEvent event) {
-		this.deobfuscationWorker.deobfuscate(event.getBlock());
 	}
 
 	@EventHandler
