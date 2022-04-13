@@ -18,7 +18,6 @@ import net.imprex.orebfuscator.nms.AbstractNmsManager;
 import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 import net.minecraft.server.v1_13_R2.Block;
-import net.minecraft.server.v1_13_R2.BlockFalling;
 import net.minecraft.server.v1_13_R2.BlockPosition;
 import net.minecraft.server.v1_13_R2.Chunk;
 import net.minecraft.server.v1_13_R2.ChunkProviderServer;
@@ -73,9 +72,8 @@ public class NmsManager extends AbstractNmsManager {
 			IBlockData blockData = iterator.next();
 			Material material = CraftBlockData.fromData(blockData).getMaterial();
 			int blockId = getBlockId(blockData);
-			Block block = blockData.getBlock();
 			this.registerMaterialId(material, blockId);
-			this.setBlockFlags(blockId, blockData.isAir(), material.isOccluding(), block instanceof BlockFalling, blockData.getBlock().isTileEntity());
+			this.setBlockFlags(blockId, blockData.isAir(), material.isOccluding(), blockData.getBlock().isTileEntity());
 		}
 	}
 

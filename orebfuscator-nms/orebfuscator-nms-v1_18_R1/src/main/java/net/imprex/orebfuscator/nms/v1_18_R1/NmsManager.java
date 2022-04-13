@@ -25,7 +25,6 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Fallable;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -71,9 +70,8 @@ public class NmsManager extends AbstractNmsManager {
 		for (BlockState blockData : Block.BLOCK_STATE_REGISTRY) {
 			Material material = CraftBlockData.fromData(blockData).getMaterial();
 			int blockId = getBlockId(blockData);
-			Block block = blockData.getBlock();
 			this.registerMaterialId(material, blockId);
-			this.setBlockFlags(blockId, blockData.isAir(), material.isOccluding(), block instanceof Fallable, blockData.hasBlockEntity());
+			this.setBlockFlags(blockId, blockData.isAir(), material.isOccluding(), blockData.hasBlockEntity());
 		}
 	}
 

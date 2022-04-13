@@ -1,9 +1,6 @@
 package net.imprex.orebfuscator.obfuscation;
 
-import java.util.BitSet;
-
 import org.bukkit.Bukkit;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
@@ -13,7 +10,6 @@ import org.bukkit.event.block.BlockBreakEvent;
 import org.bukkit.event.block.BlockBurnEvent;
 import org.bukkit.event.block.BlockDamageEvent;
 import org.bukkit.event.block.BlockExplodeEvent;
-import org.bukkit.event.block.BlockPhysicsEvent;
 import org.bukkit.event.block.BlockPistonExtendEvent;
 import org.bukkit.event.block.BlockPistonRetractEvent;
 import org.bukkit.event.entity.EntityChangeBlockEvent;
@@ -39,20 +35,10 @@ public class DeobfuscationListener implements Listener {
 	private final OrebfuscatorConfig config;
 	private final DeobfuscationWorker deobfuscationWorker;
 
-	private final BitSet occludingFallable = new BitSet();
-
 	private DeobfuscationListener(Orebfuscator orebfuscator, DeobfuscationWorker deobfuscationWorker) {
 		this.updateSystem = orebfuscator.getUpdateSystem();
 		this.config = orebfuscator.getOrebfuscatorConfig();
 		this.deobfuscationWorker = deobfuscationWorker;
-
-		for (Material material : Material.values()) {
-			for (int blockId : NmsInstance.getBlockIds(material)) {
-				if (NmsInstance.isFallable(blockId) && NmsInstance.isOccluding(blockId)) {
-					this.occludingFallable.set(material.ordinal());
-				}
-			}
-		}
 	}
 
 	@EventHandler
@@ -85,13 +71,6 @@ public class DeobfuscationListener implements Listener {
 	@EventHandler
 	public void onBlockPistonRetract(BlockPistonRetractEvent event) {
 		this.deobfuscationWorker.deobfuscate(event.getBlocks(), true);
-	}
-
-	@EventHandler
-	public void onBlockPhysics(BlockPhysicsEvent event) {
-		if (this.occludingFallable.get(event.getBlock().getType().ordinal())) {
-			this.deobfuscationWorker.deobfuscate(event.getBlock());
-		}
 	}
 
 	@EventHandler
