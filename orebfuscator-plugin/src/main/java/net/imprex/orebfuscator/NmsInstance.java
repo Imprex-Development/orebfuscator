@@ -41,6 +41,8 @@ public class NmsInstance {
 		} catch (Exception e) {
 			throw new RuntimeException("Couldn't initialize NMS adapter", e);
 		}
+		
+		OFCLogger.info("blockCount " + getTotalBlockCount());
 
 		OFCLogger.debug("NMS adapter for server version \"" + nmsVersion + "\" found!");
 	}

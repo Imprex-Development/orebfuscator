@@ -36,4 +36,5 @@ elif [ $1 = "java-16" ]; then
 elif [ $1 = "java-17" ]; then
 	checkVersion 1.18.1
 	checkVersion 1.18.2
+	checkVersion 1.19
 fi
