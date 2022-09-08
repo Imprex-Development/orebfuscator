@@ -20,6 +20,7 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 
 	private int maximumOpenRegionFiles = 256;
 	private long deleteRegionFilesAfterAccess = TimeUnit.DAYS.toMillis(2);
+	private boolean enableDiskCache = true;
 
 	private int maximumSize = 8192;
 	private long expireAfterAccess = TimeUnit.SECONDS.toMillis(30);
@@ -27,16 +28,18 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 	private int maximumTaskQueueSize = 32768;
 
 	public void deserialize(ConfigurationSection section) {
-		this.enabled(section.getBoolean("enabled", true));
+		this.enabled = section.getBoolean("enabled", true);
 		this.deserializeBaseDirectory(section, "orebfuscator_cache/");
 
-		this.maximumOpenRegionFiles(section.getInt("maximumOpenRegionFiles", 256));
-		this.deleteRegionFilesAfterAccess(section.getLong("deleteRegionFilesAfterAccess", TimeUnit.DAYS.toMillis(2)));
+		this.maximumOpenRegionFiles = section.getInt("maximumOpenRegionFiles", 256);
+		this.deleteRegionFilesAfterAccess = section.getLong("deleteRegionFilesAfterAccess", TimeUnit.DAYS.toMillis(2));
+		this.enableDiskCache = section.getBoolean("enableDiskCache", true);
 
-		this.maximumSize(section.getInt("maximumSize", 8192));
-		this.expireAfterAccess(section.getLong("expireAfterAccess", TimeUnit.SECONDS.toMillis(30)));
+		this.maximumSize = section.getInt("maximumSize", 8192);
+		this.expireAfterAccess = section.getLong("expireAfterAccess", TimeUnit.SECONDS.toMillis(30));
 
-		this.maximumTaskQueueSize(section.getInt("maximumTaskQueueSize", 32768));
+		this.maximumTaskQueueSize = section.getInt("maximumTaskQueueSize", 32768);
+		this.validateConfigValues();
 	}
 
 	public void serialize(ConfigurationSection section) {
@@ -45,6 +48,7 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 
 		section.set("maximumOpenRegionFiles", this.maximumOpenRegionFiles);
 		section.set("deleteRegionFilesAfterAccess", this.deleteRegionFilesAfterAccess);
+		section.set("enableDiskCache", this.enableDiskCache);
 
 		section.set("maximumSize", this.maximumSize);
 		section.set("expireAfterAccess", this.expireAfterAccess);
@@ -77,14 +81,27 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 		}
 	}
 
-	@Override
-	public boolean enabled() {
-		return this.enabled;
+	private void validateConfigValues() {
+		if (this.maximumOpenRegionFiles < 1) {
+			throw new IllegalArgumentException("cache.maximumOpenRegionFiles is lower than one");
+		}
+		if (this.deleteRegionFilesAfterAccess < 1) {
+			throw new IllegalArgumentException("cache.deleteRegionFilesAfterAccess is lower than one");
+		}
+		if (this.maximumSize < 1) {
+			throw new IllegalArgumentException("cache.maximumSize is lower than one");
+		}
+		if (this.expireAfterAccess < 1) {
+			throw new IllegalArgumentException("cache.expireAfterAccess is lower than one");
+		}
+		if (this.maximumTaskQueueSize < 1) {
+			throw new IllegalArgumentException("cache.maximumTaskQueueSize is lower than one");
+		}
 	}
 
 	@Override
-	public void enabled(boolean enabled) {
-		this.enabled = enabled;
+	public boolean enabled() {
+		return this.enabled;
 	}
 
 	@Override
@@ -104,24 +121,13 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 	}
 
 	@Override
-	public void maximumOpenRegionFiles(int count) {
-		if (count < 1) {
-			throw new IllegalArgumentException("cache.maximumOpenRegionFiles is lower than one");
-		}
-		this.maximumOpenRegionFiles = count;
-	}
-
-	@Override
 	public long deleteRegionFilesAfterAccess() {
 		return this.deleteRegionFilesAfterAccess;
 	}
 
 	@Override
-	public void deleteRegionFilesAfterAccess(long expire) {
-		if (expire < 1) {
-			throw new IllegalArgumentException("cache.deleteRegionFilesAfterAccess is lower than one");
-		}
-		this.deleteRegionFilesAfterAccess = expire;
+	public boolean enableDiskCache() {
+		return this.enableDiskCache;
 	}
 
 	@Override
@@ -130,36 +136,12 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 	}
 
 	@Override
-	public void maximumSize(int size) {
-		if (size < 1) {
-			throw new IllegalArgumentException("cache.maximumSize is lower than one");
-		}
-		this.maximumSize = size;
-	}
-
-	@Override
 	public long expireAfterAccess() {
 		return this.expireAfterAccess;
 	}
 
 	@Override
-	public void expireAfterAccess(long expire) {
-		if (expire < 1) {
-			throw new IllegalArgumentException("cache.expireAfterAccess is lower than one");
-		}
-		this.expireAfterAccess = expire;
-	}
-
-	@Override
 	public int maximumTaskQueueSize() {
 		return this.maximumTaskQueueSize;
-	}
-
-	@Override
-	public void maximumTaskQueueSize(int size) {
-		if (size < 1) {
-			throw new IllegalArgumentException("cache.maximumTaskQueueSize is lower than one");
-		}
-		this.maximumTaskQueueSize = size;
 	}
 }

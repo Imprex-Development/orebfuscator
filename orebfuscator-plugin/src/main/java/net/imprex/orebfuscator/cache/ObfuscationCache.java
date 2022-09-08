@@ -29,16 +29,22 @@ public class ObfuscationCache {
 				.expireAfterAccess(this.cacheConfig.expireAfterAccess(), TimeUnit.MILLISECONDS)
 				.removalListener(this::onRemoval).build();
 
-		this.serializer = new AsyncChunkSerializer(orebfuscator);
+		if (this.cacheConfig.enableDiskCache()) {
+			this.serializer = new AsyncChunkSerializer(orebfuscator);
+		} else {
+			this.serializer = null;
+		}
 
 		if (this.cacheConfig.enabled() && this.cacheConfig.deleteRegionFilesAfterAccess() > 0) {
-			Bukkit.getScheduler().runTaskTimerAsynchronously(orebfuscator, new CacheCleanTask(orebfuscator), 0,
+			Bukkit.getScheduler().runTaskTimerAsynchronously(orebfuscator, new CacheFileCleanupTask(orebfuscator), 0,
 					3_600_000L);
 		}
 	}
 
 	private void onRemoval(RemovalNotification<ChunkPosition, ObfuscationResult> notification) {
-		if (notification.wasEvicted()) {
+		// don't serialize invalidated chunks since this would require locking the main
+		// thread and wouldn't bring a huge improvement
+		if (this.cacheConfig.enableDiskCache() && notification.wasEvicted()) {
 			this.serializer.write(notification.getKey(), notification.getValue());
 		}
 	}
@@ -51,32 +57,48 @@ public class ObfuscationCache {
 			return request.complete(cacheChunk);
 		}
 
-		this.serializer.read(key).thenCompose(diskChunk -> {
-			if (request.isValid(diskChunk)) {
-				return request.complete(diskChunk);
-			} else {
-				return request.submitForObfuscation().exceptionally(throwable -> null);
-			}
-		}).thenAccept(chunk -> {
-			if (chunk != null) {
-				this.cache.put(key, chunk);
-			}
-		});
+		if (this.cacheConfig.enableDiskCache()) {
+
+			// compose async in order for the serializer to continue its work
+			this.serializer.read(key).thenComposeAsync(diskChunk -> {
+				if (request.isValid(diskChunk)) {
+					return request.complete(diskChunk);
+				} else {
+					// ignore exception and return null
+					return request.submitForObfuscation().exceptionally(throwable -> null);
+				}
+			}).thenAccept(chunk -> {
+				// if successful add chunk to in-memory cache
+				if (chunk != null) {
+					this.cache.put(key, chunk);
+				}
+			});
+		} else {
+
+			request.submitForObfuscation().thenAccept(chunk -> {
+				// if successful add chunk to in-memory cache
+				if (chunk != null) {
+					this.cache.put(key, chunk);
+				}
+			});
+		}
 
 		return request.getFuture();
 	}
 
 	public void invalidate(ChunkPosition key) {
 		this.cache.invalidate(key);
-		this.serializer.invalidate(key);
 	}
 
 	public void close() {
-		this.cache.asMap().entrySet().removeIf(entry -> {
-			this.serializer.write(entry.getKey(), entry.getValue());
-			return true;
-		});
+		if (this.cacheConfig.enableDiskCache()) {
+			// flush memory cache to disk on shutdown
+			this.cache.asMap().entrySet().removeIf(entry -> {
+				this.serializer.write(entry.getKey(), entry.getValue());
+				return true;
+			});
 
-		this.serializer.close();
+			this.serializer.close();
+		}
 	}
 }

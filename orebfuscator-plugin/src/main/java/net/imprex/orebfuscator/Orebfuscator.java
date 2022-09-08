@@ -47,7 +47,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 			this.config = new OrebfuscatorConfig(this);
 
 			// Check if HeightAccessor can be loaded
-			HeightAccessor.thisMethodIsUsedToInitializeStaticFields();
+			HeightAccessor.thisMethodIsUsedToInitializeStaticFieldsEarly();
 
 			// Initialize metrics
 			new MetricsSystem(this);
@@ -92,11 +92,15 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 
 	@Override
 	public void onDisable() {
-		this.obfuscationCache.close();
+		if (this.obfuscationCache != null) {
+			this.obfuscationCache.close();
+		}
 
-		this.obfuscationSystem.shutdown();
+		if (this.obfuscationSystem != null) {
+			this.obfuscationSystem.shutdown();
+		}
 
-		if (this.config.proximityEnabled()) {
+		if (this.config.proximityEnabled() && this.proximityPacketListener != null && this.proximityHider != null) {
 			this.proximityPacketListener.unregister();
 			this.proximityHider.close();
 		}

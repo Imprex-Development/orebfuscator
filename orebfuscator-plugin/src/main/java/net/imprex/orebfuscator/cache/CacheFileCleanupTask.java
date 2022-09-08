@@ -11,12 +11,15 @@ import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
+import net.imprex.orebfuscator.util.OFCLogger;
 
-public class CacheCleanTask implements Runnable {
+public class CacheFileCleanupTask implements Runnable {
 
 	private final CacheConfig cacheConfig;
 
-	public CacheCleanTask(Orebfuscator orebfuscator) {
+	private int deleteCount = 0;
+
+	public CacheFileCleanupTask(Orebfuscator orebfuscator) {
 		this.cacheConfig = orebfuscator.getOrebfuscatorConfig().cache();
 	}
 
@@ -24,6 +27,8 @@ public class CacheCleanTask implements Runnable {
 	public void run() {
 		long deleteAfterMillis = this.cacheConfig.deleteRegionFilesAfterAccess();
 		AbstractRegionFileCache<?> regionFileCache = NmsInstance.getRegionFileCache();
+
+		this.deleteCount = 0;
 
 		try {
 			Files.walkFileTree(this.cacheConfig.baseDirectory(), new SimpleFileVisitor<Path>() {
@@ -33,12 +38,19 @@ public class CacheCleanTask implements Runnable {
 					if (System.currentTimeMillis() - attributes.lastAccessTime().toMillis() > deleteAfterMillis) {
 						regionFileCache.close(path);
 						Files.delete(path);
+						
+						CacheFileCleanupTask.this.deleteCount++;
+						OFCLogger.debug("deleted cache file: " + path);
 					}
 					return FileVisitResult.CONTINUE;
 				}
 			});
 		} catch (IOException e) {
 			e.printStackTrace();
+		}
+
+		if (this.deleteCount > 0) {
+			OFCLogger.info(String.format("CacheFileCleanupTask successfully deleted %d cache file(s)", this.deleteCount));
 		}
 	}
 }

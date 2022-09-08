@@ -51,7 +51,7 @@ public class HeightAccessor {
 		return block >> 4;
 	}
 
-	public static void thisMethodIsUsedToInitializeStaticFields() {
+	public static void thisMethodIsUsedToInitializeStaticFieldsEarly() {
 	}
 
 	private final int maxHeight;

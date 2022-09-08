@@ -11,11 +11,15 @@ public class OrebfuscatorGeneralConfig implements GeneralConfig {
 	private int updateRadius = 2;
 
 	public void deserialize(ConfigurationSection section) {
-		this.checkForUpdates(section.getBoolean("checkForUpdates", true));
-		this.updateOnBlockDamage(section.getBoolean("updateOnBlockDamage", true));
-		this.bypassNotification(section.getBoolean("bypassNotification", true));
-		this.ignoreSpectator(section.getBoolean("ignoreSpectator", false));
-		this.updateRadius(section.getInt("updateRadius", 2));
+		this.checkForUpdates = section.getBoolean("checkForUpdates", true);
+		this.updateOnBlockDamage = section.getBoolean("updateOnBlockDamage", true);
+		this.bypassNotification = section.getBoolean("bypassNotification", true);
+		this.ignoreSpectator = section.getBoolean("ignoreSpectator", false);
+		this.updateRadius = section.getInt("updateRadius", 2);
+
+		if (this.updateRadius < 1) {
+			throw new IllegalArgumentException("update radius must higher than zero");
+		}
 	}
 
 	public void serialize(ConfigurationSection section) {
@@ -32,18 +36,8 @@ public class OrebfuscatorGeneralConfig implements GeneralConfig {
 	}
 
 	@Override
-	public void checkForUpdates(boolean enabled) {
-		this.checkForUpdates = enabled;
-	}
-
-	@Override
 	public boolean updateOnBlockDamage() {
 		return this.updateOnBlockDamage;
-	}
-
-	@Override
-	public void updateOnBlockDamage(boolean enabled) {
-		this.updateOnBlockDamage = enabled;
 	}
 
 	@Override
@@ -52,30 +46,12 @@ public class OrebfuscatorGeneralConfig implements GeneralConfig {
 	}
 
 	@Override
-	public void bypassNotification(boolean enabled) {
-		this.bypassNotification = enabled;
-	}
-
-	@Override
 	public boolean ignoreSpectator() {
 		return this.ignoreSpectator;
 	}
 
 	@Override
-	public void ignoreSpectator(boolean value) {
-		this.ignoreSpectator = value;
-	}
-
-	@Override
 	public int updateRadius() {
 		return this.updateRadius;
-	}
-
-	@Override
-	public void updateRadius(int radius) {
-		if (radius < 1) {
-			throw new IllegalArgumentException("update radius must higher than zero");
-		}
-		this.updateRadius = radius;
 	}
 }

@@ -5,8 +5,10 @@ import java.util.logging.Logger;
 
 public class OFCLogger {
 
-	public static final Logger LOGGER = Logger.getLogger("bukkit.orebfuscator");
+	private static final Logger LOGGER = Logger.getLogger("bukkit.orebfuscator");
+
 	private static final String LOG_PREFIX = "[Orebfuscator] ";
+	private static final String LOG_DEBUG_PREFIX = "[Orebfuscator/Debug] ";
 
 	private static boolean verbose = false;
 
@@ -19,7 +21,7 @@ public class OFCLogger {
 
 	public static void debug(String message) {
 		if (OFCLogger.verbose) {
-			info(message);
+			OFCLogger.LOGGER.log(Level.INFO, LOG_DEBUG_PREFIX + message);
 		}
 	}
 

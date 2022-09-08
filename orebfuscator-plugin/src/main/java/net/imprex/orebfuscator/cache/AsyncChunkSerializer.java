@@ -14,6 +14,17 @@ import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.obfuscation.ObfuscationResult;
 import net.imprex.orebfuscator.util.ChunkPosition;
 
+/**
+ * This class works similar to a bounded buffer for cache read and write
+ * requests but also functions as the only consumer of said buffer. All requests
+ * can get reorder similar to modern memory access reordering in CPUs. If for
+ * example a write request is already in the buffer and a new read request for
+ * the same position is created then the read request doesn't get put in the
+ * buffer and gets completed with the content of the write request.
+ * 
+ * @see <a href="https://en.wikipedia.org/wiki/Producer–consumer_problem">Bound buffer</a>
+ * @see <a href="https://en.wikipedia.org/wiki/Memory_ordering">Memory ordering</a>
+ */
 public class AsyncChunkSerializer implements Runnable {
 
 	private final Lock lock = new ReentrantLock(true);
@@ -45,7 +56,7 @@ public class AsyncChunkSerializer implements Runnable {
 				return ((ReadTask) task).future;
 			} else {
 				CompletableFuture<ObfuscationResult> future = new CompletableFuture<>();
-				this.queueTask(position, new ReadTask(position, future), true);
+				this.queueTask(position, new ReadTask(position, future));
 				return future;
 			}
 		} finally {
@@ -56,7 +67,7 @@ public class AsyncChunkSerializer implements Runnable {
 	public void write(ChunkPosition position, ObfuscationResult chunk) {
 		this.lock.lock();
 		try {
-			Runnable prevTask = this.queueTask(position, new WriteTask(position, chunk), true);
+			Runnable prevTask = this.queueTask(position, new WriteTask(position, chunk));
 			if (prevTask instanceof ReadTask) {
 				((ReadTask) prevTask).future.complete(chunk);
 			}
@@ -65,20 +76,8 @@ public class AsyncChunkSerializer implements Runnable {
 		}
 	}
 
-	public void invalidate(ChunkPosition position) {
-		this.lock.lock();
-		try {
-			Runnable prevTask = this.queueTask(position, new WriteTask(position, null), false);
-			if (prevTask instanceof ReadTask) {
-				((ReadTask) prevTask).future.complete(null);
-			}
-		} finally {
-			this.lock.unlock();
-		}
-	}
-
-	private Runnable queueTask(ChunkPosition position, Runnable nextTask, boolean considerSize) {
-		while (this.positions.size() >= this.maxTaskQueueSize && considerSize) {
+	private Runnable queueTask(ChunkPosition position, Runnable nextTask) {
+		while (this.positions.size() >= this.maxTaskQueueSize) {
 			this.notFull.awaitUninterruptibly();
 		}
 
@@ -100,7 +99,7 @@ public class AsyncChunkSerializer implements Runnable {
 		while (this.running) {
 			this.lock.lock();
 			try {
-				if (this.positions.isEmpty()) {
+				while (this.positions.isEmpty()) {
 					this.notEmpty.await();
 				}
 
