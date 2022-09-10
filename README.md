@@ -49,7 +49,7 @@ Still having trouble getting Orebfuscator to run check out our [common issues](h
 ## License:
 
 Almost completely rewritten by Imprex-Development to support v1.14 and higher Minecraft version's; these portions as permissible:
-Copyright (C) 2020-2021 by Imprex-Development. All rights reserved.
+Copyright (C) 2020-2022 by Imprex-Development. All rights reserved.
 
 Released under the same license as original.
 
