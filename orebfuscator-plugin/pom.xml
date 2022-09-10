@@ -47,7 +47,7 @@
 			<groupId>net.imprex</groupId>
 			<artifactId>orebfuscator-common</artifactId>
 			<version>${revision}</version>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.imprex</groupId>
