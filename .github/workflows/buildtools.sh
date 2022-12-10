@@ -2,7 +2,10 @@
 
 build () {
 	JAVA_PATH=$"JAVA_HOME_$2_X64"
-	export JAVA_HOME=${!JAVA_PATH}
+	echo $JAVA_PATH
+	JAVA_HOME=${!JAVA_PATH}
+	echo $JAVA_HOME
+	export JAVA_HOME
 
 	echo "Building v$1 with java-$2 ($JAVA_HOME)"
 
