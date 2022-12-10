@@ -71,7 +71,8 @@ public class NmsManager extends AbstractNmsManager {
 			Material material = CraftBlockData.fromData(blockData).getMaterial();
 			int blockId = getBlockId(blockData);
 			this.registerMaterialId(material, blockId);
-			this.setBlockFlags(blockId, blockData.isAir(), material.isOccluding(), blockData.hasBlockEntity());
+			// check if material is occluding and use blockData check for rare edge cases like barrier, spawner, slime_block, ...
+			this.setBlockFlags(blockId, blockData.isAir(), material.isOccluding() && blockData.canOcclude(), blockData.hasBlockEntity());
 		}
 	}
 
