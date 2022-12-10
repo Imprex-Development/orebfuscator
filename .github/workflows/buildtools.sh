@@ -1,7 +1,7 @@
 #!/bin/bash
 
 build () {
-	eval JAVA_HOME=\$$"JAVA_HOME_$2_x64"
+	eval JAVA_HOME=\$$"JAVA_HOME_$2_X64"
 	export JAVA_HOME
 
 	echo "Building v$1 with java-$2 ($JAVA_HOME)"
