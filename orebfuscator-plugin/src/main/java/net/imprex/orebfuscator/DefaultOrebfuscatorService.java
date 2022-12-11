@@ -21,7 +21,7 @@ public final class DefaultOrebfuscatorService implements OrebfuscatorService {
 
 	@Override
 	public final void deobfuscate(Collection<? extends Block> blocks) {
-		if (!this.orebfuscator.isMainThread()) {
+		if (!this.orebfuscator.isGameThread()) {
             throw new IllegalStateException("Asynchronous deobfuscation!");
 		} else if (blocks == null || blocks.isEmpty()) {
 			throw new IllegalArgumentException("block list is null or empty");

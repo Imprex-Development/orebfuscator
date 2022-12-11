@@ -120,7 +120,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 		}
 	}
 
-	public boolean isMainThread() {
+	public boolean isGameThread() {
 		return Thread.currentThread() == this.mainThread;
 	}
 
