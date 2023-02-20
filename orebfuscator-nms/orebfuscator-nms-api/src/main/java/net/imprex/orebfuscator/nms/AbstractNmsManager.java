@@ -1,25 +1,19 @@
 package net.imprex.orebfuscator.nms;
 
-import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
-
-import org.bukkit.Material;
 
 import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.config.Config;
+import net.imprex.orebfuscator.util.BlockProperties;
+import net.imprex.orebfuscator.util.BlockStateProperties;
 
 public abstract class AbstractNmsManager implements NmsManager {
 
-	private static final byte FLAG_AIR = 1;
-	private static final byte FLAG_OCCLUDING = 2;
-	private static final byte FLAG_TILE_ENTITY = 4;
-
 	private final AbstractRegionFileCache<?> regionFileCache;
-	private final Map<Material, Set<Integer>> materialToIds = new HashMap<>();
-	private final byte[] blockFlags = new byte[getTotalBlockCount()];
+
+	private final BlockStateProperties[] blockStates = new BlockStateProperties[getTotalBlockCount()];
+	private final Map<String, BlockProperties> blocks = new HashMap<>();
 
 	public AbstractNmsManager(Config config) {
 		this.regionFileCache = this.createRegionFileCache(config.cache());
@@ -27,16 +21,16 @@ public abstract class AbstractNmsManager implements NmsManager {
 
 	protected abstract AbstractRegionFileCache<?> createRegionFileCache(CacheConfig cacheConfig);
 
-	protected final void registerMaterialId(Material material, int id) {
-		this.materialToIds.computeIfAbsent(material, key -> new HashSet<>()).add(id);
+	protected final void registerBlockStateProperties(BlockStateProperties properties) {
+		this.blockStates[properties.getId()] = properties;
 	}
 
-	protected final void setBlockFlags(int blockId, boolean isAir, boolean canOcclude, boolean isTileEntity) {
-		byte flags = this.blockFlags[blockId];
-		flags |= isAir ? FLAG_AIR : 0;
-		flags |= canOcclude ? FLAG_OCCLUDING : 0;
-		flags |= isTileEntity ? FLAG_TILE_ENTITY : 0;
-		this.blockFlags[blockId] = flags;
+	protected final void registerBlockProperties(BlockProperties properties) {
+		this.blocks.put(properties.getName(), properties);
+	}
+
+	protected final BlockStateProperties getBlockStateProperties(int id) {
+		return this.blockStates[id];
 	}
 
 	@Override
@@ -45,23 +39,23 @@ public abstract class AbstractNmsManager implements NmsManager {
 	}
 
 	@Override
-	public final Set<Integer> getBlockIds(Material material) {
-		return Collections.unmodifiableSet(this.materialToIds.get(material));
+	public final BlockProperties getBlockByName(String key) {
+		return this.blocks.get(key);
 	}
 
 	@Override
-	public final boolean isAir(int blockId) {
-		return (this.blockFlags[blockId] & FLAG_AIR) != 0;
+	public final boolean isAir(int id) {
+		return this.blockStates[id].isAir();
 	}
 
 	@Override
-	public final boolean isOccluding(int blockId) {
-		return (this.blockFlags[blockId] & FLAG_OCCLUDING) != 0;
+	public final boolean isOccluding(int id) {
+		return this.blockStates[id].isOccluding();
 	}
 
 	@Override
-	public final boolean isBlockEntity(int blockId) {
-		return (this.blockFlags[blockId] & FLAG_TILE_ENTITY) != 0;
+	public final boolean isBlockEntity(int id) {
+		return this.blockStates[id].isBlockEntity();
 	}
 
 	@Override

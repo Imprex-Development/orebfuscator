@@ -13,4 +13,8 @@ public interface WorldConfigBundle {
 	int maxSectionIndex();
 
 	boolean shouldObfuscate(int y);
+
+	int nextRandomObfuscationBlock(int y);
+
+	int nextRandomProximityBlock(int y);
 }

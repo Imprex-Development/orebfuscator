@@ -73,7 +73,7 @@ public class ObfuscationProcessor {
 					// should current block be obfuscated
 					if (BlockFlags.isObfuscateBitSet(obfuscateBits) && shouldObfuscate(task, chunk, x, y, z)
 							&& obfuscationConfig.shouldObfuscate(y)) {
-						blockState = obfuscationConfig.nextRandomBlockState();
+						blockState = bundle.nextRandomObfuscationBlock(y);
 						obfuscated = true;
 					}
 
@@ -83,7 +83,7 @@ public class ObfuscationProcessor {
 						if (BlockFlags.isUseBlockBelowBitSet(obfuscateBits)) {
 							blockState = getBlockStateBelow(blockFlags, chunk, x, y, z);
 						} else {
-							blockState = proximityConfig.nextRandomBlockState();
+							blockState = bundle.nextRandomProximityBlock(y);
 						}
 						obfuscated = true;
 					}

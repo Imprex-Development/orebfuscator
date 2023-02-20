@@ -1,14 +1,14 @@
 package net.imprex.orebfuscator.nms.v1_12_R1;
 
-import java.util.Iterator;
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
 
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_12_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
+
+import com.google.common.collect.ImmutableList;
 
 import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.config.Config;
@@ -16,6 +16,8 @@ import net.imprex.orebfuscator.nms.AbstractBlockState;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
 import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
+import net.imprex.orebfuscator.util.BlockProperties;
+import net.imprex.orebfuscator.util.BlockStateProperties;
 import net.minecraft.server.v1_12_R1.Block;
 import net.minecraft.server.v1_12_R1.BlockAir;
 import net.minecraft.server.v1_12_R1.BlockPosition;
@@ -67,17 +69,37 @@ public class NmsManager extends AbstractNmsManager {
 	public NmsManager(Config config) {
 		super(config);
 
-		for (Iterator<IBlockData> iterator = Block.REGISTRY_ID.iterator(); iterator.hasNext();) {
-			IBlockData blockData = iterator.next();
-			Material material = CraftMagicNumbers.getMaterial(blockData.getBlock());
-			int blockId = getBlockId(blockData);
-			this.registerMaterialId(material, blockId);
-			Block block = blockData.getBlock();
-			/**
-			 * p -> for barrier/slime_block/spawner
-			 * r -> for every other block
-			 */
-			this.setBlockFlags(blockId, block instanceof BlockAir, blockData.p() && blockData.r()/*canOcclude*/, block.isTileEntity());
+		for (MinecraftKey key : Block.REGISTRY.keySet()) {
+			String name = key.toString();
+			Block block = Block.REGISTRY.get(key);
+
+			ImmutableList<IBlockData> possibleBlockStates = block.s().a();
+			List<BlockStateProperties> possibleBlockStateProperties = new ArrayList<>();
+
+			for (IBlockData blockState : possibleBlockStates) {
+				BlockStateProperties properties = BlockStateProperties.builder(getBlockId(blockState))
+						.withIsAir(block instanceof BlockAir)
+						/**
+						* p -> for barrier/slime_block/spawner
+						* r -> for every other block
+						*/
+						.withIsOccluding(blockState.p() && blockState.r()/*canOcclude*/)
+						.withIsBlockEntity(block.isTileEntity())
+						.build();
+
+				possibleBlockStateProperties.add(properties);
+				this.registerBlockStateProperties(properties);
+			}
+
+			int defaultBlockStateId = Block.getCombinedId(block.getBlockData());
+			BlockStateProperties defaultBlockState = getBlockStateProperties(defaultBlockStateId);
+
+			BlockProperties blockProperties = BlockProperties.builder(name)
+				.withDefaultBlockState(defaultBlockState)
+				.withPossibleBlockStates(ImmutableList.copyOf(possibleBlockStateProperties))
+				.build();
+			
+			this.registerBlockProperties(blockProperties);
 		}
 	}
 
@@ -87,46 +109,13 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public int getBitsPerBlock() {
+	public int getMaxBitsPerBlock() {
 		return MathHelper.d(Block.REGISTRY_ID.a());
 	}
 
 	@Override
 	public int getTotalBlockCount() {
 		return Block.REGISTRY_ID.a();
-	}
-
-	@Override
-	public Optional<Material> getMaterialByName(String name) {
-		MinecraftKey minecraftKey = new MinecraftKey(name);
-		if (Block.REGISTRY.d(minecraftKey)) {
-			return Optional.ofNullable(CraftMagicNumbers.getMaterial(Block.REGISTRY.get(minecraftKey)));
-		}
-		return Optional.empty();
-	}
-
-	@Override
-	public Optional<String> getNameByMaterial(Material material) {
-		MinecraftKey key = Block.REGISTRY.b(CraftMagicNumbers.getBlock(material));
-		if (key != null) {
-			return Optional.of(key.toString());
-		}
-		return Optional.empty();
-	}
-
-	@Override
-	public boolean isHoe(Material material) {
-		switch (material) {
-		case WOOD_HOE:
-		case STONE_HOE:
-		case IRON_HOE:
-		case GOLD_HOE:
-		case DIAMOND_HOE:
-			return true;
-
-		default:
-			return false;
-		}
 	}
 
 	@Override

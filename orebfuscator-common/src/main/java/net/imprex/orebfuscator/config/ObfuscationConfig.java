@@ -1,8 +1,8 @@
 package net.imprex.orebfuscator.config;
 
-import org.bukkit.Material;
+import net.imprex.orebfuscator.util.BlockProperties;
 
 public interface ObfuscationConfig extends WorldConfig {
 
-	Iterable<Material> hiddenBlocks();
+	Iterable<BlockProperties> hiddenBlocks();
 }

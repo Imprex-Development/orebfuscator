@@ -1,11 +1,7 @@
 package net.imprex.orebfuscator;
 
 import java.lang.reflect.Constructor;
-import java.util.Iterator;
-import java.util.Optional;
-import java.util.Set;
 
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.bukkit.entity.Player;
@@ -16,6 +12,7 @@ import net.imprex.orebfuscator.nms.BlockStateHolder;
 import net.imprex.orebfuscator.nms.NmsManager;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 import net.imprex.orebfuscator.util.BlockPos;
+import net.imprex.orebfuscator.util.BlockProperties;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 import net.imprex.orebfuscator.util.OFCLogger;
 
@@ -50,32 +47,15 @@ public class NmsInstance {
 	}
 
 	public static int getBitsPerBlock() {
-		return instance.getBitsPerBlock();
+		return instance.getMaxBitsPerBlock();
 	}
 
 	public static int getTotalBlockCount() {
 		return instance.getTotalBlockCount();
 	}
 
-	public static Optional<Material> getMaterialByName(String name) {
-		return instance.getMaterialByName(name);
-	}
-
-	public static Optional<String> getNameByMaterial(Material material) {
-		return instance.getNameByMaterial(material);
-	}
-
-	public static Set<Integer> getBlockIds(Material material) {
-		return instance.getBlockIds(material);
-	}
-
-	public static Optional<Integer> getFirstBlockId(Material material) {
-		Iterator<Integer> blockIds = getBlockIds(material).iterator();
-		return Optional.ofNullable(blockIds.hasNext() ? blockIds.next() : null);
-	}
-
-	public static boolean isHoe(Material material) {
-		return instance.isHoe(material);
+	public static BlockProperties getBlockByName(String name) {
+		return instance.getBlockByName(name);
 	}
 
 	public static boolean isAir(int blockId) {

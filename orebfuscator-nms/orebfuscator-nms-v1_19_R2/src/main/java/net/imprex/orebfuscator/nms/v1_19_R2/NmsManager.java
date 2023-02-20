@@ -1,14 +1,17 @@
 package net.imprex.orebfuscator.nms.v1_19_R2;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_19_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_19_R2.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_19_R2.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_19_R2.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
+
+import com.google.common.collect.ImmutableList;
 
 import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.config.Config;
@@ -16,10 +19,12 @@ import net.imprex.orebfuscator.nms.AbstractBlockState;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
 import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
+import net.imprex.orebfuscator.util.BlockProperties;
+import net.imprex.orebfuscator.util.BlockStateProperties;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -43,7 +48,7 @@ public class NmsManager extends AbstractNmsManager {
 		return level.getChunkSource().isChunkLoaded(chunkX, chunkZ);
 	}
 
-	private static BlockState getBlockData(World world, int x, int y, int z, boolean loadChunk) {
+	private static BlockState getBlockState(World world, int x, int y, int z, boolean loadChunk) {
 		ServerLevel level = level(world);
 		ServerChunkCache serverChunkCache = level.getChunkSource();
 
@@ -55,24 +60,39 @@ public class NmsManager extends AbstractNmsManager {
 		return null;
 	}
 
-	static int getBlockId(BlockState blockData) {
-		if (blockData == null) {
-			return 0;
-		} else {
-			int id = Block.BLOCK_STATE_REGISTRY.getId(blockData);
-			return id == -1 ? 0 : id;
-		}
-	}
-
 	public NmsManager(Config config) {
 		super(config);
 
-		for (BlockState blockData : Block.BLOCK_STATE_REGISTRY) {
-			Material material = CraftBlockData.fromData(blockData).getMaterial();
-			int blockId = getBlockId(blockData);
-			this.registerMaterialId(material, blockId);
-			// check if material is occluding and use blockData check for rare edge cases like barrier, spawner, slime_block, ...
-			this.setBlockFlags(blockId, blockData.isAir(), material.isOccluding() && blockData.canOcclude(), blockData.hasBlockEntity());
+		for (Map.Entry<ResourceKey<Block>, Block> entry : BuiltInRegistries.BLOCK.entrySet()) {
+			String name = entry.getKey().location().toString();
+			Block block = entry.getValue();
+
+			ImmutableList<BlockState> possibleBlockStates = block.getStateDefinition().getPossibleStates();
+			List<BlockStateProperties> possibleBlockStateProperties = new ArrayList<>();
+
+			for (BlockState blockState : possibleBlockStates) {
+				Material material = CraftBlockData.fromData(blockState).getMaterial();
+
+				BlockStateProperties properties = BlockStateProperties.builder(Block.getId(blockState))
+						.withIsAir(blockState.isAir())
+						// check if material is occluding and use blockData check for rare edge cases like barrier, spawner, slime_block, ...
+						.withIsOccluding(material.isOccluding() && blockState.canOcclude())
+						.withIsBlockEntity(blockState.hasBlockEntity())
+						.build();
+
+				possibleBlockStateProperties.add(properties);
+				this.registerBlockStateProperties(properties);
+			}
+
+			int defaultBlockStateId = Block.getId(block.defaultBlockState());
+			BlockStateProperties defaultBlockState = getBlockStateProperties(defaultBlockStateId);
+
+			BlockProperties blockProperties = BlockProperties.builder(name)
+				.withDefaultBlockState(defaultBlockState)
+				.withPossibleBlockStates(ImmutableList.copyOf(possibleBlockStateProperties))
+				.build();
+			
+			this.registerBlockProperties(blockProperties);
 		}
 	}
 
@@ -82,47 +102,13 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public int getBitsPerBlock() {
+	public int getMaxBitsPerBlock() {
 		return Mth.ceillog2(Block.BLOCK_STATE_REGISTRY.size());
 	}
 
 	@Override
 	public int getTotalBlockCount() {
 		return Block.BLOCK_STATE_REGISTRY.size();
-	}
-
-	@Override
-	public Optional<Material> getMaterialByName(String name) {
-		Optional<Block> block = BuiltInRegistries.BLOCK.getOptional(new ResourceLocation(name));
-		if (block.isPresent()) {
-			return Optional.ofNullable(CraftMagicNumbers.getMaterial(block.get()));
-		}
-		return Optional.empty();
-	}
-
-	@Override
-	public Optional<String> getNameByMaterial(Material material) {
-		ResourceLocation resourceLocation = BuiltInRegistries.BLOCK.getKey(CraftMagicNumbers.getBlock(material));
-		if (resourceLocation != null) {
-			return Optional.of(resourceLocation.toString());
-		}
-		return Optional.empty();
-	}
-
-	@Override
-	public boolean isHoe(Material material) {
-		switch (material) {
-		case WOODEN_HOE:
-		case STONE_HOE:
-		case IRON_HOE:
-		case GOLDEN_HOE:
-		case DIAMOND_HOE:
-		case NETHERITE_HOE:
-			return true;
-
-		default:
-			return false;
-		}
 	}
 
 	@Override
@@ -134,7 +120,7 @@ public class NmsManager extends AbstractNmsManager {
 
 	@Override
 	public AbstractBlockState<?> getBlockState(World world, int x, int y, int z) {
-		BlockState blockData = getBlockData(world, x, y, z, false);
+		BlockState blockData = getBlockState(world, x, y, z, false);
 		return blockData != null ? new BlockStateWrapper(x, y, z, world, blockData) : null;
 	}
 

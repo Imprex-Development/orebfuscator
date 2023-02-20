@@ -1,14 +1,17 @@
 package net.imprex.orebfuscator.nms.v1_16_R2;
 
-import java.util.Optional;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_16_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R2.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_16_R2.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
+
+import com.google.common.collect.ImmutableList;
 
 import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.config.Config;
@@ -16,6 +19,8 @@ import net.imprex.orebfuscator.nms.AbstractBlockState;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
 import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
+import net.imprex.orebfuscator.util.BlockProperties;
+import net.imprex.orebfuscator.util.BlockStateProperties;
 import net.minecraft.server.v1_16_R2.Block;
 import net.minecraft.server.v1_16_R2.BlockPosition;
 import net.minecraft.server.v1_16_R2.Chunk;
@@ -24,8 +29,8 @@ import net.minecraft.server.v1_16_R2.EntityPlayer;
 import net.minecraft.server.v1_16_R2.IBlockData;
 import net.minecraft.server.v1_16_R2.IRegistry;
 import net.minecraft.server.v1_16_R2.MathHelper;
-import net.minecraft.server.v1_16_R2.MinecraftKey;
 import net.minecraft.server.v1_16_R2.PacketPlayOutBlockChange;
+import net.minecraft.server.v1_16_R2.ResourceKey;
 import net.minecraft.server.v1_16_R2.TileEntity;
 import net.minecraft.server.v1_16_R2.WorldServer;
 
@@ -55,27 +60,42 @@ public class NmsManager extends AbstractNmsManager {
 		return null;
 	}
 
-	static int getBlockId(IBlockData blockData) {
-		if (blockData == null) {
-			return 0;
-		} else {
-			int id = Block.REGISTRY_ID.getId(blockData);
-			return id == -1 ? 0 : id;
-		}
-	}
-
 	public NmsManager(Config config) {
 		super(config);
 
-		for (IBlockData blockData : Block.REGISTRY_ID) {
-			Material material = CraftBlockData.fromData(blockData).getMaterial();
-			int blockId = getBlockId(blockData);
-			this.registerMaterialId(material, blockId);
-			/**
-			 * l -> for barrier/slime_block/spawner/leaves
-			 * isOccluding -> for every other block
-			 */
-			this.setBlockFlags(blockId, blockData.isAir(), material.isOccluding() && blockData.l()/*canOcclude*/, blockData.getBlock().isTileEntity());
+		for (Map.Entry<ResourceKey<Block>, Block> entry : IRegistry.BLOCK.d()) {
+			String name = entry.getKey().a().toString();
+			Block block = entry.getValue();
+
+			ImmutableList<IBlockData> possibleBlockStates = block.getStates().a();
+			List<BlockStateProperties> possibleBlockStateProperties = new ArrayList<>();
+
+			for (IBlockData blockState : possibleBlockStates) {
+				Material material = CraftBlockData.fromData(blockState).getMaterial();
+
+				BlockStateProperties properties = BlockStateProperties.builder(Block.getCombinedId(blockState))
+						.withIsAir(blockState.isAir())
+						/**
+						* l -> for barrier/slime_block/spawner/leaves
+						* isOccluding -> for every other block
+						*/
+						.withIsOccluding(material.isOccluding() && blockState.l()/*canOcclude*/)
+						.withIsBlockEntity(block.isTileEntity())
+						.build();
+
+				possibleBlockStateProperties.add(properties);
+				this.registerBlockStateProperties(properties);
+			}
+
+			int defaultBlockStateId = Block.getCombinedId(block.getBlockData());
+			BlockStateProperties defaultBlockState = getBlockStateProperties(defaultBlockStateId);
+
+			BlockProperties blockProperties = BlockProperties.builder(name)
+				.withDefaultBlockState(defaultBlockState)
+				.withPossibleBlockStates(ImmutableList.copyOf(possibleBlockStateProperties))
+				.build();
+			
+			this.registerBlockProperties(blockProperties);
 		}
 	}
 
@@ -85,47 +105,13 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public int getBitsPerBlock() {
+	public int getMaxBitsPerBlock() {
 		return MathHelper.e(Block.REGISTRY_ID.a());
 	}
 
 	@Override
 	public int getTotalBlockCount() {
 		return Block.REGISTRY_ID.a();
-	}
-
-	@Override
-	public Optional<Material> getMaterialByName(String name) {
-		Optional<Block> block = IRegistry.BLOCK.getOptional(new MinecraftKey(name));
-		if (block.isPresent()) {
-			return Optional.ofNullable(CraftMagicNumbers.getMaterial(block.get()));
-		}
-		return Optional.empty();
-	}
-
-	@Override
-	public Optional<String> getNameByMaterial(Material material) {
-		MinecraftKey key = IRegistry.BLOCK.getKey(CraftMagicNumbers.getBlock(material));
-		if (key != null) {
-			return Optional.of(key.toString());
-		}
-		return Optional.empty();
-	}
-
-	@Override
-	public boolean isHoe(Material material) {
-		switch (material) {
-		case WOODEN_HOE:
-		case STONE_HOE:
-		case IRON_HOE:
-		case GOLDEN_HOE:
-		case DIAMOND_HOE:
-		case NETHERITE_HOE:
-			return true;
-
-		default:
-			return false;
-		}
 	}
 
 	@Override

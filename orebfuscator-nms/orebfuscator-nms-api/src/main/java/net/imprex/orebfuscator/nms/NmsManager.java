@@ -1,27 +1,19 @@
 package net.imprex.orebfuscator.nms;
 
-import java.util.Optional;
-import java.util.Set;
-
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+
+import net.imprex.orebfuscator.util.BlockProperties;
 
 public interface NmsManager {
 
 	AbstractRegionFileCache<?> getRegionFileCache();
 
-	int getBitsPerBlock();
+	int getMaxBitsPerBlock();
 
 	int getTotalBlockCount();
 
-	Optional<Material> getMaterialByName(String name);
-
-	Optional<String> getNameByMaterial(Material material);
-
-	Set<Integer> getBlockIds(Material material);
-
-	boolean isHoe(Material material);
+	BlockProperties getBlockByName(String key);
 
 	boolean isAir(int blockId);
 

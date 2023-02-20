@@ -1,21 +1,19 @@
 package net.imprex.orebfuscator.config;
 
 import java.util.ArrayList;
-import java.util.LinkedHashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
-import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 
-import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.config.components.WeightedBlockList;
+import net.imprex.orebfuscator.config.components.WorldMatcher;
 import net.imprex.orebfuscator.util.BlockPos;
+import net.imprex.orebfuscator.util.HeightAccessor;
 import net.imprex.orebfuscator.util.OFCLogger;
-import net.imprex.orebfuscator.util.WeightedRandom;
+import net.imprex.orebfuscator.util.WeightedIntRandom;
 
-public abstract class AbstractWorldConfig implements WorldConfig {
+public abstract class AbstractWorldConfig implements WorldConfig, ConfigParsingContext {
 
 	private final String name;
 
@@ -25,22 +23,13 @@ public abstract class AbstractWorldConfig implements WorldConfig {
 
 	protected final List<WorldMatcher> worldMatchers = new ArrayList<>();
 
-	protected final Map<Material, Integer> randomBlocks = new LinkedHashMap<>();
-	protected final WeightedRandom<Integer> weightedBlockIds = new WeightedRandom<>();
+	private final List<WeightedBlockList> weightedBlockLists = new ArrayList<>();
 
 	public AbstractWorldConfig(String name) {
 		this.name = name;
 	}
 
-	protected static void warnUnkownBlock(String section, String path, String name) {
-		OFCLogger.warn(String.format("config section '%s.%s' contains unknown block '%s'", section, path, name));
-	}
-
-	protected final void failMissingOrEmpty(ConfigurationSection section, String missingSection) {
-		this.fail(String.format("config section '%s.%s' is missing or empty", section.getCurrentPath(), missingSection));
-	}
-
-	protected final void fail(String message) {
+	public final void fail(String message) {
 		this.enabled = false;
 		OFCLogger.warn(message);
 	}
@@ -70,40 +59,27 @@ public abstract class AbstractWorldConfig implements WorldConfig {
 	}
 
 	protected void deserializeRandomBlocks(ConfigurationSection section, String path) {
-		ConfigurationSection blockSection = section.getConfigurationSection(path);
-		if (blockSection == null) {
+		ConfigurationSection subSectionContainer = section.getConfigurationSection(path);
+		if (subSectionContainer == null) {
+			failMissingOrEmpty(section, path);
 			return;
 		}
 
-		for (String blockName : blockSection.getKeys(false)) {
-			Optional<Material> optional = NmsInstance.getMaterialByName(blockName);
-			if (optional.isPresent()) {
-				int weight = blockSection.getInt(blockName, 1);
-				this.randomBlocks.put(optional.get(), weight);
-
-				NmsInstance.getFirstBlockId(optional.get()).ifPresent(blockId -> {
-					this.weightedBlockIds.add(weight, blockId);
-				});
-			} else {
-				warnUnkownBlock(section.getCurrentPath(), path, blockName);
-			}
+		for (String subSectionName : subSectionContainer.getKeys(false)) {
+			ConfigurationSection subSection = subSectionContainer.getConfigurationSection(subSectionName);
+			this.weightedBlockLists.add(new WeightedBlockList(this, subSection));
 		}
 
-		if (this.randomBlocks.isEmpty()) {
-			this.failMissingOrEmpty(section, path);
+		if (this.weightedBlockLists.isEmpty()) {
+			failMissingOrEmpty(section, path);
 		}
 	}
 
 	protected void serializeRandomBlocks(ConfigurationSection section, String path) {
-		ConfigurationSection blockSection = section.createSection(path);
+		ConfigurationSection subSectionContainer = section.createSection(path);
 
-		for (Material material : this.randomBlocks.keySet()) {
-			Optional<String> optional = NmsInstance.getNameByMaterial(material);
-			if (optional.isPresent()) {
-				blockSection.set(optional.get(), this.randomBlocks.get(material));
-			} else {
-				warnUnkownBlock(section.getCurrentPath(), path, material.name());
-			}
+		for (WeightedBlockList weightedBlockList : this.weightedBlockLists) {
+			weightedBlockList.serialize(subSectionContainer);
 		}
 	}
 
@@ -141,8 +117,8 @@ public abstract class AbstractWorldConfig implements WorldConfig {
 		return y >= this.minY && y <= this.maxY;
 	}
 
-	@Override
-	public int nextRandomBlockState() {
-		return this.weightedBlockIds.next();
+
+	WeightedIntRandom[] createWeightedRandoms(HeightAccessor heightAccessor) {
+		return WeightedBlockList.create(heightAccessor, this.weightedBlockLists);
 	}
 }

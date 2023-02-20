@@ -67,6 +67,10 @@ public class HeightAccessor {
 		}
 	}
 
+	public int getHeight() {
+		return this.maxHeight - this.minHeight;
+	}
+
 	public int getMinBuildHeight() {
 		return this.minHeight;
 	}

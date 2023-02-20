@@ -27,10 +27,11 @@ import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.HeightAccessor;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 import net.imprex.orebfuscator.util.OFCLogger;
+import net.imprex.orebfuscator.util.WeightedIntRandom;
 
 public class OrebfuscatorConfig implements Config {
 
-	private static final int CONFIG_VERSION = 2;
+	private static final int CONFIG_VERSION = 3;
 
 	private final OrebfuscatorGeneralConfig generalConfig = new OrebfuscatorGeneralConfig();
 	private final OrebfuscatorAdvancedConfig advancedConfig = new OrebfuscatorAdvancedConfig();
@@ -97,14 +98,7 @@ public class OrebfuscatorConfig implements Config {
 	}
 
 	private void deserialize(ConfigurationSection section) {
-		if (section.getInt("version", -1) == 1) {
-			// check if config is still using old path MemoryConfiguration
-			String obfuscationConfigPath = section.contains("world") ? "world" : "obfuscation";
-			ConfigParser.convertSectionListToSection(section, obfuscationConfigPath);
-			ConfigParser.convertSectionListToSection(section, "proximity");
-			section.set("version", CONFIG_VERSION);
-		}
-
+		ConfigVersionConverters.convertToLatestVersion(section);
 		if (section.getInt("version", -1) != CONFIG_VERSION) {
 			throw new RuntimeException("config is not up to date, please delete your config");
 		}
@@ -287,6 +281,10 @@ public class OrebfuscatorConfig implements Config {
 
 		private final int minSectionIndex;
 		private final int maxSectionIndex;
+	
+		private final HeightAccessor heightAccessor;
+		private final WeightedIntRandom[] obfuscationRandoms;
+		private final WeightedIntRandom[] proximityRandoms;
 
 		public OrebfuscatorWorldConfigBundle(World world) {
 			String worldName = world.getName();
@@ -305,9 +303,14 @@ public class OrebfuscatorConfig implements Config {
 					this.obfuscationConfig != null ? this.obfuscationConfig.getMaxY() : BlockPos.MIN_Y,
 					this.proximityConfig != null ? this.proximityConfig.getMaxY() : BlockPos.MIN_Y);
 
-			HeightAccessor heightAccessor = HeightAccessor.get(world);
+			this.heightAccessor = HeightAccessor.get(world);
 			this.minSectionIndex = heightAccessor.getSectionIndex(this.minY);
 			this.maxSectionIndex = heightAccessor.getSectionIndex(this.maxY - 1) + 1;
+
+			this.obfuscationRandoms = this.obfuscationConfig != null
+					? this.obfuscationConfig.createWeightedRandoms(heightAccessor) : null;
+			this.proximityRandoms = this.obfuscationConfig != null
+					? this.proximityConfig.createWeightedRandoms(heightAccessor) : null;
 		}
 
 		private <T extends AbstractWorldConfig> T findConfig(Stream<? extends T> configs, String worldName, String configName) {
@@ -350,6 +353,18 @@ public class OrebfuscatorConfig implements Config {
 		@Override
 		public boolean shouldObfuscate(int y) {
 			return y >= this.minY && y <= this.maxY;
+		}
+
+		@Override
+		public int nextRandomObfuscationBlock(int y) {
+			return this.obfuscationRandoms != null
+					? this.obfuscationRandoms[y - this.heightAccessor.getMinBuildHeight()].next() : 0;
+		}
+
+		@Override
+		public int nextRandomProximityBlock(int y) {
+			return this.proximityRandoms != null
+					? this.proximityRandoms[y - this.heightAccessor.getMinBuildHeight()].next() : 0;
 		}
 	}
 }

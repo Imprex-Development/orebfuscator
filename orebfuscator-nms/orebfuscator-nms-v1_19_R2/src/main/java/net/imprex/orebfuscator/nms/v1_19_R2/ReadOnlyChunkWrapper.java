@@ -1,6 +1,7 @@
 package net.imprex.orebfuscator.nms.v1_19_R2;
 
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
@@ -28,6 +29,6 @@ public class ReadOnlyChunkWrapper implements ReadOnlyChunk {
 
 	@Override
 	public int getBlockState(int x, int y, int z) {
-		return NmsManager.getBlockId(getState(x, y, z));
+		return Block.getId(getState(x, y, z));
 	}
 }

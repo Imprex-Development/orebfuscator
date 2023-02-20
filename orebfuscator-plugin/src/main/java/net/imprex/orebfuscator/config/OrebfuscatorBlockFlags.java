@@ -2,9 +2,9 @@ package net.imprex.orebfuscator.config;
 
 import java.util.Map.Entry;
 
-import org.bukkit.Material;
-
 import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.util.BlockProperties;
+import net.imprex.orebfuscator.util.BlockStateProperties;
 
 public class OrebfuscatorBlockFlags implements BlockFlags {
 
@@ -21,26 +21,26 @@ public class OrebfuscatorBlockFlags implements BlockFlags {
 
 	private OrebfuscatorBlockFlags(OrebfuscatorObfuscationConfig worldConfig, OrebfuscatorProximityConfig proximityConfig) {
 		if (worldConfig != null && worldConfig.isEnabled()) {
-			for (Material material : worldConfig.hiddenBlocks()) {
-				this.setBlockBits(material, FLAG_OBFUSCATE);
+			for (BlockProperties block : worldConfig.hiddenBlocks()) {
+				this.setBlockBits(block, FLAG_OBFUSCATE);
 			}
 		}
 		if (proximityConfig != null && proximityConfig.isEnabled()) {
-			for (Entry<Material, Integer> entry : proximityConfig.hiddenBlocks()) {
+			for (Entry<BlockProperties, Integer> entry : proximityConfig.hiddenBlocks()) {
 				this.setBlockBits(entry.getKey(), entry.getValue());
 			}
 		}
 	}
 
-	private void setBlockBits(Material material, int bits) {
-		for (int blockState : NmsInstance.getBlockIds(material)) {
-			int blockMask = this.blockFlags[blockState] | bits;
+	private void setBlockBits(BlockProperties block, int bits) {
+		for (BlockStateProperties blockState : block.getPossibleBlockStates()) {
+			int blockMask = this.blockFlags[blockState.getId()] | bits;
 
-			if (NmsInstance.isBlockEntity(blockState)) {
+			if (blockState.isBlockEntity()) {
 				blockMask |= FLAG_BLOCK_ENTITY;
 			}
 
-			this.blockFlags[blockState] = blockMask;
+			this.blockFlags[blockState.getId()] = blockMask;
 		}
 	}
 

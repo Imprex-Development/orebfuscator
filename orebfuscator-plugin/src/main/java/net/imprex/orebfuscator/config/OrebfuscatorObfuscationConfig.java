@@ -3,17 +3,16 @@ package net.imprex.orebfuscator.config;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
-import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 
 import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.util.BlockProperties;
 
 public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implements ObfuscationConfig {
 
-	private final Set<Material> hiddenBlocks = new LinkedHashSet<>();
+	private final Set<BlockProperties> hiddenBlocks = new LinkedHashSet<>();
 
 	OrebfuscatorObfuscationConfig(ConfigurationSection section) {
 		super(section.getName());
@@ -32,11 +31,11 @@ public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implement
 
 	private void deserializeHiddenBlocks(ConfigurationSection section, String path) {
 		for (String blockName : section.getStringList(path)) {
-			Optional<Material> optional = NmsInstance.getMaterialByName(blockName);
-			if (optional.isPresent()) {
-				this.hiddenBlocks.add(optional.get());
+			BlockProperties blockProperties = NmsInstance.getBlockByName(blockName);
+			if (blockProperties != null) {
+				this.hiddenBlocks.add(blockProperties);
 			} else {
-				warnUnkownBlock(section.getCurrentPath(), path, blockName);
+				warnUnknownBlock(section, path, blockName);
 			}
 		}
 
@@ -48,20 +47,15 @@ public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implement
 	private void serializeHiddenBlocks(ConfigurationSection section, String path) {
 		List<String> blockNames = new ArrayList<>();
 
-		for (Material material : this.hiddenBlocks) {
-			Optional<String> optional = NmsInstance.getNameByMaterial(material);
-			if (optional.isPresent()) {
-				blockNames.add(optional.get());
-			} else {
-				warnUnkownBlock(section.getCurrentPath(), path, material.name());
-			}
+		for (BlockProperties block : this.hiddenBlocks) {
+			blockNames.add(block.getName());
 		}
 
 		section.set(path, blockNames);
 	}
 
 	@Override
-	public Iterable<Material> hiddenBlocks() {
+	public Iterable<BlockProperties> hiddenBlocks() {
 		return this.hiddenBlocks;
 	}
 }

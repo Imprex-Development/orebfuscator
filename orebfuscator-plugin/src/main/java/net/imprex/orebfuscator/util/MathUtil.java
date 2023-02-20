@@ -19,6 +19,10 @@ public class MathUtil {
 		return value;
 	}
 
+	public static int clamp(int value, int min, int max) {
+		return Math.max(min, Math.min(max, value));
+	}
+
 	/**
 	 * Basic idea here is to take some rays from the considered block to the
 	 * player's eyes, and decide if any of those rays can reach the eyes unimpeded.

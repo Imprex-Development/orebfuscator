@@ -2,7 +2,7 @@ package net.imprex.orebfuscator.config;
 
 import java.util.Map;
 
-import org.bukkit.Material;
+import net.imprex.orebfuscator.util.BlockProperties;
 
 public interface ProximityConfig extends WorldConfig {
 
@@ -10,5 +10,5 @@ public interface ProximityConfig extends WorldConfig {
 
 	boolean useFastGazeCheck();
 
-	Iterable<Map.Entry<Material, Integer>> hiddenBlocks();
+	Iterable<Map.Entry<BlockProperties, Integer>> hiddenBlocks();
 }

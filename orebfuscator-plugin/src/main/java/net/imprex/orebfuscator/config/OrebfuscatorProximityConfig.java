@@ -2,13 +2,12 @@ package net.imprex.orebfuscator.config;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.Optional;
 
-import org.bukkit.Material;
 import org.bukkit.configuration.ConfigurationSection;
 
 import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.util.BlockPos;
+import net.imprex.orebfuscator.util.BlockProperties;
 
 public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements ProximityConfig {
 
@@ -18,7 +17,7 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 	private int defaultBlockFlags = (ProximityHeightCondition.MATCH_ALL | BlockFlags.FLAG_USE_BLOCK_BELOW);
 	
 	private boolean usesBlockSpecificConfigs = false;
-	private Map<Material, Integer> hiddenBlocks = new LinkedHashMap<>();
+	private Map<BlockProperties, Integer> hiddenBlocks = new LinkedHashMap<>();
 
 	OrebfuscatorProximityConfig(ConfigurationSection section) {
 		super(section.getName());
@@ -71,8 +70,8 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 		}
 
 		for (String blockName : blockSection.getKeys(false)) {
-			Optional<Material> optional = NmsInstance.getMaterialByName(blockName);
-			if (optional.isPresent()) {
+			BlockProperties blockProperties = NmsInstance.getBlockByName(blockName);
+			if (blockProperties != null) {
 				int blockFlags = this.defaultBlockFlags;
 
 				// LEGACY: parse pre 5.2.2 height condition
@@ -108,9 +107,9 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 					usesBlockSpecificConfigs = true;
 				}
 
-				this.hiddenBlocks.put(optional.get(), blockFlags);
+				this.hiddenBlocks.put(blockProperties, blockFlags);
 			} else {
-				warnUnkownBlock(section.getCurrentPath(), path, blockName);
+				warnUnknownBlock(section, path, blockName);
 			}
 		}
 
@@ -122,22 +121,17 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 	private void serializeHiddenBlocks(ConfigurationSection section, String path) {
 		ConfigurationSection parentSection = section.createSection(path);
 
-		for (Material material : this.hiddenBlocks.keySet()) {
-			Optional<String> optional = NmsInstance.getNameByMaterial(material);
-			if (optional.isPresent()) {
-				ConfigurationSection childSection = parentSection.createSection(optional.get());
+		for (Map.Entry<BlockProperties, Integer> entry : this.hiddenBlocks.entrySet()) {
+			ConfigurationSection childSection = parentSection.createSection(entry.getKey().getName());
 
-				int blockFlags = this.hiddenBlocks.get(material);
-				if (!ProximityHeightCondition.equals(blockFlags, this.defaultBlockFlags)) {
-					childSection.set("minY", ProximityHeightCondition.getMinY(blockFlags));
-					childSection.set("maxY", ProximityHeightCondition.getMaxY(blockFlags));
-				}
+			int blockFlags = entry.getValue();
+			if (!ProximityHeightCondition.equals(blockFlags, this.defaultBlockFlags)) {
+				childSection.set("minY", ProximityHeightCondition.getMinY(blockFlags));
+				childSection.set("maxY", ProximityHeightCondition.getMaxY(blockFlags));
+			}
 
-				if (BlockFlags.isUseBlockBelowBitSet(blockFlags) != BlockFlags.isUseBlockBelowBitSet(this.defaultBlockFlags)) {
-					childSection.set("useBlockBelow", BlockFlags.isUseBlockBelowBitSet(blockFlags));
-				}
-			} else {
-				warnUnkownBlock(section.getCurrentPath(), path, material.name());
+			if (BlockFlags.isUseBlockBelowBitSet(blockFlags) != BlockFlags.isUseBlockBelowBitSet(this.defaultBlockFlags)) {
+				childSection.set("useBlockBelow", BlockFlags.isUseBlockBelowBitSet(blockFlags));
 			}
 		}
 	}
@@ -153,7 +147,7 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 	}
 
 	@Override
-	public Iterable<Map.Entry<Material, Integer>> hiddenBlocks() {
+	public Iterable<Map.Entry<BlockProperties, Integer>> hiddenBlocks() {
 		return this.hiddenBlocks.entrySet();
 	}
 

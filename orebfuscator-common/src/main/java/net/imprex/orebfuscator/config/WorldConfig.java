@@ -12,6 +12,4 @@ public interface WorldConfig {
 
 	boolean shouldObfuscate(int y);
 
-	int nextRandomBlockState();
-
 }

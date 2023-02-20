@@ -1,6 +1,7 @@
 package net.imprex.orebfuscator.obfuscation;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event.Result;
 import org.bukkit.event.EventHandler;
@@ -17,7 +18,6 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
-import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.UpdateSystem;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
@@ -85,9 +85,11 @@ public class DeobfuscationListener implements Listener {
 	@EventHandler
 	public void onPlayerInteract(PlayerInteractEvent event) {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.useInteractedBlock() != Result.DENY
-				&& event.getItem() != null && event.getItem().getType() != null
-				&& NmsInstance.isHoe(event.getItem().getType())) {
-			this.deobfuscationWorker.deobfuscate(event.getClickedBlock());
+				&& event.getItem() != null && event.getItem().getType() != null) {
+			Material material = event.getItem().getType();
+			if (material.isItem() && material.name().endsWith("_HOE")) {
+				this.deobfuscationWorker.deobfuscate(event.getClickedBlock());
+			}
 		}
 	}
 
