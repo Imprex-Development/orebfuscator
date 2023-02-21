@@ -32,6 +32,23 @@ public class BlockProperties {
 		return possibleBlockStates;
 	}
 
+	@Override
+	public int hashCode() {
+		return this.name.hashCode();
+	}
+
+	@Override
+	public boolean equals(Object obj) {
+		if (this == obj) {
+			return true;
+		}
+		if (!(obj instanceof BlockProperties)) {
+			return false;
+		}
+		BlockProperties other = (BlockProperties) obj;
+		return Objects.equals(name, other.name);
+	}
+
 	public static class Builder {
 
 		private final String name;

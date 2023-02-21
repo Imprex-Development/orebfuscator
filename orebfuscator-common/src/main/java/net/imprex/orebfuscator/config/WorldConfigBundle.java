@@ -8,6 +8,8 @@ public interface WorldConfigBundle {
 
 	ProximityConfig proximity();
 
+	boolean needsObfuscation();
+
 	int minSectionIndex();
 
 	int maxSectionIndex();

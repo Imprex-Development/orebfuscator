@@ -52,7 +52,7 @@ public class ProximityThread extends Thread {
 					Location location = player.getLocation();
 					World world = location.getWorld();
 
-					ProximityConfig proximityConfig = this.config.proximity(world);
+					ProximityConfig proximityConfig = this.config.world(world).proximity();
 					ProximityPlayer proximityPlayer = this.dataManager.get(player);
 					if (proximityPlayer == null || proximityConfig == null || !proximityConfig.isEnabled() || !proximityPlayer.getWorld().equals(world)) {
 						continue;

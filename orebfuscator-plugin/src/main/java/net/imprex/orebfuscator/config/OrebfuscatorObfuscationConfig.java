@@ -9,6 +9,7 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.util.BlockProperties;
+import net.imprex.orebfuscator.util.OFCLogger;
 
 public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implements ObfuscationConfig {
 
@@ -32,10 +33,13 @@ public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implement
 	private void deserializeHiddenBlocks(ConfigurationSection section, String path) {
 		for (String blockName : section.getStringList(path)) {
 			BlockProperties blockProperties = NmsInstance.getBlockByName(blockName);
-			if (blockProperties != null) {
-				this.hiddenBlocks.add(blockProperties);
-			} else {
+			if (blockProperties == null) {
 				warnUnknownBlock(section, path, blockName);
+			} else if (blockProperties.getDefaultBlockState().isAir()) {
+		        OFCLogger.warn(String.format("config section '%s.%s' contains air block '%s', skipping",
+		                section.getCurrentPath(), path, blockName));
+			} else {
+				this.hiddenBlocks.add(blockProperties);
 			}
 		}
 

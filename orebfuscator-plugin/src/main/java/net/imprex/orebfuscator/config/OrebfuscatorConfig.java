@@ -175,6 +175,11 @@ public class OrebfuscatorConfig implements Config {
 	}
 
 	@Override
+	public byte[] systemHash() {
+		return systemHash;
+	}
+
+	@Override
 	public GeneralConfig general() {
 		return this.generalConfig;
 	}
@@ -190,23 +195,8 @@ public class OrebfuscatorConfig implements Config {
 	}
 
 	@Override
-	public WorldConfigBundle bundle(World world) {
+	public WorldConfigBundle world(World world) {
 		return this.getWorldConfigBundle(world);
-	}
-
-	@Override
-	public BlockFlags blockFlags(World world) {
-		return this.getWorldConfigBundle(world).blockFlags;
-	}
-
-	@Override
-	public boolean needsObfuscation(World world) {
-		return this.getWorldConfigBundle(world).needsObfuscation;
-	}
-
-	@Override
-	public ObfuscationConfig obfuscation(World world) {
-		return this.getWorldConfigBundle(world).obfuscationConfig;
 	}
 
 	@Override
@@ -217,16 +207,6 @@ public class OrebfuscatorConfig implements Config {
 			}
 		}
 		return false;
-	}
-
-	@Override
-	public ProximityConfig proximity(World world) {
-		return this.getWorldConfigBundle(world).proximityConfig;
-	}
-
-	@Override
-	public byte[] systemHash() {
-		return systemHash;
 	}
 
 	public boolean usesBlockSpecificConfigs() {
@@ -313,16 +293,21 @@ public class OrebfuscatorConfig implements Config {
 					? this.proximityConfig.createWeightedRandoms(heightAccessor) : null;
 		}
 
-		private <T extends AbstractWorldConfig> T findConfig(Stream<? extends T> configs, String worldName, String configName) {
+		private <T extends AbstractWorldConfig> T findConfig(Stream<? extends T> configs, String worldName, String configType) {
 			List<T> matchingConfigs = configs
 					.filter(config -> config.matchesWorldName(worldName))
 					.collect(Collectors.toList());
 
 			if (matchingConfigs.size() > 1) {
-				OFCLogger.warn(String.format("world '%s' has more than one %s config choosing first one", worldName, configName));
+				OFCLogger.warn(String.format("world '%s' has more than one %s config choosing first one", worldName, configType));
 			}
 
-			return matchingConfigs.size() > 0 ? matchingConfigs.get(0) : null;
+			T config = matchingConfigs.size() > 0 ? matchingConfigs.get(0) : null;
+			String configName = config == null ? "null" : config.getName();
+
+			OFCLogger.debug(String.format("using '%s' %s config for world '%s'", configName, configType, worldName));
+
+			return config;
 		}
 
 		@Override
@@ -338,6 +323,11 @@ public class OrebfuscatorConfig implements Config {
 		@Override
 		public ProximityConfig proximity() {
 			return this.proximityConfig;
+		}
+
+		@Override
+		public boolean needsObfuscation() {
+			return this.needsObfuscation;
 		}
 
 		@Override

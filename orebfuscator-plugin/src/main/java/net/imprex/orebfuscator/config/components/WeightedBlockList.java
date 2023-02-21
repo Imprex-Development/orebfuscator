@@ -18,47 +18,52 @@ import net.imprex.orebfuscator.util.WeightedIntRandom;
 
 public class WeightedBlockList {
 
-    public static WeightedIntRandom[] create(HeightAccessor heightAccessor, List<WeightedBlockList> lists) {
-        WeightedIntRandom[] heightMap = new WeightedIntRandom[heightAccessor.getHeight()];
+	public static WeightedIntRandom[] create(HeightAccessor heightAccessor, List<WeightedBlockList> lists) {
+		WeightedIntRandom[] heightMap = new WeightedIntRandom[heightAccessor.getHeight()];
 
-        List<WeightedBlockList> last = new ArrayList<>();
-        List<WeightedBlockList> next = new ArrayList<>();
+		List<WeightedBlockList> last = new ArrayList<>();
+		List<WeightedBlockList> next = new ArrayList<>();
 
-        for (int y = heightAccessor.getMinBuildHeight(); y < heightAccessor.getMaxBuildHeight(); y++) {
-            for (WeightedBlockList list : lists) {
-                if (list.minY <= y && list.maxY >= y) {
-                    next.add(list);
-                }
-            }
+		int count = 0;
 
-            int index = y - heightAccessor.getMinBuildHeight();
-            if (index > 0 && last.equals(next)) {
-                // copy last random
-                heightMap[index] = heightMap[index - 1];
-            } else {
-                WeightedIntRandom.Builder builder = WeightedIntRandom.builder();
+		for (int y = heightAccessor.getMinBuildHeight(); y < heightAccessor.getMaxBuildHeight(); y++) {
+			for (WeightedBlockList list : lists) {
+				if (list.minY <= y && list.maxY >= y) {
+					next.add(list);
+				}
+			}
 
-                for (WeightedBlockList list : next) {
-                    for (Map.Entry<BlockProperties, Integer> entry : list.blocks.entrySet()) {
-                        if (!builder.add(entry.getKey().getDefaultBlockState().getId(), entry.getValue())) {
-                            OFCLogger.warn(String.format("duplicate randomBlock entry for %s in %s",
-                                    entry.getKey().getName(), list.name));
-                        }
-                    }
-                }
+			int index = y - heightAccessor.getMinBuildHeight();
+			if (index > 0 && last.equals(next)) {
+				// copy last random
+				heightMap[index] = heightMap[index - 1];
+			} else {
+				WeightedIntRandom.Builder builder = WeightedIntRandom.builder();
 
-                heightMap[index] = builder.build();
+				for (WeightedBlockList list : next) {
+					for (Map.Entry<BlockProperties, Integer> entry : list.blocks.entrySet()) {
+						if (!builder.add(entry.getKey().getDefaultBlockState().getId(), entry.getValue())) {
+							OFCLogger.warn(String.format("duplicate randomBlock entry for %s in %s",
+									entry.getKey().getName(), list.name));
+						}
+					}
+				}
 
-                // update last only on change
-                last.clear();
-                last.addAll(next);
-            }
+				heightMap[index] = builder.build();
+				count++;
 
-            next.clear();
-        }
+				// update last only on change
+				last.clear();
+				last.addAll(next);
+			}
 
-        return heightMap;
-    }
+			next.clear();
+		}
+
+		OFCLogger.debug(String.format("Successfully created %s weigthed randoms", count));
+
+		return heightMap;
+	}
 
     private final String name;
 

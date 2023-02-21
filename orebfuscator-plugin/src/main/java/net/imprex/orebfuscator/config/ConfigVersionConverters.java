@@ -1,6 +1,8 @@
 package net.imprex.orebfuscator.config;
 
 import net.imprex.orebfuscator.util.BlockPos;
+import net.imprex.orebfuscator.util.OFCLogger;
+
 import org.bukkit.configuration.ConfigurationSection;
 
 import java.util.ArrayList;
@@ -15,18 +17,26 @@ public class ConfigVersionConverters {
 
 	static {
 		CONVERTER.put(1, (section) -> {
+			OFCLogger.info("Starting to migrate config to version 2");
+
 			// check if config is still using old path
 			String obfuscationConfigPath = section.contains("world") ? "world" : "obfuscation";
 			ConfigVersionConverters.convertSectionListToSection(section, obfuscationConfigPath);
 			ConfigVersionConverters.convertSectionListToSection(section, "proximity");
 			section.set("version", 2);
+
+			OFCLogger.info("Successfully migrated config to version 2");
 			return section;
 		});
 
 		CONVERTER.put(2, (section) -> {
+			OFCLogger.info("Starting to migrate config to version 3");
+
 			convertRandomBlocksToSections(section.getConfigurationSection("obfuscation"));
 			convertRandomBlocksToSections(section.getConfigurationSection("proximity"));
 			section.set("version", 3);
+
+			OFCLogger.info("Successfully migrated config to version 3");
 			return section;
 		});
 	}

@@ -6,7 +6,7 @@ import org.bukkit.configuration.ConfigurationSection;
 public interface ConfigParsingContext {
 
     default void warnUnknownBlock(ConfigurationSection section, String path, String name) {
-        OFCLogger.warn(String.format("config section '%s.%s' contains unknown block '%s'",
+        OFCLogger.warn(String.format("config section '%s.%s' contains unknown block '%s', skipping",
                 section.getCurrentPath(), path, name));
     }
 

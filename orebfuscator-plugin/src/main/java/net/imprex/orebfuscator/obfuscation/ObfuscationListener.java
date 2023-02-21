@@ -69,7 +69,7 @@ public abstract class ObfuscationListener extends PacketAdapter {
 	}
 
 	private boolean shouldNotObfuscate(Player player) {
-		return PermissionUtil.canDeobfuscate(player) || !config.needsObfuscation(player.getWorld());
+		return PermissionUtil.canDeobfuscate(player) || !config.world(player.getWorld()).needsObfuscation();
 	}
 
 	private void completeExceptionally(PacketEvent event, ChunkStruct struct, Throwable throwable) {

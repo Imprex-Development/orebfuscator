@@ -10,6 +10,7 @@ import net.imprex.orebfuscator.config.components.WeightedBlockList;
 import net.imprex.orebfuscator.config.components.WorldMatcher;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.HeightAccessor;
+import net.imprex.orebfuscator.util.MathUtil;
 import net.imprex.orebfuscator.util.OFCLogger;
 import net.imprex.orebfuscator.util.WeightedIntRandom;
 
@@ -36,8 +37,12 @@ public abstract class AbstractWorldConfig implements WorldConfig, ConfigParsingC
 
 	protected void deserializeBase(ConfigurationSection section) {
 		this.enabled = section.getBoolean("enabled", true);
-		this.minY = Math.max(BlockPos.MIN_Y, section.getInt("minY", BlockPos.MIN_Y));
-		this.maxY = Math.min(BlockPos.MAX_Y, section.getInt("maxY", BlockPos.MAX_Y));
+
+		int minY = MathUtil.clamp(section.getInt("minY", BlockPos.MIN_Y), BlockPos.MIN_Y, BlockPos.MAX_Y);
+		int maxY = MathUtil.clamp(section.getInt("maxY", BlockPos.MAX_Y), BlockPos.MIN_Y, BlockPos.MAX_Y);
+
+        this.minY = Math.min(minY, maxY);
+        this.maxY = Math.max(minY, maxY);
 	}
 
 	protected void serializeBase(ConfigurationSection section) {
@@ -119,6 +124,7 @@ public abstract class AbstractWorldConfig implements WorldConfig, ConfigParsingC
 
 
 	WeightedIntRandom[] createWeightedRandoms(HeightAccessor heightAccessor) {
+		OFCLogger.debug(String.format("Creating weighted randoms for %s for world %s:", name, heightAccessor));
 		return WeightedBlockList.create(heightAccessor, this.weightedBlockLists);
 	}
 }

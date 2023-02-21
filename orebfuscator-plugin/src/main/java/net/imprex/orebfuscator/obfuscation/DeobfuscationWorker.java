@@ -16,6 +16,7 @@ import net.imprex.orebfuscator.cache.ObfuscationCache;
 import net.imprex.orebfuscator.config.BlockFlags;
 import net.imprex.orebfuscator.config.ObfuscationConfig;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
+import net.imprex.orebfuscator.config.WorldConfigBundle;
 import net.imprex.orebfuscator.nms.BlockStateHolder;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.ChunkPosition;
@@ -44,13 +45,15 @@ public class DeobfuscationWorker {
 		}
 
 		World world = Iterables.get(blocks, 0).getWorld();
-		ObfuscationConfig obfuscationConfig = this.config.obfuscation(world);
+		WorldConfigBundle bundle = this.config.world(world);
+
+		ObfuscationConfig obfuscationConfig = bundle.obfuscation();
 		if (obfuscationConfig == null || !obfuscationConfig.isEnabled()) {
 			return;
 		}
 
 		int updateRadius = this.config.general().updateRadius();
-		BlockFlags blockFlags = this.config.blockFlags(world);
+		BlockFlags blockFlags = bundle.blockFlags();
 
 		Processor processor = new Processor(blockFlags);
 		for (Block block : blocks) {

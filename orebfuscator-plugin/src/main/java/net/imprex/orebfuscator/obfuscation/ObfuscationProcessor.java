@@ -32,7 +32,7 @@ public class ObfuscationProcessor {
 		World world = chunkStruct.world;
 		HeightAccessor heightAccessor = HeightAccessor.get(world);
 
-		WorldConfigBundle bundle = this.config.bundle(world);
+		WorldConfigBundle bundle = this.config.world(world);
 		BlockFlags blockFlags = bundle.blockFlags();
 		ObfuscationConfig obfuscationConfig = bundle.obfuscation();
 		ProximityConfig proximityConfig = bundle.proximity();

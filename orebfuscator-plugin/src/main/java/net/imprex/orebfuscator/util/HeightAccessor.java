@@ -3,7 +3,12 @@ package net.imprex.orebfuscator.util;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.bukkit.Bukkit;
 import org.bukkit.World;
+import org.bukkit.event.EventHandler;
+import org.bukkit.event.Listener;
+import org.bukkit.event.world.WorldUnloadEvent;
+import org.bukkit.plugin.Plugin;
 
 import com.comphenix.protocol.reflect.accessors.Accessors;
 import com.comphenix.protocol.reflect.accessors.MethodAccessor;
@@ -51,13 +56,23 @@ public class HeightAccessor {
 		return block >> 4;
 	}
 
-	public static void thisMethodIsUsedToInitializeStaticFieldsEarly() {
+	public static void registerListener(Plugin plugin) {
+		Bukkit.getPluginManager().registerEvents(new Listener() {
+			@EventHandler
+			public void onWorldUnload(WorldUnloadEvent event) {
+				ACCESSOR_LOOKUP.remove(event.getWorld());
+			}
+		}, plugin);
 	}
+
+	private final String worldName;
 
 	private final int maxHeight;
 	private final int minHeight;
 
 	private HeightAccessor(World world) {
+		this.worldName = world.getName();
+
 		if (ChunkCapabilities.hasDynamicHeight()) {
 			this.maxHeight = (int) WORLD_GET_MAX_HEIGHT.invoke(world);
 			this.minHeight = (int) WORLD_GET_MIN_HEIGHT.invoke(world);
@@ -93,5 +108,10 @@ public class HeightAccessor {
 
 	public int getSectionIndex(int y) {
 		return blockToSectionCoord(y) - getMinSection();
+	}
+
+	@Override
+	public String toString() {
+		return String.format("[%s, minY=%s, maxY=%s]", worldName, minHeight, maxHeight);
 	}
 }
