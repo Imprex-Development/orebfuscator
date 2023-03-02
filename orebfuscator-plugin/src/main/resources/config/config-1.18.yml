@@ -241,11 +241,16 @@ proximity:
       minecraft:bee_nest: {}
       minecraft:beehive: {}
     randomBlocks:
-      section-global:
-        minY: -2032
-        maxY: 2032
+      section-stone:
+        minY: -5
+        maxY: 2031
         blocks:
           minecraft:stone: 1
+      section-deepslate:
+        minY: -2032
+        maxY: 5
+        blocks:
+          minecraft:deepslate: 1
   proximity-nether:
     enabled: true
     minY: -2032
