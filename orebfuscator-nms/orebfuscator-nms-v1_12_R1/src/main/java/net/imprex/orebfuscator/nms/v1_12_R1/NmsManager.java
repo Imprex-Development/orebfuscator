@@ -91,7 +91,7 @@ public class NmsManager extends AbstractNmsManager {
 				this.registerBlockStateProperties(properties);
 			}
 
-			int defaultBlockStateId = Block.getCombinedId(block.getBlockData());
+			int defaultBlockStateId = getBlockId(block.getBlockData());
 			BlockStateProperties defaultBlockState = getBlockStateProperties(defaultBlockStateId);
 
 			BlockProperties blockProperties = BlockProperties.builder(name)

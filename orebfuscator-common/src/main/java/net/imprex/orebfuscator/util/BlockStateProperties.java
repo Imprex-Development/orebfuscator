@@ -52,6 +52,12 @@ public class BlockStateProperties {
 		return id == other.id;
 	}
 
+	@Override
+	public String toString() {
+		return "BlockStateProperties [id=" + id + ", isAir=" + isAir + ", isOccluding=" + isOccluding
+				+ ", isBlockEntity=" + isBlockEntity + "]";
+	}
+
 	public static class Builder {
 
 		private final int id;

@@ -73,19 +73,38 @@ obfuscation:
     randomBlocks:
       section-global:
         minY: -2032
-        maxY: 2032
+        maxY: 2031
         blocks:
-          minecraft:cave_air: 10
+          minecraft:cave_air: 5
+          minecraft:cobblestone: 1
+          minecraft:mossy_cobblestone: 1
+          minecraft:obsidian: 1
       section-stone:
         minY: -5
-        maxY: 255
+        maxY: 2031
         blocks:
-          minecraft:green_wool: 1
+          minecraft:stone: 15
+          minecraft:diamond_ore: 10
+          minecraft:emerald_ore: 5
+          minecraft:gold_ore: 5
+          minecraft:iron_ore: 5
+          minecraft:copper_ore: 5
+          minecraft:coal_ore: 5
+          minecraft:lapis_ore: 5
+          minecraft:redstone_ore: 5
       section-deepslate:
-        minY: -255
+        minY: -2032
         maxY: 5
         blocks:
-          minecraft:red_wool: 1
+          minecraft:deepslate: 15
+          minecraft:deepslate_diamond_ore: 10
+          minecraft:deepslate_emerald_ore: 5
+          minecraft:deepslate_gold_ore: 5
+          minecraft:deepslate_iron_ore: 5
+          minecraft:deepslate_copper_ore: 5
+          minecraft:deepslate_coal_ore: 5
+          minecraft:deepslate_lapis_ore: 5
+          minecraft:deepslate_redstone_ore: 5
   obfuscation-nether:
     enabled: true
     minY: -2032

@@ -49,6 +49,12 @@ public class BlockProperties {
 		return Objects.equals(name, other.name);
 	}
 
+	@Override
+	public String toString() {
+		return "BlockProperties [name=" + name + ", defaultBlockState=" + defaultBlockState + ", possibleBlockStates="
+				+ possibleBlockStates + "]";
+	}
+
 	public static class Builder {
 
 		private final String name;
@@ -71,8 +77,8 @@ public class BlockProperties {
 		}
 		
 		public BlockProperties build() {
-			Objects.requireNonNull(this.defaultBlockState);
-			Objects.requireNonNull(this.possibleBlockStates);
+			Objects.requireNonNull(this.defaultBlockState, "missing default block state for " + this.name);
+			Objects.requireNonNull(this.possibleBlockStates, "missing possible block states for " + this.name);
 
 			return new BlockProperties(this);
 		}

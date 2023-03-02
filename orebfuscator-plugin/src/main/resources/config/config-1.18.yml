@@ -1,4 +1,4 @@
-version: 2
+version: 3
 general:
   checkForUpdates: true
   updateOnBlockDamage: true
@@ -71,21 +71,40 @@ obfuscation:
     - minecraft:red_shulker_box
     - minecraft:black_shulker_box
     randomBlocks:
-      minecraft:stone: 30
-      minecraft:deepslate: 30
-      minecraft:cave_air: 5
-      minecraft:cobblestone: 1
-      minecraft:diamond_ore: 25
-      minecraft:emerald_ore: 10
-      minecraft:gold_ore: 5
-      minecraft:iron_ore: 5
-      minecraft:copper_ore: 5
-      minecraft:coal_ore: 5
-      minecraft:lapis_ore: 5
-      minecraft:redstone_ore: 5
-      minecraft:mossy_cobblestone: 1
-      minecraft:obsidian: 1
-      minecraft:tnt: 1
+      section-global:
+        minY: -2032
+        maxY: 2031
+        blocks:
+          minecraft:cave_air: 5
+          minecraft:cobblestone: 1
+          minecraft:mossy_cobblestone: 1
+          minecraft:obsidian: 1
+      section-stone:
+        minY: -5
+        maxY: 2031
+        blocks:
+          minecraft:stone: 15
+          minecraft:diamond_ore: 10
+          minecraft:emerald_ore: 5
+          minecraft:gold_ore: 5
+          minecraft:iron_ore: 5
+          minecraft:copper_ore: 5
+          minecraft:coal_ore: 5
+          minecraft:lapis_ore: 5
+          minecraft:redstone_ore: 5
+      section-deepslate:
+        minY: -2032
+        maxY: 5
+        blocks:
+          minecraft:deepslate: 15
+          minecraft:deepslate_diamond_ore: 10
+          minecraft:deepslate_emerald_ore: 5
+          minecraft:deepslate_gold_ore: 5
+          minecraft:deepslate_iron_ore: 5
+          minecraft:deepslate_copper_ore: 5
+          minecraft:deepslate_coal_ore: 5
+          minecraft:deepslate_lapis_ore: 5
+          minecraft:deepslate_redstone_ore: 5
   obfuscation-nether:
     enabled: true
     minY: -2032
@@ -121,10 +140,14 @@ obfuscation:
     - minecraft:soul_sand
     - minecraft:soul_soil
     randomBlocks:
-      minecraft:netherrack: 4
-      minecraft:nether_quartz_ore: 1
-      minecraft:nether_gold_ore: 1
-      minecraft:ancient_debris: 1
+      section-global:
+        minY: -2032
+        maxY: 2032
+        blocks:
+          minecraft:netherrack: 4
+          minecraft:nether_quartz_ore: 1
+          minecraft:nether_gold_ore: 1
+          minecraft:ancient_debris: 1
   obfuscation-end:
     enabled: true
     minY: -2032
@@ -153,11 +176,15 @@ obfuscation:
     - minecraft:red_shulker_box
     - minecraft:black_shulker_box
     randomBlocks:
-      minecraft:end_stone: 1
-      minecraft:end_stone_bricks: 1
-      minecraft:bedrock: 1
-      minecraft:obsidian: 1
-      minecraft:purpur_block: 1
+      section-global:
+        minY: -2032
+        maxY: 2032
+        blocks:
+          minecraft:end_stone: 1
+          minecraft:end_stone_bricks: 1
+          minecraft:bedrock: 1
+          minecraft:obsidian: 1
+          minecraft:purpur_block: 1
 proximity:
   proximity-overworld:
     enabled: true
@@ -214,7 +241,11 @@ proximity:
       minecraft:bee_nest: {}
       minecraft:beehive: {}
     randomBlocks:
-      minecraft:stone: 1
+      section-global:
+        minY: -2032
+        maxY: 2032
+        blocks:
+          minecraft:stone: 1
   proximity-nether:
     enabled: true
     minY: -2032
@@ -268,7 +299,11 @@ proximity:
       minecraft:nether_gold_ore: {}
       minecraft:respawn_anchor: {}
     randomBlocks:
-      minecraft:netherrack: 1
+      section-global:
+        minY: -2032
+        maxY: 2032
+        blocks:
+          minecraft:netherrack: 1
   proximity-end:
     enabled: true
     minY: -2032
@@ -319,4 +354,8 @@ proximity:
       minecraft:bee_nest: {}
       minecraft:beehive: {}
     randomBlocks:
-      minecraft:end_stone: 1
+      section-global:
+        minY: -2032
+        maxY: 2032
+        blocks:
+          minecraft:end_stone: 1
