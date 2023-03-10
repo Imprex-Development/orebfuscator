@@ -46,7 +46,7 @@ public class NmsInstance {
 		return instance.getRegionFileCache();
 	}
 
-	public static int getBitsPerBlock() {
+	public static int getMaxBitsPerBlock() {
 		return instance.getMaxBitsPerBlock();
 	}
 

@@ -29,11 +29,11 @@ public class RegionFileCache extends AbstractRegionFileCache<RegionFile> {
 
 	@Override
 	protected DataInputStream createInputStream(RegionFile t, ChunkPosition key) throws IOException {
-		return t.a(new ChunkCoordIntPair(key.getX(), key.getZ()));
+		return t.a(new ChunkCoordIntPair(key.x, key.z));
 	}
 
 	@Override
 	protected DataOutputStream createOutputStream(RegionFile t, ChunkPosition key) throws IOException {
-		return t.c(new ChunkCoordIntPair(key.getX(), key.getZ()));
+		return t.c(new ChunkCoordIntPair(key.x, key.z));
 	}
 }

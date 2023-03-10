@@ -21,8 +21,8 @@ public enum ChunkDirection {
 	}
 
 	public static ChunkDirection fromPosition(ChunkPosition position, int targetX, int targetZ) {
-		int offsetX = (targetX >> 4) - position.getX();
-		int offsetZ = (targetZ >> 4) - position.getZ();
+		int offsetX = (targetX >> 4) - position.x;
+		int offsetZ = (targetZ >> 4) - position.z;
 
 		if (offsetX == 1 && offsetZ == 0) {
 			return NORTH;

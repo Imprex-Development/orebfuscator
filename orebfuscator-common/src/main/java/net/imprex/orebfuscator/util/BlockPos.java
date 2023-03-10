@@ -2,7 +2,7 @@ package net.imprex.orebfuscator.util;
 
 import org.bukkit.World;
 
-public class BlockPos {
+public class BlockPos implements Comparable<BlockPos> {
 
 	// from net.minecraft.core.BlockPos
 	private static final int BITS_PER_X = 26;
@@ -52,24 +52,48 @@ public class BlockPos {
 	}
 
 	@Override
+	public int compareTo(BlockPos other) {
+		if (this.y == other.y) {
+			if (this.z == other.z) {
+				return this.x - other.x;
+			}
+			return this.z - other.z;
+		}
+		return this.y - other.y;
+	}
+
+	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
-		} else if (!(obj instanceof BlockPos)) {
-			return false;
-		} else {
-			BlockPos other = (BlockPos) obj;
-			return this.x == other.x && this.y == other.y && this.z == other.z;
 		}
+		if (!(obj instanceof BlockPos)) {
+			return false;
+		}
+		BlockPos other = (BlockPos) obj;
+		if (x != other.x) {
+			return false;
+		}
+		if (y != other.y) {
+			return false;
+		}
+		if (z != other.z) {
+			return false;
+		}
+		return true;
 	}
 
 	@Override
 	public int hashCode() {
-		return this.x ^ this.y ^ this.z;
+		int result = 1;
+		result = 31 * result + x;
+		result = 31 * result + y;
+		result = 31 * result + z;
+		return result;
 	}
 
 	@Override
 	public String toString() {
-		return "[" + this.x + ", " + this.y + ", " + this.z + "]";
+		return "BlockPos [x=" + x + ", y=" + y + ", z=" + z + "]";
 	}
 }

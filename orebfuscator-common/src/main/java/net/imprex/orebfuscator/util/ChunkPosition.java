@@ -10,49 +10,39 @@ public class ChunkPosition {
 		return (chunkZ & 0xffffffffL) << 32 | chunkX & 0xffffffffL;
 	}
 
-	private final World world;
-	private final int x;
-	private final int z;
+	public final String world;
+	public final int x;
+	public final int z;
 
 	public ChunkPosition(World world, int x, int z) {
-		this.world = Objects.requireNonNull(world);
+		this.world = Objects.requireNonNull(world).getName();
 		this.x = x;
 		this.z = z;
 	}
 
-	public World getWorld() {
-		return this.world;
-	}
-
-	public int getX() {
-		return this.x;
-	}
-
-	public int getZ() {
-		return this.z;
-	}
-
 	@Override
 	public int hashCode() {
-		int x = 1664525 * this.x + 1013904223;
-		int z = 1664525 * (this.z ^ -559038737) + 1013904223;
-		return this.world.hashCode() ^ x ^ z;
+		int result = 1;
+		result = 31 * result + world.hashCode();
+		result = 31 * result + x;
+		result = 31 * result + z;
+		return result;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
 		if (this == obj) {
 			return true;
-		} else if (!(obj instanceof ChunkPosition)) {
-			return false;
-		} else {
-			ChunkPosition other = (ChunkPosition) obj;
-			return this.x == other.x && this.z == other.z && Objects.equals(this.world, other.world);
 		}
+		if (!(obj instanceof ChunkPosition)) {
+			return false;
+		}
+		ChunkPosition other = (ChunkPosition) obj;
+		return x == other.x && z == other.z && Objects.equals(world, other.world);
 	}
 
 	@Override
 	public String toString() {
-		return "[" + this.world + ", " + this.x + ", " + this.z + "]";
+		return "ChunkPosition [world=" + world + ", x=" + x + ", z=" + z + "]";
 	}
 }

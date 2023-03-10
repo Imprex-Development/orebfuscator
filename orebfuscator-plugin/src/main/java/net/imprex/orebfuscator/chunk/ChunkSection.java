@@ -29,7 +29,7 @@ public class ChunkSection {
 				this.bitsPerBlock = Math.max(4, bitsPerBlock);
 				this.palette = new IndirectPalette(this.bitsPerBlock, this);
 			} else {
-				this.bitsPerBlock = NmsInstance.getBitsPerBlock();
+				this.bitsPerBlock = NmsInstance.getMaxBitsPerBlock();
 				this.palette = new DirectPalette();
 			}
 
