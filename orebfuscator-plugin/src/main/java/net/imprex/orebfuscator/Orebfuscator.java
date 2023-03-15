@@ -35,8 +35,15 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 	private ProximityPacketListener proximityPacketListener;
 
 	@Override
+	public void onLoad() {
+		OFCLogger.LOGGER = getLogger();
+	}
+
+	@Override
 	public void onEnable() {
 		try {
+			new JavaVersionNotifier(this);
+
 			// Check if protocolLib is enabled
 			if (this.getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
 				OFCLogger.log(Level.SEVERE, "ProtocolLib is not found! Plugin cannot be enabled.");

@@ -25,7 +25,7 @@ public class NmsInstance {
 			throw new IllegalStateException("NMS adapter is already initialized!");
 		}
 
-		String nmsVersion = MinecraftVersion.getNmsVersion();
+		String nmsVersion = MinecraftVersion.nmsVersion();
 		OFCLogger.debug("Searching NMS adapter for server version \"" + nmsVersion + "\"!");
 
 		try {

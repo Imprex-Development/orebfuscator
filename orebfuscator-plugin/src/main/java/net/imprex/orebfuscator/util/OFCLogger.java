@@ -3,10 +3,9 @@ package net.imprex.orebfuscator.util;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class OFCLogger {
+public final class OFCLogger {
 
-	private final static Logger LOGGER = Logger.getLogger("Orebfuscator");
-	private final static Logger LOGGER_DEBUG = Logger.getLogger("Orebfuscator/Debug");
+	public static Logger LOGGER = Logger.getLogger("Orebfuscator");
 
 	private static boolean verbose = false;
 
@@ -19,7 +18,7 @@ public class OFCLogger {
 
 	public static void debug(String message) {
 		if (OFCLogger.verbose) {
-			OFCLogger.LOGGER_DEBUG.log(Level.INFO, message);
+			OFCLogger.LOGGER.log(Level.INFO, "[Debug] " + message);
 		}
 	}
 

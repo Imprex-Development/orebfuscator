@@ -13,7 +13,7 @@ public class PermissionUtil {
 		}
 	}
 
-	public static boolean canCheckForUpdates(Player player) {
+	public static boolean canAccessAdminTools(Player player) {
 		return player.isOp() || player.hasPermission("orebfuscator.admin");
 	}
 }

@@ -102,7 +102,7 @@ public class DeobfuscationListener implements Listener {
 					"[§bOrebfuscator§f]§7 You bypass Orebfuscator because you have the 'orebfuscator.bypass' permission.");
 		}
 
-		if (PermissionUtil.canCheckForUpdates(player)) {
+		if (PermissionUtil.canAccessAdminTools(player)) {
 			this.updateSystem.checkForUpdates(player);
 		}
 	}

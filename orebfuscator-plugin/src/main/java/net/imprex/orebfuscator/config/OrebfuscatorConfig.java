@@ -75,7 +75,7 @@ public class OrebfuscatorConfig implements Config {
 			Path path = dataFolder.resolve("config.yml");
 
 			if (Files.notExists(path)) {
-				String configVersion = MinecraftVersion.getMajorVersion() + "." + MinecraftVersion.getMinorVersion();
+				String configVersion = MinecraftVersion.majorVersion() + "." + MinecraftVersion.minorVersion();
 
 				if (Files.notExists(dataFolder)) {
 					Files.createDirectories(dataFolder);
@@ -93,7 +93,7 @@ public class OrebfuscatorConfig implements Config {
 	private byte[] calculateSystemHash(Path path) throws IOException {
 		return Hashing.murmur3_128().newHasher()
 			.putBytes(this.plugin.getDescription().getVersion().getBytes(StandardCharsets.UTF_8))
-			.putBytes(MinecraftVersion.getNmsVersion().getBytes(StandardCharsets.UTF_8))
+			.putBytes(MinecraftVersion.nmsVersion().getBytes(StandardCharsets.UTF_8))
 			.putBytes(Files.readAllBytes(path)).hash().asBytes();
 	}
 
@@ -328,6 +328,16 @@ public class OrebfuscatorConfig implements Config {
 		@Override
 		public boolean needsObfuscation() {
 			return this.needsObfuscation;
+		}
+
+		@Override
+		public boolean skipReadSectionIndex(int index) {
+			return index < this.minSectionIndex || index > this.maxSectionIndex;
+		}
+
+		@Override
+		public boolean skipProcessingSectionIndex(int index) {
+			return index < this.minSectionIndex || index > this.maxSectionIndex;
 		}
 
 		@Override

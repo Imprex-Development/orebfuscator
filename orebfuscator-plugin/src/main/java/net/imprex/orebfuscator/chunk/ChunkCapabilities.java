@@ -14,15 +14,15 @@ public final class ChunkCapabilities {
 	// hasDirectPaletteZeroLength < 1.13
 	// hasLight < 1.14
 
-	private static final boolean hasClientboundLevelChunkPacketData = MinecraftVersion.getMinorVersion() >= 18;
-	private static final boolean hasBiomePalettedContainer = MinecraftVersion.getMinorVersion() >= 18;
-	private static final boolean hasSingleValuePalette = MinecraftVersion.getMinorVersion() >= 18;
-	private static final boolean hasHeightBitMask = MinecraftVersion.getMinorVersion() <= 17;
-	private static final boolean hasDynamicHeight = MinecraftVersion.getMinorVersion() >= 17;
-	private static final boolean hasSimpleVarBitBuffer = MinecraftVersion.getMinorVersion() >= 16;
-	private static final boolean hasBlockCount = MinecraftVersion.getMinorVersion() >= 14;
-	private static final boolean hasDirectPaletteZeroLength = MinecraftVersion.getMinorVersion() < 13;
-	private static final boolean hasLightArray = MinecraftVersion.getMinorVersion() < 14;
+	private static final boolean hasClientboundLevelChunkPacketData = MinecraftVersion.minorVersion() >= 18;
+	private static final boolean hasBiomePalettedContainer = MinecraftVersion.minorVersion() >= 18;
+	private static final boolean hasSingleValuePalette = MinecraftVersion.minorVersion() >= 18;
+	private static final boolean hasHeightBitMask = MinecraftVersion.minorVersion() <= 17;
+	private static final boolean hasDynamicHeight = MinecraftVersion.minorVersion() >= 17;
+	private static final boolean hasSimpleVarBitBuffer = MinecraftVersion.minorVersion() >= 16;
+	private static final boolean hasBlockCount = MinecraftVersion.minorVersion() >= 14;
+	private static final boolean hasDirectPaletteZeroLength = MinecraftVersion.minorVersion() < 13;
+	private static final boolean hasLightArray = MinecraftVersion.minorVersion() < 14;
 
 	private ChunkCapabilities() {
 	}

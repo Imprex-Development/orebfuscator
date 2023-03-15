@@ -6,10 +6,10 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.apache.commons.lang.StringUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
@@ -17,6 +17,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import net.imprex.orebfuscator.config.GeneralConfig;
+import net.imprex.orebfuscator.util.ConsoleUtil;
 import net.imprex.orebfuscator.util.OFCLogger;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
@@ -116,13 +117,8 @@ public class UpdateSystem {
 	private void checkForUpdates() {
 		Bukkit.getScheduler().runTaskAsynchronously(this.orebfuscator, () -> {
 			if (this.isUpdateAvailable()) {
-				String url = " " + this.getHtmlUrl() + " ";
-				int lineLength = (int) Math.ceil((url.length() - 18) / 2d);
-				String line = StringUtils.repeat("=", lineLength);
-
-				OFCLogger.warn(line + " Update available " + line);
-				OFCLogger.warn(url);
-				OFCLogger.warn(StringUtils.repeat("=", lineLength * 2 + 18));
+				ConsoleUtil.printBox(Level.WARNING,
+						"UPDATE AVAILABLE", "", this.getHtmlUrl());
 			}
 		});
 	}

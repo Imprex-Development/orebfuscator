@@ -1,4 +1,3 @@
-
 <img align="right" src="https://user-images.githubusercontent.com/8127996/90168671-bb49c780-dd9d-11ea-989d-479f8c1f3ea3.png" height="200" width="200">
 
 # Orebfuscator - Anti X-Ray
@@ -15,7 +14,7 @@ Orebfuscator is plugin for Spigot based Minecraft Servers that modifies packets 
 * Make blocks in a players proximity visible based on their distance an
 
 ### Requirements
-- Java 8 or higher
+- Java 17 or higher
 - Spigot and (proably) any other fork of Spigot (1.9.4 or higher)
 - [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997) 4.0 or higher
 
@@ -48,8 +47,8 @@ Still having trouble getting Orebfuscator to run check out our [common issues](h
 
 ## License:
 
-Almost completely rewritten by Imprex-Development to support v1.14 and higher Minecraft version's; these portions as permissible:
-Copyright (C) 2020-2022 by Imprex-Development. All rights reserved.
+Completely rewritten by Imprex-Development to support v1.14 and higher Minecraft version's; these portions as permissible:
+Copyright (C) 2020-2023 by Imprex-Development. All rights reserved.
 
 Released under the same license as original.
 
