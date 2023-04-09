@@ -289,7 +289,7 @@ public class OrebfuscatorConfig implements Config {
 
 			this.obfuscationRandoms = this.obfuscationConfig != null
 					? this.obfuscationConfig.createWeightedRandoms(heightAccessor) : null;
-			this.proximityRandoms = this.obfuscationConfig != null
+			this.proximityRandoms = this.proximityConfig != null
 					? this.proximityConfig.createWeightedRandoms(heightAccessor) : null;
 		}
 
