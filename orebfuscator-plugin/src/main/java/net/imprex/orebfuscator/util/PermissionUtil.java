@@ -1,19 +1,19 @@
 package net.imprex.orebfuscator.util;
 
-import org.bukkit.entity.Player;
+import org.bukkit.permissions.Permissible;
 
 public class PermissionUtil {
 
-	public static boolean canDeobfuscate(Player player) {
+	public static boolean canDeobfuscate(Permissible permissible) {
 		try {
-			return player.hasPermission("orebfuscator.bypass");
+			return permissible.hasPermission("orebfuscator.bypass");
 		} catch (UnsupportedOperationException e) {
 			// fix #131: catch TemporaryPlayer not implementing hasPermission
 			return false;
 		}
 	}
 
-	public static boolean canAccessAdminTools(Player player) {
-		return player.isOp() || player.hasPermission("orebfuscator.admin");
+	public static boolean canAccessAdminTools(Permissible permissible) {
+		return permissible.isOp() || permissible.hasPermission("orebfuscator.admin");
 	}
 }

@@ -11,6 +11,14 @@ authors: [NgLoader, lishid, SydMontague, ProgrammerDan, Aleksey-Terzi]
 
 depend: [ProtocolLib]
 
+commands:
+  orebfuscator:
+    aliases: [ofc]
+    description: Performs administrative tasks regarding Orebfuscator.
+    usage: /<command> [dump]
+    permission: orebfuscator.admin
+    permission-message: You don't have <permission>
+
 permissions:
   orebfuscator.*:
     default: false
@@ -20,7 +28,7 @@ permissions:
       orebfuscator.bypass: true
   orebfuscator.admin:
     default: op
-    description: Access to update notifications
+    description: Access to update notifications and commands
   orebfuscator.bypass:
     default: false
     description: Bypass the obfuscation

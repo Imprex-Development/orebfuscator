@@ -1,5 +1,7 @@
 package net.imprex.orebfuscator.util;
 
+import java.util.LinkedList;
+import java.util.Queue;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -7,6 +9,7 @@ public final class OFCLogger {
 
 	public static Logger LOGGER = Logger.getLogger("Orebfuscator");
 
+	private static final Queue<String> VERBOSE_LOG = new LinkedList<String>();
 	private static boolean verbose = false;
 
 	public static void setVerboseLogging(boolean verbose) {
@@ -19,6 +22,29 @@ public final class OFCLogger {
 	public static void debug(String message) {
 		if (OFCLogger.verbose) {
 			OFCLogger.LOGGER.log(Level.INFO, "[Debug] " + message);
+		}
+
+		synchronized (VERBOSE_LOG) {
+			while (VERBOSE_LOG.size() >= 1000) {
+				VERBOSE_LOG.poll();
+			}
+			VERBOSE_LOG.offer(message);
+		}
+	}
+
+	public static String getLatestVerboseLog() {
+		synchronized (VERBOSE_LOG) {
+			int length = 0;
+			for (String message : VERBOSE_LOG) {
+				length += message.length() + 1;
+			}
+
+			StringBuilder builder = new StringBuilder(length);
+			for (String message : VERBOSE_LOG) {
+				builder.append(message).append("\n");
+			}
+			builder.deleteCharAt(builder.length() - 1);
+			return builder.toString();
 		}
 	}
 

@@ -30,37 +30,13 @@ body:
     validations:
       required: true
   - type: input
-    id: server-info
+    id: dump
     attributes:
-      label: Server Details
-      description: Please provide a description of the server details, including type and specific version number. (use `/version` command for server version)
-      placeholder: '3219-Spigot-b166a49-8c6d60c (MC: 1.17.1)'
-    validations:
-      required: true
-  - type: input
-    id: orebfuscator-version
-    attributes:
-      label: Orebfuscator Version
-      description: Please provide the specific, precise version number of Orebfuscator you are using to reproduce this bug. (use `/version Orebfuscator` command for Orebfuscator version)
-      placeholder: '5.1.5'
-    validations:
-      required: true
-  - type: input
-    id: protocollib-version
-    attributes:
-      label: ProtocolLib Version
-      description: Please provide the specific, precise version number of ProtocolLib you are using to reproduce this bug. (use `/version ProtocolLib` command for ProtocolLib version)
-      placeholder: 4.7.1-SNAPSHOT-b531
-    validations:
-      required: true
-  - type: textarea
-    id: logs
-    attributes:
-      label: Logs and Configs
-      description: If you think it would be helpful, please also include a pastebin of any relevant config files or log output. You should use https://gist.github.com/ to upload, then include the link below. 
+      label: Orebfuscator Dump
+      description: Please provide an Orebfuscator dump file (use `/orebfuscator dump`) or if Orebfuscator didn't start provide a ProtocolLib dump (use `/protocol dump`). You should use https://gist.github.com/ to upload, then include the link below.
       placeholder: https://gist.github.com/HelpfulBugReporter/ThisIsAVeryUsefulLogOutput
     validations:
-      required: false
+      required: true
   - type: textarea
     id: extra-info
     attributes:

@@ -89,6 +89,9 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 					OrebfuscatorService.class,
 					new DefaultOrebfuscatorService(this),
 					this, ServicePriority.Normal);
+
+			// add commands
+			getCommand("orebfuscator").setExecutor(new OrebfuscatorCommand(this));
 		} catch (Exception e) {
 			OFCLogger.error("An error occurred while enabling plugin", e);
 
