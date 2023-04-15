@@ -23,15 +23,6 @@
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
-				<version>${plugin.shade.version}</version>
-				<executions>
-					<execution>
-						<phase>package</phase>
-						<goals>
-							<goal>shade</goal>
-						</goals>
-					</execution>
-				</executions>
 				<configuration>
 					<relocations>
 						<relocation>
@@ -39,17 +30,6 @@
 							<shadedPattern>net.imprex.orebfuscator.metrics</shadedPattern>
 						</relocation>
 					</relocations>
-					<filters>
-						<filter>
-							<artifact>*:*</artifact>
-							<excludes>
-								<exclude>META-INF/*.MF</exclude>
-								<exclude>META-INF/*.SF</exclude>
-								<exclude>META-INF/*.DSA</exclude>
-								<exclude>META-INF/*.RSA</exclude>
-							</excludes>
-						</filter>
-					</filters>
 				</configuration>
 			</plugin>
 		</plugins>

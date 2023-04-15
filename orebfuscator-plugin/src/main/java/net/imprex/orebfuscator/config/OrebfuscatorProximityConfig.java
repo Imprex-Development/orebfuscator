@@ -95,7 +95,7 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 				}
 
 				// parse block specific height condition
-				if (blockSection.isInt(blockName + ".minY") && blockSection.isBoolean(blockName + ".maxY")) {
+				if (blockSection.isInt(blockName + ".minY") && blockSection.isInt(blockName + ".maxY")) {
 					int minY = blockSection.getInt(blockName + ".minY");
 					int maxY = blockSection.getInt(blockName + ".maxY");
 
