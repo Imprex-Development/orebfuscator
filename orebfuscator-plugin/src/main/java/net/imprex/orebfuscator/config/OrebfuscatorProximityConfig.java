@@ -8,6 +8,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.BlockProperties;
+import net.imprex.orebfuscator.util.OFCLogger;
 
 public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements ProximityConfig {
 
@@ -71,7 +72,12 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 
 		for (String blockName : blockSection.getKeys(false)) {
 			BlockProperties blockProperties = NmsInstance.getBlockByName(blockName);
-			if (blockProperties != null) {
+			if (blockProperties == null) {
+				warnUnknownBlock(section, path, blockName);
+			} else if (blockProperties.getDefaultBlockState().isAir()) {
+		        OFCLogger.warn(String.format("config section '%s.%s' contains air block '%s', skipping",
+		                section.getCurrentPath(), path, blockName));
+			} else {
 				int blockFlags = this.defaultBlockFlags;
 
 				// LEGACY: parse pre 5.2.2 height condition
@@ -90,10 +96,13 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 
 				// parse block specific height condition
 				if (blockSection.isInt(blockName + ".minY") && blockSection.isBoolean(blockName + ".maxY")) {
+					int minY = blockSection.getInt(blockName + ".minY");
+					int maxY = blockSection.getInt(blockName + ".maxY");
+
 					blockFlags = ProximityHeightCondition.remove(blockFlags);
 					blockFlags |= ProximityHeightCondition.create(
-							blockSection.getInt(blockName + ".minY"),
-							blockSection.getInt(blockName + ".maxY"));
+							Math.min(minY, maxY),
+							Math.max(minY, maxY));
 					usesBlockSpecificConfigs = true;
 				}
 
@@ -108,8 +117,6 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 				}
 
 				this.hiddenBlocks.put(blockProperties, blockFlags);
-			} else {
-				warnUnknownBlock(section, path, blockName);
 			}
 		}
 

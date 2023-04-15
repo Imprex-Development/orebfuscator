@@ -14,8 +14,16 @@ public class ProximityHeightCondition {
 		return Math.min(BlockPos.MAX_Y, Math.max(BlockPos.MIN_Y, y));
 	}
 
+	private static int unsigned(int y) {
+		return (clampY(y) - BlockPos.MIN_Y) & 0xFFF;
+	}
+
+	private static int signed(int y) {
+		return y + BlockPos.MIN_Y;
+	}
+
 	public static int create(int minY, int maxY) {
-		return clampY(minY) << 20 | clampY(maxY) << 8 | 0x80;
+		return unsigned(minY) << 20 | unsigned(maxY) << 8 | 0x80;
 	}
 
 	public static int remove(int hideCondition) {
@@ -39,10 +47,10 @@ public class ProximityHeightCondition {
 	}
 
 	public static int getMinY(int hideCondition) {
-		return hideCondition >> 20;
+		return signed(hideCondition >>> 20);
 	}
 
 	public static int getMaxY(int hideCondition) {
-		return hideCondition << 12 >> 20;
+		return signed(hideCondition << 12 >>> 20);
 	}
 }
