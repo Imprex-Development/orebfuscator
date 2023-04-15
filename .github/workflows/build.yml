@@ -3,7 +3,7 @@ name: Build
 on:
   push:
     branches:
-      - '**' 
+    - '**' 
 
 jobs:
   build:
@@ -35,7 +35,7 @@ jobs:
         bash ./.github/workflows/buildtools.sh
     - name: Build
       run: |
-        mvn clean package -pl orebfuscator-plugin --batch-mode --also-make -Drevision=$BUILD_VERSION
+        mvn clean package --batch-mode -Drevision=$BUILD_VERSION
         mv orebfuscator-plugin/target/orebfuscator-*.jar ./
     - name: Upload artifacts
       uses: actions/upload-artifact@v3

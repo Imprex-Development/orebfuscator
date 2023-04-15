@@ -35,9 +35,10 @@ jobs:
         bash ./.github/workflows/buildtools.sh
     - name: Build
       run: |
-        mvn package --batch-mode -Drevision=$RELEASE_VERSION
+        mvn clean package --batch-mode -Drevision=$RELEASE_VERSION
         mv orebfuscator-plugin/target/orebfuscator-*.jar ./
-    - uses: ncipollo/release-action@v1
+    - name: Release artifacts
+      uses: ncipollo/release-action@v1
       with:
         artifacts: "orebfuscator-*.jar"
         name: Release ${{ env.RELEASE_VERSION }}

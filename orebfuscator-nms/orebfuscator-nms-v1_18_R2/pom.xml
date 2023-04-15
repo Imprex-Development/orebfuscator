@@ -26,12 +26,6 @@
 		    <classifier>remapped-mojang</classifier>
 		    <scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.comphenix.protocol</groupId>
-			<artifactId>ProtocolLib-API</artifactId>
-			<version>${dependency.protocollib.version}</version>
-			<scope>provided</scope>
-		</dependency>
 	</dependencies>
 
 	<build>
@@ -39,7 +33,7 @@
 			<plugin>
 				<groupId>net.md-5</groupId>
 				<artifactId>specialsource-maven-plugin</artifactId>
-				<version>1.2.3</version>
+				<version>${plugin.specialsource.version}</version>
 				<executions>
 					<execution>
 						<phase>package</phase>

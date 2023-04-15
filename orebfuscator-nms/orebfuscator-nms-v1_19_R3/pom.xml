@@ -24,12 +24,6 @@
 			<classifier>remapped-mojang</classifier>
 			<scope>provided</scope>
 		</dependency>
-		<dependency>
-			<groupId>com.comphenix.protocol</groupId>
-			<artifactId>ProtocolLib-API</artifactId>
-			<version>${dependency.protocollib.version}</version>
-			<scope>provided</scope>
-		</dependency>
 	</dependencies>
 
 	<build>
