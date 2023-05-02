@@ -6,22 +6,22 @@ import com.google.common.collect.ImmutableList;
 
 public class BlockProperties {
 
-	public static Builder builder(String name) {
-		return new Builder(name);
+	public static Builder builder(NamespacedKey key) {
+		return new Builder(key);
 	}
 
-	private final String name;
+	private final NamespacedKey key;
 	private final BlockStateProperties defaultBlockState;
 	private final ImmutableList<BlockStateProperties> possibleBlockStates;
 
 	private BlockProperties(Builder builder) {
-		this.name = builder.name;
+		this.key = builder.key;
 		this.defaultBlockState = builder.defaultBlockState;
 		this.possibleBlockStates = builder.possibleBlockStates;
 	}
 
-	public String getName() {
-		return name;
+	public NamespacedKey getKey() {
+		return key;
 	}
 
 	public BlockStateProperties getDefaultBlockState() {
@@ -34,7 +34,7 @@ public class BlockProperties {
 
 	@Override
 	public int hashCode() {
-		return this.name.hashCode();
+		return this.key.hashCode();
 	}
 
 	@Override
@@ -46,24 +46,24 @@ public class BlockProperties {
 			return false;
 		}
 		BlockProperties other = (BlockProperties) obj;
-		return Objects.equals(name, other.name);
+		return Objects.equals(key, other.key);
 	}
 
 	@Override
 	public String toString() {
-		return "BlockProperties [name=" + name + ", defaultBlockState=" + defaultBlockState + ", possibleBlockStates="
+		return "BlockProperties [key=" + key + ", defaultBlockState=" + defaultBlockState + ", possibleBlockStates="
 				+ possibleBlockStates + "]";
 	}
 
 	public static class Builder {
 
-		private final String name;
+		private final NamespacedKey key;
 
 		private BlockStateProperties defaultBlockState;
 		private ImmutableList<BlockStateProperties> possibleBlockStates;
 
-		private Builder(String name) {
-			this.name = name;
+		private Builder(NamespacedKey key) {
+			this.key = key;
 		}
 
 		public Builder withDefaultBlockState(BlockStateProperties defaultBlockState) {
@@ -77,8 +77,8 @@ public class BlockProperties {
 		}
 		
 		public BlockProperties build() {
-			Objects.requireNonNull(this.defaultBlockState, "missing default block state for " + this.name);
-			Objects.requireNonNull(this.possibleBlockStates, "missing possible block states for " + this.name);
+			Objects.requireNonNull(this.defaultBlockState, "missing default block state for " + this.key);
+			Objects.requireNonNull(this.possibleBlockStates, "missing possible block states for " + this.key);
 
 			return new BlockProperties(this);
 		}

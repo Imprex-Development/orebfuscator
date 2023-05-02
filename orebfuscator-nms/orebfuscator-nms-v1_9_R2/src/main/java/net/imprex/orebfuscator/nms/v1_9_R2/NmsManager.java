@@ -20,6 +20,7 @@ import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 import net.imprex.orebfuscator.util.BlockProperties;
 import net.imprex.orebfuscator.util.BlockStateProperties;
+import net.imprex.orebfuscator.util.NamespacedKey;
 import net.minecraft.server.v1_9_R2.Block;
 import net.minecraft.server.v1_9_R2.BlockAir;
 import net.minecraft.server.v1_9_R2.BlockPosition;
@@ -72,7 +73,7 @@ public class NmsManager extends AbstractNmsManager {
 		super(config);
 
 		for (MinecraftKey key : Block.REGISTRY.keySet()) {
-			String name = key.toString();
+			NamespacedKey namespacedKey = NamespacedKey.fromString(key.toString());
 
 			Block block = Block.REGISTRY.get(key);
 			Material material = CraftMagicNumbers.getMaterial(block);
@@ -95,7 +96,7 @@ public class NmsManager extends AbstractNmsManager {
 			int defaultBlockStateId = getBlockId(block.getBlockData());
 			BlockStateProperties defaultBlockState = getBlockStateProperties(defaultBlockStateId);
 
-			BlockProperties blockProperties = BlockProperties.builder(name)
+			BlockProperties blockProperties = BlockProperties.builder(namespacedKey)
 				.withDefaultBlockState(defaultBlockState)
 				.withPossibleBlockStates(ImmutableList.copyOf(possibleBlockStateProperties))
 				.build();

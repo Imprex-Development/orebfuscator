@@ -21,6 +21,7 @@ import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 import net.imprex.orebfuscator.util.BlockProperties;
 import net.imprex.orebfuscator.util.BlockStateProperties;
+import net.imprex.orebfuscator.util.NamespacedKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
@@ -64,7 +65,7 @@ public class NmsManager extends AbstractNmsManager {
 		super(config);
 
 		for (Map.Entry<ResourceKey<Block>, Block> entry : BuiltInRegistries.BLOCK.entrySet()) {
-			String name = entry.getKey().location().toString();
+			NamespacedKey namespacedKey = NamespacedKey.fromString(entry.getKey().location().toString());
 			Block block = entry.getValue();
 
 			ImmutableList<BlockState> possibleBlockStates = block.getStateDefinition().getPossibleStates();
@@ -87,7 +88,7 @@ public class NmsManager extends AbstractNmsManager {
 			int defaultBlockStateId = Block.getId(block.defaultBlockState());
 			BlockStateProperties defaultBlockState = getBlockStateProperties(defaultBlockStateId);
 
-			BlockProperties blockProperties = BlockProperties.builder(name)
+			BlockProperties blockProperties = BlockProperties.builder(namespacedKey)
 				.withDefaultBlockState(defaultBlockState)
 				.withPossibleBlockStates(ImmutableList.copyOf(possibleBlockStateProperties))
 				.build();

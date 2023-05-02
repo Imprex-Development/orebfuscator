@@ -4,6 +4,7 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import net.imprex.orebfuscator.util.BlockProperties;
+import net.imprex.orebfuscator.util.NamespacedKey;
 
 public interface NmsManager {
 
@@ -13,7 +14,7 @@ public interface NmsManager {
 
 	int getTotalBlockCount();
 
-	BlockProperties getBlockByName(String key);
+	BlockProperties getBlockByName(NamespacedKey key);
 
 	boolean isAir(int blockId);
 

@@ -14,6 +14,7 @@ import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.BlockProperties;
 import net.imprex.orebfuscator.util.MinecraftVersion;
+import net.imprex.orebfuscator.util.NamespacedKey;
 import net.imprex.orebfuscator.util.OFCLogger;
 
 public class NmsInstance {
@@ -54,8 +55,8 @@ public class NmsInstance {
 		return instance.getTotalBlockCount();
 	}
 
-	public static BlockProperties getBlockByName(String name) {
-		return instance.getBlockByName(name);
+	public static BlockProperties getBlockByName(String key) {
+		return instance.getBlockByName(NamespacedKey.fromString(key));
 	}
 
 	public static boolean isAir(int blockId) {

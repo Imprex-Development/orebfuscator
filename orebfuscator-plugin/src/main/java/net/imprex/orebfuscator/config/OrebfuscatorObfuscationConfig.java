@@ -52,7 +52,7 @@ public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implement
 		List<String> blockNames = new ArrayList<>();
 
 		for (BlockProperties block : this.hiddenBlocks) {
-			blockNames.add(block.getName());
+			blockNames.add(block.getKey().toString());
 		}
 
 		section.set(path, blockNames);

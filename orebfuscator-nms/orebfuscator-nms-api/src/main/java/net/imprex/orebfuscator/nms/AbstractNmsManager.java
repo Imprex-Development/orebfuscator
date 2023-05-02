@@ -7,13 +7,14 @@ import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.config.Config;
 import net.imprex.orebfuscator.util.BlockProperties;
 import net.imprex.orebfuscator.util.BlockStateProperties;
+import net.imprex.orebfuscator.util.NamespacedKey;
 
 public abstract class AbstractNmsManager implements NmsManager {
 
 	private final AbstractRegionFileCache<?> regionFileCache;
 
 	private final BlockStateProperties[] blockStates = new BlockStateProperties[getTotalBlockCount()];
-	private final Map<String, BlockProperties> blocks = new HashMap<>();
+	private final Map<NamespacedKey, BlockProperties> blocks = new HashMap<>();
 
 	public AbstractNmsManager(Config config) {
 		this.regionFileCache = this.createRegionFileCache(config.cache());
@@ -26,7 +27,7 @@ public abstract class AbstractNmsManager implements NmsManager {
 	}
 
 	protected final void registerBlockProperties(BlockProperties properties) {
-		this.blocks.put(properties.getName(), properties);
+		this.blocks.put(properties.getKey(), properties);
 	}
 
 	protected final BlockStateProperties getBlockStateProperties(int id) {
@@ -39,7 +40,7 @@ public abstract class AbstractNmsManager implements NmsManager {
 	}
 
 	@Override
-	public final BlockProperties getBlockByName(String key) {
+	public final BlockProperties getBlockByName(NamespacedKey key) {
 		return this.blocks.get(key);
 	}
 

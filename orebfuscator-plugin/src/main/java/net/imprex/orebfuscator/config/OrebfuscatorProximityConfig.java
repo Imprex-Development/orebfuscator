@@ -129,7 +129,7 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 		ConfigurationSection parentSection = section.createSection(path);
 
 		for (Map.Entry<BlockProperties, Integer> entry : this.hiddenBlocks.entrySet()) {
-			ConfigurationSection childSection = parentSection.createSection(entry.getKey().getName());
+			ConfigurationSection childSection = parentSection.createSection(entry.getKey().getKey().toString());
 
 			int blockFlags = entry.getValue();
 			if (!ProximityHeightCondition.equals(blockFlags, this.defaultBlockFlags)) {
