@@ -16,7 +16,7 @@ Orebfuscator is plugin for Spigot based Minecraft Servers that modifies packets 
 ### Requirements
 - Java 17 or higher
 - Spigot and (proably) any other fork of Spigot (1.9.4 or higher)
-- [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997) 4.0 or higher
+- [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997) 5.0.0 or higher
 
 ### Installation
 1. Download [ProtocolLib](https://github.com/dmulloy2/ProtocolLib/releases)
