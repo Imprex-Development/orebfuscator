@@ -1,7 +1,5 @@
 package net.imprex.orebfuscator.obfuscation;
 
-import java.lang.reflect.InvocationTargetException;
-
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketEvent;
@@ -31,11 +29,7 @@ public class ObfuscationListenerSync extends ObfuscationListener {
 
 	@Override
 	protected void postChunkProcessing(PacketEvent event) {
-		try {
-			this.protocolManager.sendServerPacket(event.getPlayer(), event.getPacket(), false);
-		} catch (InvocationTargetException e) {
-			e.printStackTrace();
-		}
+		this.protocolManager.sendServerPacket(event.getPlayer(), event.getPacket(), false);
 	}
 
 	@Override
