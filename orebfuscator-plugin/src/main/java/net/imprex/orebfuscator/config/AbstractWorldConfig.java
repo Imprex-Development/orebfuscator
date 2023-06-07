@@ -23,8 +23,7 @@ public abstract class AbstractWorldConfig implements WorldConfig, ConfigParsingC
 	protected int maxY = BlockPos.MAX_Y;
 
 	protected final List<WorldMatcher> worldMatchers = new ArrayList<>();
-
-	private final List<WeightedBlockList> weightedBlockLists = new ArrayList<>();
+	protected final List<WeightedBlockList> weightedBlockLists = new ArrayList<>();
 
 	public AbstractWorldConfig(String name) {
 		this.name = name;

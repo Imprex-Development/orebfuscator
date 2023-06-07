@@ -25,9 +25,13 @@ public class OrebfuscatorBlockFlags implements BlockFlags {
 				this.setBlockBits(block, FLAG_OBFUSCATE);
 			}
 		}
+
 		if (proximityConfig != null && proximityConfig.isEnabled()) {
 			for (Entry<BlockProperties, Integer> entry : proximityConfig.hiddenBlocks()) {
 				this.setBlockBits(entry.getKey(), entry.getValue());
+			}
+			for (BlockProperties block : proximityConfig.allowForUseBlockBelow()) {
+				this.setBlockBits(block, FLAG_ALLOW_FOR_USE_BLOCK_BELOW);
 			}
 		}
 	}

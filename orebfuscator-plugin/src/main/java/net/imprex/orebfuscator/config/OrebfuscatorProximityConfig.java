@@ -1,11 +1,14 @@
 package net.imprex.orebfuscator.config;
 
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.configuration.ConfigurationSection;
 
 import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.config.components.WeightedBlockList;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.BlockProperties;
 import net.imprex.orebfuscator.util.OFCLogger;
@@ -19,6 +22,7 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 	
 	private boolean usesBlockSpecificConfigs = false;
 	private Map<BlockProperties, Integer> hiddenBlocks = new LinkedHashMap<>();
+	private Set<BlockProperties> allowForUseBlockBelow = new HashSet<>();
 
 	OrebfuscatorProximityConfig(ConfigurationSection section) {
 		super(section.getName());
@@ -50,6 +54,10 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 
 		this.deserializeHiddenBlocks(section, "hiddenBlocks");
 		this.deserializeRandomBlocks(section, "randomBlocks");
+
+		for (WeightedBlockList blockList : this.weightedBlockLists) {
+			this.allowForUseBlockBelow.addAll(blockList.getBlocks());
+		}
 	}
 
 	protected void serialize(ConfigurationSection section) {
@@ -156,6 +164,10 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 	@Override
 	public Iterable<Map.Entry<BlockProperties, Integer>> hiddenBlocks() {
 		return this.hiddenBlocks.entrySet();
+	}
+
+	public Iterable<BlockProperties> allowForUseBlockBelow() {
+		return this.allowForUseBlockBelow;
 	}
 
 	boolean usesBlockSpecificConfigs() {
