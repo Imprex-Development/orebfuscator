@@ -59,6 +59,7 @@ obfuscation:
     - minecraft:green_shulker_box
     - minecraft:red_shulker_box
     - minecraft:black_shulker_box
+    - minecraft:bedrock
     randomBlocks:
       section-global:
         minY: -2032
@@ -78,6 +79,11 @@ obfuscation:
           minecraft:redstone_ore: 1
           minecraft:stone: 1
           minecraft:tnt: 1
+      section-bedrock:
+        minY: 0
+        maxY: 5
+        blocks:
+          minecraft:bedrock: 20
   obfuscation-nether:
     enabled: true
     minY: -2032
@@ -108,6 +114,7 @@ obfuscation:
     - minecraft:green_shulker_box
     - minecraft:red_shulker_box
     - minecraft:black_shulker_box
+    - minecraft:bedrock
     randomBlocks:
       section-global:
         minY: -2032
@@ -115,6 +122,16 @@ obfuscation:
         blocks:
           minecraft:netherrack: 1
           minecraft:nether_quartz_ore: 1
+      section-bedrock-top:
+        minY: 123
+        maxY: 127
+        blocks:
+          minecraft:bedrock: 20
+      section-bedrock-bottom:
+        minY: 0
+        maxY: 4
+        blocks:
+          minecraft:bedrock: 20
   obfuscation-end:
     enabled: true
     minY: -2032

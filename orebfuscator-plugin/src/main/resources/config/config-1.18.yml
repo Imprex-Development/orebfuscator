@@ -70,6 +70,7 @@ obfuscation:
     - minecraft:green_shulker_box
     - minecraft:red_shulker_box
     - minecraft:black_shulker_box
+    - minecraft:bedrock
     randomBlocks:
       section-global:
         minY: -2032
@@ -105,6 +106,11 @@ obfuscation:
           minecraft:deepslate_coal_ore: 5
           minecraft:deepslate_lapis_ore: 5
           minecraft:deepslate_redstone_ore: 5
+      section-bedrock:
+        minY: 0
+        maxY: 5
+        blocks:
+          minecraft:bedrock: 20
   obfuscation-nether:
     enabled: true
     minY: -2032
@@ -139,6 +145,7 @@ obfuscation:
     - minecraft:basalt
     - minecraft:soul_sand
     - minecraft:soul_soil
+    - minecraft:bedrock
     randomBlocks:
       section-global:
         minY: -2032
@@ -148,6 +155,16 @@ obfuscation:
           minecraft:nether_quartz_ore: 1
           minecraft:nether_gold_ore: 1
           minecraft:ancient_debris: 1
+      section-bedrock-top:
+        minY: 123
+        maxY: 127
+        blocks:
+          minecraft:bedrock: 20
+      section-bedrock-bottom:
+        minY: 0
+        maxY: 4
+        blocks:
+          minecraft:bedrock: 20
   obfuscation-end:
     enabled: true
     minY: -2032
