@@ -8,7 +8,8 @@ import org.apache.commons.lang.StringUtils;
 
 public final class ConsoleUtil {
 
-	private static final int BOX_PADDING = 4;
+	private static final int BOX_PADDING = 3;
+	private static final int BOX_MAX_WIDTH = 48;
 
 	private ConsoleUtil() {
 	}
@@ -23,26 +24,53 @@ public final class ConsoleUtil {
 	 * Creates a ASCII box around the given lines
 	 */
 	public static Iterable<String> createBox(String...lines) {
+
+		List<String> wrappedLines = new ArrayList<>();
+		for (String line : lines) {
+			line = line.trim();
+
+			while (line.length() > BOX_MAX_WIDTH) {
+
+				int splitLength = 0;
+				for (int i = 0; i < line.length(); i++) {
+					if (Character.isWhitespace(line.charAt(i))) {
+						if (i <= BOX_MAX_WIDTH) {
+							splitLength = i;
+						} else {
+							break;
+						}
+					}
+				}
+
+				// split line at latest word that fit length
+				wrappedLines.add(line.substring(0, splitLength));
+				line = line.substring(splitLength, line.length()).trim();
+			}
+
+			// add remainder
+			wrappedLines.add(line);
+		}
+
 		// get max line width
 		int width = 0;
-		for (String line : lines) {
+		for (String line : wrappedLines) {
 			width = Math.max(width, line.length());
 		}
 
 		// add padding
-		width += BOX_PADDING * 2;
+		int totalWidth = width + BOX_PADDING * 2;
 
 		// create top/bottom lines
-		String bottomTopLine = StringUtils.repeat("═", width);
+		String bottomTopLine = StringUtils.repeat("═", totalWidth);
 		String topLine = String.format("╔%s╗", bottomTopLine);
 		String bottomLine = String.format("╚%s╝", bottomTopLine);
 
 		// create box
-		List<String> box = new ArrayList<>(lines.length + 2);
+		List<String> box = new ArrayList<>(wrappedLines.size() + 2);
 		box.add(topLine);
 
-		for (String line : lines) {
-			int space = width - line.length();
+		for (String line : wrappedLines) {
+			int space = totalWidth - line.length();
 
 			// center line
 			String leftPadding, rightPadding;

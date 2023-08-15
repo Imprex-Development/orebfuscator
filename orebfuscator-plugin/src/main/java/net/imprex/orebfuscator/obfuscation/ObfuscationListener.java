@@ -27,7 +27,11 @@ public abstract class ObfuscationListener extends PacketAdapter {
 	private final ObfuscationSystem obfuscationSystem;
 
 	public ObfuscationListener(Orebfuscator orebfuscator) {
-		super(orebfuscator, PacketType.Play.Server.MAP_CHUNK);
+		super(orebfuscator,
+				PacketType.Play.Server.MAP_CHUNK,
+				PacketType.Play.Server.UNLOAD_CHUNK,
+				PacketType.Play.Server.LIGHT_UPDATE,
+				PacketType.Play.Server.TILE_ENTITY_DATA);
 
 		this.config = orebfuscator.getOrebfuscatorConfig();
 		this.playerMap = orebfuscator.getPlayerMap();
@@ -44,9 +48,12 @@ public abstract class ObfuscationListener extends PacketAdapter {
 
 	@Override
 	public void onPacketSending(PacketEvent event) {
+		if (event.getPacket().getType() != PacketType.Play.Server.MAP_CHUNK) {
+			return;
+		}
+
 		Player player = event.getPlayer();
 		if (this.shouldNotObfuscate(player)) {
-			this.skipChunkForProcessing(event);
 			return;
 		}
 
