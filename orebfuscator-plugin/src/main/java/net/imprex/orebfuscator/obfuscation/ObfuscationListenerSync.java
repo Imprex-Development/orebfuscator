@@ -18,11 +18,6 @@ public class ObfuscationListenerSync extends ObfuscationListener {
 	}
 
 	@Override
-	protected void skipChunkForProcessing(PacketEvent event) {
-		// NOOP
-	}
-
-	@Override
 	protected void preChunkProcessing(PacketEvent event) {
 		event.setCancelled(true);
 	}

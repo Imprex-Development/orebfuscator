@@ -17,12 +17,7 @@ public class ObfuscationListenerAsync extends ObfuscationListener {
 
 		this.asynchronousManager = ProtocolLibrary.getProtocolManager().getAsynchronousManager();
 		this.asyncListenerHandler = this.asynchronousManager.registerAsyncHandler(this);
-		this.asyncListenerHandler.start(orebfuscator.getOrebfuscatorConfig().advanced().protocolLibThreads());
-	}
-
-	@Override
-	protected void skipChunkForProcessing(PacketEvent event) {
-		this.asynchronousManager.signalPacketTransmission(event);
+		this.asyncListenerHandler.start();
 	}
 
 	@Override

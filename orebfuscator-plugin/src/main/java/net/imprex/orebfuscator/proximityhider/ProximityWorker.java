@@ -101,7 +101,7 @@ public class ProximityWorker {
 		}
 
 		Bukkit.getScheduler().runTask(this.orebfuscator, () -> {
-			if (player.isOnline()) {
+			if (player.isOnline() && player.getWorld().equals(world)) {
 				for (BlockPos blockCoords : updateBlocks) {
 					NmsInstance.sendBlockChange(player, blockCoords);
 				}

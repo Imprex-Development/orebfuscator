@@ -66,10 +66,9 @@ public class ObfuscationCache {
 				if (request.isValid(diskChunk)) {
 					return request.complete(diskChunk);
 				} else {
-					// ignore exception and return null
-					return request.submitForObfuscation().exceptionally(throwable -> null);
+					return request.submitForObfuscation();
 				}
-			}).thenAccept(chunk -> {
+			}).whenComplete((chunk, throwable) -> {
 				// if successful add chunk to in-memory cache
 				if (chunk != null) {
 					this.cache.put(key, chunk);

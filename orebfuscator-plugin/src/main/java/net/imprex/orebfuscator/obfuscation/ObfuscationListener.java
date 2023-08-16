@@ -1,8 +1,10 @@
 package net.imprex.orebfuscator.obfuscation;
 
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import org.bukkit.entity.Player;
 
@@ -22,23 +24,25 @@ import net.imprex.orebfuscator.util.PermissionUtil;
 
 public abstract class ObfuscationListener extends PacketAdapter {
 
+	private static final List<PacketType> PACKET_TYPES = List.of(
+		PacketType.Play.Server.MAP_CHUNK,
+		PacketType.Play.Server.UNLOAD_CHUNK,
+		PacketType.Play.Server.LIGHT_UPDATE,
+		PacketType.Play.Server.TILE_ENTITY_DATA
+	);
+
 	private final OrebfuscatorConfig config;
 	private final OrebfuscatorPlayerMap playerMap;
 	private final ObfuscationSystem obfuscationSystem;
 
 	public ObfuscationListener(Orebfuscator orebfuscator) {
-		super(orebfuscator,
-				PacketType.Play.Server.MAP_CHUNK,
-				PacketType.Play.Server.UNLOAD_CHUNK,
-				PacketType.Play.Server.LIGHT_UPDATE,
-				PacketType.Play.Server.TILE_ENTITY_DATA);
+		super(orebfuscator, PACKET_TYPES.stream()
+				.filter(PacketType::isSupported).toList());
 
 		this.config = orebfuscator.getOrebfuscatorConfig();
 		this.playerMap = orebfuscator.getPlayerMap();
 		this.obfuscationSystem = orebfuscator.getObfuscationSystem();
 	}
-
-	protected abstract void skipChunkForProcessing(PacketEvent event);
 
 	protected abstract void preChunkProcessing(PacketEvent event);
 
@@ -59,7 +63,6 @@ public abstract class ObfuscationListener extends PacketAdapter {
 
 		ChunkStruct struct = new ChunkStruct(event.getPacket(), player.getWorld());
 		if (struct.isEmpty()) {
-			this.skipChunkForProcessing(event);
 			return;
 		}
 
@@ -90,8 +93,14 @@ public abstract class ObfuscationListener extends PacketAdapter {
 	}
 
 	private void completeExceptionally(PacketEvent event, ChunkStruct struct, Throwable throwable) {
-		OFCLogger.error(String.format("An error occurred while obfuscating chunk[world=%s, x=%d, z=%d]",
-				struct.world.getName(), struct.chunkX, struct.chunkZ), throwable);
+		if (throwable instanceof TimeoutException) {
+			OFCLogger.warn(String.format("Obfuscation for chunk[world=%s, x=%d, z=%d] timed out",
+					struct.world.getName(), struct.chunkX, struct.chunkZ));
+		} else {
+			OFCLogger.error(String.format("An error occurred while obfuscating chunk[world=%s, x=%d, z=%d]",
+					struct.world.getName(), struct.chunkX, struct.chunkZ), throwable);
+		}
+
 		this.postChunkProcessing(event);
 	}
 
@@ -105,15 +114,6 @@ public abstract class ObfuscationListener extends PacketAdapter {
 
 		final OrebfuscatorPlayer player = this.playerMap.get(event.getPlayer());
 		if (player != null) {
-//			event.getNetworkMarker().addPostListener(new PacketPostAdapter(this.plugin) {
-//
-//				@Override
-//				public void onPostEvent(PacketEvent event) {
-//					System.out.println("post-2: " + struct.chunkX + " " + struct.chunkZ);
-//					player.addChunk(struct.chunkX, struct.chunkZ, chunk.getProximityBlocks());
-//				}
-//
-//			});
 			player.addChunk(struct.chunkX, struct.chunkZ, chunk.getProximityBlocks());
 		}
 

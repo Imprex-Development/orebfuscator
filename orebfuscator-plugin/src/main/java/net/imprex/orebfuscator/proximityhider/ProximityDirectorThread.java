@@ -159,7 +159,7 @@ public class ProximityDirectorThread extends Thread implements Listener {
 			}
 		}
 
-		if (this.phaser.isTerminated()) {
+		if (this.phaser.isTerminated() && this.running) {
 			OFCLogger.error("Looks like we encountered an invalid state, please report this:",
 					new IllegalStateException("Proximity Phaser terminated!"));
 		}
