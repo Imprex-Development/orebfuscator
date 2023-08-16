@@ -1,4 +1,4 @@
-package net.imprex.orebfuscator.proximityhider;
+package net.imprex.orebfuscator.proximity;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -143,9 +143,7 @@ public class ProximityDirectorThread extends Thread implements Listener {
 				}
 
 				// process local bucket
-				for (Player player : localBucket) {
-					this.worker.process(player);
-				}
+				this.worker.process(localBucket);
 
 				// wait for all threads to finish and reset phaser
 				this.phaser.awaitAdvanceInterruptibly(this.phaser.arrive());

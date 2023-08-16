@@ -1,4 +1,4 @@
-package net.imprex.orebfuscator.proximityhider;
+package net.imprex.orebfuscator.proximity;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -41,7 +41,17 @@ public class ProximityWorker {
 		return player.getGameMode() == GameMode.SPECTATOR && this.config.general().ignoreSpectator();
 	}
 
-	protected void process(Player player) {
+	protected void process(List<Player> players) {
+		for (Player player : players) {
+			try {
+				this.process(player);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	}
+
+	private void process(Player player) {
 		if (this.shouldIgnorePlayer(player)) {
 			return;
 		}

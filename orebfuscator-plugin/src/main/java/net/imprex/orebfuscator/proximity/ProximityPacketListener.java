@@ -1,4 +1,4 @@
-package net.imprex.orebfuscator.proximityhider;
+package net.imprex.orebfuscator.proximity;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;

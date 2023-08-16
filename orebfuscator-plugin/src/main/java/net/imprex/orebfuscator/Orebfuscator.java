@@ -16,8 +16,8 @@ import net.imprex.orebfuscator.cache.ObfuscationCache;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.obfuscation.ObfuscationSystem;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayerMap;
-import net.imprex.orebfuscator.proximityhider.ProximityDirectorThread;
-import net.imprex.orebfuscator.proximityhider.ProximityPacketListener;
+import net.imprex.orebfuscator.proximity.ProximityDirectorThread;
+import net.imprex.orebfuscator.proximity.ProximityPacketListener;
 import net.imprex.orebfuscator.util.HeightAccessor;
 import net.imprex.orebfuscator.util.OFCLogger;
 

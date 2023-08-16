@@ -1,4 +1,4 @@
-package net.imprex.orebfuscator.proximityhider;
+package net.imprex.orebfuscator.proximity;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -28,9 +28,7 @@ public class ProximityWorkerThread extends Thread {
 			try {
 				List<Player> bucket = this.directorThread.nextBucket();
 
-				for (Player player : bucket) {
-					this.worker.process(player);
-				}
+				this.worker.process(bucket);
 
 				this.directorThread.finishBucketProcessing();
 			} catch (InterruptedException e) {
