@@ -214,7 +214,11 @@ proximity:
     worlds:
     - world
     distance: 24
-    useFastGazeCheck: false
+    frustumCulling:
+      enabled: true
+      minDistance: 3
+      fov: 80
+    useRayCastCheck: false
     useBlockBelow: true
     hiddenBlocks:
       minecraft:mossy_cobblestone: {}
@@ -279,7 +283,11 @@ proximity:
     worlds:
     - world_nether
     distance: 24
-    useFastGazeCheck: false
+    frustumCulling:
+      enabled: true
+      minDistance: 3
+      fov: 80
+    useRayCastCheck: false
     useBlockBelow: true
     hiddenBlocks:
       minecraft:chest: {}
@@ -337,7 +345,11 @@ proximity:
     worlds:
     - world_the_end
     distance: 24
-    useFastGazeCheck: false
+    frustumCulling:
+      enabled: true
+      minDistance: 3
+      fov: 80
+    useRayCastCheck: false
     useBlockBelow: true
     hiddenBlocks:
       minecraft:chest: {}

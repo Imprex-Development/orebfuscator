@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.bukkit.configuration.ConfigurationSection;
+import org.joml.Matrix4f;
 
 import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.config.components.WeightedBlockList;
@@ -15,9 +16,16 @@ import net.imprex.orebfuscator.util.OFCLogger;
 
 public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements ProximityConfig {
 
-	private int distance = 8;
-	private boolean useFastGazeCheck = false;
+	private int distance = 24;
 
+	private boolean frustumCullingEnabled = false;
+	private float frustumCullingMinDistance = 3;
+	private float frustumCullingFov = 80f;
+
+	private float frustumCullingMinDistanceSquared = 9;
+	private Matrix4f frustumCullingProjectionMatrix;
+
+	private boolean useRayCastCheck = false;
 	private int defaultBlockFlags = (ProximityHeightCondition.MATCH_ALL | BlockFlags.FLAG_USE_BLOCK_BELOW);
 	
 	private boolean usesBlockSpecificConfigs = false;
@@ -42,11 +50,25 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 			section.set("useBlockBelow", section.getBoolean("defaults.useBlockBelow"));
 		}
 
-		if ((this.distance = section.getInt("distance", 8)) < 1) {
+		if ((this.distance = section.getInt("distance", 24)) < 1) {
 			this.fail("distance must be higher than zero");
 		}
-		this.useFastGazeCheck = section.getBoolean("useFastGazeCheck", false);
-		
+
+		this.frustumCullingEnabled = section.getBoolean("frustumCulling.enabled", false);
+		this.frustumCullingMinDistance = (float) section.getDouble("frustumCulling.minDistance", 3);
+		this.frustumCullingFov = (float) section.getDouble("frustumCulling.fov", 80d);
+
+		if (this.frustumCullingEnabled && (this.frustumCullingFov < 10 || this.frustumCullingFov > 170)) {
+			this.fail("frustum fov has to be between 10 and 170");
+		}
+
+		this.frustumCullingMinDistanceSquared = frustumCullingMinDistance * frustumCullingMinDistance;
+		this.frustumCullingProjectionMatrix = new Matrix4f() // create projection matrix with aspect 16:9
+				.perspective(frustumCullingFov, 16f / 9f, 0.01f, 2 * distance);
+
+		this.useRayCastCheck = section.getBoolean("useRayCastCheck",
+				section.getBoolean("useFastGazeCheck", false));
+
 		this.defaultBlockFlags = ProximityHeightCondition.create(minY, maxY);
 		if (section.getBoolean("useBlockBelow", true)) {
 			this.defaultBlockFlags |= BlockFlags.FLAG_USE_BLOCK_BELOW;
@@ -65,7 +87,12 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 		this.serializeWorlds(section, "worlds");
 
 		section.set("distance", this.distance);
-		section.set("useFastGazeCheck", this.useFastGazeCheck);
+
+		section.set("frustumCulling.enabled", frustumCullingEnabled);
+		section.set("frustumCulling.minDistance", frustumCullingMinDistance);
+		section.set("frustumCulling.fov", frustumCullingFov);
+
+		section.set("useRayCastCheck", this.useRayCastCheck);
 		section.set("useBlockBelow", BlockFlags.isUseBlockBelowBitSet(this.defaultBlockFlags));
 
 		this.serializeHiddenBlocks(section, "hiddenBlocks");
@@ -157,8 +184,23 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 	}
 
 	@Override
-	public boolean useFastGazeCheck() {
-		return this.useFastGazeCheck;
+	public boolean frustumCullingEnabled() {
+		return this.frustumCullingEnabled;
+	}
+
+	@Override
+	public float frustumCullingMinDistanceSquared() {
+		return this.frustumCullingMinDistanceSquared;
+	}
+
+	@Override
+	public Matrix4f frustumCullingProjectionMatrix() {
+		return new Matrix4f(frustumCullingProjectionMatrix);
+	}
+
+	@Override
+	public boolean useRayCastCheck() {
+		return this.useRayCastCheck;
 	}
 
 	@Override

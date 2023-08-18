@@ -89,8 +89,11 @@ public class MetricsSystem {
 		this.metrics.addCustomChart(new SimplePie("block_specific_config", () -> {
 			return Boolean.toString(config.usesBlockSpecificConfigs());
 		}));
-		this.metrics.addCustomChart(new SimplePie("fast_gaze", () -> {
-			return Boolean.toString(config.usesFastGaze());
+		this.metrics.addCustomChart(new SimplePie("frustum_culling", () -> {
+			return Boolean.toString(config.usesFrustumCulling());
+		}));
+		this.metrics.addCustomChart(new SimplePie("ray_cast", () -> {
+			return Boolean.toString(config.usesRayCastCheck());
 		}));
 	}
 }

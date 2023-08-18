@@ -94,8 +94,8 @@ public class OrebfuscatorPlayer {
 			return false;
 		}
 
-		// check if rotation changed less then 10deg yaw or 5deg pitch
-		if (rotation && (Math.abs(a.getYaw() - b.getYaw()) > 10 || Math.abs(a.getPitch() - b.getPitch()) > 5)) {
+		// check if rotation changed less then 5deg yaw or 2.5deg pitch
+		if (rotation && (Math.abs(a.getYaw() - b.getYaw()) > 5 || Math.abs(a.getPitch() - b.getPitch()) > 2.5)) {
 			return false;
 		}
 

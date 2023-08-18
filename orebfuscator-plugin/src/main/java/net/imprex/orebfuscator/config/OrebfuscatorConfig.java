@@ -218,9 +218,18 @@ public class OrebfuscatorConfig implements Config {
 		return false;
 	}
 
-	public boolean usesFastGaze() {
+	public boolean usesFrustumCulling() {
 		for (ProximityConfig config : this.proximityConfigs) {
-			if (config.useFastGazeCheck()) {
+			if (config.frustumCullingEnabled()) {
+				return true;
+			}
+		}
+		return false;
+	}
+
+	public boolean usesRayCastCheck() {
+		for (ProximityConfig config : this.proximityConfigs) {
+			if (config.useRayCastCheck()) {
 				return true;
 			}
 		}

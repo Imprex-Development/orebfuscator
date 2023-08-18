@@ -36,6 +36,13 @@ public class BlockPos implements Comparable<BlockPos> {
 		return x == 0 && y == 0 && z == 0 ? this : new BlockPos(this.x + x, this.y + y, this.z + z);
 	}
 
+	public double distanceSquared(double x, double y, double z) {
+		double dx = this.x - x;
+		double dy = this.y - y;
+		double dz = this.z - z;
+		return dx * dx + dy * dy + dz * dz;
+	}
+
 	public ChunkPosition toChunkPosition(World world) {
 		return new ChunkPosition(world, this.x >> 4, this.z >> 4);
 	}

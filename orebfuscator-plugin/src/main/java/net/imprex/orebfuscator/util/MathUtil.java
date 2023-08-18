@@ -32,13 +32,13 @@ public class MathUtil {
 	 * @param player the player world we are testing for
 	 * @return true if unimpeded path, false otherwise
 	 */
-	public static boolean doFastCheck(Location block, Location eyes, World player) {
+	public static boolean doFastCheck(BlockPos pos, Location eyes, World player) {
 		double ex = eyes.getX();
 		double ey = eyes.getY();
 		double ez = eyes.getZ();
-		double x = block.getBlockX();
-		double y = block.getBlockY();
-		double z = block.getBlockZ();
+		double x = pos.x;
+		double y = pos.y;
+		double z = pos.z;
 		return // midfaces
 		MathUtil.fastAABBRayCheck(x, y, z, x, y + 0.5, z + 0.5, ex, ey, ez, player)
 				|| MathUtil.fastAABBRayCheck(x, y, z, x + 0.5, y, z + 0.5, ex, ey, ez, player)

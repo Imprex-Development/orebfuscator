@@ -19,5 +19,11 @@
 			<version>${dependency.bukkit.version}</version>
 			<scope>provided</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.joml</groupId>
+			<artifactId>joml</artifactId>
+			<version>${dependency.joml.version}</version>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 </project>

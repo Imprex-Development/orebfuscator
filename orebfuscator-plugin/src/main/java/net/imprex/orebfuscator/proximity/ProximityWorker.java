@@ -10,6 +10,8 @@ import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.joml.FrustumIntersection;
+import org.joml.Quaternionf;
 
 import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.Orebfuscator;
@@ -64,9 +66,12 @@ public class ProximityWorker {
 			return;
 		}
 
+		// frustum culling and ray casting both need rotation changes
+		boolean needsRotation = proximityConfig.frustumCullingEnabled() || proximityConfig.useRayCastCheck();
+
 		// check if player changed location since last time
 		OrebfuscatorPlayer orebfuscatorPlayer = this.playerMap.get(player);
-		if (orebfuscatorPlayer == null || !orebfuscatorPlayer.needsProximityUpdate(proximityConfig.useFastGazeCheck())) {
+		if (orebfuscatorPlayer == null || !orebfuscatorPlayer.needsProximityUpdate(needsRotation)) {
 			return;
 		}
 
@@ -74,8 +79,21 @@ public class ProximityWorker {
 		int distanceSquared = distance * distance;
 
 		List<BlockPos> updateBlocks = new ArrayList<>();
-		Location eyeLocation = proximityConfig.useFastGazeCheck()
+		Location eyeLocation = needsRotation
 				? player.getEyeLocation()
+				: null;
+
+		// create frustum planes if culling is enabled
+		FrustumIntersection frustum = proximityConfig.frustumCullingEnabled()
+				? new FrustumIntersection(proximityConfig.frustumCullingProjectionMatrix()
+						.rotate(new Quaternionf()
+								.rotateX((float) Math.toRadians(eyeLocation.getPitch()))
+								.rotateY((float) Math.toRadians(eyeLocation.getYaw() + 180)))
+						.translate(
+								(float) -eyeLocation.getX(),
+								(float) -eyeLocation.getY(),
+								(float) -eyeLocation.getZ()
+						), false)
 				: null;
 
 		Location location = player.getLocation();
@@ -93,15 +111,36 @@ public class ProximityWorker {
 				}
 
 				for (Iterator<BlockPos> iterator = blocks.iterator(); iterator.hasNext(); ) {
-					BlockPos blockCoords = iterator.next();
-					Location blockLocation = new Location(world, blockCoords.x, blockCoords.y, blockCoords.z);
+					BlockPos blockPos = iterator.next();
 
-					if (location.distanceSquared(blockLocation) < distanceSquared) {
-						if (!proximityConfig.useFastGazeCheck() || MathUtil.doFastCheck(blockLocation, eyeLocation, world)) {
-							iterator.remove();
-							updateBlocks.add(blockCoords);
+					// check if block is in range
+					double blockDistanceSquared = blockPos.distanceSquared(location.getX(), location.getY(), location.getZ());
+					if (blockDistanceSquared > distanceSquared) {
+						continue;
+					}
+
+					// do frustum culling check
+					if (proximityConfig.frustumCullingEnabled() && blockDistanceSquared > proximityConfig.frustumCullingMinDistanceSquared()) {
+
+						// check if block AABB is inside frustum
+						int result = frustum.intersectAab(
+								blockPos.x, blockPos.y, blockPos.z,
+								blockPos.x + 1, blockPos.y + 1, blockPos.z + 1);
+
+						// block is outside
+						if (result != FrustumIntersection.INSIDE && result != FrustumIntersection.INTERSECT) {
+							continue;
 						}
 					}
+
+					// do ray cast check
+					if (proximityConfig.useRayCastCheck() && !MathUtil.doFastCheck(blockPos, eyeLocation, world)) {
+						continue;
+					}
+
+					// block is visible and needs update
+					iterator.remove();
+					updateBlocks.add(blockPos);
 				}
 
 				if (blocks.isEmpty()) {

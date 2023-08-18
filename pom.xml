@@ -24,6 +24,7 @@
 		<dependency.junit.version>5.9.2</dependency.junit.version>
 		<dependency.netty.version>4.1.68.Final</dependency.netty.version>
 		<dependency.protocollib.version>5.0.0</dependency.protocollib.version>
+		<dependency.joml.version>1.10.5</dependency.joml.version>
 
 		<plugin.compile.version>3.11.0</plugin.compile.version>
 		<plugin.shade.version>3.4.1</plugin.shade.version>
