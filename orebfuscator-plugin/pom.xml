@@ -24,10 +24,24 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
 				<configuration>
+					<minimizeJar>true</minimizeJar>
+					<filters>
+						<filter>
+							<artifact>*:*</artifact>
+							<excludeDefaults>false</excludeDefaults>
+							<includes>
+								<include>net/imprex/orebfuscator/**</include>
+							</includes>
+						</filter>
+					</filters>
 					<relocations>
 						<relocation>
 							<pattern>org.bstats</pattern>
-							<shadedPattern>net.imprex.orebfuscator.metrics</shadedPattern>
+							<shadedPattern>net.imprex.shaded.org.bstats</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>org.joml</pattern>
+							<shadedPattern>net.imprex.shaded.org.joml</shadedPattern>
 						</relocation>
 					</relocations>
 				</configuration>
@@ -37,7 +51,6 @@
 
 	<dependencies>
 		<!-- Test -->
-
 		<dependency>
 			<groupId>org.junit.jupiter</groupId>
 			<artifactId>junit-jupiter-engine</artifactId>
