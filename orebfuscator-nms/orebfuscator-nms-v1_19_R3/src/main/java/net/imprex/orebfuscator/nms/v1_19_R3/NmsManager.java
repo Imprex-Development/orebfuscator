@@ -1,6 +1,7 @@
 package net.imprex.orebfuscator.nms.v1_19_R3;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -13,6 +14,8 @@ import org.bukkit.entity.Player;
 
 import com.google.common.collect.ImmutableList;
 
+import it.unimi.dsi.fastutil.shorts.Short2ObjectLinkedOpenHashMap;
+import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
 import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.config.Config;
 import net.imprex.orebfuscator.nms.AbstractBlockState;
@@ -23,8 +26,12 @@ import net.imprex.orebfuscator.util.BlockProperties;
 import net.imprex.orebfuscator.util.BlockStateProperties;
 import net.imprex.orebfuscator.util.NamespacedKey;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
@@ -126,28 +133,47 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public boolean sendBlockChange(Player player, int x, int y, int z) {
+	public void sendBlockUpdates(Player player, Iterable<net.imprex.orebfuscator.util.BlockPos> iterable) {
 		ServerPlayer serverPlayer = player(player);
 		ServerLevel level = serverPlayer.getLevel();
-		if (!isChunkLoaded(level, x >> 4, z >> 4)) {
-			return false;
+
+		BlockPos.MutableBlockPos position = new BlockPos.MutableBlockPos();
+		Map<SectionPos, Short2ObjectMap<BlockState>> sectionPackets = new HashMap<>();
+		List<Packet<ClientGamePacketListener>> blockEntityPackets = new ArrayList<>();
+
+		for (net.imprex.orebfuscator.util.BlockPos pos : iterable) {
+			if (!isChunkLoaded(level, pos.x >> 4, pos.z >> 4)) {
+				continue;
+			}
+
+			position.set(pos.x, pos.y, pos.z);
+			BlockState blockState = level.getBlockState(position);
+
+			sectionPackets.computeIfAbsent(SectionPos.of(position), key -> new Short2ObjectLinkedOpenHashMap<>())
+				.put(SectionPos.sectionRelativePos(position), blockState);
+
+			if (blockState.hasBlockEntity()) {
+				BlockEntity blockEntity = level.getBlockEntity(position);
+				if (blockEntity != null) {
+					blockEntityPackets.add(blockEntity.getUpdatePacket());
+				}
+			}
 		}
 
-		BlockPos position = new BlockPos(x, y, z);
-		ClientboundBlockUpdatePacket packet = new ClientboundBlockUpdatePacket(level, position);
-		serverPlayer.connection.send(packet);
-		updateBlockEntity(serverPlayer, position, packet.blockState);
-
-		return true;
-	}
-
-	private void updateBlockEntity(ServerPlayer player, BlockPos position, BlockState blockData) {
-		if (blockData.hasBlockEntity()) {
-			ServerLevel serverLevel = player.getLevel();
-			BlockEntity blockEntity = serverLevel.getBlockEntity(position);
-			if (blockEntity != null) {
-				player.connection.send(blockEntity.getUpdatePacket());
+		for (Map.Entry<SectionPos, Short2ObjectMap<BlockState>> entry : sectionPackets.entrySet()) {
+			Short2ObjectMap<BlockState> blockStates = entry.getValue();
+			if (blockStates.size() == 1) {
+				Short2ObjectMap.Entry<BlockState> blockEntry = blockStates.short2ObjectEntrySet().iterator().next();
+				BlockPos blockPosition = entry.getKey().relativeToBlockPos(blockEntry.getShortKey());
+				serverPlayer.connection.send(new ClientboundBlockUpdatePacket(blockPosition, blockEntry.getValue()));
+			} else {
+				serverPlayer.connection.send(new ClientboundSectionBlocksUpdatePacket(entry.getKey(),
+						blockStates.keySet(), blockStates.values().toArray(BlockState[]::new), false));
 			}
+		}
+
+		for (Packet<ClientGamePacketListener> packet : blockEntityPackets) {
+			serverPlayer.connection.send(packet);
 		}
 	}
 }

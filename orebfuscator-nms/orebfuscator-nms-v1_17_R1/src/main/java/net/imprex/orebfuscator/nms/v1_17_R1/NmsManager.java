@@ -1,16 +1,20 @@
 package net.imprex.orebfuscator.nms.v1_17_R1;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
+import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
+import com.comphenix.protocol.events.PacketContainer;
 import com.google.common.collect.ImmutableList;
 
 import net.imprex.orebfuscator.config.CacheConfig;
@@ -24,7 +28,11 @@ import net.imprex.orebfuscator.util.BlockStateProperties;
 import net.imprex.orebfuscator.util.NamespacedKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
+import net.minecraft.core.SectionPos;
+import net.minecraft.network.protocol.Packet;
+import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
+import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
@@ -126,28 +134,49 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public boolean sendBlockChange(Player player, int x, int y, int z) {
+	public void sendBlockUpdates(Player player, Iterable<net.imprex.orebfuscator.util.BlockPos> iterable) {
 		ServerPlayer serverPlayer = player(player);
 		ServerLevel level = serverPlayer.getLevel();
-		if (!isChunkLoaded(level, x >> 4, z >> 4)) {
-			return false;
+
+		BlockPos.MutableBlockPos position = new BlockPos.MutableBlockPos();
+		Map<SectionPos, Short2ObjectMap<BlockState>> sectionPackets = new HashMap<>();
+		List<Packet<ClientGamePacketListener>> blockEntityPackets = new ArrayList<>();
+
+		for (net.imprex.orebfuscator.util.BlockPos pos : iterable) {
+			if (!isChunkLoaded(level, pos.x >> 4, pos.z >> 4)) {
+				continue;
+			}
+
+			position.set(pos.x, pos.y, pos.z);
+			BlockState blockState = level.getBlockState(position);
+
+			sectionPackets.computeIfAbsent(SectionPos.of(position), key -> new Short2ObjectOpenHashMap<>())
+				.put(SectionPos.sectionRelativePos(position), blockState);
+
+			if (blockState.hasBlockEntity()) {
+				BlockEntity blockEntity = level.getBlockEntity(position);
+				if (blockEntity != null) {
+					blockEntityPackets.add(blockEntity.getUpdatePacket());
+				}
+			}
 		}
 
-		BlockPos position = new BlockPos(x, y, z);
-		ClientboundBlockUpdatePacket packet = new ClientboundBlockUpdatePacket(level, position);
-		serverPlayer.connection.send(packet);
-		updateBlockEntity(serverPlayer, position, packet.blockState);
-
-		return true;
-	}
-
-	private void updateBlockEntity(ServerPlayer player, BlockPos position, BlockState blockData) {
-		if (blockData.hasBlockEntity()) {
-			ServerLevel ServerLevel = player.getLevel();
-			BlockEntity BlockEntity = ServerLevel.getBlockEntity(position);
-			if (BlockEntity != null) {
-				player.connection.send(BlockEntity.getUpdatePacket());
+		for (Map.Entry<SectionPos, Short2ObjectMap<BlockState>> entry : sectionPackets.entrySet()) {
+			Short2ObjectMap<BlockState> blockStates = entry.getValue();
+			if (blockStates.size() == 1) {
+				Short2ObjectMap.Entry<BlockState> blockEntry = blockStates.short2ObjectEntrySet().iterator().next();
+				BlockPos blockPosition = entry.getKey().relativeToBlockPos(blockEntry.getShortKey());
+				serverPlayer.connection.send(new ClientboundBlockUpdatePacket(blockPosition, blockEntry.getValue()));
+			} else {
+				PacketContainer packet = PacketContainer.fromPacket(
+						new ClientboundSectionBlocksUpdatePacket(entry.getKey(), blockStates.keySet(), null, false));
+				packet.getSpecificModifier(BlockState[].class).write(0, blockStates.values().toArray(BlockState[]::new));
+				serverPlayer.connection.send((Packet<?>) packet.getHandle());
 			}
+		}
+
+		for (Packet<ClientGamePacketListener> packet : blockEntityPackets) {
+			serverPlayer.connection.send(packet);
 		}
 	}
 }

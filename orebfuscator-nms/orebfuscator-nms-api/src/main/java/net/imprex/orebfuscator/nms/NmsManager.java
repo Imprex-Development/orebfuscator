@@ -3,6 +3,7 @@ package net.imprex.orebfuscator.nms;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 
+import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.BlockProperties;
 import net.imprex.orebfuscator.util.NamespacedKey;
 
@@ -26,7 +27,7 @@ public interface NmsManager {
 
 	BlockStateHolder getBlockState(World world, int x, int y, int z);
 
-	boolean sendBlockChange(Player player, int x, int y, int z);
+	void sendBlockUpdates(Player player, Iterable<BlockPos> iterable);
 
 	void close();
 }

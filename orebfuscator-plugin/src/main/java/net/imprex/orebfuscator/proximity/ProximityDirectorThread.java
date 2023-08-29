@@ -111,7 +111,7 @@ public class ProximityDirectorThread extends Thread implements Listener {
 				int playerCount = players.size();
 				int maxBucketSize = Math.max(this.defaultBucketSize, (int) Math.ceil((float) playerCount / this.workerCount));
 
-				// calculate bucketC
+				// calculate bucket
 				int bucketCount = (int) Math.ceil((float) playerCount / maxBucketSize);
 				int bucketSize = (int) Math.ceil((float) playerCount / (float) bucketCount);
 

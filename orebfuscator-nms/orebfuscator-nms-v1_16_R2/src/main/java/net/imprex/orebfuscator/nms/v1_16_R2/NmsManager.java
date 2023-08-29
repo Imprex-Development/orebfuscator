@@ -1,16 +1,20 @@
 package net.imprex.orebfuscator.nms.v1_16_R2;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
+import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
 import org.bukkit.craftbukkit.v1_16_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R2.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
+import com.comphenix.protocol.events.PacketContainer;
 import com.google.common.collect.ImmutableList;
 
 import net.imprex.orebfuscator.config.CacheConfig;
@@ -19,6 +23,7 @@ import net.imprex.orebfuscator.nms.AbstractBlockState;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
 import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
+import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.BlockProperties;
 import net.imprex.orebfuscator.util.BlockStateProperties;
 import net.imprex.orebfuscator.util.NamespacedKey;
@@ -30,8 +35,12 @@ import net.minecraft.server.v1_16_R2.EntityPlayer;
 import net.minecraft.server.v1_16_R2.IBlockData;
 import net.minecraft.server.v1_16_R2.IRegistry;
 import net.minecraft.server.v1_16_R2.MathHelper;
+import net.minecraft.server.v1_16_R2.Packet;
+import net.minecraft.server.v1_16_R2.PacketListenerPlayOut;
 import net.minecraft.server.v1_16_R2.PacketPlayOutBlockChange;
+import net.minecraft.server.v1_16_R2.PacketPlayOutMultiBlockChange;
 import net.minecraft.server.v1_16_R2.ResourceKey;
+import net.minecraft.server.v1_16_R2.SectionPosition;
 import net.minecraft.server.v1_16_R2.TileEntity;
 import net.minecraft.server.v1_16_R2.WorldServer;
 
@@ -129,28 +138,49 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public boolean sendBlockChange(Player player, int x, int y, int z) {
-		EntityPlayer entityPlayer = player(player);
-		WorldServer world = entityPlayer.getWorldServer();
-		if (!isChunkLoaded(world, x >> 4, z >> 4)) {
-			return false;
+	public void sendBlockUpdates(Player player, Iterable<BlockPos> iterable) {
+		EntityPlayer serverPlayer = player(player);
+		WorldServer level = serverPlayer.getWorldServer();
+
+		BlockPosition.MutableBlockPosition position = new BlockPosition.MutableBlockPosition();
+		Map<SectionPosition, Short2ObjectMap<IBlockData>> sectionPackets = new HashMap<>();
+		List<Packet<PacketListenerPlayOut>> blockEntityPackets = new ArrayList<>();
+
+		for (net.imprex.orebfuscator.util.BlockPos pos : iterable) {
+			if (!isChunkLoaded(level, pos.x >> 4, pos.z >> 4)) {
+				continue;
+			}
+
+			position.c(pos.x, pos.y, pos.z);
+			IBlockData blockState = level.getType(position);
+
+			sectionPackets.computeIfAbsent(SectionPosition.a(position), key -> new Short2ObjectOpenHashMap<>())
+				.put(SectionPosition.b(position), blockState);
+
+			if (blockState.getBlock().isTileEntity()) {
+				TileEntity blockEntity = level.getTileEntity(position);
+				if (blockEntity != null) {
+					blockEntityPackets.add(blockEntity.getUpdatePacket());
+				}
+			}
 		}
 
-		BlockPosition position = new BlockPosition(x, y, z);
-		PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(world, position);
-		entityPlayer.playerConnection.sendPacket(packet);
-		updateTileEntity(entityPlayer, position, packet.block);
-
-		return true;
-	}
-
-	private void updateTileEntity(EntityPlayer player, BlockPosition position, IBlockData blockData) {
-		if (blockData.getBlock().isTileEntity()) {
-			WorldServer worldServer = player.getWorldServer();
-			TileEntity tileEntity = worldServer.getTileEntity(position);
-			if (tileEntity != null) {
-				player.playerConnection.sendPacket(tileEntity.getUpdatePacket());
+		for (Map.Entry<SectionPosition, Short2ObjectMap<IBlockData>> entry : sectionPackets.entrySet()) {
+			Short2ObjectMap<IBlockData> blockStates = entry.getValue();
+			if (blockStates.size() == 1) {
+				Short2ObjectMap.Entry<IBlockData> blockEntry = blockStates.short2ObjectEntrySet().iterator().next();
+				BlockPosition blockPosition = entry.getKey().g(blockEntry.getShortKey());
+				serverPlayer.playerConnection.sendPacket(new PacketPlayOutBlockChange(blockPosition, blockEntry.getValue()));
+			} else {
+				PacketContainer packet = PacketContainer.fromPacket(
+						new PacketPlayOutMultiBlockChange(entry.getKey(), blockStates.keySet(), null, false));
+				packet.getSpecificModifier(IBlockData[].class).write(0, blockStates.values().toArray(IBlockData[]::new));
+				serverPlayer.playerConnection.sendPacket((Packet<?>) packet.getHandle());
 			}
+		}
+
+		for (Packet<PacketListenerPlayOut> packet : blockEntityPackets) {
+			serverPlayer.playerConnection.sendPacket(packet);
 		}
 	}
 }

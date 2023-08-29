@@ -1,7 +1,9 @@
 package net.imprex.orebfuscator.nms.v1_11_R1;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -10,6 +12,11 @@ import org.bukkit.craftbukkit.v1_11_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_11_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
 
+import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.events.PacketContainer;
+import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
+import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
+import com.comphenix.protocol.wrappers.WrappedBlockData;
 import com.google.common.collect.ImmutableList;
 
 import net.imprex.orebfuscator.config.CacheConfig;
@@ -18,6 +25,7 @@ import net.imprex.orebfuscator.nms.AbstractBlockState;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
 import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
+import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.BlockProperties;
 import net.imprex.orebfuscator.util.BlockStateProperties;
 import net.imprex.orebfuscator.util.NamespacedKey;
@@ -30,7 +38,8 @@ import net.minecraft.server.v1_11_R1.EntityPlayer;
 import net.minecraft.server.v1_11_R1.IBlockData;
 import net.minecraft.server.v1_11_R1.MathHelper;
 import net.minecraft.server.v1_11_R1.MinecraftKey;
-import net.minecraft.server.v1_11_R1.PacketPlayOutBlockChange;
+import net.minecraft.server.v1_11_R1.Packet;
+import net.minecraft.server.v1_11_R1.PacketListenerPlayOut;
 import net.minecraft.server.v1_11_R1.TileEntity;
 import net.minecraft.server.v1_11_R1.WorldServer;
 
@@ -134,28 +143,57 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public boolean sendBlockChange(Player player, int x, int y, int z) {
-		EntityPlayer entityPlayer = player(player);
-		WorldServer world = entityPlayer.x();
-		if (!isChunkLoaded(world, x >> 4, z >> 4)) {
-			return false;
+	public void sendBlockUpdates(Player player, Iterable<BlockPos> iterable) {
+		EntityPlayer serverPlayer = player(player);
+		WorldServer level = serverPlayer.x();
+
+		BlockPosition.MutableBlockPosition position = new BlockPosition.MutableBlockPosition();
+		Map<ChunkCoordIntPair, List<MultiBlockChangeInfo>> sectionPackets = new HashMap<>();
+		List<Packet<PacketListenerPlayOut>> blockEntityPackets = new ArrayList<>();
+
+		for (net.imprex.orebfuscator.util.BlockPos pos : iterable) {
+			if (!isChunkLoaded(level, pos.x >> 4, pos.z >> 4)) {
+				continue;
+			}
+
+			position.c(pos.x, pos.y, pos.z);
+			IBlockData blockState = level.getType(position);
+
+			ChunkCoordIntPair chunkCoord = new ChunkCoordIntPair(pos.x >> 4, pos.z >> 4);
+			short location = (short) ((pos.x & 0xF) << 12 | (pos.z & 0xF) << 8 | pos.y);
+
+			sectionPackets.computeIfAbsent(chunkCoord, key -> new ArrayList<>())
+				.add(new MultiBlockChangeInfo(location, WrappedBlockData.fromHandle(blockState), chunkCoord));
+
+			if (blockState.getBlock().isTileEntity()) {
+				TileEntity blockEntity = level.getTileEntity(position);
+				if (blockEntity != null) {
+					blockEntityPackets.add(blockEntity.getUpdatePacket());
+				}
+			}
 		}
 
-		BlockPosition position = new BlockPosition(x, y, z);
-		PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(world, position);
-		entityPlayer.playerConnection.sendPacket(packet);
-		updateTileEntity(entityPlayer, position, packet.block);
+		for (Map.Entry<ChunkCoordIntPair, List<MultiBlockChangeInfo>> entry : sectionPackets.entrySet()) {
+			List<MultiBlockChangeInfo> blockStates = entry.getValue();
+			if (blockStates.size() == 1) {
+				MultiBlockChangeInfo blockEntry = blockStates.get(0);
+				var blockPosition = new com.comphenix.protocol.wrappers.BlockPosition(
+						blockEntry.getAbsoluteX(), blockEntry.getY(), blockEntry.getAbsoluteZ());
 
-		return true;
-	}
-
-	private void updateTileEntity(EntityPlayer player, BlockPosition position, IBlockData blockData) {
-		if (blockData.getBlock().isTileEntity()) {
-			WorldServer worldServer = player.x();
-			TileEntity tileEntity = worldServer.getTileEntity(position);
-			if (tileEntity != null) {
-				player.playerConnection.sendPacket(tileEntity.getUpdatePacket());
+				PacketContainer packet = new PacketContainer(PacketType.Play.Server.BLOCK_CHANGE);
+				packet.getBlockPositionModifier().write(0, blockPosition);
+				packet.getBlockData().write(0, blockEntry.getData());
+				serverPlayer.playerConnection.sendPacket((Packet<?>) packet.getHandle());
+			} else {
+				PacketContainer packet = new PacketContainer(PacketType.Play.Server.MULTI_BLOCK_CHANGE);
+				packet.getChunkCoordIntPairs().write(0, entry.getKey());
+				packet.getMultiBlockChangeInfoArrays().write(0, entry.getValue().toArray(MultiBlockChangeInfo[]::new));
+				serverPlayer.playerConnection.sendPacket((Packet<?>) packet.getHandle());
 			}
+		}
+
+		for (Packet<PacketListenerPlayOut> packet : blockEntityPackets) {
+			serverPlayer.playerConnection.sendPacket(packet);
 		}
 	}
 }

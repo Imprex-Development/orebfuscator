@@ -83,8 +83,8 @@ public class NmsInstance {
 		return instance.getBlockState(world, x, y, z);
 	}
 
-	public static boolean sendBlockChange(Player player, BlockPos blockCoords) {
-		return instance.sendBlockChange(player, blockCoords.x, blockCoords.y, blockCoords.z);
+	public static void sendBlockUpdates(Player player, Iterable<BlockPos> iterable) {
+		instance.sendBlockUpdates(player, iterable);
 	}
 
 	public static void close() {
