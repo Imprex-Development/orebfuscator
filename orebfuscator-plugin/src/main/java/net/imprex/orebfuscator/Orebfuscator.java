@@ -1,13 +1,12 @@
 package net.imprex.orebfuscator;
 
-import java.util.logging.Level;
-
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.HandlerList;
 import org.bukkit.event.Listener;
 import org.bukkit.event.server.PluginEnableEvent;
+import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -44,9 +43,9 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 	public void onEnable() {
 		try {
 			// Check if protocolLib is enabled
-			if (this.getServer().getPluginManager().getPlugin("ProtocolLib") == null) {
-				OFCLogger.log(Level.SEVERE, "ProtocolLib is not found! Plugin cannot be enabled.");
-				return;
+			Plugin protocolLib = getServer().getPluginManager().getPlugin("ProtocolLib");
+			if (protocolLib == null || !protocolLib.isEnabled()) {
+				throw new RuntimeException("ProtocolLib is not found or disabled! Plugin cannot be enabled.");
 			}
 
 			// Load configurations
