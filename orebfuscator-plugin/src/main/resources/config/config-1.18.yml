@@ -111,8 +111,8 @@ obfuscation:
           minecraft:deepslate_lapis_ore: 5
           minecraft:deepslate_redstone_ore: 5
       section-bedrock:
-        minY: 0
-        maxY: 5
+        minY: -64
+        maxY: -60
         blocks:
           minecraft:bedrock: 20
   obfuscation-nether:
