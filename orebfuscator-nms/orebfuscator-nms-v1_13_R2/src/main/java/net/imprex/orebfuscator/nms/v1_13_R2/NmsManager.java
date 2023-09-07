@@ -5,10 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_13_R2.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_13_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
@@ -80,15 +78,13 @@ public class NmsManager extends AbstractNmsManager {
 			List<BlockStateProperties> possibleBlockStateProperties = new ArrayList<>();
 
 			for (IBlockData blockState : possibleBlockStates) {
-				Material material = CraftBlockData.fromData(blockState).getMaterial();
-
 				BlockStateProperties properties = BlockStateProperties.builder(Block.getCombinedId(blockState))
 						.withIsAir(blockState.isAir())
 						/**
 						* p -> for barrier/slime_block/spawner
 						* r -> for every other block
 						*/
-						.withIsOccluding(material.isOccluding() && blockState.r()/*canOcclude*/)
+						.withIsOccluding(blockState.p() && blockState.r()/*canOcclude*/)
 						.withIsBlockEntity(block.isTileEntity())
 						.build();
 

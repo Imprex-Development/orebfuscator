@@ -1,5 +1,6 @@
 package net.imprex.orebfuscator.player;
 
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 
 import org.bukkit.Bukkit;
@@ -9,15 +10,13 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerLoginEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 
-import com.google.common.collect.MapMaker;
-
 import net.imprex.orebfuscator.Orebfuscator;
 
 public class OrebfuscatorPlayerMap implements Listener {
 
 	private final Orebfuscator orebfuscator;
 
-	private final ConcurrentMap<Player, OrebfuscatorPlayer> internalMap = new MapMaker().weakKeys().makeMap();
+	private final ConcurrentMap<Player, OrebfuscatorPlayer> internalMap = new ConcurrentHashMap<>();
 
 	public OrebfuscatorPlayerMap(Orebfuscator orebfuscator) {
 		this.orebfuscator = orebfuscator;

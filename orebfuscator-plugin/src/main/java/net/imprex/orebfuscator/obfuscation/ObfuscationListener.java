@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.stream.Collectors;
 
 import org.bukkit.entity.Player;
 
@@ -37,7 +38,8 @@ public abstract class ObfuscationListener extends PacketAdapter {
 
 	public ObfuscationListener(Orebfuscator orebfuscator) {
 		super(orebfuscator, PACKET_TYPES.stream()
-				.filter(PacketType::isSupported).toList());
+				.filter(PacketType::isSupported)
+				.collect(Collectors.toList()));
 
 		this.config = orebfuscator.getOrebfuscatorConfig();
 		this.playerMap = orebfuscator.getPlayerMap();

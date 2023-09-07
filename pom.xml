@@ -123,7 +123,7 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${plugin.compile.version}</version>
 				<configuration>
-					<release>17</release>
+					<release>11</release>
 				</configuration>
 			</plugin>
 			<plugin>

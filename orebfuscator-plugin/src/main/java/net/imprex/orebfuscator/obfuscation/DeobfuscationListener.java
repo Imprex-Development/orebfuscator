@@ -87,7 +87,7 @@ public class DeobfuscationListener implements Listener {
 		if (event.getAction() == Action.RIGHT_CLICK_BLOCK && event.useInteractedBlock() != Result.DENY
 				&& event.getItem() != null && event.getItem().getType() != null) {
 			Material material = event.getItem().getType();
-			if (material.isItem() && material.name().endsWith("_HOE")) {
+			if (material.name().endsWith("_HOE")) {
 				this.deobfuscationWorker.deobfuscate(event.getClickedBlock());
 			}
 		}

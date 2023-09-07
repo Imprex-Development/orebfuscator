@@ -1,6 +1,5 @@
 package net.imprex.orebfuscator.player;
 
-import java.lang.ref.WeakReference;
 import java.util.Collections;
 import java.util.Map;
 import java.util.Set;
@@ -20,8 +19,8 @@ import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class OrebfuscatorPlayer {
 
+	private final Player player;
 	private final AdvancedConfig config;
-	private final WeakReference<Player> player;
 
 	private final AtomicReference<World> world = new AtomicReference<>();
 	private final Map<Long, Set<BlockPos>> chunks = new ConcurrentHashMap<>();
@@ -30,8 +29,8 @@ public class OrebfuscatorPlayer {
 	private volatile Location location = new Location(null, 0, 0, 0);
 
 	public OrebfuscatorPlayer(Orebfuscator orebfuscator, Player player) {
+		this.player = player;
 		this.config = orebfuscator.getOrebfuscatorConfig().advanced();
-		this.player = new WeakReference<Player>(player);
 		this.location = player.getLocation();
 	}
 
@@ -45,7 +44,7 @@ public class OrebfuscatorPlayer {
 	 * @return true if a proximity update is needed
 	 */
 	public boolean needsProximityUpdate(boolean rotation) {
-		if (this.player.refersTo(null)) {
+		if (!this.player.isOnline()) {
 			return false;
 		}
 
@@ -61,7 +60,7 @@ public class OrebfuscatorPlayer {
 		}
 
 
-		Location location = this.player.get().getLocation();
+		Location location = this.player.getLocation();
 		if (isLocationSimilar(rotation, this.location, location)) {
 			return false;
 		}
@@ -103,11 +102,11 @@ public class OrebfuscatorPlayer {
 	}
 
 	void updateWorld() {
-		if (this.player.refersTo(null)) {
+		if (!this.player.isOnline()) {
 			return;
 		}
 		
-		World world = this.player.get().getWorld();
+		World world = this.player.getWorld();
 		if (!Objects.equal(this.world.getAndSet(world), world)) {
 			this.chunks.clear();
 		}
