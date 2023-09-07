@@ -5,8 +5,6 @@ import java.util.UUID;
 
 import org.bukkit.plugin.Plugin;
 
-import com.google.common.base.Preconditions;
-
 /**
  * Represents a String based key which consists of two components - a namespace
  * and a key.
@@ -82,15 +80,19 @@ public final class NamespacedKey {
 	 */
 	@Deprecated
 	public NamespacedKey(String namespace, String key) {
-		Preconditions.checkArgument(namespace != null && isValidNamespace(namespace),
-				"Invalid namespace. Must be [a-z0-9._-]: %s", namespace);
-		Preconditions.checkArgument(key != null && isValidKey(key), "Invalid key. Must be [a-z0-9/._-]: %s", key);
+		if (namespace == null || !isValidNamespace(namespace)) {
+			throw new IllegalArgumentException(String.format("Invalid namespace. Must be [a-z0-9._-]: %s", namespace));
+		} else if (key == null || !isValidKey(key)) {
+			throw new IllegalArgumentException(String.format("Invalid key. Must be [a-z0-9/._-]: %s", key));
+		}
 
 		this.namespace = namespace;
 		this.key = key;
 
 		String string = toString();
-		Preconditions.checkArgument(string.length() < 256, "NamespacedKey must be less than 256 characters", string);
+		if (string.length() >= 256) {
+			throw new IllegalArgumentException(String.format("NamespacedKey must be less than 256 characters (%s)", string));
+		}
 	}
 
 	/**
@@ -106,20 +108,26 @@ public final class NamespacedKey {
 	 * @param key    the key to create
 	 */
 	public NamespacedKey(Plugin plugin, String key) {
-		Preconditions.checkArgument(plugin != null, "Plugin cannot be null");
-		Preconditions.checkArgument(key != null, "Key cannot be null");
+		if (plugin == null) {
+			throw new IllegalArgumentException("Plugin cannot be null");
+		} else if (key == null) {
+			throw new IllegalArgumentException("Key cannot be null");
+		}
 
 		this.namespace = plugin.getName().toLowerCase(Locale.ROOT);
 		this.key = key.toLowerCase(Locale.ROOT);
 
 		// Check validity after normalization
-		Preconditions.checkArgument(isValidNamespace(this.namespace), "Invalid namespace. Must be [a-z0-9._-]: %s",
-				this.namespace);
-		Preconditions.checkArgument(isValidKey(this.key), "Invalid key. Must be [a-z0-9/._-]: %s", this.key);
+		if (!isValidNamespace(this.namespace)) {
+			throw new IllegalArgumentException(String.format("Invalid namespace. Must be [a-z0-9._-]: %s", this.namespace));
+		} else if (!isValidKey(this.key)) {
+			throw new IllegalArgumentException(String.format("Invalid key. Must be [a-z0-9/._-]: %s", this.key));
+		}
 
 		String string = toString();
-		Preconditions.checkArgument(string.length() < 256, "NamespacedKey must be less than 256 characters (%s)",
-				string);
+		if (string.length() >= 256) {
+			throw new IllegalArgumentException(String.format("NamespacedKey must be less than 256 characters (%s)", string));
+		}
 	}
 
 	public String getNamespace() {
@@ -202,7 +210,9 @@ public final class NamespacedKey {
 	 * @see #fromString(String)
 	 */
 	public static NamespacedKey fromString(String string, Plugin defaultNamespace) {
-		Preconditions.checkArgument(string != null && !string.isEmpty(), "Input string must not be empty or null");
+		if (string == null || string.isEmpty()) {
+			throw new IllegalArgumentException("Input string must not be empty or null");
+		}
 
 		String[] components = string.split(":", 3);
 		if (components.length > 2) {
