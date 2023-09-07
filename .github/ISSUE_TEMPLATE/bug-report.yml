@@ -29,7 +29,7 @@ body:
       placeholder: Describe what you expected to happen here.
     validations:
       required: true
-  - type: input
+  - type: textarea
     id: dump
     attributes:
       label: Orebfuscator Dump
