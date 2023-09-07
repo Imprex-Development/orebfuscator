@@ -33,7 +33,7 @@ body:
     id: dump
     attributes:
       label: Orebfuscator Dump
-      description: Please provide an Orebfuscator dump file (use `/orebfuscator dump`) or if Orebfuscator didn't start provide a ProtocolLib dump (use `/protocol dump`). You should use https://gist.github.com/ to upload, then include the link below. If you don't provide a dump file or a good reason why you didn't include a dump file then this issue can get closed with futher notice.
+      description: Please provide an Orebfuscator dump file (use `/orebfuscator dump`) or if Orebfuscator didn't start provide a ProtocolLib dump (use `/protocol dump`). You should use https://gist.github.com/ to upload, then include the link below. If you don't provide a dump file or a good reason why you didn't then this issue can get closed without futher notice.
       placeholder: https://gist.github.com/HelpfulBugReporter/ThisIsAVeryUsefulLogOutput
     validations:
       required: true
