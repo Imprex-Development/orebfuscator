@@ -45,7 +45,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 			// Check if protocolLib is enabled
 			Plugin protocolLib = getServer().getPluginManager().getPlugin("ProtocolLib");
 			if (protocolLib == null || !protocolLib.isEnabled()) {
-				throw new RuntimeException("ProtocolLib is not found or disabled! Plugin cannot be enabled.");
+				throw new RuntimeException("ProtocolLib can't be found or is disabled! Orebfuscator can't be enabled.");
 			}
 
 			// Load configurations
