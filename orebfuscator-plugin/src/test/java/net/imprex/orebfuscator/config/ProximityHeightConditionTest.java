@@ -1,10 +1,10 @@
 package net.imprex.orebfuscator.config;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import org.junit.Test;
+import org.junit.jupiter.api.Test;
 
 public class ProximityHeightConditionTest {
 
@@ -26,7 +26,7 @@ public class ProximityHeightConditionTest {
 
 		for (int y = TEST_MIN; y <= TEST_MAX; y++) {
 			boolean expected = minY <= y && maxY >= y;
-			assertEquals("failed for " + y, expected, ProximityHeightCondition.match(flag, y));
+			assertEquals(expected, ProximityHeightCondition.match(flag, y), "failed for " + y);
 		}
 
 		int other = ProximityHeightCondition.create(minY, maxY);
