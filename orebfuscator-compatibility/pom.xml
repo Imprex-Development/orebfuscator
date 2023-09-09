@@ -1,0 +1,21 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+
+	<parent>
+		<groupId>net.imprex</groupId>
+		<artifactId>orebfuscator</artifactId>
+		<version>${revision}</version>
+	</parent>
+
+	<artifactId>orebfuscator-compatibility</artifactId>
+	<packaging>pom</packaging>
+
+	<modules>
+		<module>orebfuscator-compatibility-api</module>
+		<module>orebfuscator-compatibility-bukkit</module>
+		<module>orebfuscator-compatibility-folia</module>
+		<module>orebfuscator-compatibility-paper</module>
+	</modules>
+</project>

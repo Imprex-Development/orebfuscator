@@ -5,7 +5,6 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
-import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -13,8 +12,9 @@ import org.bukkit.entity.Player;
 import org.joml.FrustumIntersection;
 import org.joml.Quaternionf;
 
-import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.Orebfuscator;
+import net.imprex.orebfuscator.OrebfuscatorCompatibility;
+import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.config.ProximityConfig;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayer;
@@ -25,12 +25,10 @@ import net.imprex.orebfuscator.util.PermissionUtil;
 
 public class ProximityWorker {
 
-	private final Orebfuscator orebfuscator;
 	private final OrebfuscatorConfig config;
 	private final OrebfuscatorPlayerMap playerMap;
 
 	public ProximityWorker(Orebfuscator orebfuscator) {
-		this.orebfuscator = orebfuscator;
 		this.config = orebfuscator.getOrebfuscatorConfig();
 		this.playerMap = orebfuscator.getPlayerMap();
 	}
@@ -149,9 +147,9 @@ public class ProximityWorker {
 			}
 		}
 
-		Bukkit.getScheduler().runTask(this.orebfuscator, () -> {
+		OrebfuscatorCompatibility.runForPlayer(player, () -> {
 			if (player.isOnline() && player.getWorld().equals(world)) {
-				NmsInstance.sendBlockUpdates(player, updateBlocks);
+				OrebfuscatorNms.sendBlockUpdates(player, updateBlocks);
 			}
 		});
 	}

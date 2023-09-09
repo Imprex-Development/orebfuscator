@@ -48,6 +48,8 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 				throw new RuntimeException("ProtocolLib can't be found or is disabled! Orebfuscator can't be enabled.");
 			}
 
+			OrebfuscatorCompatibility.initialize(this);
+
 			// Load configurations
 			this.config = new OrebfuscatorConfig(this);
 
@@ -115,9 +117,9 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 			this.proximityThread.close();
 		}
 
-		this.getServer().getScheduler().cancelTasks(this);
-
-		NmsInstance.close();
+		OrebfuscatorCompatibility.cancelTasks();
+		OrebfuscatorNms.close();
+		
 		this.config = null;
 	}
 

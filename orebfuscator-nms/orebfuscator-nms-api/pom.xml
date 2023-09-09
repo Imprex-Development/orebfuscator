@@ -9,15 +9,6 @@
 
 	<artifactId>orebfuscator-nms-api</artifactId>
 	<packaging>jar</packaging>
-	
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
 
 	<dependencies>
 		<dependency>

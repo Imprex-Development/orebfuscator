@@ -5,7 +5,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.util.Collection;
 
-import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.obfuscation.ObfuscationResult;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.ChunkPosition;
@@ -15,11 +15,11 @@ public class ChunkSerializer {
 	private static final int CACHE_VERSION = 1;
 
 	private static DataInputStream createInputStream(ChunkPosition key) throws IOException {
-		return NmsInstance.getRegionFileCache().createInputStream(key);
+		return OrebfuscatorNms.getRegionFileCache().createInputStream(key);
 	}
 
 	private static DataOutputStream createOutputStream(ChunkPosition key) throws IOException {
-		return NmsInstance.getRegionFileCache().createOutputStream(key);
+		return OrebfuscatorNms.getRegionFileCache().createOutputStream(key);
 	}
 
 	public static ObfuscationResult read(ChunkPosition key) throws IOException {

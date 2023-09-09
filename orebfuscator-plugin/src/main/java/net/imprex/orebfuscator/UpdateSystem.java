@@ -10,7 +10,6 @@ import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 
 import com.google.gson.JsonObject;
@@ -115,7 +114,7 @@ public class UpdateSystem {
 	}
 
 	private void checkForUpdates() {
-		Bukkit.getScheduler().runTaskAsynchronously(this.orebfuscator, () -> {
+		OrebfuscatorCompatibility.runAsyncNow(() -> {
 			if (this.isUpdateAvailable()) {
 				ConsoleUtil.printBox(Level.WARNING,
 						"UPDATE AVAILABLE", "", this.getHtmlUrl());
@@ -124,13 +123,13 @@ public class UpdateSystem {
 	}
 
 	public void checkForUpdates(Player player) {
-		Bukkit.getScheduler().runTaskAsynchronously(this.orebfuscator, () -> {
+		OrebfuscatorCompatibility.runAsyncNow(() -> {
 			if (this.isUpdateAvailable()) {
 				BaseComponent[] components = new ComponentBuilder("[§bOrebfuscator§f]§7 A new release is available ")
 						.append("§f§l[CLICK HERE]")
 						.event(new ClickEvent(ClickEvent.Action.OPEN_URL, this.getHtmlUrl()))
 						.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("§7Click here to see the latest release").create())).create();
-				Bukkit.getScheduler().runTask(this.orebfuscator, () -> {
+				OrebfuscatorCompatibility.runForPlayer(player, () -> {
 					player.spigot().sendMessage(components);
 				});
 			}

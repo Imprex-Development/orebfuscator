@@ -7,7 +7,7 @@ import java.util.Set;
 
 import org.bukkit.configuration.ConfigurationSection;
 
-import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.util.BlockProperties;
 import net.imprex.orebfuscator.util.OFCLogger;
 
@@ -32,7 +32,7 @@ public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implement
 
 	private void deserializeHiddenBlocks(ConfigurationSection section, String path) {
 		for (String blockName : section.getStringList(path)) {
-			BlockProperties blockProperties = NmsInstance.getBlockByName(blockName);
+			BlockProperties blockProperties = OrebfuscatorNms.getBlockByName(blockName);
 			if (blockProperties == null) {
 				warnUnknownBlock(section, path, blockName);
 			} else if (blockProperties.getDefaultBlockState().isAir()) {

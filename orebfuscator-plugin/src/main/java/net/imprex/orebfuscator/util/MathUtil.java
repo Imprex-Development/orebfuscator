@@ -3,7 +3,7 @@ package net.imprex.orebfuscator.util;
 import org.bukkit.Location;
 import org.bukkit.World;
 
-import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.nms.BlockStateHolder;
 
 public class MathUtil {
@@ -87,8 +87,8 @@ public class MathUtil {
 			if (lx == bx && ly == by && lz == bz) {
 				return true; // we've reached our starting block, don't test it.
 			}
-			BlockStateHolder between = NmsInstance.getBlockState(world, (int) lx, (int) ly, (int) lz);
-			if (between != null && NmsInstance.isOccluding(between.getBlockId())) {
+			BlockStateHolder between = OrebfuscatorNms.getBlockState(world, (int) lx, (int) ly, (int) lz);
+			if (between != null && OrebfuscatorNms.isOccluding(between.getBlockId())) {
 				return false; // fail on first hit, this ray is "blocked"
 			}
 			s--; // we stop

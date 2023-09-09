@@ -5,8 +5,8 @@ import java.util.Set;
 
 import org.bukkit.World;
 
-import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.Orebfuscator;
+import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.chunk.Chunk;
 import net.imprex.orebfuscator.chunk.ChunkSection;
 import net.imprex.orebfuscator.chunk.ChunkStruct;
@@ -138,6 +138,6 @@ public class ObfuscationProcessor {
 			blockId = task.getBlockState(x, y, z);
 		}
 
-		return blockId >= 0 && NmsInstance.isOccluding(blockId);
+		return blockId >= 0 && OrebfuscatorNms.isOccluding(blockId);
 	}
 }

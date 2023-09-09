@@ -10,8 +10,8 @@ import org.bukkit.block.Block;
 
 import com.google.common.collect.Iterables;
 
-import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.Orebfuscator;
+import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.cache.ObfuscationCache;
 import net.imprex.orebfuscator.config.BlockFlags;
 import net.imprex.orebfuscator.config.ObfuscationConfig;
@@ -58,7 +58,7 @@ public class DeobfuscationWorker {
 		Processor processor = new Processor(blockFlags);
 		for (Block block : blocks) {
 			if (!occluding || block.getType().isOccluding()) {
-				BlockStateHolder blockState = NmsInstance.getBlockState(world, block);
+				BlockStateHolder blockState = OrebfuscatorNms.getBlockState(world, block);
 				processor.updateAdjacentBlocks(blockState, updateRadius);
 			}
 		}
@@ -101,12 +101,12 @@ public class DeobfuscationWorker {
 				int y = blockState.getY();
 				int z = blockState.getZ();
 
-				updateAdjacentBlocks(NmsInstance.getBlockState(world, x + 1, y, z), depth);
-				updateAdjacentBlocks(NmsInstance.getBlockState(world, x - 1, y, z), depth);
-				updateAdjacentBlocks(NmsInstance.getBlockState(world, x, y + 1, z), depth);
-				updateAdjacentBlocks(NmsInstance.getBlockState(world, x, y - 1, z), depth);
-				updateAdjacentBlocks(NmsInstance.getBlockState(world, x, y, z + 1), depth);
-				updateAdjacentBlocks(NmsInstance.getBlockState(world, x, y, z - 1), depth);
+				updateAdjacentBlocks(OrebfuscatorNms.getBlockState(world, x + 1, y, z), depth);
+				updateAdjacentBlocks(OrebfuscatorNms.getBlockState(world, x - 1, y, z), depth);
+				updateAdjacentBlocks(OrebfuscatorNms.getBlockState(world, x, y + 1, z), depth);
+				updateAdjacentBlocks(OrebfuscatorNms.getBlockState(world, x, y - 1, z), depth);
+				updateAdjacentBlocks(OrebfuscatorNms.getBlockState(world, x, y, z + 1), depth);
+				updateAdjacentBlocks(OrebfuscatorNms.getBlockState(world, x, y, z - 1), depth);
 			}
 		}
 	}

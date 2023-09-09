@@ -17,12 +17,12 @@ import net.imprex.orebfuscator.util.MinecraftVersion;
 import net.imprex.orebfuscator.util.NamespacedKey;
 import net.imprex.orebfuscator.util.OFCLogger;
 
-public class NmsInstance {
+public class OrebfuscatorNms {
 
 	private static NmsManager instance;
 
 	public static void initialize(Config config) {
-		if (NmsInstance.instance != null) {
+		if (OrebfuscatorNms.instance != null) {
 			throw new IllegalStateException("NMS adapter is already initialized!");
 		}
 
@@ -33,7 +33,7 @@ public class NmsInstance {
 			String className = "net.imprex.orebfuscator.nms." + nmsVersion + ".NmsManager";
 			Class<? extends NmsManager> nmsManager = Class.forName(className).asSubclass(NmsManager.class);
 			Constructor<? extends NmsManager> constructor = nmsManager.getConstructor(Config.class);
-			NmsInstance.instance = constructor.newInstance(config);
+			OrebfuscatorNms.instance = constructor.newInstance(config);
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException("Server version \"" + nmsVersion + "\" is currently not supported!", e);
 		} catch (Exception e) {

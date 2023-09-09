@@ -13,6 +13,7 @@
 	<packaging>jar</packaging>
 	
 	<build>
+		<finalName>${name}-${version}</finalName>
 		<resources>
 			<resource>
 				<directory>src/main/resources</directory>
@@ -99,6 +100,16 @@
 			<version>${revision}</version>
 			<scope>provided</scope>
 		</dependency>
+	
+		<!-- Orebfuscator compatibility -->
+		<dependency>
+			<groupId>net.imprex</groupId>
+			<artifactId>orebfuscator-compatibility-api</artifactId>
+			<version>${revision}</version>
+			<scope>compile</scope>
+		</dependency>
+
+		<!-- Orebfuscator NMS -->
 		<dependency>
 			<groupId>net.imprex</groupId>
 			<artifactId>orebfuscator-nms-api</artifactId>

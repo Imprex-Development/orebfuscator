@@ -3,7 +3,7 @@ package net.imprex.orebfuscator.chunk;
 import java.util.Arrays;
 
 import io.netty.buffer.ByteBuf;
-import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.OrebfuscatorNms;
 
 public class IndirectPalette implements Palette {
 
@@ -20,7 +20,7 @@ public class IndirectPalette implements Palette {
 		this.chunkSection = chunkSection;
 
 		// TODO improve block to index
-		this.byValue = new byte[NmsInstance.getTotalBlockCount()];
+		this.byValue = new byte[OrebfuscatorNms.getTotalBlockCount()];
 		Arrays.fill(this.byValue, (byte) 0xFF);
 		this.byId = new int[1 << bitsPerValue];
 	}

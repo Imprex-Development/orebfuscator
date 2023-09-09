@@ -1,7 +1,7 @@
 package net.imprex.orebfuscator.chunk;
 
 import io.netty.buffer.ByteBuf;
-import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.OrebfuscatorNms;
 
 public class ChunkSection {
 
@@ -29,7 +29,7 @@ public class ChunkSection {
 				this.bitsPerBlock = Math.max(4, bitsPerBlock);
 				this.palette = new IndirectPalette(this.bitsPerBlock, this);
 			} else {
-				this.bitsPerBlock = NmsInstance.getMaxBitsPerBlock();
+				this.bitsPerBlock = OrebfuscatorNms.getMaxBitsPerBlock();
 				this.palette = new DirectPalette();
 			}
 
@@ -66,11 +66,11 @@ public class ChunkSection {
 	public void setBlockState(int index, int blockId) {
 		int prevBlockId = this.getBlockState(index);
 
-		if (!NmsInstance.isAir(prevBlockId)) {
+		if (!OrebfuscatorNms.isAir(prevBlockId)) {
 			--this.blockCount;
 		}
 
-		if (!NmsInstance.isAir(blockId)) {
+		if (!OrebfuscatorNms.isAir(blockId)) {
 			++this.blockCount;
 		}
 

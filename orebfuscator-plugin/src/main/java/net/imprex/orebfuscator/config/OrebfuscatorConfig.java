@@ -21,8 +21,8 @@ import org.bukkit.plugin.Plugin;
 
 import com.google.common.hash.Hashing;
 
-import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.Orebfuscator;
+import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.HeightAccessor;
 import net.imprex.orebfuscator.util.MinecraftVersion;
@@ -130,8 +130,8 @@ public class OrebfuscatorConfig implements Config {
 			OFCLogger.warn("config section 'cache' is missing, using default one");
 		}
 
-		NmsInstance.close();
-		NmsInstance.initialize(this);
+		OrebfuscatorNms.close();
+		OrebfuscatorNms.initialize(this);
 
 		ConfigurationSection obfuscation = section.getConfigurationSection("obfuscation");
 		obfuscation.getKeys(false).stream()

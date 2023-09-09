@@ -7,8 +7,8 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
-import net.imprex.orebfuscator.NmsInstance;
 import net.imprex.orebfuscator.Orebfuscator;
+import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.util.OFCLogger;
@@ -26,7 +26,7 @@ public class CacheFileCleanupTask implements Runnable {
 	@Override
 	public void run() {
 		long deleteAfterMillis = this.cacheConfig.deleteRegionFilesAfterAccess();
-		AbstractRegionFileCache<?> regionFileCache = NmsInstance.getRegionFileCache();
+		AbstractRegionFileCache<?> regionFileCache = OrebfuscatorNms.getRegionFileCache();
 
 		this.deleteCount = 0;
 

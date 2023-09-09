@@ -4,7 +4,7 @@ import java.util.Set;
 
 import org.bukkit.World;
 
-import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.chunk.ChunkStruct;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 import net.imprex.orebfuscator.util.BlockPos;
@@ -17,12 +17,12 @@ public class ObfuscationTask {
 		ObfuscationTask task = new ObfuscationTask(request);
 
 		ChunkPosition position = request.getPosition();
-		World world = request.getChunkStruct().world;	
+		World world = request.getChunkStruct().world;
 
 		for (ChunkDirection direction : ChunkDirection.values()) {
 			int chunkX = position.x + direction.getOffsetX();
 			int chunkZ = position.z + direction.getOffsetZ();
-			ReadOnlyChunk chunk = NmsInstance.getReadOnlyChunk(world, chunkX, chunkZ);
+			ReadOnlyChunk chunk = OrebfuscatorNms.getReadOnlyChunk(world, chunkX, chunkZ);
 			task.neighboringChunks[direction.ordinal()] = chunk;
 		}
 

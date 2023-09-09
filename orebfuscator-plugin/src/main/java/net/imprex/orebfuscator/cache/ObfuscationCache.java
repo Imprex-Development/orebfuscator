@@ -3,13 +3,12 @@ package net.imprex.orebfuscator.cache;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.bukkit.Bukkit;
-
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalNotification;
 
 import net.imprex.orebfuscator.Orebfuscator;
+import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.obfuscation.ObfuscationRequest;
 import net.imprex.orebfuscator.obfuscation.ObfuscationResult;
@@ -38,8 +37,7 @@ public class ObfuscationCache {
 		}
 
 		if (this.cacheConfig.enabled() && this.cacheConfig.deleteRegionFilesAfterAccess() > 0) {
-			Bukkit.getScheduler().runTaskTimerAsynchronously(orebfuscator, new CacheFileCleanupTask(orebfuscator), 0,
-					3_600_000L);
+			OrebfuscatorCompatibility.runAsyncAtFixedRate(new CacheFileCleanupTask(orebfuscator), 0, 72000L);
 		}
 	}
 

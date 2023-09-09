@@ -1,14 +1,14 @@
 api-version: 1.13
+folia-supported: true
 
 name: ${project.parent.name}
 version: ${project.version}
 description: '${project.parent.description}'
 
-main: net.imprex.orebfuscator.Orebfuscator
-
 author: Ingrim4
 authors: [NgLoader, lishid, SydMontague, ProgrammerDan, Aleksey-Terzi]
 
+main: net.imprex.orebfuscator.Orebfuscator
 depend: [ProtocolLib]
 
 commands:

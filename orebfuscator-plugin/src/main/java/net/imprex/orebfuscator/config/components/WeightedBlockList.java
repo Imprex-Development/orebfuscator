@@ -9,7 +9,7 @@ import java.util.Set;
 
 import org.bukkit.configuration.ConfigurationSection;
 
-import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.config.ConfigParsingContext;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.BlockProperties;
@@ -90,7 +90,7 @@ public class WeightedBlockList {
 
         ConfigurationSection blockSection = section.getConfigurationSection("blocks");
         for (String blockName : blockSection.getKeys(false)) {
-        	BlockProperties blockProperties = NmsInstance.getBlockByName(blockName);
+        	BlockProperties blockProperties = OrebfuscatorNms.getBlockByName(blockName);
             if (blockProperties != null) {
                 int weight = blockSection.getInt(blockName, 1);
                 this.blocks.put(blockProperties, weight);

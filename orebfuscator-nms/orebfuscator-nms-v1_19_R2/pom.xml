@@ -63,4 +63,28 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>folia</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>net.md-5</groupId>
+						<artifactId>specialsource-maven-plugin</artifactId>
+						<executions>
+							<execution>
+								<phase>none</phase>
+								<id>remap-obf</id>
+							</execution>
+							<execution>
+								<phase>none</phase>
+								<id>remap-spigot</id>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 </project>

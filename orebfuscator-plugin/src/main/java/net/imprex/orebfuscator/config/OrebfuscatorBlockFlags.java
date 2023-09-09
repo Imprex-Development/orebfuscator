@@ -2,7 +2,7 @@ package net.imprex.orebfuscator.config;
 
 import java.util.Map.Entry;
 
-import net.imprex.orebfuscator.NmsInstance;
+import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.util.BlockProperties;
 import net.imprex.orebfuscator.util.BlockStateProperties;
 
@@ -17,7 +17,7 @@ public class OrebfuscatorBlockFlags implements BlockFlags {
 		return EMPTY_FLAGS;
 	}
 
-	private final int[] blockFlags = new int[NmsInstance.getTotalBlockCount()];
+	private final int[] blockFlags = new int[OrebfuscatorNms.getTotalBlockCount()];
 
 	private OrebfuscatorBlockFlags(OrebfuscatorObfuscationConfig worldConfig, OrebfuscatorProximityConfig proximityConfig) {
 		if (worldConfig != null && worldConfig.isEnabled()) {
