@@ -50,12 +50,12 @@ public class OrebfuscatorNms {
 		return instance.getRegionFileCache();
 	}
 
-	public static int getMaxBitsPerBlock() {
-		return instance.getMaxBitsPerBlock();
+	public static int getUniqueBlockStateCount() {
+		return instance.getUniqueBlockStateCount();
 	}
 
-	public static int getTotalBlockCount() {
-		return instance.getTotalBlockCount();
+	public static int getMaxBitsPerBlockState() {
+		return instance.getMaxBitsPerBlockState();
 	}
 
 	public static BlockProperties getBlockByName(String key) {

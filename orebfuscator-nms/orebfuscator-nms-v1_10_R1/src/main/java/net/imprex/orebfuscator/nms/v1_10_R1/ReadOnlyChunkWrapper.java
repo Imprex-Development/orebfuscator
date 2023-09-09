@@ -13,6 +13,6 @@ public class ReadOnlyChunkWrapper implements ReadOnlyChunk {
 
 	@Override
 	public int getBlockState(int x, int y, int z) {
-		return NmsManager.getBlockId(chunk.a(x, y, z));
+		return NmsManager.getBlockState(chunk, x, y, z);
 	}
 }

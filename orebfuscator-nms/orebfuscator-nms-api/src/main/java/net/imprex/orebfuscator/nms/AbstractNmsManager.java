@@ -45,12 +45,12 @@ public abstract class AbstractNmsManager implements NmsManager {
 	}
 
 	@Override
-	public final int getTotalBlockCount() {
+	public final int getUniqueBlockStateCount() {
 		return this.uniqueBlockStateCount;
 	}
 
 	@Override
-	public final int getMaxBitsPerBlock() {
+	public final int getMaxBitsPerBlockState() {
 		return this.maxBitsPerBlockState;
 	}
 

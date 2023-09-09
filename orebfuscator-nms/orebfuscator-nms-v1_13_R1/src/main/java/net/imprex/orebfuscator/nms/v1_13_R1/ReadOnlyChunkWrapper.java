@@ -1,7 +1,6 @@
 package net.imprex.orebfuscator.nms.v1_13_R1;
 
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
-import net.minecraft.server.v1_13_R1.Block;
 import net.minecraft.server.v1_13_R1.Chunk;
 
 public class ReadOnlyChunkWrapper implements ReadOnlyChunk {
@@ -14,6 +13,6 @@ public class ReadOnlyChunkWrapper implements ReadOnlyChunk {
 
 	@Override
 	public int getBlockState(int x, int y, int z) {
-		return Block.getCombinedId(chunk.getBlockData(x, y, z));
+		return NmsManager.getBlockState(chunk, x, y, z);
 	}
 }

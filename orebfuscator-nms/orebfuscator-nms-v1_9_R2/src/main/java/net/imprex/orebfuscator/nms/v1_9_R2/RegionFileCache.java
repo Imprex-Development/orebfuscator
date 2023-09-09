@@ -12,7 +12,7 @@ import net.minecraft.server.v1_9_R2.RegionFile;
 
 public class RegionFileCache extends AbstractRegionFileCache<RegionFile> {
 
-	public RegionFileCache(CacheConfig cacheConfig) {
+	RegionFileCache(CacheConfig cacheConfig) {
 		super(cacheConfig);
 	}
 

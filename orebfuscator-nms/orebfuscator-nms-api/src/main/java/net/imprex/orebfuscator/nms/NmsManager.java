@@ -11,9 +11,9 @@ public interface NmsManager {
 
 	AbstractRegionFileCache<?> getRegionFileCache();
 
-	int getMaxBitsPerBlock();
+	int getUniqueBlockStateCount();
 
-	int getTotalBlockCount();
+	int getMaxBitsPerBlockState();
 
 	BlockProperties getBlockByName(NamespacedKey key);
 
