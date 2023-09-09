@@ -30,7 +30,6 @@
 
 		<plugin.compile.version>3.11.0</plugin.compile.version>
 		<plugin.shade.version>3.5.0</plugin.shade.version>
-		<plugin.jar.version>3.3.0</plugin.jar.version>
 		<plugin.sunfire.version>3.1.2</plugin.sunfire.version>
 		<plugin.flatten.version>1.5.0</plugin.flatten.version>
 		<plugin.specialsource.version>1.2.5</plugin.specialsource.version>
@@ -113,11 +112,6 @@
 							</filter>
 						</filters>
 					</configuration>
-				</plugin>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-jar-plugin</artifactId>
-					<version>${plugin.jar.version}</version>
 				</plugin>
 			</plugins>
 		</pluginManagement>

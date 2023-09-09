@@ -15,7 +15,7 @@ Orebfuscator empowers server owners to protect their server from X-Ray Clients a
 
 ### Requirements
 * Java 11 or higher
-* Spigot or compatible forks (1.9.4 or newer)
+* Spigot, Paper, Folia or compatible forks (1.9.4 or newer)
 * [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997) 5.0.0 or later
 
 ### Installation
