@@ -4,24 +4,8 @@ import org.bukkit.Location;
 import org.bukkit.World;
 
 import net.imprex.orebfuscator.OrebfuscatorNms;
-import net.imprex.orebfuscator.nms.BlockStateHolder;
 
-public class MathUtil {
-
-	public static int ceilToPowerOfTwo(int value) {
-		value--;
-		value |= value >> 1;
-		value |= value >> 2;
-		value |= value >> 4;
-		value |= value >> 8;
-		value |= value >> 16;
-		value++;
-		return value;
-	}
-
-	public static int clamp(int value, int min, int max) {
-		return Math.max(min, Math.min(max, value));
-	}
+public class FastGazeUtil {
 
 	/**
 	 * Basic idea here is to take some rays from the considered block to the
@@ -40,21 +24,21 @@ public class MathUtil {
 		double y = pos.y;
 		double z = pos.z;
 		return // midfaces
-		MathUtil.fastAABBRayCheck(x, y, z, x, y + 0.5, z + 0.5, ex, ey, ez, player)
-				|| MathUtil.fastAABBRayCheck(x, y, z, x + 0.5, y, z + 0.5, ex, ey, ez, player)
-				|| MathUtil.fastAABBRayCheck(x, y, z, x + 0.5, y + 0.5, z, ex, ey, ez, player)
-				|| MathUtil.fastAABBRayCheck(x, y, z, x + 0.5, y + 1.0, z + 0.5, ex, ey, ez, player)
-				|| MathUtil.fastAABBRayCheck(x, y, z, x + 0.5, y + 0.5, z + 1.0, ex, ey, ez, player)
-				|| MathUtil.fastAABBRayCheck(x, y, z, x + 1.0, y + 0.5, z + 0.5, ex, ey, ez, player) ||
+		FastGazeUtil.fastAABBRayCheck(x, y, z, x, y + 0.5, z + 0.5, ex, ey, ez, player)
+				|| FastGazeUtil.fastAABBRayCheck(x, y, z, x + 0.5, y, z + 0.5, ex, ey, ez, player)
+				|| FastGazeUtil.fastAABBRayCheck(x, y, z, x + 0.5, y + 0.5, z, ex, ey, ez, player)
+				|| FastGazeUtil.fastAABBRayCheck(x, y, z, x + 0.5, y + 1.0, z + 0.5, ex, ey, ez, player)
+				|| FastGazeUtil.fastAABBRayCheck(x, y, z, x + 0.5, y + 0.5, z + 1.0, ex, ey, ez, player)
+				|| FastGazeUtil.fastAABBRayCheck(x, y, z, x + 1.0, y + 0.5, z + 0.5, ex, ey, ez, player) ||
 				// corners
-				MathUtil.fastAABBRayCheck(x, y, z, x, y, z, ex, ey, ez, player)
-				|| MathUtil.fastAABBRayCheck(x, y, z, x + 1, y, z, ex, ey, ez, player)
-				|| MathUtil.fastAABBRayCheck(x, y, z, x, y + 1, z, ex, ey, ez, player)
-				|| MathUtil.fastAABBRayCheck(x, y, z, x + 1, y + 1, z, ex, ey, ez, player)
-				|| MathUtil.fastAABBRayCheck(x, y, z, x, y, z + 1, ex, ey, ez, player)
-				|| MathUtil.fastAABBRayCheck(x, y, z, x + 1, y, z + 1, ex, ey, ez, player)
-				|| MathUtil.fastAABBRayCheck(x, y, z, x, y + 1, z + 1, ex, ey, ez, player)
-				|| MathUtil.fastAABBRayCheck(x, y, z, x + 1, y + 1, z + 1, ex, ey, ez, player);
+				FastGazeUtil.fastAABBRayCheck(x, y, z, x, y, z, ex, ey, ez, player)
+				|| FastGazeUtil.fastAABBRayCheck(x, y, z, x + 1, y, z, ex, ey, ez, player)
+				|| FastGazeUtil.fastAABBRayCheck(x, y, z, x, y + 1, z, ex, ey, ez, player)
+				|| FastGazeUtil.fastAABBRayCheck(x, y, z, x + 1, y + 1, z, ex, ey, ez, player)
+				|| FastGazeUtil.fastAABBRayCheck(x, y, z, x, y, z + 1, ex, ey, ez, player)
+				|| FastGazeUtil.fastAABBRayCheck(x, y, z, x + 1, y, z + 1, ex, ey, ez, player)
+				|| FastGazeUtil.fastAABBRayCheck(x, y, z, x, y + 1, z + 1, ex, ey, ez, player)
+				|| FastGazeUtil.fastAABBRayCheck(x, y, z, x + 1, y + 1, z + 1, ex, ey, ez, player);
 	}
 
 	public static boolean fastAABBRayCheck(double bx, double by, double bz, double x, double y, double z, double ex,
@@ -87,8 +71,8 @@ public class MathUtil {
 			if (lx == bx && ly == by && lz == bz) {
 				return true; // we've reached our starting block, don't test it.
 			}
-			BlockStateHolder between = OrebfuscatorNms.getBlockState(world, (int) lx, (int) ly, (int) lz);
-			if (between != null && OrebfuscatorNms.isOccluding(between.getBlockId())) {
+			int blockId = OrebfuscatorNms.getBlockState(world, (int) lx, (int) ly, (int) lz);
+			if (blockId != 0 && OrebfuscatorNms.isOccluding(blockId)) {
 				return false; // fail on first hit, this ray is "blocked"
 			}
 			s--; // we stop

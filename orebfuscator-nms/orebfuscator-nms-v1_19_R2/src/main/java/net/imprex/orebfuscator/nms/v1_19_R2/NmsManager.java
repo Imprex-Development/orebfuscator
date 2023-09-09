@@ -16,11 +16,8 @@ import com.google.common.collect.ImmutableList;
 
 import it.unimi.dsi.fastutil.shorts.Short2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
-import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.config.Config;
-import net.imprex.orebfuscator.nms.AbstractBlockState;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
-import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 import net.imprex.orebfuscator.util.BlockProperties;
 import net.imprex.orebfuscator.util.BlockStateProperties;
@@ -36,13 +33,30 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.util.Mth;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.LevelChunk;
+import net.minecraft.world.level.chunk.LevelChunkSection;
 
 public class NmsManager extends AbstractNmsManager {
+
+	private static final int BLOCK_ID_AIR = Block.getId(Blocks.AIR.defaultBlockState());
+
+	static int getBlockState(LevelChunk chunk, int x, int y, int z) {
+		LevelChunkSection[] sections = chunk.getSections();
+
+		int sectionIndex = chunk.getSectionIndex(y);
+		if (sectionIndex >= 0 && sectionIndex < sections.length) {
+			LevelChunkSection section = sections[sectionIndex];
+			if (sections != null && !section.hasOnlyAir()) {
+				return Block.getId(section.getBlockState(x & 0xF, y & 0xF, z & 0xF));
+			}
+		}
+
+		return BLOCK_ID_AIR;
+	}
 
 	private static ServerLevel level(World world) {
 		return ((CraftWorld) world).getHandle();
@@ -52,24 +66,8 @@ public class NmsManager extends AbstractNmsManager {
 		return ((CraftPlayer) player).getHandle();
 	}
 
-	private static boolean isChunkLoaded(ServerLevel level, int chunkX, int chunkZ) {
-		return level.getChunkSource().isChunkLoaded(chunkX, chunkZ);
-	}
-
-	private static BlockState getBlockState(World world, int x, int y, int z, boolean loadChunk) {
-		ServerLevel level = level(world);
-		ServerChunkCache serverChunkCache = level.getChunkSource();
-
-		if (isChunkLoaded(level, x >> 4, z >> 4) || loadChunk) {
-			// will load chunk if not loaded already
-			LevelChunk chunk = serverChunkCache.getChunk(x >> 4, z >> 4, true);
-			return chunk != null ? chunk.getBlockState(new BlockPos(x, y, z)) : null;
-		}
-		return null;
-	}
-
 	public NmsManager(Config config) {
-		super(config);
+		super(Block.BLOCK_STATE_REGISTRY.size(), new RegionFileCache(config.cache()));
 
 		for (Map.Entry<ResourceKey<Block>, Block> entry : BuiltInRegistries.BLOCK.entrySet()) {
 			NamespacedKey namespacedKey = NamespacedKey.fromString(entry.getKey().location().toString());
@@ -105,21 +103,6 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	protected AbstractRegionFileCache<?> createRegionFileCache(CacheConfig cacheConfig) {
-		return new RegionFileCache(cacheConfig);
-	}
-
-	@Override
-	public int getMaxBitsPerBlock() {
-		return Mth.ceillog2(Block.BLOCK_STATE_REGISTRY.size());
-	}
-
-	@Override
-	public int getTotalBlockCount() {
-		return Block.BLOCK_STATE_REGISTRY.size();
-	}
-
-	@Override
 	public ReadOnlyChunk getReadOnlyChunk(World world, int chunkX, int chunkZ) {
 		ServerChunkCache serverChunkCache = level(world).getChunkSource();
 		LevelChunk chunk = serverChunkCache.getChunk(chunkX, chunkZ, true);
@@ -127,22 +110,43 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public AbstractBlockState<?> getBlockState(World world, int x, int y, int z) {
-		BlockState blockData = getBlockState(world, x, y, z, false);
-		return blockData != null ? new BlockStateWrapper(x, y, z, world, blockData) : null;
+	public int getBlockState(World world, int x, int y, int z) {
+		ServerChunkCache serverChunkCache = level(world).getChunkSource();
+		if (!serverChunkCache.isChunkLoaded(x >> 4, z >> 4)) {
+			return BLOCK_ID_AIR;
+		}
+
+		LevelChunk chunk = serverChunkCache.getChunk(x >> 4, z >> 4, true);
+		if (chunk == null) {
+			return BLOCK_ID_AIR;
+		}
+
+		return getBlockState(chunk, x, y, z);
+	}
+
+	@Override
+	public void sendBlockUpdates(World world, Iterable<net.imprex.orebfuscator.util.BlockPos> iterable) {
+		ServerChunkCache serverChunkCache = level(world).getChunkSource();
+		BlockPos.MutableBlockPos position = new BlockPos.MutableBlockPos();
+
+		for (net.imprex.orebfuscator.util.BlockPos pos : iterable) {
+			position.set(pos.x, pos.y, pos.z);
+			serverChunkCache.blockChanged(position);
+		}
 	}
 
 	@Override
 	public void sendBlockUpdates(Player player, Iterable<net.imprex.orebfuscator.util.BlockPos> iterable) {
 		ServerPlayer serverPlayer = player(player);
 		ServerLevel level = serverPlayer.getLevel();
+		ServerChunkCache serverChunkCache = level.getChunkSource();
 
 		BlockPos.MutableBlockPos position = new BlockPos.MutableBlockPos();
 		Map<SectionPos, Short2ObjectMap<BlockState>> sectionPackets = new HashMap<>();
 		List<Packet<ClientGamePacketListener>> blockEntityPackets = new ArrayList<>();
 
 		for (net.imprex.orebfuscator.util.BlockPos pos : iterable) {
-			if (!isChunkLoaded(level, pos.x >> 4, pos.z >> 4)) {
+			if (!serverChunkCache.isChunkLoaded(pos.x >> 4, pos.z >> 4)) {
 				continue;
 			}
 

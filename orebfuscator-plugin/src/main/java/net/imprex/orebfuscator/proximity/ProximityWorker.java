@@ -20,7 +20,7 @@ import net.imprex.orebfuscator.config.ProximityConfig;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayer;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayerMap;
 import net.imprex.orebfuscator.util.BlockPos;
-import net.imprex.orebfuscator.util.MathUtil;
+import net.imprex.orebfuscator.util.FastGazeUtil;
 import net.imprex.orebfuscator.util.PermissionUtil;
 
 public class ProximityWorker {
@@ -132,7 +132,7 @@ public class ProximityWorker {
 					}
 
 					// do ray cast check
-					if (proximityConfig.useRayCastCheck() && !MathUtil.doFastCheck(blockPos, eyeLocation, world)) {
+					if (proximityConfig.useRayCastCheck() && !FastGazeUtil.doFastCheck(blockPos, eyeLocation, world)) {
 						continue;
 					}
 

@@ -17,7 +17,7 @@ import net.minecraft.world.level.chunk.storage.RegionFileVersion;
 
 public class RegionFileCache extends AbstractRegionFileCache<RegionFile> {
 
-	public RegionFileCache(CacheConfig cacheConfig) {
+	RegionFileCache(CacheConfig cacheConfig) {
 		super(cacheConfig);
 	}
 

@@ -11,9 +11,9 @@ public interface NmsManager {
 
 	AbstractRegionFileCache<?> getRegionFileCache();
 
-	int getMaxBitsPerBlock();
+	int getUniqueBlockStateCount();
 
-	int getTotalBlockCount();
+	int getMaxBitsPerBlockState();
 
 	BlockProperties getBlockByName(NamespacedKey key);
 
@@ -25,7 +25,9 @@ public interface NmsManager {
 
 	ReadOnlyChunk getReadOnlyChunk(World world, int chunkX, int chunkZ);
 
-	BlockStateHolder getBlockState(World world, int x, int y, int z);
+	int getBlockState(World world, int x, int y, int z);
+
+	void sendBlockUpdates(World world, Iterable<BlockPos> iterable);
 
 	void sendBlockUpdates(Player player, Iterable<BlockPos> iterable);
 
