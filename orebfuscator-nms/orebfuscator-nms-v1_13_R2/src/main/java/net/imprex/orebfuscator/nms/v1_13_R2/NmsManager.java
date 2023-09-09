@@ -177,7 +177,7 @@ public class NmsManager extends AbstractNmsManager {
 			} else {
 				PacketContainer packet = new PacketContainer(PacketType.Play.Server.MULTI_BLOCK_CHANGE);
 				packet.getChunkCoordIntPairs().write(0, entry.getKey());
-				packet.getMultiBlockChangeInfoArrays().write(0, entry.getValue().toArray(MultiBlockChangeInfo[]::new));
+				packet.getMultiBlockChangeInfoArrays().write(0, blockStates.toArray(MultiBlockChangeInfo[]::new));
 				serverPlayer.playerConnection.sendPacket((Packet<?>) packet.getHandle());
 			}
 		}
