@@ -10,7 +10,6 @@ author: Ingrim4
 authors: [NgLoader, lishid, SydMontague, ProgrammerDan, Aleksey-Terzi]
 
 depend: [ProtocolLib]
-folia-supported: true
 
 commands:
   orebfuscator:

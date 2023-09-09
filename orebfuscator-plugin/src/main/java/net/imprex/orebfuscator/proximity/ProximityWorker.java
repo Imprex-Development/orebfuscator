@@ -5,6 +5,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
+import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.World;
@@ -148,10 +149,10 @@ public class ProximityWorker {
 			}
 		}
 
-		player.getScheduler().run(this.orebfuscator, (task) -> {
+		Bukkit.getScheduler().runTask(this.orebfuscator, () -> {
 			if (player.isOnline() && player.getWorld().equals(world)) {
 				NmsInstance.sendBlockUpdates(player, updateBlocks);
 			}
-		}, null);
+		});
 	}
 }

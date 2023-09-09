@@ -3,40 +3,37 @@
 # Orebfuscator - Anti X-Ray
 [![Release Status](https://github.com/Imprex-Development/Orebfuscator/workflows/Releases/badge.svg)](https://github.com/Imprex-Development/Orebfuscator/releases/latest) [![Build Status](https://github.com/Imprex-Development/Orebfuscator/workflows/Build/badge.svg)](https://github.com/Imprex-Development/Orebfuscator/actions?query=workflow%3ABuild)
 
-Orebfuscator empowers server owners to protect their server from X-Ray Clients and Texture Packs, all while offering a high degree of configurability. This is achieved through modifying network packets without altering your game world, guaranteeing a secure and reliable experience for users. With Orebfuscator, you can tailor the settings to suit your server's needs, ensuring precise control over the visibility of specific blocks. This means that not only does Orebfuscator safeguard your world's integrity, but it also empowers you to fine-tune your Anti-X-Ray measures for the best gameplay experience.
+Orebfuscator is plugin for Spigot based Minecraft Servers that modifies packets in order to hide blocks of interest from X-Ray Clients and Texture Packs. Thus it doesn't modify your world and is safe to use.
 
 ### Features
-* Seamless Integration: Plug & Play functionality for effortless use.
-* Extensive Configuration: Highly customizable settings to tailor the experience to your liking.
-* Server Compatibility: Designed for Spigot-based servers 1.9.4 and newer (primarily tested on Spigot).
-* Block Obfuscation: Conceal non-visible blocks from players' view.
-* Block-Entity Support: Hide block entities such as Chests and Furnaces.
-* Dynamic Block Visibility: Adjust block visibility based on player proximity and distance.
+* Plug & Play
+* Highly configurable config
+* Support for Spigot based servers 1.9.4+ (only tested on spigot)
+* Obfuscate non-visible blocks
+* Hide block entities like Chests and Furnaces
+* Make blocks in a players proximity visible based on their distance an
 
 ### Requirements
-* Java 11 or higher
-* Spigot or compatible forks (1.9.4 or newer)
-* [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997) 5.0.0 or later
+- Java 11 or higher
+- Spigot and (proably) any other fork of Spigot (1.9.4 or higher)
+- [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997) 5.0.0 or higher
 
 ### Installation
 1. Download [ProtocolLib](https://github.com/dmulloy2/ProtocolLib/releases)
 2. Download [Orebfuscator](https://github.com/Imprex-Development/Orebfuscator/releases)
-3. Place both plugins in your _plugins_ directory
-4. Start your server and [configure Orebfuscator](https://github.com/Imprex-Development/Orebfuscator/wiki/Config) to your liking
+3. Put both in your *plugins* directory
+4. Start your server and [configure](https://github.com/Imprex-Development/Orebfuscator/wiki/Config) orebfuscator to your liking
 
 Still having trouble getting Orebfuscator to run check out our [common issues](https://github.com/Imprex-Development/Orebfuscator/wiki/Common-Issues).
 
 ### Maven
-
-To include the API in your Maven project, add the following configuration to your `pom.xml`:
-
-```xml
+```maven
 <repositories>
   <repository>
     <id>codemc-repo</id>
     <url>https://repo.codemc.io/repository/maven-public/</url>
   </repository>
-  <!-- Additional repositories can be added here if needed -->
+  ...
 </repositories>
 
 <dependencies>
@@ -45,7 +42,6 @@ To include the API in your Maven project, add the following configuration to you
     <artifactId>orebfuscator-api</artifactId>
     <version>5.2.4</version>
   </dependency>
-  <!-- Add other dependencies as required -->
 </dependencies>
 ```
 

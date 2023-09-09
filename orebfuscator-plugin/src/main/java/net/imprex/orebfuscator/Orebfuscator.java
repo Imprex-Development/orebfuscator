@@ -115,7 +115,6 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 			this.proximityThread.close();
 		}
 
-		getServer().getAsyncScheduler().cancelTasks(this);
 		this.getServer().getScheduler().cancelTasks(this);
 
 		NmsInstance.close();
