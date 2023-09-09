@@ -20,6 +20,12 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
+			<groupId>net.imprex</groupId>
+			<artifactId>orebfuscator-compatibility-paper</artifactId>
+			<version>${revision}</version>
+			<scope>provided</scope>
+		</dependency>
+		<dependency>
 			<groupId>dev.folia</groupId>
 			<artifactId>folia-api</artifactId>
 			<version>${dependency.folia.version}</version>
