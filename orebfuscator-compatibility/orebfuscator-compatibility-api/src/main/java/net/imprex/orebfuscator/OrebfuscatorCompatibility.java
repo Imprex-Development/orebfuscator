@@ -11,22 +11,11 @@ import net.imprex.orebfuscator.compatibility.CompatibilityLayer;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 import net.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.util.OFCLogger;
+import net.imprex.orebfuscator.util.ServerVersion;
 
 public class OrebfuscatorCompatibility {
 
-	private static final boolean IS_FOLIA = classExists("io.papermc.paper.threadedregions.RegionizedServer");
-	private static final boolean IS_PAPER = !IS_FOLIA && classExists("com.destroystokyo.paper.PaperConfig");
-
 	private static CompatibilityLayer instance;
-
-	private static boolean classExists(String className) {
-		try {
-			Class.forName(className);
-			return true;
-		} catch (ClassNotFoundException e) {
-			return false;
-		}
-	}
 
 	public static void initialize(Plugin plugin) {
 		if (OrebfuscatorCompatibility.instance != null) {
@@ -34,9 +23,9 @@ public class OrebfuscatorCompatibility {
 		}
 
 		String className = "net.imprex.orebfuscator.compatibility.bukkit.BukkitCompatibilityLayer";
-		if (IS_FOLIA) {
+		if (ServerVersion.isFolia()) {
 			className = "net.imprex.orebfuscator.compatibility.folia.FoliaCompatibilityLayer";
-		} else if (IS_PAPER) {
+		} else if (ServerVersion.isPaper()) {
 			className = "net.imprex.orebfuscator.compatibility.paper.PaperCompatibilityLayer";
 		}
 
@@ -52,10 +41,6 @@ public class OrebfuscatorCompatibility {
 		}
 
 		OFCLogger.debug("Compatibility layer successfully loaded");
-	}
-
-	public static boolean isMojangMapped() {
-		return instance.isMojangMapped();
 	}
 
 	public static void runForPlayer(Player player, Runnable runnable) {

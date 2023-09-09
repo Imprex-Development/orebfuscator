@@ -29,6 +29,20 @@
 	<build>
 		<plugins>
 			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-shade-plugin</artifactId>
+				<configuration>
+					<shadedArtifactAttached>true</shadedArtifactAttached>
+					<shadedClassifierName>mojang-mapped</shadedClassifierName>
+					<relocations>
+						<relocation>
+							<pattern>net.imprex.orebfuscator.nms.v1_19_R1</pattern>
+							<shadedPattern>net.imprex.orebfuscator.nms.v1_19_R1_mojang</shadedPattern>
+						</relocation>
+					</relocations>
+				</configuration>
+			</plugin>
+			<plugin>
 				<groupId>net.md-5</groupId>
 				<artifactId>specialsource-maven-plugin</artifactId>
 				<version>${plugin.specialsource.version}</version>
@@ -63,28 +77,4 @@
 			</plugin>
 		</plugins>
 	</build>
-
-	<profiles>
-		<profile>
-			<id>folia</id>
-			<build>
-				<plugins>
-					<plugin>
-						<groupId>net.md-5</groupId>
-						<artifactId>specialsource-maven-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>none</phase>
-								<id>remap-obf</id>
-							</execution>
-							<execution>
-								<phase>none</phase>
-								<id>remap-spigot</id>
-							</execution>
-						</executions>
-					</plugin>
-				</plugins>
-			</build>
-		</profile>
-	</profiles>
 </project>

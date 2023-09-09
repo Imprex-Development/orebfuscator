@@ -22,11 +22,6 @@ public class BukkitCompatibilityLayer implements CompatibilityLayer {
 	}
 
 	@Override
-	public boolean isMojangMapped() {
-		return false;
-	}
-
-	@Override
 	public CompatibilityScheduler getScheduler() {
 		return this.scheduler;
 	}

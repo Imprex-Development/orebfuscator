@@ -9,8 +9,6 @@ import net.imprex.orebfuscator.util.ChunkPosition;
 
 public interface CompatibilityLayer {
 
-	boolean isMojangMapped();
-
 	CompatibilityScheduler getScheduler();
 
 	CompletableFuture<ReadOnlyChunk[]> getNeighboringChunks(World world, ChunkPosition position);

@@ -16,6 +16,7 @@ import net.imprex.orebfuscator.util.BlockProperties;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 import net.imprex.orebfuscator.util.NamespacedKey;
 import net.imprex.orebfuscator.util.OFCLogger;
+import net.imprex.orebfuscator.util.ServerVersion;
 
 public class OrebfuscatorNms {
 
@@ -27,6 +28,10 @@ public class OrebfuscatorNms {
 		}
 
 		String nmsVersion = MinecraftVersion.nmsVersion();
+		if (ServerVersion.isMojangMapped()) {
+			nmsVersion += "_mojang";
+		}
+
 		OFCLogger.debug("Searching NMS adapter for server version \"" + nmsVersion + "\"!");
 
 		try {

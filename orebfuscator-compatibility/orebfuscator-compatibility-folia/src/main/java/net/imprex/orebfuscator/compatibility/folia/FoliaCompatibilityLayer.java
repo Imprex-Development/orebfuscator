@@ -22,11 +22,6 @@ public class FoliaCompatibilityLayer implements CompatibilityLayer {
 	}
 
 	@Override
-	public boolean isMojangMapped() {
-		return true;
-	}
-
-	@Override
 	public CompatibilityScheduler getScheduler() {
 		return this.scheduler;
 	}

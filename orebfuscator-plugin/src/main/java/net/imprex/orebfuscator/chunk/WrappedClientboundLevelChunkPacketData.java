@@ -9,8 +9,8 @@ import com.comphenix.protocol.reflect.accessors.Accessors;
 import com.comphenix.protocol.reflect.accessors.FieldAccessor;
 import com.comphenix.protocol.utility.MinecraftReflection;
 
-import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.util.BlockPos;
+import net.imprex.orebfuscator.util.ServerVersion;
 
 public class WrappedClientboundLevelChunkPacketData {
 
@@ -18,7 +18,7 @@ public class WrappedClientboundLevelChunkPacketData {
 	private static final FieldAccessor BUFFER = Accessors.getFieldAccessor(CLIENTBOUND_LEVEL_CHUNK_PACKET_DATA, byte[].class, true);
 	private static final FieldAccessor BLOCK_ENTITIES = Accessors.getFieldAccessor(CLIENTBOUND_LEVEL_CHUNK_PACKET_DATA, List.class, true);
 
-	private static final Class<?> BLOCK_ENTITY_INFO = MinecraftReflection.getMinecraftClass(OrebfuscatorCompatibility.isMojangMapped()
+	private static final Class<?> BLOCK_ENTITY_INFO = MinecraftReflection.getMinecraftClass(ServerVersion.isMojangMapped()
 			? "network.protocol.game.ClientboundLevelChunkPacketData$BlockEntityInfo"
 			: "network.protocol.game.ClientboundLevelChunkPacketData$a");
 	private static final FieldAccessor[] INT_FIELDS = Accessors.getFieldAccessorArray(BLOCK_ENTITY_INFO, int.class, true);
