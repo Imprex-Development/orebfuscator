@@ -1,5 +1,7 @@
 package net.imprex.orebfuscator.obfuscation;
 
+import org.bukkit.Bukkit;
+
 import com.comphenix.protocol.AsynchronousManager;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.async.AsyncListenerHandler;
@@ -17,7 +19,8 @@ public class ObfuscationListenerAsync extends ObfuscationListener {
 
 		this.asynchronousManager = ProtocolLibrary.getProtocolManager().getAsynchronousManager();
 		this.asyncListenerHandler = this.asynchronousManager.registerAsyncHandler(this);
-		this.asyncListenerHandler.start();
+		Bukkit.getAsyncScheduler().runNow(orebfuscator, (task) -> this.asyncListenerHandler.getListenerLoop().run());
+//		this.asyncListenerHandler.start();
 	}
 
 	@Override

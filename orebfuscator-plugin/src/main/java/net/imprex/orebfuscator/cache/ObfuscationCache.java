@@ -38,8 +38,9 @@ public class ObfuscationCache {
 		}
 
 		if (this.cacheConfig.enabled() && this.cacheConfig.deleteRegionFilesAfterAccess() > 0) {
-			Bukkit.getScheduler().runTaskTimerAsynchronously(orebfuscator, new CacheFileCleanupTask(orebfuscator), 0,
-					3_600_000L);
+			var temp = new CacheFileCleanupTask(orebfuscator);
+			Bukkit.getAsyncScheduler().runAtFixedRate(orebfuscator, task -> temp.run(), 0,
+					3_600_000L, TimeUnit.MILLISECONDS);
 		}
 	}
 

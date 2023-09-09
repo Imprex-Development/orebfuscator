@@ -12,6 +12,7 @@ import net.imprex.orebfuscator.config.AdvancedConfig;
 
 class ObfuscationTaskDispatcher implements Runnable {
 
+	private final Orebfuscator orebfuscator;
 	private final ObfuscationProcessor processor;
 
 	private final Queue<ObfuscationRequest> requests = new ConcurrentLinkedQueue<>();
@@ -21,6 +22,7 @@ class ObfuscationTaskDispatcher implements Runnable {
 	private final ObfuscationTaskWorker[] worker;
 
 	public ObfuscationTaskDispatcher(Orebfuscator orebfuscator, ObfuscationProcessor processor) {
+		this.orebfuscator = orebfuscator;
 		this.processor = processor;
 
 		AdvancedConfig config = orebfuscator.getOrebfuscatorConfig().advanced();
@@ -31,18 +33,25 @@ class ObfuscationTaskDispatcher implements Runnable {
 			this.worker[i] = new ObfuscationTaskWorker(this, this.processor);
 		}
 
-		Bukkit.getScheduler().runTaskTimer(orebfuscator, this, 0, 1);
+//		Bukkit.getScheduler().runTaskTimer(orebfuscator, this, 0, 1);
 	}
 
 	public void submitRequest(ObfuscationRequest request) {
-		this.requests.offer(request);
+		Bukkit.getRegionScheduler().run(this.orebfuscator,
+				request.getChunkStruct().world,
+				request.getChunkStruct().chunkX,
+				request.getChunkStruct().chunkZ,
+				(unused) -> {
+					this.tasks.offer(ObfuscationTask.fromRequest(request));
+				});
+//		this.requests.offer(request);
 	}
 
 	public ObfuscationTask retrieveTask() throws InterruptedException {
 		ObfuscationTask task;
 
 		while ((task = this.tasks.poll()) == null) {
-			LockSupport.park(this);
+			LockSupport.parkNanos(this, 50000000L/*50ms*/);
 			if (Thread.interrupted()) {
 				throw new InterruptedException();
 			}

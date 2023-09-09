@@ -115,7 +115,7 @@ public class UpdateSystem {
 	}
 
 	private void checkForUpdates() {
-		Bukkit.getScheduler().runTaskAsynchronously(this.orebfuscator, () -> {
+		Bukkit.getAsyncScheduler().runNow(this.orebfuscator, (task) -> {
 			if (this.isUpdateAvailable()) {
 				ConsoleUtil.printBox(Level.WARNING,
 						"UPDATE AVAILABLE", "", this.getHtmlUrl());
@@ -124,15 +124,15 @@ public class UpdateSystem {
 	}
 
 	public void checkForUpdates(Player player) {
-		Bukkit.getScheduler().runTaskAsynchronously(this.orebfuscator, () -> {
+		Bukkit.getAsyncScheduler().runNow(this.orebfuscator, (task) -> {
 			if (this.isUpdateAvailable()) {
 				BaseComponent[] components = new ComponentBuilder("[§bOrebfuscator§f]§7 A new release is available ")
 						.append("§f§l[CLICK HERE]")
 						.event(new ClickEvent(ClickEvent.Action.OPEN_URL, this.getHtmlUrl()))
 						.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("§7Click here to see the latest release").create())).create();
-				Bukkit.getScheduler().runTask(this.orebfuscator, () -> {
+				player.getScheduler().run(this.orebfuscator, (task2) -> {
 					player.spigot().sendMessage(components);
-				});
+				}, null);
 			}
 		});
 	}

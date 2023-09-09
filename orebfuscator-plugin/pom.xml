@@ -11,7 +11,14 @@
 
 	<artifactId>orebfuscator-plugin</artifactId>
 	<packaging>jar</packaging>
-	
+
+	<repositories>
+		<repository>
+			<id>papermc</id>
+			<url>https://repo.papermc.io/repository/maven-public/</url>
+		</repository>
+	</repositories>
+
 	<build>
 		<resources>
 			<resource>
@@ -69,6 +76,12 @@
 			<groupId>org.spigotmc</groupId>
 			<artifactId>spigot-api</artifactId>
 			<version>${dependency.bukkit.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>dev.folia</groupId>
+			<artifactId>folia-api</artifactId>
+			<version>1.20.1-R0.1-SNAPSHOT</version>
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
