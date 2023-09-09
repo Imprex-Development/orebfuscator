@@ -6,6 +6,8 @@ import com.comphenix.protocol.async.AsyncListenerHandler;
 import com.comphenix.protocol.events.PacketEvent;
 
 import net.imprex.orebfuscator.Orebfuscator;
+import net.imprex.orebfuscator.OrebfuscatorCompatibility;
+import net.imprex.orebfuscator.util.ServerVersion;
 
 public class ObfuscationListenerAsync extends ObfuscationListener {
 
@@ -17,7 +19,12 @@ public class ObfuscationListenerAsync extends ObfuscationListener {
 
 		this.asynchronousManager = ProtocolLibrary.getProtocolManager().getAsynchronousManager();
 		this.asyncListenerHandler = this.asynchronousManager.registerAsyncHandler(this);
-		this.asyncListenerHandler.start();
+
+		if (ServerVersion.isFolia()) {
+			OrebfuscatorCompatibility.runAsyncNow(this.asyncListenerHandler.getListenerLoop());
+		} else {
+			this.asyncListenerHandler.start();
+		}
 	}
 
 	@Override

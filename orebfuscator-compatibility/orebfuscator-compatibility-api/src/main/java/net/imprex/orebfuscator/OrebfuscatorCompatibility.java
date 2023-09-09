@@ -8,6 +8,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import net.imprex.orebfuscator.compatibility.CompatibilityLayer;
+import net.imprex.orebfuscator.config.Config;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 import net.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.util.OFCLogger;
@@ -17,7 +18,7 @@ public class OrebfuscatorCompatibility {
 
 	private static CompatibilityLayer instance;
 
-	public static void initialize(Plugin plugin) {
+	public static void initialize(Plugin plugin, Config config) {
 		if (OrebfuscatorCompatibility.instance != null) {
 			throw new IllegalStateException("Compatibility layer is already initialized!");
 		}
@@ -32,8 +33,8 @@ public class OrebfuscatorCompatibility {
 		try {
 			OFCLogger.debug("Loading compatibility layer for: " + className);
 			Class<? extends CompatibilityLayer> nmsManager = Class.forName(className).asSubclass(CompatibilityLayer.class);
-			Constructor<? extends CompatibilityLayer> constructor = nmsManager.getConstructor(Plugin.class);
-			OrebfuscatorCompatibility.instance = constructor.newInstance(plugin);
+			Constructor<? extends CompatibilityLayer> constructor = nmsManager.getConstructor(Plugin.class, Config.class);
+			OrebfuscatorCompatibility.instance = constructor.newInstance(plugin, config);
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException("Compatibility layer is missing", e);
 		} catch (Exception e) {

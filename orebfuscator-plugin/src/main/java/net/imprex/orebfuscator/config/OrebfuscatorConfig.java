@@ -22,6 +22,7 @@ import org.bukkit.plugin.Plugin;
 import com.google.common.hash.Hashing;
 
 import net.imprex.orebfuscator.Orebfuscator;
+import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.HeightAccessor;
@@ -129,6 +130,8 @@ public class OrebfuscatorConfig implements Config {
 		} else {
 			OFCLogger.warn("config section 'cache' is missing, using default one");
 		}
+
+		OrebfuscatorCompatibility.initialize(this.plugin, this);
 
 		OrebfuscatorNms.close();
 		OrebfuscatorNms.initialize(this);

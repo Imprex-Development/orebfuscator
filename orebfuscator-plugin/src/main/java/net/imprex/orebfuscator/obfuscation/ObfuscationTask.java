@@ -1,10 +1,11 @@
 package net.imprex.orebfuscator.obfuscation;
 
 import java.util.Set;
+import java.util.concurrent.CompletableFuture;
 
 import org.bukkit.World;
 
-import net.imprex.orebfuscator.OrebfuscatorNms;
+import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.chunk.ChunkStruct;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 import net.imprex.orebfuscator.util.BlockPos;
@@ -13,27 +14,24 @@ import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class ObfuscationTask {
 
-	public static ObfuscationTask fromRequest(ObfuscationRequest request) {
-		ObfuscationTask task = new ObfuscationTask(request);
-
-		ChunkPosition position = request.getPosition();
+	public static CompletableFuture<ObfuscationTask> fromRequest(ObfuscationRequest request) {
 		World world = request.getChunkStruct().world;
+		ChunkPosition position = request.getPosition();
 
-		for (ChunkDirection direction : ChunkDirection.values()) {
-			int chunkX = position.x + direction.getOffsetX();
-			int chunkZ = position.z + direction.getOffsetZ();
-			ReadOnlyChunk chunk = OrebfuscatorNms.getReadOnlyChunk(world, chunkX, chunkZ);
-			task.neighboringChunks[direction.ordinal()] = chunk;
-		}
-
-		return task;
+		return OrebfuscatorCompatibility.getNeighboringChunks(world, position)
+			.thenApply(chunks -> new ObfuscationTask(request, chunks));
 	}
 
 	private final ObfuscationRequest request;
-	private final ReadOnlyChunk[] neighboringChunks = new ReadOnlyChunk[4];
+	private final ReadOnlyChunk[] neighboringChunks;
 
-	private ObfuscationTask(ObfuscationRequest request) {
+	private ObfuscationTask(ObfuscationRequest request, ReadOnlyChunk[] neighboringChunks) {
+		if (neighboringChunks == null || neighboringChunks.length != 4) {
+			throw new IllegalArgumentException("neighboringChunks missing or invalid length");
+		}
+
 		this.request = request;
+		this.neighboringChunks = neighboringChunks;
 	}
 
 	public ChunkStruct getChunkStruct() {
