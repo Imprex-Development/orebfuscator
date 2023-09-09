@@ -17,7 +17,6 @@ import net.imprex.orebfuscator.config.BlockFlags;
 import net.imprex.orebfuscator.config.ObfuscationConfig;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.config.WorldConfigBundle;
-import net.imprex.orebfuscator.nms.BlockStateHolder;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.ChunkPosition;
 
@@ -55,59 +54,55 @@ public class DeobfuscationWorker {
 		int updateRadius = this.config.general().updateRadius();
 		BlockFlags blockFlags = bundle.blockFlags();
 
-		Processor processor = new Processor(blockFlags);
-		for (Block block : blocks) {
-			if (!occluding || block.getType().isOccluding()) {
-				BlockStateHolder blockState = OrebfuscatorNms.getBlockState(world, block);
-				processor.updateAdjacentBlocks(blockState, updateRadius);
+		try (Processor processor = new Processor(world, blockFlags)) {
+			for (Block block : blocks) {
+				if (!occluding || block.getType().isOccluding()) {
+					BlockPos position = new BlockPos(block.getX(), block.getY(), block.getZ());
+					processor.processPosition(position, updateRadius);
+				}
 			}
 		}
 	}
 
-	public class Processor {
+	public class Processor implements AutoCloseable {
 
 		private final Set<BlockPos> updatedBlocks = new HashSet<>();
 		private final Set<ChunkPosition> invalidChunks = new HashSet<>();
 
+		private final World world;
 		private final BlockFlags blockFlags;
 
-		public Processor(BlockFlags blockFlags) {
+		public Processor(World world, BlockFlags blockFlags) {
+			this.world = world;
 			this.blockFlags = blockFlags;
 		}
 
-		public void updateAdjacentBlocks(BlockStateHolder blockState, int depth) {
-			if (blockState == null) {
-				return;
-			}
-			
-			World world = blockState.getWorld();
-			BlockPos position = blockState.getPosition();
-
-			int blockId = blockState.getBlockId();
+		public void processPosition(BlockPos position, int depth) {
+			int blockId = OrebfuscatorNms.getBlockState(this.world, position);
 			if (BlockFlags.isObfuscateBitSet(blockFlags.flags(blockId)) && updatedBlocks.add(position)) {
-				blockState.notifyBlockChange();
 
+				// invalidate cache if enabled
 				if (config.cache().enabled()) {
-
 					ChunkPosition chunkPosition = position.toChunkPosition(world);
 					if (this.invalidChunks.add(chunkPosition)) {
 						cache.invalidate(chunkPosition);
 					}
 				}
 			}
-
+	
 			if (depth-- > 0) {
-				int x = blockState.getX();
-				int y = blockState.getY();
-				int z = blockState.getZ();
-
-				updateAdjacentBlocks(OrebfuscatorNms.getBlockState(world, x + 1, y, z), depth);
-				updateAdjacentBlocks(OrebfuscatorNms.getBlockState(world, x - 1, y, z), depth);
-				updateAdjacentBlocks(OrebfuscatorNms.getBlockState(world, x, y + 1, z), depth);
-				updateAdjacentBlocks(OrebfuscatorNms.getBlockState(world, x, y - 1, z), depth);
-				updateAdjacentBlocks(OrebfuscatorNms.getBlockState(world, x, y, z + 1), depth);
-				updateAdjacentBlocks(OrebfuscatorNms.getBlockState(world, x, y, z - 1), depth);
+				processPosition(position.add( 1,  0,  0), depth);
+				processPosition(position.add(-1,  0,  0), depth);
+				processPosition(position.add( 0,  1,  0), depth);
+				processPosition(position.add( 0, -1,  0), depth);
+				processPosition(position.add( 1,  0,  1), depth);
+				processPosition(position.add( 1,  0, -1), depth);
 			}
+		}
+
+		@Override
+		public void close() {
+			OrebfuscatorNms.sendBlockUpdates(this.world, this.updatedBlocks);
 		}
 	}
 }

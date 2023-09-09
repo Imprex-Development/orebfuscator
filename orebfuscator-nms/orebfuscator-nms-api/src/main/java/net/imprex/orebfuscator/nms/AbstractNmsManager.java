@@ -3,24 +3,29 @@ package net.imprex.orebfuscator.nms;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.imprex.orebfuscator.config.CacheConfig;
-import net.imprex.orebfuscator.config.Config;
 import net.imprex.orebfuscator.util.BlockProperties;
 import net.imprex.orebfuscator.util.BlockStateProperties;
+import net.imprex.orebfuscator.util.MathUtil;
 import net.imprex.orebfuscator.util.NamespacedKey;
 
 public abstract class AbstractNmsManager implements NmsManager {
 
 	private final AbstractRegionFileCache<?> regionFileCache;
 
-	private final BlockStateProperties[] blockStates = new BlockStateProperties[getTotalBlockCount()];
+	private final int uniqueBlockStateCount;
+	private final int maxBitsPerBlockState;
+
+	private final BlockStateProperties[] blockStates;
 	private final Map<NamespacedKey, BlockProperties> blocks = new HashMap<>();
 
-	public AbstractNmsManager(Config config) {
-		this.regionFileCache = this.createRegionFileCache(config.cache());
-	}
+	public AbstractNmsManager(int uniqueBlockStateCount, AbstractRegionFileCache<?> regionFileCache) {
+		this.regionFileCache = regionFileCache;
 
-	protected abstract AbstractRegionFileCache<?> createRegionFileCache(CacheConfig cacheConfig);
+		this.uniqueBlockStateCount = uniqueBlockStateCount;
+		this.maxBitsPerBlockState = MathUtil.ceilLog2(uniqueBlockStateCount);
+
+		this.blockStates = new BlockStateProperties[uniqueBlockStateCount];
+	}
 
 	protected final void registerBlockStateProperties(BlockStateProperties properties) {
 		this.blockStates[properties.getId()] = properties;
@@ -37,6 +42,16 @@ public abstract class AbstractNmsManager implements NmsManager {
 	@Override
 	public final AbstractRegionFileCache<?> getRegionFileCache() {
 		return this.regionFileCache;
+	}
+
+	@Override
+	public final int getTotalBlockCount() {
+		return this.uniqueBlockStateCount;
+	}
+
+	@Override
+	public final int getMaxBitsPerBlock() {
+		return this.maxBitsPerBlockState;
 	}
 
 	@Override
