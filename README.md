@@ -14,7 +14,7 @@ Orebfuscator is plugin for Spigot based Minecraft Servers that modifies packets 
 * Make blocks in a players proximity visible based on their distance an
 
 ### Requirements
-- Java 17 or higher
+- Java 11 or higher
 - Spigot and (proably) any other fork of Spigot (1.9.4 or higher)
 - [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997) 5.0.0 or higher
 
