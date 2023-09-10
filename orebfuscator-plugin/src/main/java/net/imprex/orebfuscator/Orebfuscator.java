@@ -115,7 +115,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 			this.proximityThread.close();
 		}
 
-		OrebfuscatorCompatibility.cancelTasks();
+		OrebfuscatorCompatibility.close();
 		OrebfuscatorNms.close();
 		
 		this.config = null;
