@@ -5,11 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_10_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_10_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_10_R1.util.CraftMagicNumbers;
 import org.bukkit.entity.Player;
 
 import com.comphenix.protocol.PacketType;
@@ -81,9 +79,7 @@ public class NmsManager extends AbstractNmsManager {
 
 		for (MinecraftKey key : Block.REGISTRY.keySet()) {
 			NamespacedKey namespacedKey = NamespacedKey.fromString(key.toString());
-
 			Block block = Block.REGISTRY.get(key);
-			Material material = CraftMagicNumbers.getMaterial(block);
 
 			ImmutableList<IBlockData> possibleBlockStates = block.t().a();
 			List<BlockStateProperties> possibleBlockStateProperties = new ArrayList<>();
@@ -92,7 +88,11 @@ public class NmsManager extends AbstractNmsManager {
 	
 				BlockStateProperties properties = BlockStateProperties.builder(getBlockId(blockState))
 						.withIsAir(block instanceof BlockAir)
-						.withIsOccluding(material.isOccluding())
+						/**
+						* p -> for barrier/slime_block/spawner
+						* k -> for every other block
+						*/
+						.withIsOccluding(blockState.p() && blockState.k()/*canOcclude*/)
 						.withIsBlockEntity(block.isTileEntity())
 						.build();
 
