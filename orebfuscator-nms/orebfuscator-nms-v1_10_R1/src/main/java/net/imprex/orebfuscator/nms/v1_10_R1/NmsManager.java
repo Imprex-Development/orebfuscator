@@ -90,9 +90,9 @@ public class NmsManager extends AbstractNmsManager {
 						.withIsAir(block instanceof BlockAir)
 						/**
 						* p -> for barrier/slime_block/spawner
-						* k -> for every other block
+						* j -> for every other block
 						*/
-						.withIsOccluding(blockState.p() && blockState.k()/*canOcclude*/)
+						.withIsOccluding(blockState.p() && block.j()/*canOcclude*/)
 						.withIsBlockEntity(block.isTileEntity())
 						.build();
 
