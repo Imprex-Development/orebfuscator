@@ -69,19 +69,17 @@ obfuscation:
         maxY: 2032
         blocks:
           minecraft:air: 5
-          minecraft:clay: 1
-          minecraft:coal_ore: 1
           minecraft:cobblestone: 1
-          minecraft:diamond_ore: 25
-          minecraft:emerald_ore: 10
-          minecraft:gold_ore: 5
-          minecraft:iron_ore: 5
-          minecraft:lapis_ore: 1
           minecraft:mossy_cobblestone: 1
           minecraft:obsidian: 1
-          minecraft:redstone_ore: 1
-          minecraft:stone: 1
-          minecraft:tnt: 1
+          minecraft:stone: 15
+          minecraft:diamond_ore: 10
+          minecraft:emerald_ore: 5
+          minecraft:gold_ore: 5
+          minecraft:iron_ore: 5
+          minecraft:coal_ore: 5
+          minecraft:lapis_ore: 5
+          minecraft:redstone_ore: 5
       section-bedrock:
         minY: 0
         maxY: 5
