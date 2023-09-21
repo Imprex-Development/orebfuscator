@@ -109,7 +109,7 @@ public class ObfuscationProcessor {
 	private int getBlockStateBelow(BlockFlags blockFlags, Chunk chunk, int x, int y, int z) {
 		for (int targetY = y - 1; targetY > chunk.getHeightAccessor().getMinBuildHeight(); targetY--) {
 			int blockData = chunk.getBlockState(x, targetY, z);
-			if (blockData != -1) {
+			if (blockData != -1 && OrebfuscatorNms.isOccluding(blockData)) {
 				int mask = blockFlags.flags(blockData, y);
 				if (BlockFlags.isEmpty(mask) || BlockFlags.isAllowForUseBlockBelowBitSet(mask)) {
 					return blockData;
