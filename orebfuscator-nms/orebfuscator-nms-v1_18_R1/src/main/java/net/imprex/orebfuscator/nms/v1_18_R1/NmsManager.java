@@ -51,7 +51,7 @@ public class NmsManager extends AbstractNmsManager {
 		int sectionIndex = chunk.getSectionIndex(y);
 		if (sectionIndex >= 0 && sectionIndex < sections.length) {
 			LevelChunkSection section = sections[sectionIndex];
-			if (sections != null && !section.hasOnlyAir()) {
+			if (section != null && !section.hasOnlyAir()) {
 				return Block.getId(section.getBlockState(x & 0xF, y & 0xF, z & 0xF));
 			}
 		}
