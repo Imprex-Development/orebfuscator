@@ -176,8 +176,10 @@ public class NmsManager extends AbstractNmsManager {
 				BlockPosition blockPosition = entry.getKey().g(blockEntry.getShortKey());
 				serverPlayer.playerConnection.sendPacket(new PacketPlayOutBlockChange(blockPosition, blockEntry.getValue()));
 			} else {
-				PacketContainer packet = PacketContainer.fromPacket(
-						new PacketPlayOutMultiBlockChange(entry.getKey(), blockStates.keySet(), null, false));
+				// fix #324: use empty constructor cause ChunkSection can only be null for spigot forks 
+				PacketContainer packet = PacketContainer.fromPacket(new PacketPlayOutMultiBlockChange());
+				packet.getSpecificModifier(SectionPosition.class).write(0, entry.getKey());
+				packet.getSpecificModifier(short[].class).write(0, blockStates.keySet().toShortArray());
 				packet.getSpecificModifier(IBlockData[].class).write(0, blockStates.values().toArray(IBlockData[]::new));
 				serverPlayer.playerConnection.sendPacket((Packet<?>) packet.getHandle());
 			}
