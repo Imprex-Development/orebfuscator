@@ -25,12 +25,22 @@ import net.imprex.orebfuscator.util.PermissionUtil;
 
 public abstract class ObfuscationListener extends PacketAdapter {
 
+	private static final PacketType CHUNK_BATCH_START = new PacketType(PacketType.Protocol.PLAY, PacketType.Sender.SERVER, 0, "ClientboundChunkBatchFinishedPacket");
+	private static final PacketType CHUNK_BATCH_END = new PacketType(PacketType.Protocol.PLAY, PacketType.Sender.SERVER, 0, "ClientboundChunkBatchStartPacket");
+
 	private static final List<PacketType> PACKET_TYPES = List.of(
 		PacketType.Play.Server.MAP_CHUNK,
 		PacketType.Play.Server.UNLOAD_CHUNK,
 		PacketType.Play.Server.LIGHT_UPDATE,
-		PacketType.Play.Server.TILE_ENTITY_DATA
+		PacketType.Play.Server.TILE_ENTITY_DATA,
+		CHUNK_BATCH_START,
+		CHUNK_BATCH_END
 	);
+
+	public static void registerPacketTypes() {
+		PacketType.scheduleRegister(CHUNK_BATCH_START, "CHUNK_BATCH_START");
+		PacketType.scheduleRegister(CHUNK_BATCH_END, "CHUNK_BATCH_END");
+	}
 
 	private final OrebfuscatorConfig config;
 	private final OrebfuscatorPlayerMap playerMap;

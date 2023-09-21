@@ -13,6 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import net.imprex.orebfuscator.api.OrebfuscatorService;
 import net.imprex.orebfuscator.cache.ObfuscationCache;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
+import net.imprex.orebfuscator.obfuscation.ObfuscationListener;
 import net.imprex.orebfuscator.obfuscation.ObfuscationSystem;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayerMap;
 import net.imprex.orebfuscator.proximity.ProximityDirectorThread;
@@ -47,6 +48,9 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 			if (protocolLib == null || !protocolLib.isEnabled()) {
 				throw new RuntimeException("ProtocolLib can't be found or is disabled! Orebfuscator can't be enabled.");
 			}
+
+			// register 1.20.2 packets for older versions of protocollib
+			ObfuscationListener.registerPacketTypes();
 
 			// Load configurations
 			this.config = new OrebfuscatorConfig(this);
