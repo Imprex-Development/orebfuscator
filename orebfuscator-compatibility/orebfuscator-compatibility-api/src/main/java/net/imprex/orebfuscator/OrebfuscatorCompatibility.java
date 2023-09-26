@@ -11,6 +11,7 @@ import net.imprex.orebfuscator.compatibility.CompatibilityLayer;
 import net.imprex.orebfuscator.config.Config;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 import net.imprex.orebfuscator.util.ChunkPosition;
+import net.imprex.orebfuscator.util.MinecraftVersion;
 import net.imprex.orebfuscator.util.OFCLogger;
 import net.imprex.orebfuscator.util.ServerVersion;
 
@@ -26,7 +27,7 @@ public class OrebfuscatorCompatibility {
 		String className = "net.imprex.orebfuscator.compatibility.bukkit.BukkitCompatibilityLayer";
 		if (ServerVersion.isFolia()) {
 			className = "net.imprex.orebfuscator.compatibility.folia.FoliaCompatibilityLayer";
-		} else if (ServerVersion.isPaper()) {
+		} else if (ServerVersion.isPaper() && MinecraftVersion.minorVersion() >= 13) {
 			className = "net.imprex.orebfuscator.compatibility.paper.PaperCompatibilityLayer";
 		}
 
