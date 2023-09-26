@@ -4,11 +4,10 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
-import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R3.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
@@ -147,7 +146,7 @@ public class NmsManager extends AbstractNmsManager {
 		ChunkProviderServer serverChunkCache = level.getChunkProvider();
 
 		BlockPosition.MutableBlockPosition position = new BlockPosition.MutableBlockPosition();
-		Map<SectionPosition, Short2ObjectMap<IBlockData>> sectionPackets = new HashMap<>();
+		Map<SectionPosition, Map<Short, IBlockData>> sectionPackets = new HashMap<>();
 		List<Packet<PacketListenerPlayOut>> blockEntityPackets = new ArrayList<>();
 
 		for (net.imprex.orebfuscator.util.BlockPos pos : iterable) {
@@ -158,7 +157,7 @@ public class NmsManager extends AbstractNmsManager {
 			position.c(pos.x, pos.y, pos.z);
 			IBlockData blockState = level.getType(position);
 
-			sectionPackets.computeIfAbsent(SectionPosition.a(position), key -> new Short2ObjectOpenHashMap<>())
+			sectionPackets.computeIfAbsent(SectionPosition.a(position), key -> new HashMap<>())
 				.put(SectionPosition.b(position), blockState);
 
 			if (blockState.getBlock().isTileEntity()) {
@@ -169,17 +168,17 @@ public class NmsManager extends AbstractNmsManager {
 			}
 		}
 
-		for (Map.Entry<SectionPosition, Short2ObjectMap<IBlockData>> entry : sectionPackets.entrySet()) {
-			Short2ObjectMap<IBlockData> blockStates = entry.getValue();
+		for (Map.Entry<SectionPosition, Map<Short, IBlockData>> entry : sectionPackets.entrySet()) {
+			Map<Short, IBlockData> blockStates = entry.getValue();
 			if (blockStates.size() == 1) {
-				Short2ObjectMap.Entry<IBlockData> blockEntry = blockStates.short2ObjectEntrySet().iterator().next();
-				BlockPosition blockPosition = entry.getKey().g(blockEntry.getShortKey());
+				Map.Entry<Short, IBlockData> blockEntry = blockStates.entrySet().iterator().next();
+				BlockPosition blockPosition = entry.getKey().g(blockEntry.getKey());
 				serverPlayer.playerConnection.sendPacket(new PacketPlayOutBlockChange(blockPosition, blockEntry.getValue()));
 			} else {
 				// fix #324: use empty constructor cause ChunkSection can only be null for spigot forks 
 				PacketContainer packet = PacketContainer.fromPacket(new PacketPlayOutMultiBlockChange());
 				packet.getSpecificModifier(SectionPosition.class).write(0, entry.getKey());
-				packet.getSpecificModifier(short[].class).write(0, blockStates.keySet().toShortArray());
+				packet.getSpecificModifier(short[].class).write(0, toShortArray(blockStates.keySet()));
 				packet.getSpecificModifier(IBlockData[].class).write(0, blockStates.values().toArray(IBlockData[]::new));
 				serverPlayer.playerConnection.sendPacket((Packet<?>) packet.getHandle());
 			}
@@ -188,5 +187,16 @@ public class NmsManager extends AbstractNmsManager {
 		for (Packet<PacketListenerPlayOut> packet : blockEntityPackets) {
 			serverPlayer.playerConnection.sendPacket(packet);
 		}
+	}
+
+	private static short[] toShortArray(Set<Short> set) {
+		short[] array = new short[set.size()];
+
+		int i = 0;
+		for (Short value : set) {
+			array[i++] = value;
+		}
+
+		return array;
 	}
 }

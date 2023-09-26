@@ -4,16 +4,16 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.bukkit.Material;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
-import org.bukkit.craftbukkit.libs.it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
+import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.google.common.collect.ImmutableList;
 
@@ -29,7 +29,6 @@ import net.minecraft.core.SectionPos;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
-import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
@@ -143,7 +142,8 @@ public class NmsManager extends AbstractNmsManager {
 		ServerChunkCache serverChunkCache = level.getChunkProvider();
 
 		BlockPos.MutableBlockPos position = new BlockPos.MutableBlockPos();
-		Map<SectionPos, Short2ObjectMap<BlockState>> sectionPackets = new HashMap<>();
+		// use default map cause spigot and paper have different imports for fastutil
+		Map<SectionPos, Map<Short, BlockState>> sectionPackets = new HashMap<>();
 		List<Packet<ClientGamePacketListener>> blockEntityPackets = new ArrayList<>();
 
 		for (net.imprex.orebfuscator.util.BlockPos pos : iterable) {
@@ -154,7 +154,7 @@ public class NmsManager extends AbstractNmsManager {
 			position.set(pos.x, pos.y, pos.z);
 			BlockState blockState = level.getBlockState(position);
 
-			sectionPackets.computeIfAbsent(SectionPos.of(position), key -> new Short2ObjectOpenHashMap<>())
+			sectionPackets.computeIfAbsent(SectionPos.of(position), key -> new HashMap<>())
 				.put(SectionPos.sectionRelativePos(position), blockState);
 
 			if (blockState.hasBlockEntity()) {
@@ -165,15 +165,17 @@ public class NmsManager extends AbstractNmsManager {
 			}
 		}
 
-		for (Map.Entry<SectionPos, Short2ObjectMap<BlockState>> entry : sectionPackets.entrySet()) {
-			Short2ObjectMap<BlockState> blockStates = entry.getValue();
+		for (Map.Entry<SectionPos, Map<Short, BlockState>> entry : sectionPackets.entrySet()) {
+			Map<Short, BlockState> blockStates = entry.getValue();
 			if (blockStates.size() == 1) {
-				Short2ObjectMap.Entry<BlockState> blockEntry = blockStates.short2ObjectEntrySet().iterator().next();
-				BlockPos blockPosition = entry.getKey().relativeToBlockPos(blockEntry.getShortKey());
+				Map.Entry<Short, BlockState> blockEntry = blockStates.entrySet().iterator().next();
+				BlockPos blockPosition = entry.getKey().relativeToBlockPos(blockEntry.getKey());
 				serverPlayer.connection.send(new ClientboundBlockUpdatePacket(blockPosition, blockEntry.getValue()));
 			} else {
-				PacketContainer packet = PacketContainer.fromPacket(
-						new ClientboundSectionBlocksUpdatePacket(entry.getKey(), blockStates.keySet(), null, false));
+				// use ProtocolLib cause spigot and paper have different imports for fastutil
+				PacketContainer packet = new PacketContainer(PacketType.Play.Server.MULTI_BLOCK_CHANGE);
+				packet.getSpecificModifier(SectionPos.class).write(0, entry.getKey());
+				packet.getSpecificModifier(short[].class).write(0, toShortArray(blockStates.keySet()));
 				packet.getSpecificModifier(BlockState[].class).write(0, blockStates.values().toArray(BlockState[]::new));
 				serverPlayer.connection.send((Packet<?>) packet.getHandle());
 			}
@@ -182,5 +184,16 @@ public class NmsManager extends AbstractNmsManager {
 		for (Packet<ClientGamePacketListener> packet : blockEntityPackets) {
 			serverPlayer.connection.send(packet);
 		}
+	}
+
+	private static short[] toShortArray(Set<Short> set) {
+		short[] array = new short[set.size()];
+
+		int i = 0;
+		for (Short value : set) {
+			array[i++] = value;
+		}
+
+		return array;
 	}
 }
