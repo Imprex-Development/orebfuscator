@@ -101,7 +101,8 @@ public class ProximityDirectorThread extends Thread implements Listener {
 
 				// park thread if no players are online
 				if (players.isEmpty()) {
-					LockSupport.park(this);
+					// park for 1sec and retry
+					LockSupport.parkNanos(this, 1000000000L);
 					// reset interrupt flag
 					Thread.interrupted();
 					continue;
