@@ -12,6 +12,7 @@ public final class MinecraftVersion {
 	private static final String NMS_VERSION;
 	private static final int MAJOR_VERSION;
 	private static final int MINOR_VERSION;
+	private static final int REVISION_NUMBER;
 
 	static {
 		String craftBukkitPackage = Bukkit.getServer().getClass().getPackage().getName();
@@ -24,6 +25,7 @@ public final class MinecraftVersion {
 		NMS_VERSION = matcher.group(1);
 		MAJOR_VERSION = Integer.parseInt(matcher.group(2));
 		MINOR_VERSION = Integer.parseInt(matcher.group(3));
+		REVISION_NUMBER = Integer.parseInt(matcher.group(4));
 	}
 
 	public static String nmsVersion() {
@@ -36,6 +38,10 @@ public final class MinecraftVersion {
 
 	public static int minorVersion() {
 		return MINOR_VERSION;
+	}
+
+	public static int revisionNumber() {
+		return REVISION_NUMBER;
 	}
 
 	private MinecraftVersion() {

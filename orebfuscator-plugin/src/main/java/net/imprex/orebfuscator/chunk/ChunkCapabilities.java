@@ -4,7 +4,8 @@ import net.imprex.orebfuscator.util.MinecraftVersion;
 
 public final class ChunkCapabilities {
 
-	// hasClientboundLevelChunkPacketData >= 18;
+	// hasChunkPosFieldUnloadPacket >= 1.20.2
+	// hasClientboundLevelChunkPacketData >= 1.18;
 	// hasBiomePalettedContainer >= 1.18
 	// hasSingleValuePalette >= 1.18
 	// hasHeightBitMask <= 1.17
@@ -14,6 +15,8 @@ public final class ChunkCapabilities {
 	// hasDirectPaletteZeroLength < 1.13
 	// hasLight < 1.14
 
+	private static final boolean hasChunkPosFieldUnloadPacket = MinecraftVersion.minorVersion() > 20 ||
+			(MinecraftVersion.minorVersion() == 20 && MinecraftVersion.revisionNumber() >= 2);
 	private static final boolean hasClientboundLevelChunkPacketData = MinecraftVersion.minorVersion() >= 18;
 	private static final boolean hasBiomePalettedContainer = MinecraftVersion.minorVersion() >= 18;
 	private static final boolean hasSingleValuePalette = MinecraftVersion.minorVersion() >= 18;
@@ -25,6 +28,10 @@ public final class ChunkCapabilities {
 	private static final boolean hasLightArray = MinecraftVersion.minorVersion() < 14;
 
 	private ChunkCapabilities() {
+	}
+
+	public static boolean hasChunkPosFieldUnloadPacket() {
+		return hasChunkPosFieldUnloadPacket;
 	}
 
 	public static boolean hasClientboundLevelChunkPacketData() {

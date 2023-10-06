@@ -1,6 +1,7 @@
 package net.imprex.orebfuscator.obfuscation;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -10,6 +11,7 @@ import java.util.stream.Collectors;
 import org.bukkit.entity.Player;
 
 import com.comphenix.protocol.PacketType;
+import com.comphenix.protocol.PacketTypeEnum;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 
@@ -29,8 +31,16 @@ public abstract class ObfuscationListener extends PacketAdapter {
 		PacketType.Play.Server.MAP_CHUNK,
 		PacketType.Play.Server.UNLOAD_CHUNK,
 		PacketType.Play.Server.LIGHT_UPDATE,
-		PacketType.Play.Server.TILE_ENTITY_DATA
+		PacketType.Play.Server.TILE_ENTITY_DATA,
+		tryGetPacketType(PacketType.Play.Client.getInstance(), "CHUNK_BATCH_RECEIVED")
 	);
+
+	private static PacketType tryGetPacketType(PacketTypeEnum packetTypeEnum, String name) {
+		return packetTypeEnum.values().stream()
+			.filter(packetType -> packetType.name().equals(name))
+			.findAny()
+			.orElse(null);
+	}
 
 	private final OrebfuscatorConfig config;
 	private final OrebfuscatorPlayerMap playerMap;
@@ -38,6 +48,7 @@ public abstract class ObfuscationListener extends PacketAdapter {
 
 	public ObfuscationListener(Orebfuscator orebfuscator) {
 		super(orebfuscator, PACKET_TYPES.stream()
+				.filter(Objects::nonNull)
 				.filter(PacketType::isSupported)
 				.collect(Collectors.toList()));
 
@@ -51,6 +62,11 @@ public abstract class ObfuscationListener extends PacketAdapter {
 	protected abstract void postChunkProcessing(PacketEvent event);
 
 	public abstract void unregister();
+
+	@Override
+	public void onPacketReceiving(PacketEvent event) {
+		event.getPacket().getFloat().write(0, 10f);
+	}
 
 	@Override
 	public void onPacketSending(PacketEvent event) {
@@ -70,9 +86,9 @@ public abstract class ObfuscationListener extends PacketAdapter {
 
 		this.preChunkProcessing(event);
 
-		AdvancedConfig advancedConfig = this.config.advanced();
-
 		CompletableFuture<ObfuscationResult> future = this.obfuscationSystem.obfuscate(struct);
+
+		AdvancedConfig advancedConfig = this.config.advanced();
 		if (advancedConfig.hasObfuscationTimeout()) {
 			future = future.orTimeout(advancedConfig.obfuscationTimeout(), TimeUnit.MILLISECONDS);
 		}

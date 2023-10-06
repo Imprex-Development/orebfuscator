@@ -7,10 +7,13 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketAdapter;
+import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
+import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 
 import net.imprex.orebfuscator.Orebfuscator;
+import net.imprex.orebfuscator.chunk.ChunkCapabilities;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.config.ProximityConfig;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayer;
@@ -53,8 +56,14 @@ public class ProximityPacketListener extends PacketAdapter {
 
 		OrebfuscatorPlayer orebfuscatorPlayer = this.playerMap.get(player);
 		if (orebfuscatorPlayer != null) {
-			StructureModifier<Integer> ints = event.getPacket().getIntegers();
-			orebfuscatorPlayer.removeChunk(ints.read(0), ints.read(1));
+			PacketContainer packet = event.getPacket();
+			if (ChunkCapabilities.hasChunkPosFieldUnloadPacket()) {
+				ChunkCoordIntPair chunkPos = packet.getChunkCoordIntPairs().read(0);
+				orebfuscatorPlayer.removeChunk(chunkPos.getChunkX(), chunkPos.getChunkZ());
+			} else {
+				StructureModifier<Integer> ints = packet.getIntegers();
+				orebfuscatorPlayer.removeChunk(ints.read(0), ints.read(1));
+			}
 		}
 	}
 }
