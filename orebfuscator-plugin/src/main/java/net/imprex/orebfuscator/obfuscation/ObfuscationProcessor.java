@@ -14,6 +14,7 @@ import net.imprex.orebfuscator.config.BlockFlags;
 import net.imprex.orebfuscator.config.ObfuscationConfig;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.config.ProximityConfig;
+import net.imprex.orebfuscator.config.ProximityHeightCondition;
 import net.imprex.orebfuscator.config.WorldConfigBundle;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.HeightAccessor;
@@ -68,11 +69,11 @@ public class ObfuscationProcessor {
 					int x = baseX + (index & 15);
 					int z = baseZ + (index >> 4 & 15);
 
+					boolean isObfuscateBitSet = BlockFlags.isObfuscateBitSet(obfuscateBits);
 					boolean obfuscated = false;
 
 					// should current block be obfuscated
-					if (BlockFlags.isObfuscateBitSet(obfuscateBits) && shouldObfuscate(task, chunk, x, y, z)
-							&& obfuscationConfig.shouldObfuscate(y)) {
+					if (isObfuscateBitSet && obfuscationConfig.shouldObfuscate(y) && shouldObfuscate(task, chunk, x, y, z)) {
 						blockState = bundle.nextRandomObfuscationBlock(y);
 						obfuscated = true;
 					}
@@ -81,7 +82,8 @@ public class ObfuscationProcessor {
 					if (!obfuscated && BlockFlags.isProximityBitSet(obfuscateBits) && proximityConfig.shouldObfuscate(y)) {
 						proximityBlocks.add(new BlockPos(x, y, z));
 						if (BlockFlags.isUseBlockBelowBitSet(obfuscateBits)) {
-							blockState = getBlockStateBelow(bundle, chunk, x, y, z);
+							boolean allowNonOcclude = !isObfuscateBitSet || !ProximityHeightCondition.isPresent(obfuscateBits);
+							blockState = getBlockStateBelow(bundle, chunk, x, y, z, allowNonOcclude);
 						} else {
 							blockState = bundle.nextRandomProximityBlock(y);
 						}
@@ -106,12 +108,12 @@ public class ObfuscationProcessor {
 
 	// returns first block below given position that wouldn't be obfuscated in any
 	// way at given position
-	private int getBlockStateBelow(WorldConfigBundle bundle, Chunk chunk, int x, int y, int z) {
+	private int getBlockStateBelow(WorldConfigBundle bundle, Chunk chunk, int x, int y, int z, boolean allowNonOcclude) {
 		BlockFlags blockFlags = bundle.blockFlags();
 
 		for (int targetY = y - 1; targetY > chunk.getHeightAccessor().getMinBuildHeight(); targetY--) {
 			int blockData = chunk.getBlockState(x, targetY, z);
-			if (blockData != -1 && OrebfuscatorNms.isOccluding(blockData)) {
+			if (blockData != -1 && (allowNonOcclude || OrebfuscatorNms.isOccluding(blockData))) {
 				int mask = blockFlags.flags(blockData, y);
 				if (BlockFlags.isEmpty(mask) || BlockFlags.isAllowForUseBlockBelowBitSet(mask)) {
 					return blockData;
