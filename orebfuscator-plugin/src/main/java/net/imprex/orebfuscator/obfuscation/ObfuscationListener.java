@@ -1,5 +1,6 @@
 package net.imprex.orebfuscator.obfuscation;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
@@ -27,7 +28,7 @@ import net.imprex.orebfuscator.util.PermissionUtil;
 
 public abstract class ObfuscationListener extends PacketAdapter {
 
-	private static final List<PacketType> PACKET_TYPES = List.of(
+	private static final List<PacketType> PACKET_TYPES = Arrays.asList(
 		PacketType.Play.Server.MAP_CHUNK,
 		PacketType.Play.Server.UNLOAD_CHUNK,
 		PacketType.Play.Server.LIGHT_UPDATE,
