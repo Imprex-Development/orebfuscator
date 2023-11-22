@@ -13,12 +13,15 @@ import net.imprex.orebfuscator.util.OFCLogger;
 
 public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implements ObfuscationConfig {
 
+	private boolean layerObfuscation = false;
+
 	private final Set<BlockProperties> hiddenBlocks = new LinkedHashSet<>();
 
 	OrebfuscatorObfuscationConfig(ConfigurationSection section) {
 		super(section.getName());
 		this.deserializeBase(section);
 		this.deserializeWorlds(section, "worlds");
+		this.layerObfuscation = section.getBoolean("layerObfuscation", false);
 		this.deserializeHiddenBlocks(section, "hiddenBlocks");
 		this.deserializeRandomBlocks(section, "randomBlocks");
 	}
@@ -26,6 +29,7 @@ public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implement
 	void serialize(ConfigurationSection section) {
 		this.serializeBase(section);
 		this.serializeWorlds(section, "worlds");
+		section.set("layerObfuscation", this.layerObfuscation);
 		this.serializeHiddenBlocks(section, "hiddenBlocks");
 		this.serializeRandomBlocks(section, "randomBlocks");
 	}
@@ -56,6 +60,11 @@ public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implement
 		}
 
 		section.set(path, blockNames);
+	}
+
+	@Override
+	public boolean layerObfuscation() {
+		return this.layerObfuscation;
 	}
 
 	@Override

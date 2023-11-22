@@ -18,18 +18,24 @@ public class FoliaScheduler implements CompatibilityScheduler {
 
 	@Override
 	public void runForPlayer(Player player, Runnable runnable) {
-		player.getScheduler().run(this.plugin, task -> runnable.run(), null);
+		if (this.plugin.isEnabled()) {
+			player.getScheduler().run(this.plugin, task -> runnable.run(), null);
+		}
 	}
 
 	@Override
 	public void runAsyncNow(Runnable runnable) {
-		Bukkit.getAsyncScheduler().runNow(this.plugin, task -> runnable.run());
+		if (this.plugin.isEnabled()) {
+			Bukkit.getAsyncScheduler().runNow(this.plugin, task -> runnable.run());
+		}
 	}
 
 	@Override
 	public void runAsyncAtFixedRate(Runnable runnable, long delay, long period) {
-		Bukkit.getAsyncScheduler().runAtFixedRate(this.plugin, task -> runnable.run(),
-				delay * 50, period * 50, TimeUnit.MILLISECONDS);
+		if (this.plugin.isEnabled()) {
+			Bukkit.getAsyncScheduler().runAtFixedRate(this.plugin, task -> runnable.run(),
+					delay * 50, period * 50, TimeUnit.MILLISECONDS);
+		}
 	}
 
 	@Override

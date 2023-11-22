@@ -16,17 +16,23 @@ public class BukkitScheduler implements CompatibilityScheduler {
 
 	@Override
 	public void runForPlayer(Player player, Runnable runnable) {
-		Bukkit.getScheduler().runTask(this.plugin, runnable);
+		if (this.plugin.isEnabled()) {
+			Bukkit.getScheduler().runTask(this.plugin, runnable);
+		}
 	}
 
 	@Override
 	public void runAsyncNow(Runnable runnable) {
-		Bukkit.getScheduler().runTaskAsynchronously(this.plugin, runnable);
+		if (this.plugin.isEnabled()) {
+			Bukkit.getScheduler().runTaskAsynchronously(this.plugin, runnable);
+		}
 	}
 
 	@Override
 	public void runAsyncAtFixedRate(Runnable runnable, long delay, long period) {
-		Bukkit.getScheduler().runTaskTimerAsynchronously(this.plugin, runnable, delay, period);
+		if (this.plugin.isEnabled()) {
+			Bukkit.getScheduler().runTaskTimerAsynchronously(this.plugin, runnable, delay, period);
+		}
 	}
 
 	@Override

@@ -44,6 +44,9 @@ public class ObfuscationProcessor {
 		int baseX = chunkStruct.chunkX << 4;
 		int baseZ = chunkStruct.chunkZ << 4;
 
+		int layerY = Integer.MIN_VALUE;
+		int layerYBlockState = -1;
+
 		try (Chunk chunk = Chunk.fromChunkStruct(chunkStruct)) {
 			for (int sectionIndex = Math.max(0, bundle.minSectionIndex()); sectionIndex <= Math
 					.min(chunk.getSectionCount() - 1, bundle.maxSectionIndex()); sectionIndex++) {
@@ -74,7 +77,15 @@ public class ObfuscationProcessor {
 
 					// should current block be obfuscated
 					if (isObfuscateBitSet && obfuscationConfig.shouldObfuscate(y) && shouldObfuscate(task, chunk, x, y, z)) {
-						blockState = bundle.nextRandomObfuscationBlock(y);
+						if (obfuscationConfig.layerObfuscation()) {
+							if (layerY != y) {
+								layerY = y;
+								layerYBlockState = bundle.nextRandomObfuscationBlock(y);
+							}
+							blockState = layerYBlockState;
+						} else {
+							blockState = bundle.nextRandomObfuscationBlock(y);
+						}
 						obfuscated = true;
 					}
 
