@@ -32,6 +32,7 @@ obfuscation:
     maxY: 2031
     worlds:
     - world
+    layerObfuscation: false
     hiddenBlocks:
     - minecraft:chest
     - minecraft:ender_chest
@@ -75,6 +76,7 @@ obfuscation:
     maxY: 2031
     worlds:
     - world_nether
+    layerObfuscation: false
     hiddenBlocks:
     - minecraft:chest
     - minecraft:ender_chest
@@ -106,6 +108,7 @@ obfuscation:
     maxY: 2031
     worlds:
     - world_the_end
+    layerObfuscation: false
     hiddenBlocks:
     - minecraft:chest
     - minecraft:ender_chest
