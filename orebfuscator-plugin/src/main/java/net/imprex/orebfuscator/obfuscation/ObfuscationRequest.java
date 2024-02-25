@@ -1,6 +1,7 @@
 package net.imprex.orebfuscator.obfuscation;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -64,7 +65,7 @@ public class ObfuscationRequest {
 		return this.future;
 	}
 
-	public ObfuscationResult createResult(byte[] data, Set<BlockPos> blockEntities, Set<BlockPos> proximityBlocks) {
+	public ObfuscationResult createResult(byte[] data, Set<BlockPos> blockEntities, List<BlockPos> proximityBlocks) {
 		return new ObfuscationResult(this.position, this.chunkHash, data, blockEntities, proximityBlocks);
 	}
 

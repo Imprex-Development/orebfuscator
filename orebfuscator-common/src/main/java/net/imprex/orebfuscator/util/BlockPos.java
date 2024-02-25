@@ -58,6 +58,17 @@ public class BlockPos implements Comparable<BlockPos> {
 		return new BlockPos(x, y, z);
 	}
 
+	public int toSectionPos() {
+		return (this.x & 0xF) << 12 | (this.y & 0xFFF) << 0 | (this.z & 0xF) << 16;
+	}
+
+	public static BlockPos fromSectionPos(int x, int z, int sectionPos) {
+		x    += (sectionPos >> 12) & 0xF;
+		int y = (sectionPos << 20 >> 20);
+		z    += (sectionPos >> 16) & 0xF;
+		return new BlockPos(x, y, z);
+	}
+
 	@Override
 	public int compareTo(BlockPos other) {
 		if (this.y == other.y) {

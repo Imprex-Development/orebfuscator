@@ -1,8 +1,7 @@
 package net.imprex.orebfuscator.player;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
 
@@ -23,7 +22,7 @@ public class OrebfuscatorPlayer {
 	private final AdvancedConfig config;
 
 	private final AtomicReference<World> world = new AtomicReference<>();
-	private final Map<Long, Set<BlockPos>> chunks = new ConcurrentHashMap<>();
+	private final Map<Long, OrebfuscatorPlayerChunk> chunks = new ConcurrentHashMap<>();
 
 	private volatile long latestUpdateTimestamp = System.currentTimeMillis();
 	private volatile Location location = new Location(null, 0, 0, 0);
@@ -112,20 +111,16 @@ public class OrebfuscatorPlayer {
 		}
 	}
 
-	public void addChunk(int chunkX, int chunkZ, Set<BlockPos> blocks) {
-		long key = ChunkPosition.toLong(chunkX, chunkZ);
-		this.chunks.computeIfAbsent(key, k -> {
-			return Collections.newSetFromMap(new ConcurrentHashMap<>());
-		}).addAll(blocks);
+	public void addChunk(int chunkX, int chunkZ, List<BlockPos> blocks) {
+		this.chunks.put(ChunkPosition.toLong(chunkX, chunkZ),
+				new OrebfuscatorPlayerChunk(chunkX, chunkZ, blocks));
 	}
 
-	public Set<BlockPos> getChunk(int chunkX, int chunkZ) {
-		long key = ChunkPosition.toLong(chunkX, chunkZ);
-		return this.chunks.getOrDefault(key, Collections.emptySet());
+	public OrebfuscatorPlayerChunk getChunk(int chunkX, int chunkZ) {
+		return this.chunks.get(ChunkPosition.toLong(chunkX, chunkZ));
 	}
 
 	public void removeChunk(int chunkX, int chunkZ) {
-		long key = ChunkPosition.toLong(chunkX, chunkZ);
-		this.chunks.remove(key);
+		this.chunks.remove(ChunkPosition.toLong(chunkX, chunkZ));
 	}
 }

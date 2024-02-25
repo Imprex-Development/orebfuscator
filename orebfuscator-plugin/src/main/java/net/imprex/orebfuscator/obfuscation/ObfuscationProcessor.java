@@ -1,6 +1,8 @@
 package net.imprex.orebfuscator.obfuscation;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.bukkit.World;
@@ -39,7 +41,7 @@ public class ObfuscationProcessor {
 		ProximityConfig proximityConfig = bundle.proximity();
 
 		Set<BlockPos> blockEntities = new HashSet<>();
-		Set<BlockPos> proximityBlocks = new HashSet<>();
+		List<BlockPos> proximityBlocks = new ArrayList<>();
 
 		int baseX = chunkStruct.chunkX << 4;
 		int baseZ = chunkStruct.chunkZ << 4;

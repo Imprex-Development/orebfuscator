@@ -1,5 +1,6 @@
 package net.imprex.orebfuscator.obfuscation;
 
+import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 
@@ -38,7 +39,7 @@ public class ObfuscationTask {
 		return this.request.getChunkStruct();
 	}
 
-	public void complete(byte[] data, Set<BlockPos> blockEntities, Set<BlockPos> proximityBlocks) {
+	public void complete(byte[] data, Set<BlockPos> blockEntities, List<BlockPos> proximityBlocks) {
 		this.request.complete(this.request.createResult(data, blockEntities, proximityBlocks));
 	}
 

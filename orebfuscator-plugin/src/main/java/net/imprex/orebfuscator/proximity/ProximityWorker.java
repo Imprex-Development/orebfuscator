@@ -3,7 +3,6 @@ package net.imprex.orebfuscator.proximity;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -18,6 +17,7 @@ import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.config.ProximityConfig;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayer;
+import net.imprex.orebfuscator.player.OrebfuscatorPlayerChunk;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayerMap;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.FastGazeUtil;
@@ -103,12 +103,12 @@ public class ProximityWorker {
 		for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
 			for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
 
-				Set<BlockPos> blocks = orebfuscatorPlayer.getChunk(chunkX, chunkZ);
-				if (blocks == null) {
+				OrebfuscatorPlayerChunk chunk = orebfuscatorPlayer.getChunk(chunkX, chunkZ);
+				if (chunk == null) {
 					continue;
 				}
 
-				for (Iterator<BlockPos> iterator = blocks.iterator(); iterator.hasNext(); ) {
+				for (Iterator<BlockPos> iterator = chunk.proximityIterator(); iterator.hasNext(); ) {
 					BlockPos blockPos = iterator.next();
 
 					// check if block is in range
@@ -141,7 +141,7 @@ public class ProximityWorker {
 					updateBlocks.add(blockPos);
 				}
 
-				if (blocks.isEmpty()) {
+				if (chunk.isEmpty()) {
 					orebfuscatorPlayer.removeChunk(chunkX, chunkZ);
 				}
 			}

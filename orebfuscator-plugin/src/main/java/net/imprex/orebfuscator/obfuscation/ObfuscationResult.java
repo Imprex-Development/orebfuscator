@@ -1,6 +1,8 @@
 package net.imprex.orebfuscator.obfuscation;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 import net.imprex.orebfuscator.util.BlockPos;
@@ -14,14 +16,14 @@ public class ObfuscationResult {
 	private final byte[] data;
 
 	private final Set<BlockPos> blockEntities;
-	private final Set<BlockPos> proximityBlocks;
+	private final List<BlockPos> proximityBlocks;
 
 	public ObfuscationResult(ChunkPosition position, byte[] hash, byte[] data) {
-		this(position, hash, data, new HashSet<>(), new HashSet<>());
+		this(position, hash, data, new HashSet<>(), new ArrayList<>());
 	}
 
 	public ObfuscationResult(ChunkPosition position, byte[] hash, byte[] data,
-			Set<BlockPos> blockEntities, Set<BlockPos> proximityBlocks) {
+			Set<BlockPos> blockEntities, List<BlockPos> proximityBlocks) {
 		this.position = position;
 		this.hash = hash;
 		this.data = data;
@@ -45,7 +47,7 @@ public class ObfuscationResult {
 		return blockEntities;
 	}
 
-	public Set<BlockPos> getProximityBlocks() {
+	public List<BlockPos> getProximityBlocks() {
 		return proximityBlocks;
 	}
 }
