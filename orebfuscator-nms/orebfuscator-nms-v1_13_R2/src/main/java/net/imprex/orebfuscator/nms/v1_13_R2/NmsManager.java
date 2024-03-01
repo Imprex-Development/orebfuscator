@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_13_R2.CraftWorld;
@@ -73,7 +74,7 @@ public class NmsManager extends AbstractNmsManager {
 			Block block = IRegistry.BLOCK.get(key);
 
 			ImmutableList<IBlockData> possibleBlockStates = block.getStates().a();
-			List<BlockStateProperties> possibleBlockStateProperties = new ArrayList<>();
+			BlockProperties.Builder builder = BlockProperties.builder(namespacedKey);
 
 			for (IBlockData blockState : possibleBlockStates) {
 				BlockStateProperties properties = BlockStateProperties.builder(Block.getCombinedId(blockState))
@@ -84,21 +85,13 @@ public class NmsManager extends AbstractNmsManager {
 						*/
 						.withIsOccluding(blockState.p() && blockState.r()/*canOcclude*/)
 						.withIsBlockEntity(block.isTileEntity())
+						.withIsDefaultState(Objects.equals(block.getBlockData(), blockState))
 						.build();
 
-				possibleBlockStateProperties.add(properties);
-				this.registerBlockStateProperties(properties);
+				builder.withBlockState(properties);
 			}
 
-			int defaultBlockStateId = Block.getCombinedId(block.getBlockData());
-			BlockStateProperties defaultBlockState = getBlockStateProperties(defaultBlockStateId);
-
-			BlockProperties blockProperties = BlockProperties.builder(namespacedKey)
-				.withDefaultBlockState(defaultBlockState)
-				.withPossibleBlockStates(ImmutableList.copyOf(possibleBlockStateProperties))
-				.build();
-			
-			this.registerBlockProperties(blockProperties);
+			this.registerBlockProperties(builder.build());
 		}
 	}
 

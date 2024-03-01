@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -75,7 +76,7 @@ public class NmsManager extends AbstractNmsManager {
 			Block block = entry.getValue();
 
 			ImmutableList<BlockState> possibleBlockStates = block.getStateDefinition().getPossibleStates();
-			List<BlockStateProperties> possibleBlockStateProperties = new ArrayList<>();
+			BlockProperties.Builder builder = BlockProperties.builder(namespacedKey);
 
 			for (BlockState blockState : possibleBlockStates) {
 				Material material = CraftBlockData.fromData(blockState).getMaterial();
@@ -85,21 +86,13 @@ public class NmsManager extends AbstractNmsManager {
 						// check if material is occluding and use blockData check for rare edge cases like barrier, spawner, slime_block, ...
 						.withIsOccluding(material.isOccluding() && blockState.canOcclude())
 						.withIsBlockEntity(blockState.hasBlockEntity())
+						.withIsDefaultState(Objects.equals(block.defaultBlockState(), blockState))
 						.build();
 
-				possibleBlockStateProperties.add(properties);
-				this.registerBlockStateProperties(properties);
+				builder.withBlockState(properties);
 			}
 
-			int defaultBlockStateId = Block.getId(block.defaultBlockState());
-			BlockStateProperties defaultBlockState = getBlockStateProperties(defaultBlockStateId);
-
-			BlockProperties blockProperties = BlockProperties.builder(namespacedKey)
-				.withDefaultBlockState(defaultBlockState)
-				.withPossibleBlockStates(ImmutableList.copyOf(possibleBlockStateProperties))
-				.build();
-			
-			this.registerBlockProperties(blockProperties);
+			this.registerBlockProperties(builder.build());
 		}
 	}
 

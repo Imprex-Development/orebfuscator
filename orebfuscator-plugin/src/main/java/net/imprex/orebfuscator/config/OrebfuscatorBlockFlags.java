@@ -37,7 +37,7 @@ public class OrebfuscatorBlockFlags implements BlockFlags {
 	}
 
 	private void setBlockBits(BlockProperties block, int bits) {
-		for (BlockStateProperties blockState : block.getPossibleBlockStates()) {
+		for (BlockStateProperties blockState : block.getBlockStates()) {
 			int blockMask = this.blockFlags[blockState.getId()] | bits;
 
 			if (blockState.isBlockEntity()) {

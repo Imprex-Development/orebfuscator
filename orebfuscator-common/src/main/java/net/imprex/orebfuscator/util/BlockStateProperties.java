@@ -11,12 +11,14 @@ public class BlockStateProperties {
 	private final boolean isAir;
 	private final boolean isOccluding;
 	private final boolean isBlockEntity;
+	private final boolean isDefaultState;
 
 	private BlockStateProperties(Builder builder) {
 		this.id = builder.id;
 		this.isAir = builder.isAir;
 		this.isOccluding = builder.isOccluding;
 		this.isBlockEntity = builder.isBlockEntity;
+		this.isDefaultState = builder.isDefaultState;
 	}
 
 	public int getId() {
@@ -33,6 +35,10 @@ public class BlockStateProperties {
 
 	public boolean isBlockEntity() {
 		return isBlockEntity;
+	}
+
+	public boolean isDefaultState() {
+		return isDefaultState;
 	}
 
 	@Override
@@ -54,8 +60,8 @@ public class BlockStateProperties {
 
 	@Override
 	public String toString() {
-		return "BlockStateProperties [id=" + id + ", isAir=" + isAir + ", isOccluding=" + isOccluding
-				+ ", isBlockEntity=" + isBlockEntity + "]";
+		return "BlockStateProperties [id=" + id + ", isDefaultState=" + isDefaultState + ", isAir=" + isAir
+				+ ", isOccluding=" + isOccluding + ", isBlockEntity=" + isBlockEntity + "]";
 	}
 
 	public static class Builder {
@@ -65,6 +71,7 @@ public class BlockStateProperties {
 		private boolean isAir;
 		private boolean isOccluding;
 		private boolean isBlockEntity;
+		private boolean isDefaultState;
 
 		private Builder(int id) {
 			this.id = id;
@@ -82,6 +89,11 @@ public class BlockStateProperties {
 
 		public Builder withIsBlockEntity(boolean isBlockEntity) {
 			this.isBlockEntity = isBlockEntity;
+			return this;
+		}
+
+		public Builder withIsDefaultState(boolean isDefaultState) {
+			this.isDefaultState = isDefaultState;
 			return this;
 		}
 

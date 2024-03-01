@@ -1,6 +1,8 @@
 package net.imprex.orebfuscator.util;
 
+import java.util.HashSet;
 import java.util.Objects;
+import java.util.Set;
 
 import com.google.common.collect.ImmutableList;
 
@@ -12,12 +14,12 @@ public class BlockProperties {
 
 	private final NamespacedKey key;
 	private final BlockStateProperties defaultBlockState;
-	private final ImmutableList<BlockStateProperties> possibleBlockStates;
+	private final ImmutableList<BlockStateProperties> blockStates;
 
 	private BlockProperties(Builder builder) {
 		this.key = builder.key;
 		this.defaultBlockState = builder.defaultBlockState;
-		this.possibleBlockStates = builder.possibleBlockStates;
+		this.blockStates = ImmutableList.copyOf(builder.blockStates);
 	}
 
 	public NamespacedKey getKey() {
@@ -28,8 +30,8 @@ public class BlockProperties {
 		return defaultBlockState;
 	}
 
-	public ImmutableList<BlockStateProperties> getPossibleBlockStates() {
-		return possibleBlockStates;
+	public ImmutableList<BlockStateProperties> getBlockStates() {
+		return blockStates;
 	}
 
 	@Override
@@ -51,8 +53,8 @@ public class BlockProperties {
 
 	@Override
 	public String toString() {
-		return "BlockProperties [key=" + key + ", defaultBlockState=" + defaultBlockState + ", possibleBlockStates="
-				+ possibleBlockStates + "]";
+		return "BlockProperties [key=" + key + ", defaultBlockState=" + defaultBlockState + ", blockStates="
+				+ blockStates + "]";
 	}
 
 	public static class Builder {
@@ -60,25 +62,35 @@ public class BlockProperties {
 		private final NamespacedKey key;
 
 		private BlockStateProperties defaultBlockState;
-		private ImmutableList<BlockStateProperties> possibleBlockStates;
+		private final Set<BlockStateProperties> blockStates = new HashSet<>();
 
 		private Builder(NamespacedKey key) {
 			this.key = key;
 		}
 
-		public Builder withDefaultBlockState(BlockStateProperties defaultBlockState) {
-			this.defaultBlockState = defaultBlockState;
+		public Builder withBlockState(BlockStateProperties blockState) {
+			if (!blockStates.add(blockState)) {
+				throw new IllegalStateException(String.format("duplicate block state id (%s) for block: %s", blockState.getId(), key));
+			}
+
+			if (blockState.isDefaultState()) {
+				// check for multiple default blocks
+				if (this.defaultBlockState != null) {
+					throw new IllegalStateException(String.format("multiple default block states for block: %s", blockState.getId(), key));
+				}
+
+				this.defaultBlockState = blockState;
+			}
+
 			return this;
 		}
 
-		public Builder withPossibleBlockStates(ImmutableList<BlockStateProperties> possibleBlockStates) {
-			this.possibleBlockStates = possibleBlockStates;
-			return this;
-		}
-		
 		public BlockProperties build() {
-			Objects.requireNonNull(this.defaultBlockState, "missing default block state for " + this.key);
-			Objects.requireNonNull(this.possibleBlockStates, "missing possible block states for " + this.key);
+			Objects.requireNonNull(this.defaultBlockState, "missing default block state for block: " + this.key);
+
+			if (this.blockStates.size() == 0) {
+				throw new IllegalStateException("missing block states for block: " + this.key);
+			}
 
 			return new BlockProperties(this);
 		}

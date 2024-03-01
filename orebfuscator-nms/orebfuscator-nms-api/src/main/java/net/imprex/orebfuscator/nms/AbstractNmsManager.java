@@ -27,16 +27,12 @@ public abstract class AbstractNmsManager implements NmsManager {
 		this.blockStates = new BlockStateProperties[uniqueBlockStateCount];
 	}
 
-	protected final void registerBlockStateProperties(BlockStateProperties properties) {
-		this.blockStates[properties.getId()] = properties;
-	}
+	protected final void registerBlockProperties(BlockProperties block) {
+		this.blocks.put(block.getKey(), block);
 
-	protected final void registerBlockProperties(BlockProperties properties) {
-		this.blocks.put(properties.getKey(), properties);
-	}
-
-	protected final BlockStateProperties getBlockStateProperties(int id) {
-		return this.blockStates[id];
+		for (BlockStateProperties blockState : block.getBlockStates()) {
+			this.blockStates[blockState.getId()] = blockState;
+		}
 	}
 
 	@Override
