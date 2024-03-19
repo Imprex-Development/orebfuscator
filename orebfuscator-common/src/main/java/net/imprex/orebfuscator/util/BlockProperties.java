@@ -69,7 +69,13 @@ public class BlockProperties {
 		}
 
 		public Builder withBlockState(BlockStateProperties blockState) {
-			if (!blockStates.add(blockState)) {
+			return this.withBlockState(blockState, false);
+		}
+
+		/** dumb version for dumb id systems (pre 1.13.2) */
+		@Deprecated
+		public Builder withBlockState(BlockStateProperties blockState, boolean ignoreDuplicates) {
+			if (!blockStates.add(blockState) && !ignoreDuplicates) {
 				throw new IllegalStateException(String.format("duplicate block state id (%s) for block: %s", blockState.getId(), key));
 			}
 

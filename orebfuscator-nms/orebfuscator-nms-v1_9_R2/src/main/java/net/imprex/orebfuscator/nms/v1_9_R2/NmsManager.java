@@ -90,7 +90,6 @@ public class NmsManager extends AbstractNmsManager {
 			BlockProperties.Builder builder = BlockProperties.builder(namespacedKey);
 
 			for (IBlockData blockState : possibleBlockStates) {
-	
 				BlockStateProperties properties = BlockStateProperties.builder(getBlockId(blockState))
 						.withIsAir(block instanceof BlockAir)
 						.withIsOccluding(material.isOccluding())
@@ -98,7 +97,7 @@ public class NmsManager extends AbstractNmsManager {
 						.withIsDefaultState(Objects.equals(block.getBlockData(), blockState))
 						.build();
 
-				builder.withBlockState(properties);
+				builder.withBlockState(properties, true);
 			}
 
 			this.registerBlockProperties(builder.build());

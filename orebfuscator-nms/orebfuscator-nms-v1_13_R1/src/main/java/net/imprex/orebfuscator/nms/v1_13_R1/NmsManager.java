@@ -87,7 +87,7 @@ public class NmsManager extends AbstractNmsManager {
 						.withIsDefaultState(Objects.equals(block.getBlockData(), blockState))
 						.build();
 
-				builder.withBlockState(properties);
+				builder.withBlockState(properties, false);
 			}
 
 			this.registerBlockProperties(builder.build());
