@@ -23,16 +23,16 @@
 		<dependency.folia.version>1.20.1-R0.1-SNAPSHOT</dependency.folia.version>
 		<dependency.paper.version>1.20.1-R0.1-SNAPSHOT</dependency.paper.version>
 		<dependency.bstats.version>3.0.2</dependency.bstats.version>
-		<dependency.junit.version>5.10.0</dependency.junit.version>
-		<dependency.netty.version>4.1.68.Final</dependency.netty.version>
+		<dependency.junit.version>5.10.2</dependency.junit.version>
+		<dependency.netty.version>4.1.90.Final</dependency.netty.version>
 		<dependency.protocollib.version>5.0.0</dependency.protocollib.version>
 		<dependency.joml.version>1.10.5</dependency.joml.version>
 
-		<plugin.compile.version>3.11.0</plugin.compile.version>
-		<plugin.shade.version>3.5.0</plugin.shade.version>
-		<plugin.sunfire.version>3.1.2</plugin.sunfire.version>
-		<plugin.flatten.version>1.5.0</plugin.flatten.version>
-		<plugin.specialsource.version>1.2.5</plugin.specialsource.version>
+		<plugin.compile.version>3.13.0</plugin.compile.version>
+		<plugin.shade.version>3.5.2</plugin.shade.version>
+		<plugin.sunfire.version>3.2.5</plugin.sunfire.version>
+		<plugin.flatten.version>1.6.0</plugin.flatten.version>
+		<plugin.specialsource.version>2.0.2</plugin.specialsource.version>
 
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 	</properties>
@@ -130,7 +130,7 @@
 				<artifactId>maven-compiler-plugin</artifactId>
 				<version>${plugin.compile.version}</version>
 				<configuration>
-					<release>11</release>
+					<release>17</release>
 				</configuration>
 			</plugin>
 			<plugin>

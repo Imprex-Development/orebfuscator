@@ -8,7 +8,7 @@ import java.util.logging.Level;
 public final class ConsoleUtil {
 
 	private static final int BOX_PADDING = 3;
-	private static final int BOX_MAX_WIDTH = 48;
+	private static final int BOX_PREFERRED_WIDTH = 48;
 
 	private ConsoleUtil() {
 	}
@@ -28,17 +28,22 @@ public final class ConsoleUtil {
 		for (String line : lines) {
 			line = line.trim();
 
-			while (line.length() > BOX_MAX_WIDTH) {
+			while (line.length() > BOX_PREFERRED_WIDTH) {
 
 				int splitLength = 0;
 				for (int i = 0; i < line.length(); i++) {
 					if (Character.isWhitespace(line.charAt(i))) {
-						if (i <= BOX_MAX_WIDTH) {
+						if (i <= BOX_PREFERRED_WIDTH) {
 							splitLength = i;
 						} else {
 							break;
 						}
 					}
+				}
+
+				// can't split line no whitespace character found
+				if (splitLength == 0) {
+					break;
 				}
 
 				// split line at latest word that fit length

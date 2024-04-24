@@ -1,5 +1,7 @@
 package net.imprex.orebfuscator;
 
+import java.util.logging.Level;
+
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
@@ -17,6 +19,7 @@ import net.imprex.orebfuscator.obfuscation.ObfuscationSystem;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayerMap;
 import net.imprex.orebfuscator.proximity.ProximityDirectorThread;
 import net.imprex.orebfuscator.proximity.ProximityPacketListener;
+import net.imprex.orebfuscator.util.ConsoleUtil;
 import net.imprex.orebfuscator.util.HeightAccessor;
 import net.imprex.orebfuscator.util.OFCLogger;
 
@@ -42,6 +45,12 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 	@Override
 	public void onEnable() {
 		try {
+			ConsoleUtil.printBox(Level.SEVERE,
+					"WARNING",
+					"REMOVAL OF SUPPORT FOR JAVA VERSIONS BEFORE 17 AND MINECRAFT VERSIONS BEFORE 1.16",
+					"",
+					"https://github.com/Imprex-Development/orebfuscator/discussions/367");
+
 			// Check if protocolLib is enabled
 			Plugin protocolLib = getServer().getPluginManager().getPlugin("ProtocolLib");
 			if (protocolLib == null || !protocolLib.isEnabled()) {
