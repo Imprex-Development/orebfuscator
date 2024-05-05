@@ -15,17 +15,16 @@ public final class ChunkCapabilities {
 	// hasDirectPaletteZeroLength < 1.13
 	// hasLight < 1.14
 
-	private static final boolean hasChunkPosFieldUnloadPacket = MinecraftVersion.minorVersion() > 20 ||
-			(MinecraftVersion.minorVersion() == 20 && MinecraftVersion.revisionNumber() >= 2);
-	private static final boolean hasClientboundLevelChunkPacketData = MinecraftVersion.minorVersion() >= 18;
-	private static final boolean hasBiomePalettedContainer = MinecraftVersion.minorVersion() >= 18;
-	private static final boolean hasSingleValuePalette = MinecraftVersion.minorVersion() >= 18;
-	private static final boolean hasHeightBitMask = MinecraftVersion.minorVersion() <= 17;
-	private static final boolean hasDynamicHeight = MinecraftVersion.minorVersion() >= 17;
-	private static final boolean hasSimpleVarBitBuffer = MinecraftVersion.minorVersion() >= 16;
-	private static final boolean hasBlockCount = MinecraftVersion.minorVersion() >= 14;
-	private static final boolean hasDirectPaletteZeroLength = MinecraftVersion.minorVersion() < 13;
-	private static final boolean hasLightArray = MinecraftVersion.minorVersion() < 14;
+	private static final boolean hasChunkPosFieldUnloadPacket = MinecraftVersion.isAtOrAbove("1.20.2");
+	private static final boolean hasClientboundLevelChunkPacketData = MinecraftVersion.isAtOrAbove("1.18");
+	private static final boolean hasBiomePalettedContainer = MinecraftVersion.isAtOrAbove("1.18");
+	private static final boolean hasSingleValuePalette = MinecraftVersion.isAtOrAbove("1.18");
+	private static final boolean hasHeightBitMask = MinecraftVersion.isAtOrBelow("1.17");
+	private static final boolean hasDynamicHeight = MinecraftVersion.isAtOrAbove("1.17");
+	private static final boolean hasSimpleVarBitBuffer = MinecraftVersion.isAtOrAbove("1.16");
+	private static final boolean hasBlockCount = MinecraftVersion.isAtOrAbove("1.14");
+	private static final boolean hasDirectPaletteZeroLength = MinecraftVersion.isBelow("1.13");
+	private static final boolean hasLightArray = MinecraftVersion.isBelow("1.14");
 
 	private ChunkCapabilities() {
 	}
