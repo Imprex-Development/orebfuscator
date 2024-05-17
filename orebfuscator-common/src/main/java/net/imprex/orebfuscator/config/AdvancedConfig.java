@@ -12,7 +12,7 @@ public interface AdvancedConfig {
 
 	boolean hasObfuscationTimeout();
 
-	int obfuscationTimeout();
+	long obfuscationTimeout();
 
 	int proximityHiderThreads();
 

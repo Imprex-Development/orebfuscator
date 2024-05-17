@@ -14,7 +14,7 @@ public final class JavaVersion {
 
 	/**
 	 * taken from:
-	 * https://github.com/netty/netty/blob/4.1/common/src/main/java/io/netty/util/internal/PlatformDependent0.java#L1011
+	 * https://github.com/netty/netty/blob/7ad2b91515b3affaeadb4b2975cd6d2a8342c403/common/src/main/java/io/netty/util/internal/PlatformDependent0.java#L1037
 	 */
 	private static int majorVersion(final String javaSpecVersion) {
         final String[] components = javaSpecVersion.split("\\.");

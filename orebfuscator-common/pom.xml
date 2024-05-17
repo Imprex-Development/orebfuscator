@@ -25,5 +25,11 @@
 			<version>${dependency.joml.version}</version>
 			<scope>compile</scope>
 		</dependency>
+		<dependency>
+			<groupId>org.lz4</groupId>
+			<artifactId>lz4-java</artifactId>
+			<version>${dependency.lz4.version}</version>
+			<scope>compile</scope>
+		</dependency>
 	</dependencies>
 </project>

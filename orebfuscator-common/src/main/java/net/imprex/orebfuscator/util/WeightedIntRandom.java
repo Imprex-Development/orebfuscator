@@ -16,7 +16,7 @@ public class WeightedIntRandom {
     private final int weight;
 
     /**
-     * Flat int array where each entry has a value of one
+     * Flat int array where each entry has a probability of one
      *
      * @implNote use flat int array instead of treemap cause O(N*log(N)) is too
      * slow since this is the second hottest code path

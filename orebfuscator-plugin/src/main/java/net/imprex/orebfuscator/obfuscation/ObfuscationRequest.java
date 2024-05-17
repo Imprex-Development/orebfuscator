@@ -18,6 +18,8 @@ public class ObfuscationRequest {
 	private static final HashFunction HASH_FUNCTION = Hashing.murmur3_128();
 	private static final byte[] EMPTY_HASH = new byte[0];
 
+	public static final int HASH_LENGTH = HASH_FUNCTION.bits() / Byte.SIZE;
+
 	private static final byte[] hash(byte[] systemHash, byte[] data) {
 		return HASH_FUNCTION.newHasher().putBytes(systemHash).putBytes(data).hash().asBytes();
 	}
@@ -50,6 +52,10 @@ public class ObfuscationRequest {
 
 	public ChunkPosition getPosition() {
 		return position;
+	}
+
+	public byte[] getChunkHash() {
+		return chunkHash;
 	}
 
 	public ChunkStruct getChunkStruct() {

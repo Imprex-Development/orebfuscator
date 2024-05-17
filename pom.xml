@@ -27,6 +27,7 @@
 		<dependency.netty.version>4.1.90.Final</dependency.netty.version>
 		<dependency.protocollib.version>5.0.0</dependency.protocollib.version>
 		<dependency.joml.version>1.10.5</dependency.joml.version>
+		<dependency.lz4.version>1.8.0</dependency.lz4.version>
 
 		<plugin.compile.version>3.13.0</plugin.compile.version>
 		<plugin.shade.version>3.5.2</plugin.shade.version>

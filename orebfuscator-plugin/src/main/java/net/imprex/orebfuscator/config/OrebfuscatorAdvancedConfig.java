@@ -12,7 +12,7 @@ public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
 	private int protocolLibThreads = -1;
 
 	private int obfuscationWorkerThreads = -1;
-	private int obfuscationTimeout = 10_000;
+	private long obfuscationTimeout = 10_000;
 
 	private int proximityHiderThreads = -1;
 	private int proximityDefaultBucketSize = 50;
@@ -41,7 +41,7 @@ public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
 		this.obfuscationWorkerThreads = section.getInt("obfuscationWorkerThreads", -1);
 		this.obfuscationWorkerThreadsSet = (this.obfuscationWorkerThreads > 0);
 
-		this.obfuscationTimeout = section.getInt("obfuscationTimeout", -1);
+		this.obfuscationTimeout = section.getLong("obfuscationTimeout", -1);
 		this.hasObfuscationTimeout = (this.obfuscationTimeout > 0);
 
 		this.proximityHiderThreads = section.getInt("proximityHiderThreads", -1);
@@ -116,7 +116,7 @@ public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
 	}
 
 	@Override
-	public int obfuscationTimeout() {
+	public long obfuscationTimeout() {
 		return this.obfuscationTimeout;
 	}
 

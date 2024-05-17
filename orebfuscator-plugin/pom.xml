@@ -24,7 +24,7 @@
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-shade-plugin</artifactId>
 				<configuration>
-					<minimizeJar>true</minimizeJar>
+					<minimizeJar>false</minimizeJar>
 					<filters>
 						<filter>
 							<artifact>*:*</artifact>
@@ -42,6 +42,10 @@
 						<relocation>
 							<pattern>org.joml</pattern>
 							<shadedPattern>net.imprex.shaded.org.joml</shadedPattern>
+						</relocation>
+						<relocation>
+							<pattern>net.jpountz</pattern>
+							<shadedPattern>net.imprex.shaded.net.jpountz</shadedPattern>
 						</relocation>
 					</relocations>
 				</configuration>
