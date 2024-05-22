@@ -232,7 +232,7 @@ public class OrebfuscatorConfig implements Config {
 
 	public boolean usesRayCastCheck() {
 		for (ProximityConfig config : this.proximityConfigs) {
-			if (config.useRayCastCheck()) {
+			if (config.rayCastCheckEnabled()) {
 				return true;
 			}
 		}

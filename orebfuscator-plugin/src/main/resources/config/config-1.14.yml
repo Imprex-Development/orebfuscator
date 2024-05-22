@@ -187,7 +187,9 @@ proximity:
       enabled: true
       minDistance: 3
       fov: 80
-    useRayCastCheck: false
+    rayCastCheck:
+      enabled: false
+      onlyCheckCenter: false
     useBlockBelow: true
     hiddenBlocks:
       minecraft:mossy_cobblestone: {}
@@ -247,7 +249,9 @@ proximity:
       enabled: true
       minDistance: 3
       fov: 80
-    useRayCastCheck: false
+    rayCastCheck:
+      enabled: false
+      onlyCheckCenter: false
     useBlockBelow: true
     hiddenBlocks:
       minecraft:chest: {}
@@ -304,7 +308,9 @@ proximity:
       enabled: true
       minDistance: 3
       fov: 80
-    useRayCastCheck: false
+    rayCastCheck:
+      enabled: false
+      onlyCheckCenter: false
     useBlockBelow: true
     hiddenBlocks:
       minecraft:chest: {}
