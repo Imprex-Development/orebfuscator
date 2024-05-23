@@ -204,12 +204,7 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 
 	@Override
 	public boolean rayCastCheckEnabled() {
-		return this.rayCastCheckEnabled;
-	}
-
-	@Override
-	public boolean rayCastCheckOnlyCheckCenter() {
-		return this.rayCastCheckOnlyCheckCenter;
+		return this.useRayCastCheck;
 	}
 
 	@Override
