@@ -18,5 +18,7 @@ public interface ProximityConfig extends WorldConfig {
 
 	boolean rayCastCheckEnabled();
 
+	boolean rayCastCheckOnlyCheckCenter();
+
 	Iterable<Map.Entry<BlockProperties, Integer>> hiddenBlocks();
 }
