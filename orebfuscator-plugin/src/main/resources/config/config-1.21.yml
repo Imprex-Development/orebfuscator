@@ -233,6 +233,7 @@ proximity:
       minecraft:ender_chest: {}
       minecraft:trapped_chest: {}
       minecraft:anvil: {}
+      minecraft:cafter: {}
       minecraft:crafting_table: {}
       minecraft:dispenser: {}
       minecraft:enchanting_table: {}
@@ -299,6 +300,7 @@ proximity:
       minecraft:ender_chest: {}
       minecraft:trapped_chest: {}
       minecraft:anvil: {}
+      minecraft:cafter: {}
       minecraft:crafting_table: {}
       minecraft:dispenser: {}
       minecraft:enchanting_table: {}
@@ -363,6 +365,7 @@ proximity:
       minecraft:ender_chest: {}
       minecraft:trapped_chest: {}
       minecraft:anvil: {}
+      minecraft:cafter: {}
       minecraft:crafting_table: {}
       minecraft:dispenser: {}
       minecraft:enchanting_table: {}
