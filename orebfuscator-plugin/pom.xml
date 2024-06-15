@@ -173,19 +173,13 @@
 			<groupId>net.imprex</groupId>
 			<artifactId>orebfuscator-nms-v1_19_R1</artifactId>
 			<version>${revision}</version>
+			<classifier>mojang-mapped</classifier>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
 			<groupId>net.imprex</groupId>
 			<artifactId>orebfuscator-nms-v1_19_R1</artifactId>
 			<version>${revision}</version>
-			<classifier>mojang-mapped</classifier>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
-			<groupId>net.imprex</groupId>
-			<artifactId>orebfuscator-nms-v1_19_R2</artifactId>
-			<version>${revision}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -197,7 +191,7 @@
 		</dependency>
 		<dependency>
 			<groupId>net.imprex</groupId>
-			<artifactId>orebfuscator-nms-v1_19_R3</artifactId>
+			<artifactId>orebfuscator-nms-v1_19_R2</artifactId>
 			<version>${revision}</version>
 			<scope>compile</scope>
 		</dependency>
@@ -210,7 +204,7 @@
 		</dependency>
 		<dependency>
 			<groupId>net.imprex</groupId>
-			<artifactId>orebfuscator-nms-v1_20_R1</artifactId>
+			<artifactId>orebfuscator-nms-v1_19_R3</artifactId>
 			<version>${revision}</version>
 			<scope>compile</scope>
 		</dependency>
@@ -219,6 +213,12 @@
 			<artifactId>orebfuscator-nms-v1_20_R1</artifactId>
 			<version>${revision}</version>
 			<classifier>mojang-mapped</classifier>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.imprex</groupId>
+			<artifactId>orebfuscator-nms-v1_20_R1</artifactId>
+			<version>${revision}</version>
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
@@ -257,6 +257,19 @@
 		<dependency>
 			<groupId>net.imprex</groupId>
 			<artifactId>orebfuscator-nms-v1_20_R4</artifactId>
+			<version>${revision}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.imprex</groupId>
+			<artifactId>orebfuscator-nms-v1_21_R1</artifactId>
+			<version>${revision}</version>
+			<classifier>mojang-mapped</classifier>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.imprex</groupId>
+			<artifactId>orebfuscator-nms-v1_21_R1</artifactId>
 			<version>${revision}</version>
 			<scope>compile</scope>
 		</dependency>

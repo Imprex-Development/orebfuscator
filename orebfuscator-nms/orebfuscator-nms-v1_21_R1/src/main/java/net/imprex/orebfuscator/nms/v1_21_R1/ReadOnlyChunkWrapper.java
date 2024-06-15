@@ -1,4 +1,4 @@
-package net.imprex.orebfuscator.nms.v1_20_R4;
+package net.imprex.orebfuscator.nms.v1_21_R1;
 
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 import net.minecraft.world.level.chunk.LevelChunk;

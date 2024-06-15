@@ -7,9 +7,7 @@ general:
   updateRadius: 2
 advanced:
   verbose: false
-  useAsyncPacketListener: true
   maxMillisecondsPerTick: 10
-  protocolLibThreads: -1
   obfuscationWorkerThreads: -1
   obfuscationTimeout: 10000
   proximityHiderThreads: -1

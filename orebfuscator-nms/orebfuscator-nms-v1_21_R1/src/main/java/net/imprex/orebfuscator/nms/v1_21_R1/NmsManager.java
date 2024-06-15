@@ -1,4 +1,4 @@
-package net.imprex.orebfuscator.nms.v1_20_R4;
+package net.imprex.orebfuscator.nms.v1_21_R1;
 
 import java.util.ArrayList;
 import java.util.HashMap;

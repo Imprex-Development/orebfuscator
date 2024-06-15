@@ -90,7 +90,7 @@ public class MetricsSystem {
 			return Boolean.toString(config.usesFrustumCulling());
 		}));
 		this.metrics.addCustomChart(new SimplePie("ray_cast", () -> {
-			return Boolean.toString(config.usesRayCastCheck());
+			return config.usesRayCastCheck();
 		}));
 	}
 }

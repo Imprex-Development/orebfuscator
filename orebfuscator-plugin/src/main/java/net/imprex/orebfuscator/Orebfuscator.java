@@ -18,6 +18,7 @@ import net.imprex.orebfuscator.player.OrebfuscatorPlayerMap;
 import net.imprex.orebfuscator.proximity.ProximityDirectorThread;
 import net.imprex.orebfuscator.proximity.ProximityPacketListener;
 import net.imprex.orebfuscator.util.HeightAccessor;
+import net.imprex.orebfuscator.util.MinecraftVersion;
 import net.imprex.orebfuscator.util.OFCLogger;
 
 public class Orebfuscator extends JavaPlugin implements Listener {
@@ -42,6 +43,11 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 	@Override
 	public void onEnable() {
 		try {
+			// Check for valid minecraft version
+			if (MinecraftVersion.isBelow("1.16")) {
+				throw new RuntimeException("Orebfuscator only supports minecraft 1.16 and above");
+			}
+			
 			// Check if protocolLib is enabled
 			Plugin protocolLib = getServer().getPluginManager().getPlugin("ProtocolLib");
 			if (protocolLib == null || !protocolLib.isEnabled()) {

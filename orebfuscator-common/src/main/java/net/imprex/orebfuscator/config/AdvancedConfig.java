@@ -4,8 +4,6 @@ public interface AdvancedConfig {
 
 	int maxMillisecondsPerTick();
 
-	int protocolLibThreads();
-
 	int obfuscationWorkerThreads();
 
 	boolean hasObfuscationTimeout();

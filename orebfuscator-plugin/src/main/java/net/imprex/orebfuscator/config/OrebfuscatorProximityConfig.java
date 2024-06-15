@@ -18,7 +18,7 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 
 	private int distance = 24;
 
-	private boolean frustumCullingEnabled = false;
+	private boolean frustumCullingEnabled = true;
 	private float frustumCullingMinDistance = 3;
 	private float frustumCullingFov = 80f;
 
