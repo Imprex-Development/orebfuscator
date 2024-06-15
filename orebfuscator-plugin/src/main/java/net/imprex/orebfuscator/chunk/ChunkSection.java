@@ -36,7 +36,7 @@ public class ChunkSection {
 			if (this.bitsPerBlock == 0) {
 				this.data = new ZeroVarBitBuffer(4096);
 			} else {
-				this.data = ChunkCapabilities.createVarBitBuffer(this.bitsPerBlock, 4096);
+				this.data = new SimpleVarBitBuffer(this.bitsPerBlock, 4096);
 			}
 		}
 	}
@@ -87,13 +87,11 @@ public class ChunkSection {
 	}
 
 	public boolean isEmpty() {
-		return ChunkCapabilities.hasBlockCount() && this.blockCount == 0;
+		return this.blockCount == 0;
 	}
 
 	public void write(ByteBuf buffer) {
-		if (ChunkCapabilities.hasBlockCount()) {
-			buffer.writeShort(this.blockCount);
-		}
+		buffer.writeShort(this.blockCount);
 
 		buffer.writeByte(this.bitsPerBlock);
 		this.palette.write(buffer);
@@ -106,9 +104,7 @@ public class ChunkSection {
 	}
 
 	public int[] read(ByteBuf buffer) {
-		if (ChunkCapabilities.hasBlockCount()) {
-			this.blockCount = buffer.readShort();
-		}
+		this.blockCount = buffer.readShort();
 
 		this.setBitsPerBlock(buffer.readUnsignedByte(), false);
 

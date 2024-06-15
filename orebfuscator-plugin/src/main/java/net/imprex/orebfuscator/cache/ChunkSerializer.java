@@ -56,7 +56,6 @@ public class ChunkSerializer {
 		return null;
 	}
 
-	// TODO consider size limit for cache since RegionFile before 1.14 have a hard limit of 256 * 4kb 
 	public static void write(ChunkPosition key, ObfuscationResult value) throws IOException {
 		try (DataOutputStream dataOutputStream = createOutputStream(key)) {
 			dataOutputStream.writeInt(CACHE_VERSION);

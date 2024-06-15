@@ -18,7 +18,6 @@ import net.imprex.orebfuscator.util.HeightAccessor;
 public class ChunkStruct {
 
 	public final World world;
-	public final boolean isOverworld;
 
 	public final int chunkX;
 	public final int chunkZ;
@@ -34,7 +33,6 @@ public class ChunkStruct {
 		StructureModifier<Integer> packetInteger = packet.getIntegers();
 
 		this.world = world;
-		this.isOverworld = world.getEnvironment() == World.Environment.NORMAL;
 
 		this.chunkX = packetInteger.read(0);
 		this.chunkZ = packetInteger.read(1);

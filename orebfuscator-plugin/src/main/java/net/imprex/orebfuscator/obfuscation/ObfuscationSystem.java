@@ -35,11 +35,7 @@ public class ObfuscationSystem {
 	}
 
 	public void registerChunkListener() {
-		if (this.config.advanced().useAsyncPacketListener()) {
-			this.listener = new ObfuscationListenerAsync(orebfuscator);
-		} else {
-			this.listener = new ObfuscationListenerSync(orebfuscator);
-		}
+		this.listener = new ObfuscationListener(orebfuscator);
 	}
 
 	public CompletableFuture<ObfuscationResult> obfuscate(ChunkStruct chunkStruct) {

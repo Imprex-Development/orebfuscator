@@ -7,7 +7,6 @@ import net.imprex.orebfuscator.util.OFCLogger;
 public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
 
 	private boolean verbose = false;
-	private boolean useAsyncPacketListener = true;
 	private int maxMillisecondsPerTick = 10;
 	private int protocolLibThreads = -1;
 
@@ -27,7 +26,6 @@ public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
 
 	public void deserialize(ConfigurationSection section) {
 		this.verbose = section.getBoolean("verbose", false);
-		this.useAsyncPacketListener = section.getBoolean("useAsyncPacketListener", true);
 		this.maxMillisecondsPerTick = section.getInt("maxMillisecondsPerTick", 10);
 
 		if (this.maxMillisecondsPerTick <= 0 || this.maxMillisecondsPerTick >= 50) {
@@ -77,7 +75,6 @@ public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
 
 	public void serialize(ConfigurationSection section) {
 		section.set("verbose", this.verbose);
-		section.set("useAsyncPacketListener", this.useAsyncPacketListener);
 		section.set("maxMillisecondsPerTick", this.maxMillisecondsPerTick);
 		section.set("protocolLibThreads", this.protocolLibThreadsSet ? this.protocolLibThreads : -1);
 
@@ -88,11 +85,6 @@ public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
 		section.set("proximityDefaultBucketSize", this.proximityDefaultBucketSize);
 		section.set("proximityThreadCheckInterval", this.proximityThreadCheckInterval);
 		section.set("proximityPlayerCheckInterval", this.hasProximityPlayerCheckInterval ? this.proximityPlayerCheckInterval : -1);
-	}
-
-	@Override
-	public boolean useAsyncPacketListener() {
-		return this.useAsyncPacketListener;
 	}
 
 	@Override
