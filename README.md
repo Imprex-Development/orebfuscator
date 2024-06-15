@@ -1,7 +1,7 @@
-<img align="right" src="https://user-images.githubusercontent.com/8127996/90168671-bb49c780-dd9d-11ea-989d-479f8c1f3ea3.png" height="200" width="200">
 
 # Orebfuscator - Anti X-Ray
 [![Release Status](https://github.com/Imprex-Development/Orebfuscator/workflows/Releases/badge.svg)](https://github.com/Imprex-Development/Orebfuscator/releases/latest) [![Build Status](https://github.com/Imprex-Development/Orebfuscator/workflows/Build/badge.svg)](https://github.com/Imprex-Development/Orebfuscator/actions?query=workflow%3ABuild)
+<img align="right" src="https://user-images.githubusercontent.com/8127996/90168671-bb49c780-dd9d-11ea-989d-479f8c1f3ea3.png" height="200" width="200">
 
 Orebfuscator empowers server owners to protect their server from X-Ray Clients and Texture Packs, all while offering a high degree of configurability. This is achieved through modifying network packets without altering your game world, guaranteeing a secure and reliable experience for users. With Orebfuscator, you can tailor the settings to suit your server's needs, ensuring precise control over the visibility of specific blocks. This means that not only does Orebfuscator safeguard your world's integrity, but it also empowers you to fine-tune your Anti-X-Ray measures for the best gameplay experience.
 
@@ -14,9 +14,9 @@ Orebfuscator empowers server owners to protect their server from X-Ray Clients a
 * Dynamic Block Visibility: Adjust block visibility based on player proximity and distance.
 
 ### Requirements
-* Java 11 or higher
-* Spigot, Paper, Folia or compatible forks (1.9.4 or newer)
-* [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997) 5.0.0 or later
+* Java 17 or higher
+* Spigot, Paper, Folia or compatible forks (1.16 or newer)
+* [ProtocolLib](https://www.spigotmc.org/resources/protocollib.1997) 5.2.0 or later
 
 ### Installation
 1. Download [ProtocolLib](https://github.com/dmulloy2/ProtocolLib/releases)
@@ -25,6 +25,9 @@ Orebfuscator empowers server owners to protect their server from X-Ray Clients a
 4. Start your server and [configure Orebfuscator](https://github.com/Imprex-Development/Orebfuscator/wiki/Config) to your liking
 
 Still having trouble getting Orebfuscator to run check out our [common issues](https://github.com/Imprex-Development/Orebfuscator/wiki/Common-Issues).
+
+### Legacy support
+For compatibility with Java 11 or Minecraft 1.9.4 and later, you can use any legacy release prior to version 5.5.0. Please note that these legacy releases will no longer receive regular support or updates. However, they may receive critical security and vulnerability patches if necessary.
 
 ### Maven
 
@@ -52,7 +55,7 @@ To include the API in your Maven project, add the following configuration to you
 ## License:
 
 Completely rewritten by Imprex-Development to support v1.14 and higher Minecraft version's; these portions as permissible:
-Copyright (C) 2020-2023 by Imprex-Development. All rights reserved.
+Copyright (C) 2020-2024 by Imprex-Development. All rights reserved.
 
 Released under the same license as original.
 
