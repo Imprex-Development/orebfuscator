@@ -21,7 +21,7 @@ public final class MinecraftVersion implements Comparable<MinecraftVersion> {
 
 		public static String get(MinecraftVersion version) {
 			for (NmsMapping mapping : MAPPINGS) {
-				if (version.isAtOrAbove(mapping.version)) {
+				if (mapping.version.isAtOrAbove(version)) {
 					if (mapping.version.minor() != version.minor()) {
 						OFCLogger.warn(String.format("Using nms mapping with mismatched minor versions: %s - %s",
 								mapping.version, version));
