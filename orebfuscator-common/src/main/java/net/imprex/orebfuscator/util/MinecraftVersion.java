@@ -15,13 +15,13 @@ public final class MinecraftVersion implements Comparable<MinecraftVersion> {
 		private static final List<NmsMapping> MAPPINGS = new ArrayList<>();
 
 		static {
-			MAPPINGS.add(new NmsMapping("1.20.5", "v1_20_R4"));
 			MAPPINGS.add(new NmsMapping("1.21", "v1_21_R1"));
+			MAPPINGS.add(new NmsMapping("1.20.5", "v1_20_R4"));
 		}
 
 		public static String get(MinecraftVersion version) {
 			for (NmsMapping mapping : MAPPINGS) {
-				if (mapping.version.isAtOrAbove(version)) {
+				if (version.isAtOrAbove(mapping.version)) {
 					if (mapping.version.minor() != version.minor()) {
 						OFCLogger.warn(String.format("Using nms mapping with mismatched minor versions: %s - %s",
 								mapping.version, version));

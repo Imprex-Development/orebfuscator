@@ -8,14 +8,14 @@ public final class ChunkCapabilities {
 	// hasClientboundLevelChunkPacketData >= 1.18;
 	// hasBiomePalettedContainer >= 1.18
 	// hasSingleValuePalette >= 1.18
-	// hasHeightBitMask <= 1.17
+	// hasHeightBitMask < 1.18
 	// hasDynamicHeight >= 1.17
 
 	private static final boolean hasChunkPosFieldUnloadPacket = MinecraftVersion.isAtOrAbove("1.20.2");
 	private static final boolean hasClientboundLevelChunkPacketData = MinecraftVersion.isAtOrAbove("1.18");
 	private static final boolean hasBiomePalettedContainer = MinecraftVersion.isAtOrAbove("1.18");
 	private static final boolean hasSingleValuePalette = MinecraftVersion.isAtOrAbove("1.18");
-	private static final boolean hasHeightBitMask = MinecraftVersion.isAtOrBelow("1.17");
+	private static final boolean hasHeightBitMask = MinecraftVersion.isBelow("1.18");
 	private static final boolean hasDynamicHeight = MinecraftVersion.isAtOrAbove("1.17");
 
 	private ChunkCapabilities() {
