@@ -16,7 +16,9 @@ public interface ProximityConfig extends WorldConfig {
 
 	Matrix4f frustumCullingProjectionMatrix();
 
-	boolean useRayCastCheck();
+	boolean rayCastCheckEnabled();
+
+	boolean rayCastCheckOnlyCheckCenter();
 
 	Iterable<Map.Entry<BlockProperties, Integer>> hiddenBlocks();
 }

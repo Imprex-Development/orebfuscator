@@ -7,9 +7,7 @@ general:
   updateRadius: 2
 advanced:
   verbose: false
-  useAsyncPacketListener: true
   maxMillisecondsPerTick: 10
-  protocolLibThreads: -1
   obfuscationWorkerThreads: -1
   obfuscationTimeout: 10000
   proximityHiderThreads: -1
@@ -221,7 +219,9 @@ proximity:
       enabled: true
       minDistance: 3
       fov: 80
-    useRayCastCheck: false
+    rayCastCheck:
+      enabled: false
+      onlyCheckCenter: false
     useBlockBelow: true
     hiddenBlocks:
       minecraft:mossy_cobblestone: {}
@@ -290,7 +290,9 @@ proximity:
       enabled: true
       minDistance: 3
       fov: 80
-    useRayCastCheck: false
+    rayCastCheck:
+      enabled: false
+      onlyCheckCenter: false
     useBlockBelow: true
     hiddenBlocks:
       minecraft:chest: {}
@@ -352,7 +354,9 @@ proximity:
       enabled: true
       minDistance: 3
       fov: 80
-    useRayCastCheck: false
+    rayCastCheck:
+      enabled: false
+      onlyCheckCenter: false
     useBlockBelow: true
     hiddenBlocks:
       minecraft:chest: {}

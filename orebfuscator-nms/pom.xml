@@ -14,14 +14,6 @@
 
 	<modules>
 		<module>orebfuscator-nms-api</module>
-		<module>orebfuscator-nms-v1_9_R2</module>
-		<module>orebfuscator-nms-v1_10_R1</module>
-		<module>orebfuscator-nms-v1_11_R1</module>
-		<module>orebfuscator-nms-v1_12_R1</module>
-		<module>orebfuscator-nms-v1_13_R1</module>
-		<module>orebfuscator-nms-v1_13_R2</module>
-		<module>orebfuscator-nms-v1_14_R1</module>
-		<module>orebfuscator-nms-v1_15_R1</module>
 		<module>orebfuscator-nms-v1_16_R1</module>
 		<module>orebfuscator-nms-v1_16_R2</module>
 		<module>orebfuscator-nms-v1_16_R3</module>
@@ -35,5 +27,6 @@
 		<module>orebfuscator-nms-v1_20_R2</module>
 		<module>orebfuscator-nms-v1_20_R3</module>
 		<module>orebfuscator-nms-v1_20_R4</module>
+		<module>orebfuscator-nms-v1_21_R1</module>
 	</modules>
 </project>

@@ -24,14 +24,6 @@ checkVersion () {
   fi
 }
 
-checkVersion "1.9.4"  "8"
-checkVersion "1.10.2" "8"
-checkVersion "1.11.2" "8"
-checkVersion "1.12.2" "8"
-checkVersion "1.13"   "8"
-checkVersion "1.13.2" "8"
-checkVersion "1.14.4" "8"
-checkVersion "1.15.2" "8"
 checkVersion "1.16.1" "8"
 checkVersion "1.16.3" "8"
 checkVersion "1.16.5" "8"
@@ -45,3 +37,4 @@ checkVersion "1.20.1" "17"
 checkVersion "1.20.2" "17"
 checkVersion "1.20.4" "17"
 checkVersion "1.20.6" "21"
+checkVersion "1.21" "21"

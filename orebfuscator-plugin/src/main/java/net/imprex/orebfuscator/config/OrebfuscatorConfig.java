@@ -230,13 +230,13 @@ public class OrebfuscatorConfig implements Config {
 		return false;
 	}
 
-	public boolean usesRayCastCheck() {
+	public String usesRayCastCheck() {
 		for (ProximityConfig config : this.proximityConfigs) {
-			if (config.useRayCastCheck()) {
-				return true;
+			if (config.rayCastCheckEnabled()) {
+				return config.rayCastCheckOnlyCheckCenter() ? "center" : "true";
 			}
 		}
-		return false;
+		return "false";
 	}
 
 	private OrebfuscatorWorldConfigBundle getWorldConfigBundle(World world) {

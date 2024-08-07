@@ -18,14 +18,15 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 
 	private int distance = 24;
 
-	private boolean frustumCullingEnabled = false;
+	private boolean frustumCullingEnabled = true;
 	private float frustumCullingMinDistance = 3;
 	private float frustumCullingFov = 80f;
 
 	private float frustumCullingMinDistanceSquared = 9;
 	private Matrix4f frustumCullingProjectionMatrix;
 
-	private boolean useRayCastCheck = false;
+	private boolean rayCastCheckEnabled = false;
+	private boolean rayCastCheckOnlyCheckCenter = false;
 	private int defaultBlockFlags = (ProximityHeightCondition.MATCH_ALL | BlockFlags.FLAG_USE_BLOCK_BELOW);
 	
 	private boolean usesBlockSpecificConfigs = false;
@@ -66,8 +67,10 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 		this.frustumCullingProjectionMatrix = new Matrix4f() // create projection matrix with aspect 16:9
 				.perspective(frustumCullingFov, 16f / 9f, 0.01f, 2 * distance);
 
-		this.useRayCastCheck = section.getBoolean("useRayCastCheck",
-				section.getBoolean("useFastGazeCheck", false));
+		this.rayCastCheckEnabled = section.getBoolean("rayCastCheck.enabled",
+				section.getBoolean("useRayCastCheck",
+				section.getBoolean("useFastGazeCheck", false)));
+		this.rayCastCheckOnlyCheckCenter = section.getBoolean("rayCastCheck.onlyCheckCenter", false);
 
 		this.defaultBlockFlags = ProximityHeightCondition.create(minY, maxY);
 		if (section.getBoolean("useBlockBelow", true)) {
@@ -92,7 +95,8 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 		section.set("frustumCulling.minDistance", frustumCullingMinDistance);
 		section.set("frustumCulling.fov", frustumCullingFov);
 
-		section.set("useRayCastCheck", this.useRayCastCheck);
+		section.set("rayCastCheck.enabled", this.rayCastCheckEnabled);
+		section.set("rayCastCheck.onlyCheckCenter", this.rayCastCheckOnlyCheckCenter);
 		section.set("useBlockBelow", BlockFlags.isUseBlockBelowBitSet(this.defaultBlockFlags));
 
 		this.serializeHiddenBlocks(section, "hiddenBlocks");
@@ -199,8 +203,13 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 	}
 
 	@Override
-	public boolean useRayCastCheck() {
-		return this.useRayCastCheck;
+	public boolean rayCastCheckEnabled() {
+		return this.rayCastCheckEnabled;
+	}
+
+	@Override
+	public boolean rayCastCheckOnlyCheckCenter() {
+		return this.rayCastCheckOnlyCheckCenter;
 	}
 
 	@Override

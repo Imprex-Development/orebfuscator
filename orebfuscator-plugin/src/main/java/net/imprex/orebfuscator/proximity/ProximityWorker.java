@@ -65,7 +65,7 @@ public class ProximityWorker {
 		}
 
 		// frustum culling and ray casting both need rotation changes
-		boolean needsRotation = proximityConfig.frustumCullingEnabled() || proximityConfig.useRayCastCheck();
+		boolean needsRotation = proximityConfig.frustumCullingEnabled() || proximityConfig.rayCastCheckEnabled();
 
 		// check if player changed location since last time
 		OrebfuscatorPlayer orebfuscatorPlayer = this.playerMap.get(player);
@@ -132,7 +132,7 @@ public class ProximityWorker {
 					}
 
 					// do ray cast check
-					if (proximityConfig.useRayCastCheck() && !FastGazeUtil.doFastCheck(blockPos, eyeLocation, world)) {
+					if (proximityConfig.rayCastCheckEnabled() && !FastGazeUtil.doFastCheck(blockPos, eyeLocation, world, proximityConfig.rayCastCheckOnlyCheckCenter())) {
 						continue;
 					}
 

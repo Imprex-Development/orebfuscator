@@ -77,9 +77,6 @@ public class MetricsSystem {
 		this.metrics.addCustomChart(new SimplePie("ignore_spectator", () -> {
 			return Boolean.toString(config.general().ignoreSpectator());
 		}));
-		this.metrics.addCustomChart(new SimplePie("async_packet_listener", () -> {
-			return Boolean.toString(config.advanced().useAsyncPacketListener());
-		}));
 		this.metrics.addCustomChart(new SimplePie("cache", () -> {
 			return Boolean.toString(config.cache().enabled());
 		}));
@@ -93,7 +90,7 @@ public class MetricsSystem {
 			return Boolean.toString(config.usesFrustumCulling());
 		}));
 		this.metrics.addCustomChart(new SimplePie("ray_cast", () -> {
-			return Boolean.toString(config.usesRayCastCheck());
+			return config.usesRayCastCheck();
 		}));
 	}
 }

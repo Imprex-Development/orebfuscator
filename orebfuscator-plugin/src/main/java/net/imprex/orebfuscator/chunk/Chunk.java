@@ -10,7 +10,7 @@ import net.imprex.orebfuscator.util.HeightAccessor;
 public class Chunk implements AutoCloseable {
 
 	public static Chunk fromChunkStruct(ChunkStruct chunkStruct) {
-		return new Chunk(chunkStruct, ChunkCapabilities.getExtraBytes(chunkStruct));
+		return new Chunk(chunkStruct);
 	}
 
 	private final int chunkX;
@@ -22,7 +22,7 @@ public class Chunk implements AutoCloseable {
 	private final ByteBuf inputBuffer;
 	private final ByteBuf outputBuffer;
 
-	private Chunk(ChunkStruct chunkStruct, int extraBytes) {
+	private Chunk(ChunkStruct chunkStruct) {
 		this.chunkX = chunkStruct.chunkX;
 		this.chunkZ = chunkStruct.chunkZ;
 
@@ -34,7 +34,7 @@ public class Chunk implements AutoCloseable {
 
 		for (int sectionIndex = 0; sectionIndex < this.sections.length; sectionIndex++) {
 			if (chunkStruct.sectionMask.get(sectionIndex)) {
-				this.sections[sectionIndex] = new ChunkSectionHolder(extraBytes);
+				this.sections[sectionIndex] = new ChunkSectionHolder();
 			}
 		}
 	}
@@ -109,28 +109,27 @@ public class Chunk implements AutoCloseable {
 		public ChunkSection chunkSection;
 
 		public final int[] data;
-		public final int offset;
+		public final int extraOffset;
 
 		private int extraBytes;
 
-		public ChunkSectionHolder(int extraBytes) {
+		public ChunkSectionHolder() {
 			this.chunkSection = new ChunkSection();
 
 			this.data = this.chunkSection.read(inputBuffer);
-			this.offset = inputBuffer.readerIndex();
+			this.extraOffset = inputBuffer.readerIndex();
 
 			if (ChunkCapabilities.hasBiomePalettedContainer()) {
 				skipBiomePalettedContainer();
-				this.extraBytes = inputBuffer.readerIndex() - this.offset;
-			} else {
-				this.extraBytes = extraBytes;
-				inputBuffer.skipBytes(extraBytes);
+				this.extraBytes = inputBuffer.readerIndex() - this.extraOffset;
 			}
 		}
 
 		public void write() {
 			this.chunkSection.write(outputBuffer);
-			outputBuffer.writeBytes(inputBuffer, this.offset, extraBytes);
+			if (this.extraBytes > 0) {
+				outputBuffer.writeBytes(inputBuffer, this.extraOffset, extraBytes);
+			}
 		}
 	}
 }

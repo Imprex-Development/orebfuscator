@@ -1,12 +1,12 @@
 name: Build
 
 on:
-  push:
-    branches:
-    - '**' 
+  - push
+  - pull_request
 
 jobs:
   build:
+    if: github.event_name == 'push' || github.event.pull_request.head.repo.full_name != github.repository
     runs-on: ubuntu-latest
 
     steps:
