@@ -24,7 +24,7 @@ public class RegionFileCache extends AbstractRegionFileCache<RegionFile> {
 	@Override
 	protected RegionFile createRegionFile(Path path) throws IOException {
 		boolean isSyncChunkWrites = ((CraftServer) Bukkit.getServer()).getServer().forceSynchronousWrites();
-		return new RegionFile(null, path, path.getParent(), RegionFileVersion.VERSION_LZ4, isSyncChunkWrites);
+		return new RegionFile(null, path, path.getParent(), RegionFileVersion.VERSION_NONE, isSyncChunkWrites);
 	}
 
 	@Override

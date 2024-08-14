@@ -1,6 +1,5 @@
 package net.imprex.orebfuscator.obfuscation;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.CompletableFuture;
@@ -60,10 +59,6 @@ public class ObfuscationRequest {
 
 	public ChunkStruct getChunkStruct() {
 		return chunkStruct;
-	}
-
-	public boolean isValid(ObfuscationResult result) {
-		return result != null && Arrays.equals(result.getHash(), this.chunkHash);
 	}
 
 	public CompletableFuture<ObfuscationResult> submitForObfuscation() {

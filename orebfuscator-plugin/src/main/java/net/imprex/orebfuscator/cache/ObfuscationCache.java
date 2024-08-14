@@ -1,8 +1,10 @@
 package net.imprex.orebfuscator.cache;
 
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.TimeUnit;
 
 import org.bukkit.command.CommandSender;
+import org.openjdk.jol.info.GraphLayout;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -29,7 +31,7 @@ public class ObfuscationCache {
 
 		this.cache = CacheBuilder.newBuilder()
 				.maximumSize(this.cacheConfig.maximumSize())
-//				.expireAfterAccess(this.cacheConfig.expireAfterAccess(), TimeUnit.MILLISECONDS)
+				.expireAfterAccess(this.cacheConfig.expireAfterAccess(), TimeUnit.MILLISECONDS)
 				.removalListener(this::onRemoval)
 				.build();
 
@@ -45,25 +47,23 @@ public class ObfuscationCache {
 	}
 
 	public void printEstimatedSize(CommandSender sender) {
-		long cacheSize = this.cache.size();
-		long bytes = this.cache.asMap().values().stream()
-				.mapToLong(entry -> 48 /* plain object size + fields */ + entry.getCompressedData().length)
-				.sum();
-		sender.sendMessage("size: " + cacheSize + ", bytes: " + (bytes / 1024 / 1024) + "MiB, avg: " + (bytes / cacheSize));
+		OrebfuscatorCompatibility.runAsyncNow(() -> {
+			long cacheSize = this.cache.size();
 
-		long decompressedBytes = this.cache.asMap().values().stream()
-				.map(entry -> entry.toResult())
-				.mapToLong(entry -> 48 /* plain object size + fields */ + entry.getHash().length + entry.getData().length
-						+ 24 + entry.getBlockEntities().size() * 72
-						+ 24 + entry.getProximityBlocks().size() * 48)
-				.sum();
-		sender.sendMessage("size: " + cacheSize + ", bytes: " + (decompressedBytes / 1024 / 1024) + "MiB, avg: " + (decompressedBytes / cacheSize));
-	}
+			double bytes = this.cache.asMap().values().stream()
+					.mapToLong(entry -> GraphLayout.parseInstance(entry).totalSize())
+					.sum() / 1024d;
+			double decompressedBytes = this.cache.asMap().values().stream()
+					.map(entry -> entry.toResult())
+					.mapToLong(entry -> GraphLayout.parseInstance(entry).totalSize())
+					.sum() / 1024d;
 
-	public long estimatedBytes() {
-		return this.cache.asMap().values().stream()
-				.mapToLong(entry -> 48 /* plain object size + fields */ + entry.getCompressedData().length)
-				.sum();
+			sender.sendMessage(String.format("count: %d, heap: %.1f/%.1f MiB, avg: %.1f/%.1f KiB, pct: %.1f%%", 
+					cacheSize,
+					(bytes / 1024d), (decompressedBytes / 1024d),
+					(bytes / cacheSize), (decompressedBytes / cacheSize),
+					(bytes / decompressedBytes * 100d)));
+		});
 	}
 
 	private void onRemoval(RemovalNotification<ChunkPosition, CompressedObfuscationResult> notification) {
@@ -74,54 +74,46 @@ public class ObfuscationCache {
 		}
 	}
 
+	private void requestObfuscation(ObfuscationRequest request) {
+		request.submitForObfuscation().thenAccept(chunk -> {
+			var compressedChunk = CompressedObfuscationResult.create(chunk);
+			if (compressedChunk != null) {
+				this.cache.put(request.getPosition(), compressedChunk);
+			}
+		});
+	}
+
 	public CompletableFuture<ObfuscationResult> get(ObfuscationRequest request) {
 		ChunkPosition key = request.getPosition();
 
 		CompressedObfuscationResult cacheChunk = this.cache.getIfPresent(key);
 		if (cacheChunk != null && cacheChunk.isValid(request)) {
-			return request.complete(cacheChunk.toResult());
+			cacheChunk.toResult().ifPresent(request::complete);
 		}
+		// only access disk cache if we couldn't find the chunk in memory cache
+		else if (cacheChunk == null && this.cacheConfig.enableDiskCache()) {
+			this.serializer.read(key).whenComplete((diskChunk, throwable) -> {
+				if (diskChunk != null && diskChunk.isValid(request)) {
+					// add valid disk cache entry to in-memory cache
+					this.cache.put(key, diskChunk);
+					diskChunk.toResult().ifPresentOrElse(request::complete,
+							// request obfuscation if decoding failed
+							() -> this.requestObfuscation(request));
+				} else {
+					// request obfuscation if disk cache missing
+					this.requestObfuscation(request);
+				}
 
-		if (this.cacheConfig.enableDiskCache()) {
-
-			// compose async in order for the serializer to continue its work
-			this.serializer.read(key)
-				.thenComposeAsync(diskChunk -> {
-					if (diskChunk != null && diskChunk.isValid(request)) {
-						return request.complete(diskChunk.toResult());
-					} else {
-						return request.submitForObfuscation();
-					}
-				})
-				.whenComplete((chunk, throwable) -> {
-					try {
-						// if successful add chunk to in-memory cache
-						if (chunk != null) {
-							this.cache.put(key, CompressedObfuscationResult.create(chunk));
-						}
-						if (throwable != null) {
-							request.completeExceptionally(throwable);
-						}
-					} catch (Exception e) {
-						request.completeExceptionally(e);
-					}
-				});
-		} else {
-
-			request.submitForObfuscation()
-				.whenComplete((chunk, throwable) -> {
-					try {
-						// if successful add chunk to in-memory cache
-						if (chunk != null) {
-							this.cache.put(key, CompressedObfuscationResult.create(chunk));
-						}
-						if (throwable != null) {
-							request.completeExceptionally(throwable);
-						}
-					} catch (Exception e) {
-						request.completeExceptionally(e);
-					}
-				});
+				// request future doesn't care about serialzer failure because
+				// we simply request obfuscation on failure
+				if (throwable != null) {
+					throwable.printStackTrace();
+				}
+			});
+		}
+		// request obfuscation if cache missed
+		else {
+			this.requestObfuscation(request);
 		}
 
 		return request.getFuture();

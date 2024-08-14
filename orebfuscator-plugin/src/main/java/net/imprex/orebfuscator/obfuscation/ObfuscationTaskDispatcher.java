@@ -38,7 +38,7 @@ class ObfuscationTaskDispatcher {
 		ObfuscationTask task;
 
 		while ((task = this.tasks.poll()) == null) {
-			 // sleep for 1 tick = 50ms
+			// sleep for 1 tick = 50ms
 			LockSupport.parkNanos(this, 50000000L);
 			if (Thread.interrupted()) {
 				throw new InterruptedException();

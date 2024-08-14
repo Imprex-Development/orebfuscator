@@ -35,6 +35,7 @@ public class ChunkSerializer {
 		} catch (IOException e) {
 			throw new IOException("Unable to read chunk: " + key, e);
 		}
+
 		return null;
 	}
 
@@ -51,6 +52,8 @@ public class ChunkSerializer {
 			} else {
 				dataOutputStream.writeBoolean(false);
 			}
+		} catch (IOException e) {
+			throw new IOException("Unable to write chunk: " + key, e);
 		}
 	}
 

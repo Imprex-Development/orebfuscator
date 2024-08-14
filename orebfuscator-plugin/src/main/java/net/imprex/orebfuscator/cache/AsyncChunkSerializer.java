@@ -163,7 +163,7 @@ public class AsyncChunkSerializer implements Runnable {
 			try {
 				future.complete(ChunkSerializer.read(position));
 			} catch (IOException e) {
-				e.printStackTrace();
+				future.completeExceptionally(e);
 			}
 		}
 	}
