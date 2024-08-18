@@ -10,8 +10,8 @@ import org.joml.Matrix4f;
 
 import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.config.components.WeightedBlockList;
+import net.imprex.orebfuscator.config.context.ConfigParsingContext;
 import net.imprex.orebfuscator.util.BlockProperties;
-import net.imprex.orebfuscator.util.OFCLogger;
 
 public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements ProximityConfig {
 
@@ -32,21 +32,20 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 	private Map<BlockProperties, Integer> hiddenBlocks = new LinkedHashMap<>();
 	private Set<BlockProperties> allowForUseBlockBelow = new HashSet<>();
 
-	OrebfuscatorProximityConfig(ConfigurationSection section) {
+	OrebfuscatorProximityConfig(ConfigurationSection section, ConfigParsingContext context) {
 		super(section.getName());
 		this.deserializeBase(section);
-		this.deserializeWorlds(section, "worlds");
+		this.deserializeWorlds(section, context, "worlds");
 
-		if ((this.distance = section.getInt("distance", 24)) < 1) {
-			this.fail("distance must be higher than zero");
-		}
+		this.distance = section.getInt("distance", 24);
+		context.errorMinValue("distance", 1, this.distance);
 
 		this.frustumCullingEnabled = section.getBoolean("frustumCulling.enabled", false);
 		this.frustumCullingMinDistance = (float) section.getDouble("frustumCulling.minDistance", 3);
 		this.frustumCullingFov = (float) section.getDouble("frustumCulling.fov", 80d);
 
 		if (this.frustumCullingEnabled && (this.frustumCullingFov < 10 || this.frustumCullingFov > 170)) {
-			this.fail("frustum fov has to be between 10 and 170");
+			context.errorMinMaxValue("frustumCulling.fov", 10, 170, (int) this.frustumCullingFov);
 		}
 
 		this.frustumCullingMinDistanceSquared = frustumCullingMinDistance * frustumCullingMinDistance;
@@ -61,12 +60,14 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 			this.defaultBlockFlags |= BlockFlags.FLAG_USE_BLOCK_BELOW;
 		}
 
-		this.deserializeHiddenBlocks(section, "hiddenBlocks");
-		this.deserializeRandomBlocks(section, "randomBlocks");
+		this.deserializeHiddenBlocks(section, context, "hiddenBlocks");
+		this.deserializeRandomBlocks(section, context, "randomBlocks");
 
 		for (WeightedBlockList blockList : this.weightedBlockLists) {
 			this.allowForUseBlockBelow.addAll(blockList.getBlocks());
 		}
+
+		this.disableOnError(context);
 	}
 
 	protected void serialize(ConfigurationSection section) {
@@ -87,7 +88,9 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 		this.serializeRandomBlocks(section, "randomBlocks");
 	}
 
-	private void deserializeHiddenBlocks(ConfigurationSection section, String path) {
+	private void deserializeHiddenBlocks(ConfigurationSection section, ConfigParsingContext context, String path) {
+		context = context.section(path);
+
 		ConfigurationSection blockSection = section.getConfigurationSection(path);
 		if (blockSection == null) {
 			return;
@@ -96,10 +99,9 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 		for (String blockName : blockSection.getKeys(false)) {
 			BlockProperties blockProperties = OrebfuscatorNms.getBlockByName(blockName);
 			if (blockProperties == null) {
-				warnUnknownBlock(section, path, blockName);
+				context.warnUnknownBlock(blockName);
 			} else if (blockProperties.getDefaultBlockState().isAir()) {
-		        OFCLogger.warn(String.format("config section '%s.%s' contains air block '%s', skipping",
-		                section.getCurrentPath(), path, blockName));
+				context.warnAirBlock(blockName);
 			} else {
 				int blockFlags = this.defaultBlockFlags;
 
@@ -130,7 +132,7 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 		}
 
 		if (this.hiddenBlocks.isEmpty()) {
-			this.failMissingOrEmpty(section, path);
+			context.errorMissingOrEmpty();
 		}
 	}
 

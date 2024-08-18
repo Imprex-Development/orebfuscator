@@ -16,9 +16,24 @@ class ConfigMigrationV3 implements ConfigMigration {
 
 	@Override
 	public ConfigurationSection migrate(ConfigurationSection section) {
+		migrateAdvancedConfig(section.getConfigurationSection("advanced"));
 		migrateCacheConfig(section.getConfigurationSection("cache"));
 		migrateProximityConfigs(section.getConfigurationSection("proximity"));
 		return section;
+	}
+
+	private static void migrateAdvancedConfig(ConfigurationSection section) {
+		ConfigMigration.migrateNames(section, List.of(
+			// obfuscation mapping
+			Map.entry("obfuscationWorkerThreads", "obfuscation.threads"),
+			Map.entry("obfuscationTimeout", "obfuscation.timeout"),
+			Map.entry("maxMillisecondsPerTick", "obfuscation.maxMillisecondsPerTick"),
+			// proximity mapping
+			Map.entry("proximityHiderThreads", "proximity.threads"),
+			Map.entry("proximityDefaultBucketSize", "proximity.defaultBucketSize"),
+			Map.entry("proximityThreadCheckInterval", "proximity.threadCheckInterval"),
+			Map.entry("proximityPlayerCheckInterval", "proximity.playerCheckInterval")
+		));
 	}
 
 	private static void migrateCacheConfig(ConfigurationSection section) {

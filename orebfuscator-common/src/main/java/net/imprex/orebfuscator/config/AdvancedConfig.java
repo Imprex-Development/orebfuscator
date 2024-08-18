@@ -2,15 +2,15 @@ package net.imprex.orebfuscator.config;
 
 public interface AdvancedConfig {
 
-	int maxMillisecondsPerTick();
-
-	int obfuscationWorkerThreads();
+	int obfuscationThreads();
 
 	boolean hasObfuscationTimeout();
 
 	long obfuscationTimeout();
 
-	int proximityHiderThreads();
+	int maxMillisecondsPerTick();
+
+	int proximityThreads();
 
 	int proximityDefaultBucketSize();
 

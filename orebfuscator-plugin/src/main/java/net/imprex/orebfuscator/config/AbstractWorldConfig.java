@@ -8,17 +8,20 @@ import org.bukkit.configuration.ConfigurationSection;
 
 import net.imprex.orebfuscator.config.components.WeightedBlockList;
 import net.imprex.orebfuscator.config.components.WorldMatcher;
+import net.imprex.orebfuscator.config.context.ConfigParsingContext;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.HeightAccessor;
 import net.imprex.orebfuscator.util.MathUtil;
 import net.imprex.orebfuscator.util.OFCLogger;
 import net.imprex.orebfuscator.util.WeightedIntRandom;
 
-public abstract class AbstractWorldConfig implements WorldConfig, OldWorldConfigParsingContext {
+public abstract class AbstractWorldConfig implements WorldConfig {
 
 	private final String name;
 
+	protected boolean enabledValue = false;
 	protected boolean enabled = false;
+
 	protected int minY = BlockPos.MIN_Y;
 	protected int maxY = BlockPos.MAX_Y;
 
@@ -29,13 +32,8 @@ public abstract class AbstractWorldConfig implements WorldConfig, OldWorldConfig
 		this.name = name;
 	}
 
-	public final void fail(String message) {
-		this.enabled = false;
-		OFCLogger.warn(message);
-	}
-
 	protected void deserializeBase(ConfigurationSection section) {
-		this.enabled = section.getBoolean("enabled", true);
+		this.enabledValue = section.getBoolean("enabled", true);
 
 		int minY = MathUtil.clamp(section.getInt("minY", BlockPos.MIN_Y), BlockPos.MIN_Y, BlockPos.MAX_Y);
 		int maxY = MathUtil.clamp(section.getInt("maxY", BlockPos.MAX_Y), BlockPos.MIN_Y, BlockPos.MAX_Y);
@@ -45,16 +43,18 @@ public abstract class AbstractWorldConfig implements WorldConfig, OldWorldConfig
 	}
 
 	protected void serializeBase(ConfigurationSection section) {
-		section.set("enabled", this.enabled);
+		section.set("enabled", this.enabledValue);
 		section.set("minY", this.minY);
 		section.set("maxY", this.maxY);
 	}
 
-	protected void deserializeWorlds(ConfigurationSection section, String path) {
+	protected void deserializeWorlds(ConfigurationSection section, ConfigParsingContext context, String path) {
+		context = context.section(path);
+
 		section.getStringList(path).stream().map(WorldMatcher::parseMatcher).forEach(worldMatchers::add);
 
 		if (this.worldMatchers.isEmpty()) {
-			this.failMissingOrEmpty(section, path);
+			context.errorMissingOrEmpty();
 		}
 	}
 
@@ -62,20 +62,23 @@ public abstract class AbstractWorldConfig implements WorldConfig, OldWorldConfig
 		section.set(path, worldMatchers.stream().map(WorldMatcher::serialize).collect(Collectors.toList()));
 	}
 
-	protected void deserializeRandomBlocks(ConfigurationSection section, String path) {
+	protected void deserializeRandomBlocks(ConfigurationSection section, ConfigParsingContext context, String path) {
+		context = context.section(path);
+
 		ConfigurationSection subSectionContainer = section.getConfigurationSection(path);
 		if (subSectionContainer == null) {
-			failMissingOrEmpty(section, path);
+			context.errorMissingOrEmpty();
 			return;
 		}
 
 		for (String subSectionName : subSectionContainer.getKeys(false)) {
+			ConfigParsingContext subContext = context.section(subSectionName);
 			ConfigurationSection subSection = subSectionContainer.getConfigurationSection(subSectionName);
-			this.weightedBlockLists.add(new WeightedBlockList(this, subSection));
+			this.weightedBlockLists.add(new WeightedBlockList(subSection, subContext));
 		}
 
 		if (this.weightedBlockLists.isEmpty()) {
-			failMissingOrEmpty(section, path);
+			context.errorMissingOrEmpty();
 		}
 	}
 
@@ -87,13 +90,17 @@ public abstract class AbstractWorldConfig implements WorldConfig, OldWorldConfig
 		}
 	}
 
+	protected void disableOnError(ConfigParsingContext context) {
+		this.enabled = context.disableIfError(this.enabledValue);
+	}
+
 	public String getName() {
 		return name;
 	}
 
 	@Override
 	public boolean isEnabled() {
-		return enabled;
+		return this.enabled;
 	}
 
 	@Override

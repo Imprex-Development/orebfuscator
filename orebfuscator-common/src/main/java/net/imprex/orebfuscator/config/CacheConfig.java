@@ -8,6 +8,12 @@ public interface CacheConfig {
 
 	boolean enabled();
 
+	int maximumSize();
+
+	long expireAfterAccess();
+	
+	boolean enableDiskCache();
+
 	Path baseDirectory();
 
 	Path regionFile(ChunkPosition chunkPosition);
@@ -15,12 +21,6 @@ public interface CacheConfig {
 	int maximumOpenRegionFiles();
 
 	long deleteRegionFilesAfterAccess();
-	
-	boolean enableDiskCache();
-
-	int maximumSize();
-
-	long expireAfterAccess();
 
 	int maximumTaskQueueSize();
 }

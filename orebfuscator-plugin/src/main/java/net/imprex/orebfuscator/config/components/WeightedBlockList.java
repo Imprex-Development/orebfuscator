@@ -10,7 +10,7 @@ import java.util.Set;
 import org.bukkit.configuration.ConfigurationSection;
 
 import net.imprex.orebfuscator.OrebfuscatorNms;
-import net.imprex.orebfuscator.config.OldWorldConfigParsingContext;
+import net.imprex.orebfuscator.config.context.ConfigParsingContext;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.BlockProperties;
 import net.imprex.orebfuscator.util.HeightAccessor;
@@ -74,7 +74,7 @@ public class WeightedBlockList {
 
     private final Map<BlockProperties, Integer> blocks = new LinkedHashMap<>();
 
-    public WeightedBlockList(OldWorldConfigParsingContext context, ConfigurationSection section) {
+    public WeightedBlockList(ConfigurationSection section, ConfigParsingContext context) {
         this.name = section.getName();
 
         int minY = MathUtil.clamp(section.getInt("minY", BlockPos.MIN_Y), BlockPos.MIN_Y, BlockPos.MAX_Y);
@@ -83,8 +83,9 @@ public class WeightedBlockList {
         this.minY = Math.min(minY, maxY);
         this.maxY = Math.max(minY, maxY);
 
+        ConfigParsingContext blocksContext = context.section("blocks");
         if (!section.isConfigurationSection("blocks")) {
-            context.failMissingOrEmpty(section, "blocks");
+        	blocksContext.errorMissingOrEmpty();
             return;
         }
 
@@ -95,12 +96,12 @@ public class WeightedBlockList {
                 int weight = blockSection.getInt(blockName, 1);
                 this.blocks.put(blockProperties, weight);
             } else {
-                context.warnUnknownBlock(section, "blocks", blockName);
+            	blocksContext.warnUnknownBlock(blockName);
             }
         }
 
         if (this.blocks.isEmpty()) {
-            context.failMissingOrEmpty(section, "blocks");
+        	blocksContext.errorMissingOrEmpty();
         }
     }
 

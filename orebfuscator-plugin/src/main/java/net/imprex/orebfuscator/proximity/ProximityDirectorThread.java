@@ -41,7 +41,7 @@ public class ProximityDirectorThread extends Thread implements Listener {
 		this.orebfuscator = orebfuscator;
 
 		AdvancedConfig advancedConfig = orebfuscator.getOrebfuscatorConfig().advanced();
-		this.workerCount = advancedConfig.proximityHiderThreads();
+		this.workerCount = advancedConfig.proximityThreads();
 		this.defaultBucketSize = advancedConfig.proximityDefaultBucketSize();
 		this.checkInterval = advancedConfig.proximityThreadCheckInterval();
 

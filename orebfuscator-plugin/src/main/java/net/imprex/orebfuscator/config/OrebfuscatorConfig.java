@@ -63,6 +63,11 @@ public class OrebfuscatorConfig implements Config {
 		
 		DefaultConfigParsingContext context = new DefaultConfigParsingContext();
 		this.deserialize(this.plugin.getConfig(), context);
+		context.report();
+
+		if (context.hasErrors()) {
+			throw new IllegalArgumentException("Can't parse config due to errors, Orebfuscator will now disable itself!");
+		}
 	}
 
 	public void store() {
@@ -105,6 +110,7 @@ public class OrebfuscatorConfig implements Config {
 
 	private void deserialize(ConfigurationSection section, ConfigParsingContext context) {
 		ConfigMigrator.migrateToLatestVersion(section);
+		// instantly fail on invalid config version
 		if (section.getInt("version", -1) != CONFIG_VERSION) {
 			throw new RuntimeException("config is not up to date, please delete your config");
 		}
@@ -113,27 +119,34 @@ public class OrebfuscatorConfig implements Config {
 		this.proximityConfigs.clear();
 		this.worldConfigBundles.clear();
 
+		// parse general section
+		ConfigParsingContext generalContext = context.section("general");
 		ConfigurationSection generalSection = section.getConfigurationSection("general");
 		if (generalSection != null) {
-			this.generalConfig.deserialize(generalSection, context.section("general"));
+			this.generalConfig.deserialize(generalSection, generalContext);
 		} else {
-			OFCLogger.warn("config section 'general' is missing, using default one");
+			generalContext.warnMissingSection();
 		}
 
+		// parse advanced section
+		ConfigParsingContext advancedContext = context.section("advanced");
 		ConfigurationSection advancedSection = section.getConfigurationSection("advanced");
 		if (advancedSection != null) {
-			this.advancedConfig.deserialize(advancedSection, context.section("advanced"));
+			this.advancedConfig.deserialize(advancedSection, advancedContext);
 		} else {
-			OFCLogger.warn("config section 'advanced' is missing, using default one");
+			advancedContext.warnMissingSection();
 		}
 
+		// post init advanced config
 		this.advancedConfig.initialize();
 
+		// parse cache section
+		ConfigParsingContext cacheContext = context.section("cache", true);
 		ConfigurationSection cacheSection = section.getConfigurationSection("cache");
 		if (cacheSection != null) {
-			this.cacheConfig.deserialize(cacheSection, context.section("cache"));
+			this.cacheConfig.deserialize(cacheSection, cacheContext);
 		} else {
-			OFCLogger.warn("config section 'cache' is missing, using default one");
+			cacheContext.warnMissingSection();
 		}
 
 		OrebfuscatorCompatibility.initialize(this.plugin, this);
@@ -141,22 +154,28 @@ public class OrebfuscatorConfig implements Config {
 		OrebfuscatorNms.close();
 		OrebfuscatorNms.initialize(this);
 
-		ConfigurationSection obfuscation = section.getConfigurationSection("obfuscation");
-		obfuscation.getKeys(false).stream()
-				.map(obfuscation::getConfigurationSection)
-				.map(OrebfuscatorObfuscationConfig::new)
-				.forEach(this.obfuscationConfigs::add);
+		// parse obfuscation sections
+		ConfigParsingContext obfuscationContext = context.section("obfuscation");
+		ConfigurationSection obfuscationSection = section.getConfigurationSection("obfuscation");
+		for (String key : obfuscationSection.getKeys(false)) {
+			this.obfuscationConfigs.add(new OrebfuscatorObfuscationConfig(
+				obfuscationSection.getConfigurationSection(key),
+				obfuscationContext.section(key, true)));
+		}
 		if (this.obfuscationConfigs.isEmpty()) {
-			OFCLogger.warn("config section 'obfuscation' is missing or empty");
+			obfuscationContext.warnMissingOrEmpty();
 		}
 
-		ConfigurationSection proximity = section.getConfigurationSection("proximity");
-		proximity.getKeys(false).stream()
-				.map(proximity::getConfigurationSection)
-				.map(OrebfuscatorProximityConfig::new)
-				.forEach(this.proximityConfigs::add);
+		// parse proximity sections
+		ConfigParsingContext proximityContext = context.section("proximity");
+		ConfigurationSection proximitySection = section.getConfigurationSection("proximity");
+		for (String key : proximitySection.getKeys(false)) {
+			this.proximityConfigs.add(new OrebfuscatorProximityConfig(
+				proximitySection.getConfigurationSection(key),
+				proximityContext.section(key, true)));
+		}
 		if (this.proximityConfigs.isEmpty()) {
-			OFCLogger.warn("config section 'proximity' is missing or empty");
+			proximityContext.warnMissingOrEmpty();
 		}
 
 		for (World world : Bukkit.getWorlds()) {

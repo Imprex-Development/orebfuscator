@@ -17,8 +17,8 @@ public class OrebfuscatorGeneralConfig implements GeneralConfig {
 		this.updateOnBlockDamage = section.getBoolean("updateOnBlockDamage", true);
 		this.bypassNotification = section.getBoolean("bypassNotification", true);
 		this.ignoreSpectator = section.getBoolean("ignoreSpectator", false);
-		this.updateRadius = section.getInt("updateRadius", 2);
 
+		this.updateRadius = section.getInt("updateRadius", 2);
 		context.errorMinValue("updateRadius", 1, this.updateRadius);
 	}
 

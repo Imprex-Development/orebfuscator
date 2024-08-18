@@ -8,8 +8,8 @@ import java.util.Set;
 import org.bukkit.configuration.ConfigurationSection;
 
 import net.imprex.orebfuscator.OrebfuscatorNms;
+import net.imprex.orebfuscator.config.context.ConfigParsingContext;
 import net.imprex.orebfuscator.util.BlockProperties;
-import net.imprex.orebfuscator.util.OFCLogger;
 
 public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implements ObfuscationConfig {
 
@@ -17,13 +17,14 @@ public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implement
 
 	private final Set<BlockProperties> hiddenBlocks = new LinkedHashSet<>();
 
-	OrebfuscatorObfuscationConfig(ConfigurationSection section) {
+	OrebfuscatorObfuscationConfig(ConfigurationSection section, ConfigParsingContext context) {
 		super(section.getName());
 		this.deserializeBase(section);
-		this.deserializeWorlds(section, "worlds");
+		this.deserializeWorlds(section, context, "worlds");
 		this.layerObfuscation = section.getBoolean("layerObfuscation", false);
-		this.deserializeHiddenBlocks(section, "hiddenBlocks");
-		this.deserializeRandomBlocks(section, "randomBlocks");
+		this.deserializeHiddenBlocks(section, context, "hiddenBlocks");
+		this.deserializeRandomBlocks(section, context, "randomBlocks");
+		this.disableOnError(context);
 	}
 
 	void serialize(ConfigurationSection section) {
@@ -34,21 +35,22 @@ public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implement
 		this.serializeRandomBlocks(section, "randomBlocks");
 	}
 
-	private void deserializeHiddenBlocks(ConfigurationSection section, String path) {
+	private void deserializeHiddenBlocks(ConfigurationSection section, ConfigParsingContext context, String path) {
+		context = context.section(path);
+
 		for (String blockName : section.getStringList(path)) {
 			BlockProperties blockProperties = OrebfuscatorNms.getBlockByName(blockName);
 			if (blockProperties == null) {
-				warnUnknownBlock(section, path, blockName);
+				context.warnUnknownBlock(blockName);
 			} else if (blockProperties.getDefaultBlockState().isAir()) {
-		        OFCLogger.warn(String.format("config section '%s.%s' contains air block '%s', skipping",
-		                section.getCurrentPath(), path, blockName));
+				context.warnAirBlock(blockName);
 			} else {
 				this.hiddenBlocks.add(blockProperties);
 			}
 		}
 
 		if (this.hiddenBlocks.isEmpty()) {
-			this.failMissingOrEmpty(section, path);
+			context.errorMissingOrEmpty();
 		}
 	}
 

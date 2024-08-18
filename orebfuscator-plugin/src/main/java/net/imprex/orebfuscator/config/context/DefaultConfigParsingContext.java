@@ -1,6 +1,7 @@
 package net.imprex.orebfuscator.config.context;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -49,7 +50,7 @@ public class DefaultConfigParsingContext implements ConfigParsingContext {
 
 	@Override
 	public ConfigParsingContext error(String message) {
-		this.messages.add(new Message(false, message));
+		this.messages.add(new Message(true, message));
 		return this;
 	}
 
@@ -110,12 +111,18 @@ public class DefaultConfigParsingContext implements ConfigParsingContext {
 		final StringBuilder builder = new StringBuilder();
 		final String indent = "  ".repeat(this.depth);
 
+		// sort -> errors should come before warnings
+		Collections.sort(this.messages);
+
 		for (Message message : this.messages) {
 			String color = message.isError() ? ANSI_ERROR : ANSI_WARN;
 			builder.append(indent).append(color).append("- ").append(message.content()).append('\n');
 		}
 
 		for (var entry : this.section.entrySet()) {
+			if (entry.getValue().getMessageCount() == 0) {
+				continue;
+			}
 			builder.append(indent).append(ANSI_WARN).append(entry.getKey()).append(":\n");
 			builder.append(entry.getValue().buildReport());
 		}
@@ -123,10 +130,10 @@ public class DefaultConfigParsingContext implements ConfigParsingContext {
 		return builder.toString();
 	}
 
-	public void report() {
+	public String report() {
 		int messageCount = this.getMessageCount();
 		if (messageCount == 0) {
-			return;
+			return null;
 		}
 
 		StringBuilder builder = new StringBuilder();
@@ -135,9 +142,18 @@ public class DefaultConfigParsingContext implements ConfigParsingContext {
 			.append(buildReport())
 			.append(ANSI_RESET);
 
-		OFCLogger.log(hasErrors() ? Level.SEVERE : Level.WARNING, builder.toString());
+		String message = builder.toString();
+		OFCLogger.log(hasErrors() ? Level.SEVERE : Level.WARNING, message);
+		return message;
 	}
 
-	private record Message(boolean isError, String content) {
+	private record Message(boolean isError, String content) implements Comparable<Message> {
+
+		@Override
+		public int compareTo(Message o) {
+			int a = this.isError ? 1 : 0;
+			int b = o.isError ? 1 : 0;
+			return b - a;
+		}
 	}
 }

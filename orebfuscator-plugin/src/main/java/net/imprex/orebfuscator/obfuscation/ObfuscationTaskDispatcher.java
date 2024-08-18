@@ -18,7 +18,7 @@ class ObfuscationTaskDispatcher {
 		this.processor = processor;
 
 		AdvancedConfig config = orebfuscator.getOrebfuscatorConfig().advanced();
-		this.worker = new ObfuscationTaskWorker[config.obfuscationWorkerThreads()];
+		this.worker = new ObfuscationTaskWorker[config.obfuscationThreads()];
 		for (int i = 0; i < this.worker.length; i++) {
 			this.worker[i] = new ObfuscationTaskWorker(this, this.processor);
 		}

@@ -12,6 +12,10 @@ interface ConfigMigration {
 	ConfigurationSection migrate(ConfigurationSection section);
 
 	static void migrateNames(ConfigurationSection section, List<Map.Entry<String, String>> mapping) {
+		if (section == null) {
+			return;
+		}
+
 		for (Map.Entry<String, String> entry : mapping) {
 			Object value = section.get(entry.getKey());
 			if (value != null) {
