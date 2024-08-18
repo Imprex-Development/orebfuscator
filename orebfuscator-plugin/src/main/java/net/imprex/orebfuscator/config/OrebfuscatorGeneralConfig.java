@@ -2,6 +2,8 @@ package net.imprex.orebfuscator.config;
 
 import org.bukkit.configuration.ConfigurationSection;
 
+import net.imprex.orebfuscator.config.context.ConfigParsingContext;
+
 public class OrebfuscatorGeneralConfig implements GeneralConfig {
 
 	private boolean checkForUpdates = true;
@@ -10,16 +12,14 @@ public class OrebfuscatorGeneralConfig implements GeneralConfig {
 	private boolean ignoreSpectator = false;
 	private int updateRadius = 2;
 
-	public void deserialize(ConfigurationSection section) {
+	public void deserialize(ConfigurationSection section, ConfigParsingContext context) {
 		this.checkForUpdates = section.getBoolean("checkForUpdates", true);
 		this.updateOnBlockDamage = section.getBoolean("updateOnBlockDamage", true);
 		this.bypassNotification = section.getBoolean("bypassNotification", true);
 		this.ignoreSpectator = section.getBoolean("ignoreSpectator", false);
 		this.updateRadius = section.getInt("updateRadius", 2);
 
-		if (this.updateRadius < 1) {
-			throw new IllegalArgumentException("update radius must higher than zero");
-		}
+		context.errorMinValue("updateRadius", 1, this.updateRadius);
 	}
 
 	public void serialize(ConfigurationSection section) {

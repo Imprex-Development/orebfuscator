@@ -14,7 +14,7 @@ import net.imprex.orebfuscator.util.MathUtil;
 import net.imprex.orebfuscator.util.OFCLogger;
 import net.imprex.orebfuscator.util.WeightedIntRandom;
 
-public abstract class AbstractWorldConfig implements WorldConfig, ConfigParsingContext {
+public abstract class AbstractWorldConfig implements WorldConfig, OldWorldConfigParsingContext {
 
 	private final String name;
 

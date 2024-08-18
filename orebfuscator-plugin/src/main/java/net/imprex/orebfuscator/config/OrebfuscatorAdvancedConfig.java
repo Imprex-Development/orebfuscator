@@ -2,6 +2,7 @@ package net.imprex.orebfuscator.config;
 
 import org.bukkit.configuration.ConfigurationSection;
 
+import net.imprex.orebfuscator.config.context.ConfigParsingContext;
 import net.imprex.orebfuscator.util.OFCLogger;
 
 public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
@@ -22,7 +23,7 @@ public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
 	private boolean proximityHiderThreadsSet = false;
 	private boolean hasProximityPlayerCheckInterval = true;
 
-	public void deserialize(ConfigurationSection section) {
+	public void deserialize(ConfigurationSection section, ConfigParsingContext context) {
 		this.verbose = section.getBoolean("verbose", false);
 		this.maxMillisecondsPerTick = section.getInt("maxMillisecondsPerTick", 10);
 

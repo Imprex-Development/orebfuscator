@@ -3,7 +3,7 @@ package net.imprex.orebfuscator.config;
 import net.imprex.orebfuscator.util.OFCLogger;
 import org.bukkit.configuration.ConfigurationSection;
 
-public interface ConfigParsingContext {
+public interface OldWorldConfigParsingContext {
 
     default void warnUnknownBlock(ConfigurationSection section, String path, String name) {
         OFCLogger.warn(String.format("config section '%s.%s' contains unknown block '%s', skipping",

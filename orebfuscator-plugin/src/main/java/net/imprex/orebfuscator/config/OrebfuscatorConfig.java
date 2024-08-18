@@ -24,6 +24,9 @@ import com.google.common.hash.Hashing;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.OrebfuscatorNms;
+import net.imprex.orebfuscator.config.context.ConfigParsingContext;
+import net.imprex.orebfuscator.config.context.DefaultConfigParsingContext;
+import net.imprex.orebfuscator.config.migrations.ConfigMigrator;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.HeightAccessor;
 import net.imprex.orebfuscator.util.MinecraftVersion;
@@ -32,7 +35,7 @@ import net.imprex.orebfuscator.util.WeightedIntRandom;
 
 public class OrebfuscatorConfig implements Config {
 
-	private static final int CONFIG_VERSION = 3;
+	private static final int CONFIG_VERSION = 4;
 
 	private final OrebfuscatorGeneralConfig generalConfig = new OrebfuscatorGeneralConfig();
 	private final OrebfuscatorAdvancedConfig advancedConfig = new OrebfuscatorAdvancedConfig();
@@ -57,7 +60,9 @@ public class OrebfuscatorConfig implements Config {
 	public void load() {
 		this.createConfigIfNotExist();
 		this.plugin.reloadConfig();
-		this.deserialize(this.plugin.getConfig());
+		
+		DefaultConfigParsingContext context = new DefaultConfigParsingContext();
+		this.deserialize(this.plugin.getConfig(), context);
 	}
 
 	public void store() {
@@ -98,8 +103,8 @@ public class OrebfuscatorConfig implements Config {
 			.putBytes(Files.readAllBytes(path)).hash().asBytes();
 	}
 
-	private void deserialize(ConfigurationSection section) {
-		ConfigVersionConverters.convertToLatestVersion(section);
+	private void deserialize(ConfigurationSection section, ConfigParsingContext context) {
+		ConfigMigrator.migrateToLatestVersion(section);
 		if (section.getInt("version", -1) != CONFIG_VERSION) {
 			throw new RuntimeException("config is not up to date, please delete your config");
 		}
@@ -110,14 +115,14 @@ public class OrebfuscatorConfig implements Config {
 
 		ConfigurationSection generalSection = section.getConfigurationSection("general");
 		if (generalSection != null) {
-			this.generalConfig.deserialize(generalSection);
+			this.generalConfig.deserialize(generalSection, context.section("general"));
 		} else {
 			OFCLogger.warn("config section 'general' is missing, using default one");
 		}
 
 		ConfigurationSection advancedSection = section.getConfigurationSection("advanced");
 		if (advancedSection != null) {
-			this.advancedConfig.deserialize(advancedSection);
+			this.advancedConfig.deserialize(advancedSection, context.section("advanced"));
 		} else {
 			OFCLogger.warn("config section 'advanced' is missing, using default one");
 		}
@@ -126,7 +131,7 @@ public class OrebfuscatorConfig implements Config {
 
 		ConfigurationSection cacheSection = section.getConfigurationSection("cache");
 		if (cacheSection != null) {
-			this.cacheConfig.deserialize(cacheSection);
+			this.cacheConfig.deserialize(cacheSection, context.section("cache"));
 		} else {
 			OFCLogger.warn("config section 'cache' is missing, using default one");
 		}

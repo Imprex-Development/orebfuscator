@@ -10,7 +10,7 @@ import java.util.Set;
 import org.bukkit.configuration.ConfigurationSection;
 
 import net.imprex.orebfuscator.OrebfuscatorNms;
-import net.imprex.orebfuscator.config.ConfigParsingContext;
+import net.imprex.orebfuscator.config.OldWorldConfigParsingContext;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.BlockProperties;
 import net.imprex.orebfuscator.util.HeightAccessor;
@@ -74,7 +74,7 @@ public class WeightedBlockList {
 
     private final Map<BlockProperties, Integer> blocks = new LinkedHashMap<>();
 
-    public WeightedBlockList(ConfigParsingContext context, ConfigurationSection section) {
+    public WeightedBlockList(OldWorldConfigParsingContext context, ConfigurationSection section) {
         this.name = section.getName();
 
         int minY = MathUtil.clamp(section.getInt("minY", BlockPos.MIN_Y), BlockPos.MIN_Y, BlockPos.MAX_Y);

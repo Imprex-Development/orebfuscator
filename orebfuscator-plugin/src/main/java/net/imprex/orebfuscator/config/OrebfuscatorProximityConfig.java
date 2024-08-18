@@ -10,7 +10,6 @@ import org.joml.Matrix4f;
 
 import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.config.components.WeightedBlockList;
-import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.BlockProperties;
 import net.imprex.orebfuscator.util.OFCLogger;
 
@@ -38,19 +37,6 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 		this.deserializeBase(section);
 		this.deserializeWorlds(section, "worlds");
 
-		// LEGACY: transform to post 5.2.2
-		if (section.isConfigurationSection("defaults")) {
-			int y = section.getInt("defaults.y");
-			if (section.getBoolean("defaults.above")) {
-				this.minY = y;
-				this.maxY = BlockPos.MAX_Y;
-			} else {
-				this.minY = BlockPos.MIN_Y;
-				this.minY = y;
-			}
-			section.set("useBlockBelow", section.getBoolean("defaults.useBlockBelow"));
-		}
-
 		if ((this.distance = section.getInt("distance", 24)) < 1) {
 			this.fail("distance must be higher than zero");
 		}
@@ -67,9 +53,7 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 		this.frustumCullingProjectionMatrix = new Matrix4f() // create projection matrix with aspect 16:9
 				.perspective(frustumCullingFov, 16f / 9f, 0.01f, 2 * distance);
 
-		this.rayCastCheckEnabled = section.getBoolean("rayCastCheck.enabled",
-				section.getBoolean("useRayCastCheck",
-				section.getBoolean("useFastGazeCheck", false)));
+		this.rayCastCheckEnabled = section.getBoolean("rayCastCheck.enabled", false);
 		this.rayCastCheckOnlyCheckCenter = section.getBoolean("rayCastCheck.onlyCheckCenter", false);
 
 		this.defaultBlockFlags = ProximityHeightCondition.create(minY, maxY);
@@ -118,20 +102,6 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 		                section.getCurrentPath(), path, blockName));
 			} else {
 				int blockFlags = this.defaultBlockFlags;
-
-				// LEGACY: parse pre 5.2.2 height condition
-				if (blockSection.isInt(blockName + ".y") && blockSection.isBoolean(blockName + ".above")) {
-					blockFlags = ProximityHeightCondition.remove(blockFlags);
-
-					int y = blockSection.getInt(blockName + ".y");
-					if (blockSection.getBoolean(blockName + ".above")) {
-						blockFlags |= ProximityHeightCondition.create(y, BlockPos.MAX_Y);
-					} else {
-						blockFlags |= ProximityHeightCondition.create(BlockPos.MIN_Y, y);
-					}
-
-					usesBlockSpecificConfigs = true;
-				}
 
 				// parse block specific height condition
 				if (blockSection.isInt(blockName + ".minY") && blockSection.isInt(blockName + ".maxY")) {
