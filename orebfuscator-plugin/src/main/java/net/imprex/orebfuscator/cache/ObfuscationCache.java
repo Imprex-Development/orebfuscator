@@ -3,15 +3,13 @@ package net.imprex.orebfuscator.cache;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.bukkit.command.CommandSender;
-import org.openjdk.jol.info.GraphLayout;
-
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalNotification;
 
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
+import net.imprex.orebfuscator.OrebfuscatorStatistics;
 import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.obfuscation.ObfuscationRequest;
 import net.imprex.orebfuscator.obfuscation.ObfuscationResult;
@@ -21,6 +19,7 @@ public class ObfuscationCache {
 
 	private final Orebfuscator orebfuscator;
 	private final CacheConfig cacheConfig;
+	private final OrebfuscatorStatistics statistics;
 
 	private final Cache<ChunkPosition, CompressedObfuscationResult> cache;
 	private final AsyncChunkSerializer serializer;
@@ -28,6 +27,7 @@ public class ObfuscationCache {
 	public ObfuscationCache(Orebfuscator orebfuscator) {
 		this.orebfuscator = orebfuscator;
 		this.cacheConfig = orebfuscator.getOrebfuscatorConfig().cache();
+		this.statistics = orebfuscator.getStatistics();
 
 		this.cache = CacheBuilder.newBuilder()
 				.maximumSize(this.cacheConfig.maximumSize())
@@ -46,27 +46,9 @@ public class ObfuscationCache {
 		}
 	}
 
-	public void printEstimatedSize(CommandSender sender) {
-		OrebfuscatorCompatibility.runAsyncNow(() -> {
-			long cacheSize = this.cache.size();
-
-			double bytes = this.cache.asMap().values().stream()
-					.mapToLong(entry -> GraphLayout.parseInstance(entry).totalSize())
-					.sum() / 1024d;
-			double decompressedBytes = this.cache.asMap().values().stream()
-					.map(entry -> entry.toResult())
-					.mapToLong(entry -> GraphLayout.parseInstance(entry).totalSize())
-					.sum() / 1024d;
-
-			sender.sendMessage(String.format("count: %d, heap: %.1f/%.1f MiB, avg: %.1f/%.1f KiB, pct: %.1f%%", 
-					cacheSize,
-					(bytes / 1024d), (decompressedBytes / 1024d),
-					(bytes / cacheSize), (decompressedBytes / cacheSize),
-					(bytes / decompressedBytes * 100d)));
-		});
-	}
-
 	private void onRemoval(RemovalNotification<ChunkPosition, CompressedObfuscationResult> notification) {
+		this.statistics.onCacheSizeChange(-notification.getValue().estimatedSize());
+
 		// don't serialize invalidated chunks since this would require locking the main
 		// thread and wouldn't bring a huge improvement
 		if (this.cacheConfig.enableDiskCache() && notification.wasEvicted() && !this.orebfuscator.isGameThread()) {
@@ -79,6 +61,7 @@ public class ObfuscationCache {
 			var compressedChunk = CompressedObfuscationResult.create(chunk);
 			if (compressedChunk != null) {
 				this.cache.put(request.getPosition(), compressedChunk);
+				this.statistics.onCacheSizeChange(compressedChunk.estimatedSize());
 			}
 		});
 	}
@@ -88,18 +71,30 @@ public class ObfuscationCache {
 
 		CompressedObfuscationResult cacheChunk = this.cache.getIfPresent(key);
 		if (cacheChunk != null && cacheChunk.isValid(request)) {
-			cacheChunk.toResult().ifPresent(request::complete);
+			this.statistics.onCacheHitMemory();
+
+			// complete request
+			cacheChunk.toResult().ifPresentOrElse(request::complete,
+					// request obfuscation if decoding failed
+					() -> this.requestObfuscation(request));
 		}
 		// only access disk cache if we couldn't find the chunk in memory cache
 		else if (cacheChunk == null && this.cacheConfig.enableDiskCache()) {
 			this.serializer.read(key).whenComplete((diskChunk, throwable) -> {
 				if (diskChunk != null && diskChunk.isValid(request)) {
+					this.statistics.onCacheHitDisk();
+
 					// add valid disk cache entry to in-memory cache
 					this.cache.put(key, diskChunk);
+					this.statistics.onCacheSizeChange(diskChunk.estimatedSize());
+
+					// complete request
 					diskChunk.toResult().ifPresentOrElse(request::complete,
 							// request obfuscation if decoding failed
 							() -> this.requestObfuscation(request));
 				} else {
+					this.statistics.onCacheMiss();
+
 					// request obfuscation if disk cache missing
 					this.requestObfuscation(request);
 				}
@@ -113,6 +108,7 @@ public class ObfuscationCache {
 		}
 		// request obfuscation if cache missed
 		else {
+			this.statistics.onCacheMiss();
 			this.requestObfuscation(request);
 		}
 

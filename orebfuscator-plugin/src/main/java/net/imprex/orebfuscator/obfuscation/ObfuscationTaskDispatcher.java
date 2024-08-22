@@ -22,6 +22,8 @@ class ObfuscationTaskDispatcher {
 		for (int i = 0; i < this.worker.length; i++) {
 			this.worker[i] = new ObfuscationTaskWorker(this, this.processor);
 		}
+
+		orebfuscator.getStatistics().setObfuscationQueueLengthSupplier(() -> this.tasks.size());
 	}
 
 	public void submitRequest(ObfuscationRequest request) {

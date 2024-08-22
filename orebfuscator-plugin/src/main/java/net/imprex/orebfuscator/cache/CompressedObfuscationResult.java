@@ -58,8 +58,12 @@ public class CompressedObfuscationResult {
 		this.compressedData = data;
 	}
 
-	public byte[] getCompressedData() {
+	public byte[] compressedData() {
 		return compressedData;
+	}
+
+	public int estimatedSize() {
+		return 128 + this.compressedData.length;
 	}
 
 	public boolean isValid(ObfuscationRequest request) {

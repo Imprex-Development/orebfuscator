@@ -27,6 +27,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 
 	private final Thread mainThread = Thread.currentThread();
 
+	private OrebfuscatorStatistics statistics;
 	private OrebfuscatorConfig config;
 	private OrebfuscatorPlayerMap playerMap;
 	private UpdateSystem updateSystem;
@@ -53,6 +54,8 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 			if (protocolLib == null || !protocolLib.isEnabled()) {
 				throw new RuntimeException("ProtocolLib can't be found or is disabled! Orebfuscator can't be enabled.");
 			}
+
+			this.statistics = new OrebfuscatorStatistics();
 
 			// Load configurations
 			this.config = new OrebfuscatorConfig(this);
@@ -136,6 +139,10 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 
 	public boolean isGameThread() {
 		return Thread.currentThread() == this.mainThread;
+	}
+
+	public OrebfuscatorStatistics getStatistics() {
+		return statistics;
 	}
 
 	public OrebfuscatorConfig getOrebfuscatorConfig() {

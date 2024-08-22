@@ -46,7 +46,7 @@ public class ChunkSerializer {
 			if (value != null) {
 				dataOutputStream.writeBoolean(true);
 
-				byte[] compressedData = value.getCompressedData();
+				byte[] compressedData = value.compressedData();
 				dataOutputStream.writeInt(compressedData.length);
 				dataOutputStream.write(compressedData);
 			} else {

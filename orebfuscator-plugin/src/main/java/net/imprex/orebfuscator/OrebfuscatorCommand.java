@@ -62,7 +62,7 @@ public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {
 
 		if (args.length == 0) {
 			sender.sendMessage("You are using " + this.orebfuscator.toString());
-			this.orebfuscator.getObfuscationCache().printEstimatedSize(sender);
+			sender.sendMessage(this.orebfuscator.getStatistics().toString());
 		} else if (args[0].equalsIgnoreCase("dump")) {
 			TemporalAccessor now = OffsetDateTime.now(ZoneOffset.UTC);
 
@@ -77,6 +77,8 @@ public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {
 			versions.addProperty("protocolLib", ProtocolLibrary.getPlugin().toString());
 			versions.addProperty("orebfuscator", orebfuscator.toString());
 			root.add("versions", versions);
+
+			root.add("statistics", orebfuscator.getStatistics().toJson());
 
 			JsonObject plugins = new JsonObject();
 			for (Plugin bukkitPlugin : Bukkit.getPluginManager().getPlugins()) {

@@ -43,6 +43,8 @@ public class AsyncChunkSerializer implements Runnable {
 		this.thread = new Thread(Orebfuscator.THREAD_GROUP, this, "ofc-chunk-serializer");
 		this.thread.setDaemon(true);
 		this.thread.start();
+
+		orebfuscator.getStatistics().setDiskCacheQueueLengthSupplier(() -> this.tasks.size());
 	}
 
 	public CompletableFuture<CompressedObfuscationResult> read(ChunkPosition position) {
