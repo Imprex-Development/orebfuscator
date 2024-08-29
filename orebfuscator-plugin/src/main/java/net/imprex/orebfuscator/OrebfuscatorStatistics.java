@@ -65,8 +65,13 @@ public class OrebfuscatorStatistics {
 		long obfuscationQueueLength = this.obfuscationQueueLength.getAsInt();
 
 		double totalCacheRequest = (double) (cacheHitCountMemory + cacheHitCountDisk + cacheMissCount);
-		double memoryCacheHitRate = (double) cacheHitCountMemory / totalCacheRequest;
-		double diskCacheHitRate = (double) cacheHitCountDisk / totalCacheRequest;
+
+		double memoryCacheHitRate = 0.0d;
+		double diskCacheHitRate = 0.0d;
+		if (totalCacheRequest > 0) {
+			memoryCacheHitRate = (double) cacheHitCountMemory / totalCacheRequest;
+			diskCacheHitRate = (double) cacheHitCountDisk / totalCacheRequest;
+		}
 
 		StringBuilder builder = new StringBuilder("Here are some useful statistics:\n");
 
