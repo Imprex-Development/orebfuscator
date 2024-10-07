@@ -6,6 +6,8 @@ public interface Config {
 
 	byte[] systemHash();
 
+	String report();
+
 	GeneralConfig general();
 
 	AdvancedConfig advanced();

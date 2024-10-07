@@ -113,7 +113,7 @@ public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {
 			Base64.Encoder encoder = Base64.getUrlEncoder();
 
 			String latestLog = OFCLogger.getLatestVerboseLog();
-			root.addProperty("verbose_log", encoder.encodeToString(latestLog.getBytes(StandardCharsets.UTF_8)));
+			root.addProperty("verboseLog", encoder.encodeToString(latestLog.getBytes(StandardCharsets.UTF_8)));
 
 			try {
 				Path configPath = orebfuscator.getDataFolder().toPath().resolve("config.yml");
@@ -122,6 +122,10 @@ public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {
 			} catch (IOException e) {
 				e.printStackTrace();
 			}
+
+			String configReport = orebfuscator.getOrebfuscatorConfig().report();
+			configReport = configReport != null ? configReport : "";
+			root.addProperty("configReport", encoder.encodeToString(configReport.getBytes(StandardCharsets.UTF_8)));
 
 			Path path = orebfuscator.getDataFolder().toPath().resolve("dump-" + fileFormat.format(now) + ".json");
 			try (JsonWriter writer = new JsonWriter(Files.newBufferedWriter(path))) {

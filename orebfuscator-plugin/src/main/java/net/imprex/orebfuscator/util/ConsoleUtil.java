@@ -5,12 +5,21 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 
+import org.bukkit.ChatColor;
+
 public final class ConsoleUtil {
 
 	private static final int BOX_PADDING = 3;
 	private static final int BOX_PREFERRED_WIDTH = 48;
 
 	private ConsoleUtil() {
+	}
+
+	public static String replaceAnsiColorWithChatColor(String value) {
+		value = value.replaceAll("\u001B\\[m", ChatColor.RESET.toString());
+		value = value.replaceAll("\u001B\\[31;1m", ChatColor.RED.toString());
+		value = value.replaceAll("\u001B\\[33;1m", ChatColor.YELLOW.toString());
+		return value;
 	}
 
 	public static void printBox(Level level, String...lines) {

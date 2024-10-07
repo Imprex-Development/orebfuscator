@@ -50,6 +50,7 @@ public class OrebfuscatorConfig implements Config {
 	private final Plugin plugin;
 
 	private byte[] systemHash;
+	private String configReport;
 
 	public OrebfuscatorConfig(Plugin plugin) {
 		this.plugin = plugin;
@@ -63,7 +64,7 @@ public class OrebfuscatorConfig implements Config {
 		
 		DefaultConfigParsingContext context = new DefaultConfigParsingContext();
 		this.deserialize(this.plugin.getConfig(), context);
-		context.report();
+		this.configReport = context.report();
 
 		if (context.hasErrors()) {
 			throw new IllegalArgumentException("Can't parse config due to errors, Orebfuscator will now disable itself!");
@@ -204,6 +205,11 @@ public class OrebfuscatorConfig implements Config {
 	@Override
 	public byte[] systemHash() {
 		return systemHash;
+	}
+
+	@Override
+	public String report() {
+		return configReport;
 	}
 
 	@Override

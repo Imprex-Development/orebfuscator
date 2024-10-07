@@ -34,6 +34,7 @@ public class ObfuscationCache {
 				.expireAfterAccess(this.cacheConfig.expireAfterAccess(), TimeUnit.MILLISECONDS)
 				.removalListener(this::onRemoval)
 				.build();
+		this.statistics.setMemoryCacheSizeSupplier(() -> this.cache.size());
 
 		if (this.cacheConfig.enableDiskCache()) {
 			this.serializer = new AsyncChunkSerializer(orebfuscator);

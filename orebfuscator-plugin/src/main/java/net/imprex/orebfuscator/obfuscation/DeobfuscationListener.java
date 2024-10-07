@@ -22,6 +22,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.UpdateSystem;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
+import net.imprex.orebfuscator.util.ConsoleUtil;
 import net.imprex.orebfuscator.util.PermissionUtil;
 
 public class DeobfuscationListener implements Listener {
@@ -104,6 +105,10 @@ public class DeobfuscationListener implements Listener {
 		}
 
 		if (PermissionUtil.canAccessAdminTools(player)) {
+			String configReport = this.config.report();
+			if (configReport != null) {
+				player.sendMessage("[§bOrebfuscator§f]§c " + ConsoleUtil.replaceAnsiColorWithChatColor(configReport));
+			}
 			this.updateSystem.checkForUpdates(player);
 		}
 	}
