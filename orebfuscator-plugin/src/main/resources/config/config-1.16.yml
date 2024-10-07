@@ -1,4 +1,4 @@
-version: 3
+version: 4
 general:
   checkForUpdates: true
   updateOnBlockDamage: true
@@ -7,22 +7,26 @@ general:
   updateRadius: 2
 advanced:
   verbose: false
-  maxMillisecondsPerTick: 10
-  obfuscationWorkerThreads: -1
-  obfuscationTimeout: 10000
-  proximityHiderThreads: -1
-  proximityDefaultBucketSize: 50
-  proximityThreadCheckInterval: 50
-  proximityPlayerCheckInterval: 5000
+  obfuscation:
+    threads: -1
+    timeout: 10000
+    maxMillisecondsPerTick: 10
+  proximity:
+    threads: -1
+    defaultBucketSize: 50
+    threadCheckInterval: 50
+    playerCheckInterval: 5000
 cache:
   enabled: true
-  baseDirectory: orebfuscator_cache
-  maximumOpenRegionFiles: 256
-  deleteRegionFilesAfterAccess: 172800000
-  enableDiskCache: true
-  maximumSize: 16384
-  expireAfterAccess: 60000
-  maximumTaskQueueSize: 32768
+  memoryCache:
+    maximumSize: 32768
+    expireAfterAccess: 60000
+  diskCache:
+    enabled: true
+    directory: orebfuscator_cache
+    maximumOpenFiles: 256
+    deleteFilesAfterAccess: 172800000
+    maximumTaskQueueSize: 32768
 obfuscation:
   obfuscation-overworld:
     enabled: true
