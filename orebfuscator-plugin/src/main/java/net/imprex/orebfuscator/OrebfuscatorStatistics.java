@@ -78,13 +78,18 @@ public class OrebfuscatorStatistics {
 			memoryCacheHitRate = (double) cacheHitCountMemory / totalCacheRequest;
 			diskCacheHitRate = (double) cacheHitCountDisk / totalCacheRequest;
 		}
+		
+		long memoryCacheBytesPerEntry = 0;
+		if (memoryCacheSize > 0) {
+			memoryCacheBytesPerEntry = cacheEstimatedSize / memoryCacheSize;
+		}
 
 		StringBuilder builder = new StringBuilder("Here are some useful statistics:\n");
 
 		builder.append(" - memoryCacheHitRate: ").append(formatPrecent(memoryCacheHitRate)).append('\n');
 		builder.append(" - diskCacheHitRate: ").append(formatPrecent(diskCacheHitRate)).append('\n');
 		builder.append(" - memoryCacheEstimatedSize: ").append(formatBytes(cacheEstimatedSize)).append('\n');
-		builder.append(" - memoryCacheBytesPerEntry: ").append(formatBytes(cacheEstimatedSize / memoryCacheSize)).append('\n');
+		builder.append(" - memoryCacheBytesPerEntry: ").append(formatBytes(memoryCacheBytesPerEntry)).append('\n');
 		builder.append(" - memoryCacheEntries: ").append(memoryCacheSize).append('\n');
 		builder.append(" - diskCacheQueueLength: ").append(diskCacheQueueLength).append('\n');
 		builder.append(" - obfuscationQueueLength: ").append(obfuscationQueueLength).append('\n');
