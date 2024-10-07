@@ -60,7 +60,7 @@ public class ObfuscationProcessor {
 				final int baseY = heightAccessor.getMinBuildHeight() + (sectionIndex << 4);
 				for (int index = 0; index < 4096; index++) {
 					int y = baseY + (index >> 8 & 15);
-					if (!bundle.shouldObfuscate(y)) {
+					if (!bundle.shouldProcessBlock(y)) {
 						continue;
 					}
 

@@ -58,6 +58,10 @@ public class OrebfuscatorNms {
 		return instance.getMaxBitsPerBlockState();
 	}
 
+	public static int getMaxBitsPerBiome() {
+		throw new UnsupportedOperationException("TODO implement this");
+	}
+
 	public static BlockProperties getBlockByName(String key) {
 		return instance.getBlockByName(NamespacedKey.fromString(key));
 	}

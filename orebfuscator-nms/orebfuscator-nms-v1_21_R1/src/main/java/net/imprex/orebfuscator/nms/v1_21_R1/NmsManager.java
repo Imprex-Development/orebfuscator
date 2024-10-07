@@ -99,6 +99,10 @@ public class NmsManager extends AbstractNmsManager {
 	public ReadOnlyChunk getReadOnlyChunk(World world, int chunkX, int chunkZ) {
 		ServerChunkCache serverChunkCache = level(world).getChunkSource();
 		LevelChunk chunk = serverChunkCache.getChunk(chunkX, chunkZ, true);
+		/**
+		 * LevelChunkSection
+		 * PalettedContainer
+		 */
 		return new ReadOnlyChunkWrapper(chunk);
 	}
 
