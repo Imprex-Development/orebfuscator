@@ -34,7 +34,7 @@ public class SingleValuePalette implements Palette {
 
 	@Override
 	public void read(ByteBuf buffer) {
-		this.value = ByteBufUtil.readVarInt(buffer);
+		this.value = VarInt.read(buffer);
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class SingleValuePalette implements Palette {
 		if (this.value == -1) {
 			throw new IllegalStateException("value isn't initialized");
 		} else {
-			ByteBufUtil.writeVarInt(buffer, this.value);
+			VarInt.write(buffer, this.value);
 		}
 	}
 }

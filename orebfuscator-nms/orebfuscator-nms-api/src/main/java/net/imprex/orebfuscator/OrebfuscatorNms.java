@@ -26,7 +26,7 @@ public class OrebfuscatorNms {
 		}
 
 		String nmsVersion = MinecraftVersion.nmsVersion();
-		if (ServerVersion.isMojangMapped()) {
+		if (ServerVersion.isMojangMapped() && !ServerVersion.isPaper()) {
 			nmsVersion += "_mojang";
 		}
 
@@ -56,6 +56,10 @@ public class OrebfuscatorNms {
 
 	public static int getMaxBitsPerBlockState() {
 		return instance.getMaxBitsPerBlockState();
+	}
+
+	public static int getMaxBitsPerBiome() {
+		return instance.getMaxBitsPerBiome();
 	}
 
 	public static BlockProperties getBlockByName(String key) {

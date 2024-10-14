@@ -88,14 +88,14 @@ public class Chunk implements AutoCloseable {
 		int bitsPerValue = this.inputBuffer.readUnsignedByte();
 
 		if (bitsPerValue == 0) {
-			ByteBufUtil.readVarInt(this.inputBuffer);
+			VarInt.read(this.inputBuffer);
 		} else if (bitsPerValue <= 3) {
-			for (int i = ByteBufUtil.readVarInt(this.inputBuffer); i > 0; i--) {
-				ByteBufUtil.readVarInt(this.inputBuffer);
+			for (int i = VarInt.read(this.inputBuffer); i > 0; i--) {
+				VarInt.read(this.inputBuffer);
 			}
 		}
 
-		int dataLength = ByteBufUtil.readVarInt(this.inputBuffer);
+		int dataLength = VarInt.read(this.inputBuffer);
 		if (SimpleVarBitBuffer.calculateArraySize(bitsPerValue, 64) != dataLength) {
 			throw new IndexOutOfBoundsException("data.length != VarBitBuffer::size " + dataLength + " " +
 					SimpleVarBitBuffer.calculateArraySize(bitsPerValue, 64));
