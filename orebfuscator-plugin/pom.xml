@@ -60,14 +60,6 @@
 	</build>
 
 	<dependencies>
-		<!-- Test -->
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
-			<version>${dependency.junit.version}</version>
-			<scope>test</scope>
-		</dependency>
-
 		<!-- API -->
 		<dependency>
 			<groupId>io.netty</groupId>
