@@ -18,9 +18,9 @@ public class WrappedClientboundLevelChunkPacketData {
 	private static final FieldAccessor BUFFER = Accessors.getFieldAccessor(CLIENTBOUND_LEVEL_CHUNK_PACKET_DATA, byte[].class, true);
 	private static final FieldAccessor BLOCK_ENTITIES = Accessors.getFieldAccessor(CLIENTBOUND_LEVEL_CHUNK_PACKET_DATA, List.class, true);
 
-	private static final Class<?> BLOCK_ENTITY_INFO = MinecraftReflection.getMinecraftClass(ServerVersion.isMojangMapped()
-			? "network.protocol.game.ClientboundLevelChunkPacketData$BlockEntityInfo"
-			: "network.protocol.game.ClientboundLevelChunkPacketData$a");
+	private static final Class<?> BLOCK_ENTITY_INFO = MinecraftReflection.getMinecraftClass(
+			"network.protocol.game.ClientboundLevelChunkPacketData$BlockEntityInfo",
+			"network.protocol.game.ClientboundLevelChunkPacketData$a");
 	private static final FieldAccessor[] INT_FIELDS = Accessors.getFieldAccessorArray(BLOCK_ENTITY_INFO, int.class, true);
 	private static final FieldAccessor PACKED_XZ = INT_FIELDS[0];
 	private static final FieldAccessor Y = INT_FIELDS[1];

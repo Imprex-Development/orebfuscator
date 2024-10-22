@@ -26,7 +26,7 @@ public class OrebfuscatorNms {
 		}
 
 		String nmsVersion = MinecraftVersion.nmsVersion();
-		if (ServerVersion.isMojangMapped()) {
+		if (ServerVersion.isMojangMapped() && !ServerVersion.isPaper()) {
 			nmsVersion += "_mojang";
 		}
 
