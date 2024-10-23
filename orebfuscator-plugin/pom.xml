@@ -60,14 +60,6 @@
 	</build>
 
 	<dependencies>
-		<!-- Test -->
-		<dependency>
-			<groupId>org.junit.jupiter</groupId>
-			<artifactId>junit-jupiter-engine</artifactId>
-			<version>${dependency.junit.version}</version>
-			<scope>test</scope>
-		</dependency>
-
 		<!-- API -->
 		<dependency>
 			<groupId>io.netty</groupId>
@@ -286,6 +278,19 @@
 		<dependency>
 			<groupId>net.imprex</groupId>
 			<artifactId>orebfuscator-nms-v1_21_R1</artifactId>
+			<version>${revision}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.imprex</groupId>
+			<artifactId>orebfuscator-nms-v1_21_R2</artifactId>
+			<version>${revision}</version>
+			<classifier>mojang-mapped</classifier>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.imprex</groupId>
+			<artifactId>orebfuscator-nms-v1_21_R2</artifactId>
 			<version>${revision}</version>
 			<scope>compile</scope>
 		</dependency>

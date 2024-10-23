@@ -15,6 +15,7 @@ public final class MinecraftVersion implements Comparable<MinecraftVersion> {
 		private static final List<NmsMapping> MAPPINGS = new ArrayList<>();
 
 		static {
+			MAPPINGS.add(new NmsMapping("1.21.2", "v1_21_R2"));
 			MAPPINGS.add(new NmsMapping("1.21", "v1_21_R1"));
 			MAPPINGS.add(new NmsMapping("1.20.5", "v1_20_R4"));
 		}
