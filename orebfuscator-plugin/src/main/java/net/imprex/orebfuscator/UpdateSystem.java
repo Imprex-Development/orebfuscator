@@ -22,6 +22,7 @@ import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 
 public class UpdateSystem {
 
@@ -128,7 +129,7 @@ public class UpdateSystem {
 				BaseComponent[] components = new ComponentBuilder("[§bOrebfuscator§f]§7 A new release is available ")
 						.append("§f§l[CLICK HERE]")
 						.event(new ClickEvent(ClickEvent.Action.OPEN_URL, this.getHtmlUrl()))
-						.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new ComponentBuilder("§7Click here to see the latest release").create())).create();
+						.event(new HoverEvent(HoverEvent.Action.SHOW_TEXT, new Text(new ComponentBuilder("§7Click here to see the latest release").create()))).create();
 				OrebfuscatorCompatibility.runForPlayer(player, () -> {
 					player.spigot().sendMessage(components);
 				});
