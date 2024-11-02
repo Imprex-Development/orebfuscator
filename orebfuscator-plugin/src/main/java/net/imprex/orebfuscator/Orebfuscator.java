@@ -44,6 +44,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 	@Override
 	public void onEnable() {
 		try {
+			// GZIPOutputStream
 			// Check for valid minecraft version
 			if (MinecraftVersion.isBelow("1.16")) {
 				throw new RuntimeException("Orebfuscator only supports minecraft 1.16 and above");

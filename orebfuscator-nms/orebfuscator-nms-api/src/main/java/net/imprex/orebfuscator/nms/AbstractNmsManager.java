@@ -15,14 +15,18 @@ public abstract class AbstractNmsManager implements NmsManager {
 	private final int uniqueBlockStateCount;
 	private final int maxBitsPerBlockState;
 
+	private final int maxBitsPerBiome;
+
 	private final BlockStateProperties[] blockStates;
 	private final Map<NamespacedKey, BlockProperties> blocks = new HashMap<>();
 
-	public AbstractNmsManager(int uniqueBlockStateCount, AbstractRegionFileCache<?> regionFileCache) {
+	public AbstractNmsManager(int uniqueBlockStateCount, int uniqueBiomesCount, AbstractRegionFileCache<?> regionFileCache) {
 		this.regionFileCache = regionFileCache;
 
 		this.uniqueBlockStateCount = uniqueBlockStateCount;
 		this.maxBitsPerBlockState = MathUtil.ceilLog2(uniqueBlockStateCount);
+
+		this.maxBitsPerBiome = MathUtil.ceilLog2(uniqueBiomesCount);
 
 		this.blockStates = new BlockStateProperties[uniqueBlockStateCount];
 	}
@@ -48,6 +52,11 @@ public abstract class AbstractNmsManager implements NmsManager {
 	@Override
 	public final int getMaxBitsPerBlockState() {
 		return this.maxBitsPerBlockState;
+	}
+
+	@Override
+	public int getMaxBitsPerBiome() {
+		return this.maxBitsPerBiome;
 	}
 
 	@Override

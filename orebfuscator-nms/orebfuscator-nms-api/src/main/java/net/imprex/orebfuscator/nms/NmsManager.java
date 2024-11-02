@@ -15,6 +15,8 @@ public interface NmsManager {
 
 	int getMaxBitsPerBlockState();
 
+	int getMaxBitsPerBiome();
+
 	BlockProperties getBlockByName(NamespacedKey key);
 
 	boolean isAir(int blockId);

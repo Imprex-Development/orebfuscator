@@ -141,7 +141,7 @@
 			<version>${revision}</version>
 			<scope>compile</scope>
 		</dependency>
-		<dependency>
+		<!--<dependency>
 			<groupId>net.imprex</groupId>
 			<artifactId>orebfuscator-nms-v1_16_R1</artifactId>
 			<version>${revision}</version>
@@ -267,7 +267,7 @@
 			<artifactId>orebfuscator-nms-v1_20_R4</artifactId>
 			<version>${revision}</version>
 			<scope>compile</scope>
-		</dependency>
+		</dependency>-->
 		<dependency>
 			<groupId>net.imprex</groupId>
 			<artifactId>orebfuscator-nms-v1_21_R1</artifactId>
