@@ -46,7 +46,7 @@ jobs:
         mv orebfuscator-plugin/target/orebfuscator-*.jar ./
 
     - name: Save Maven cache
-      if: always()
+      if: always() && steps.cache-restore.outputs.cache-hit != 'true'
       uses: actions/cache/save@v4
       with:
         path: ~/.m2/repository
