@@ -69,7 +69,10 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	public NmsManager(Config config) {
-		super(Block.REGISTRY_ID.a(), new RegionFileCache(config.cache()));
+		super(
+			Block.REGISTRY_ID.a(),
+			IRegistry.h.get(IRegistry.u.a()).keySet().size(),
+			new RegionFileCache(config.cache()));
 
 		for (Map.Entry<ResourceKey<Block>, Block> entry : IRegistry.BLOCK.c()) {
 			NamespacedKey namespacedKey = NamespacedKey.fromString(entry.getKey().a().toString());

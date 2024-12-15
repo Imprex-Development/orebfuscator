@@ -11,10 +11,10 @@ class ObfuscationTaskDispatcher {
 
 	private final Queue<ObfuscationTask> tasks = new ConcurrentLinkedQueue<>();
 
-	private final ObfuscationProcessor processor;
+	private final ObfuscationTaskProcessor processor;
 	private final ObfuscationTaskWorker[] worker;
 
-	public ObfuscationTaskDispatcher(Orebfuscator orebfuscator, ObfuscationProcessor processor) {
+	public ObfuscationTaskDispatcher(Orebfuscator orebfuscator, ObfuscationTaskProcessor processor) {
 		this.processor = processor;
 
 		AdvancedConfig config = orebfuscator.getOrebfuscatorConfig().advanced();

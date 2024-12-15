@@ -21,15 +21,15 @@ import net.imprex.orebfuscator.config.WorldConfigBundle;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.HeightAccessor;
 
-public class ObfuscationProcessor {
+public class ObfuscationTaskProcessorOld {
 
 	private final OrebfuscatorConfig config;
 
-	public ObfuscationProcessor(Orebfuscator orebfuscator) {
+	public ObfuscationTaskProcessorOld(Orebfuscator orebfuscator) {
 		this.config = orebfuscator.getOrebfuscatorConfig();
 	}
 
-	public void process(ObfuscationTask task) {
+	public int process(ObfuscationTask task) {
 		ChunkStruct chunkStruct = task.getChunkStruct();
 
 		World world = chunkStruct.world;
@@ -113,9 +113,12 @@ public class ObfuscationProcessor {
 				}
 			}
 
-			task.complete(chunk.finalizeOutput(), blockEntities, proximityBlocks);
+			byte[] output = chunk.finalizeOutput();
+			task.complete(output, blockEntities, proximityBlocks);
+			return output.length;
 		} catch (Exception e) {
 			task.completeExceptionally(e);
+			return 0;
 		}
 	}
 

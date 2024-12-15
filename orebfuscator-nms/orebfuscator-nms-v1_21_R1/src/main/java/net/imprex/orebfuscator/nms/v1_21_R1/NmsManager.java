@@ -8,6 +8,7 @@ import java.util.Objects;
 
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.craftbukkit.v1_21_R1.CraftRegistry;
 import org.bukkit.craftbukkit.v1_21_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_21_R1.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_21_R1.entity.CraftPlayer;
@@ -26,6 +27,7 @@ import net.imprex.orebfuscator.util.NamespacedKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
@@ -68,7 +70,10 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	public NmsManager(Config config) {
-		super(Block.BLOCK_STATE_REGISTRY.size(), new RegionFileCache(config.cache()));
+		super(
+			Block.BLOCK_STATE_REGISTRY.size(),
+			CraftRegistry.getMinecraftRegistry(Registries.BIOME).size(),
+			new RegionFileCache(config.cache()));
 
 		for (Map.Entry<ResourceKey<Block>, Block> entry : BuiltInRegistries.BLOCK.entrySet()) {
 			NamespacedKey namespacedKey = NamespacedKey.fromString(entry.getKey().location().toString());
@@ -99,6 +104,10 @@ public class NmsManager extends AbstractNmsManager {
 	public ReadOnlyChunk getReadOnlyChunk(World world, int chunkX, int chunkZ) {
 		ServerChunkCache serverChunkCache = level(world).getChunkSource();
 		LevelChunk chunk = serverChunkCache.getChunk(chunkX, chunkZ, true);
+		/**
+		 * LevelChunkSection
+		 * PalettedContainer
+		 */
 		return new ReadOnlyChunkWrapper(chunk);
 	}
 

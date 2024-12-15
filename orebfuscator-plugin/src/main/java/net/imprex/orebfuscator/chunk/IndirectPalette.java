@@ -52,9 +52,9 @@ public class IndirectPalette implements Palette {
 
 	@Override
 	public void read(ByteBuf buffer) {
-		this.size = ByteBufUtil.readVarInt(buffer);
+		this.size = VarInt.read(buffer);
 		for (int id = 0; id < size; id++) {
-			int value = ByteBufUtil.readVarInt(buffer);
+			int value = VarInt.read(buffer);
 			this.byId[id] = value;
 			this.byValue[value] = (byte) id;
 		}
@@ -62,10 +62,10 @@ public class IndirectPalette implements Palette {
 
 	@Override
 	public void write(ByteBuf buffer) {
-		ByteBufUtil.writeVarInt(buffer, this.size);
+		VarInt.write(buffer, this.size);
 
 		for (int id = 0; id < this.size; id++) {
-			ByteBufUtil.writeVarInt(buffer, this.valueFor(id));
+			VarInt.write(buffer, this.valueFor(id));
 		}
 	}
 }

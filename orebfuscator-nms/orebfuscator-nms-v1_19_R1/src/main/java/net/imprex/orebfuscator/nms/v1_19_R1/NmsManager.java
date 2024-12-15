@@ -68,7 +68,10 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	public NmsManager(Config config) {
-		super(Block.BLOCK_STATE_REGISTRY.size(), new RegionFileCache(config.cache()));
+		super(
+			Block.BLOCK_STATE_REGISTRY.size(),
+			Registry.REGISTRY.get(Registry.BIOME_REGISTRY.location()).size(),
+			new RegionFileCache(config.cache()));
 
 		for (Map.Entry<ResourceKey<Block>, Block> entry : Registry.BLOCK.entrySet()) {
 			NamespacedKey namespacedKey = NamespacedKey.fromString(entry.getKey().location().toString());

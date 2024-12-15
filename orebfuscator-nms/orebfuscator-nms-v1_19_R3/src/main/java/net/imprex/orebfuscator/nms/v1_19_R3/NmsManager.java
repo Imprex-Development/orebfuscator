@@ -26,6 +26,7 @@ import net.imprex.orebfuscator.util.NamespacedKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
@@ -68,7 +69,10 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	public NmsManager(Config config) {
-		super(Block.BLOCK_STATE_REGISTRY.size(), new RegionFileCache(config.cache()));
+		super(
+			Block.BLOCK_STATE_REGISTRY.size(),
+			BuiltInRegistries.REGISTRY.get(Registries.BIOME.location()).size(),
+			new RegionFileCache(config.cache()));
 
 		for (Map.Entry<ResourceKey<Block>, Block> entry : BuiltInRegistries.BLOCK.entrySet()) {
 			NamespacedKey namespacedKey = NamespacedKey.fromString(entry.getKey().location().toString());

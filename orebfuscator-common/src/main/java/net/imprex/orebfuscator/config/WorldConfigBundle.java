@@ -18,7 +18,7 @@ public interface WorldConfigBundle {
 
 	int maxSectionIndex();
 
-	boolean shouldObfuscate(int y);
+	boolean shouldProcessBlock(int y);
 
 	int nextRandomObfuscationBlock(int y);
 

@@ -393,7 +393,7 @@ public class OrebfuscatorConfig implements Config {
 		}
 
 		@Override
-		public boolean shouldObfuscate(int y) {
+		public boolean shouldProcessBlock(int y) {
 			return y >= this.minY && y <= this.maxY;
 		}
 
