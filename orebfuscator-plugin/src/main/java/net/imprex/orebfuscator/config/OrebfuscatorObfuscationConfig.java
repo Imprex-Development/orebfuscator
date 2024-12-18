@@ -5,9 +5,8 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.bukkit.configuration.ConfigurationSection;
-
 import net.imprex.orebfuscator.OrebfuscatorNms;
+import net.imprex.orebfuscator.config.yaml.ConfigurationSection;
 import net.imprex.orebfuscator.config.context.ConfigParsingContext;
 import net.imprex.orebfuscator.util.BlockProperties;
 

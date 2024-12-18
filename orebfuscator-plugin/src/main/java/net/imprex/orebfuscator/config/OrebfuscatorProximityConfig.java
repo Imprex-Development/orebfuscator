@@ -5,7 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
-import org.bukkit.configuration.ConfigurationSection;
+import net.imprex.orebfuscator.config.yaml.ConfigurationSection;
 import org.joml.Matrix4f;
 
 import net.imprex.orebfuscator.OrebfuscatorNms;
@@ -22,15 +22,15 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 	private float frustumCullingFov = 80f;
 
 	private float frustumCullingMinDistanceSquared = 9;
-	private Matrix4f frustumCullingProjectionMatrix;
+	private final Matrix4f frustumCullingProjectionMatrix;
 
 	private boolean rayCastCheckEnabled = false;
 	private boolean rayCastCheckOnlyCheckCenter = false;
 	private int defaultBlockFlags = (ProximityHeightCondition.MATCH_ALL | BlockFlags.FLAG_USE_BLOCK_BELOW);
 	
 	private boolean usesBlockSpecificConfigs = false;
-	private Map<BlockProperties, Integer> hiddenBlocks = new LinkedHashMap<>();
-	private Set<BlockProperties> allowForUseBlockBelow = new HashSet<>();
+	private final Map<BlockProperties, Integer> hiddenBlocks = new LinkedHashMap<>();
+	private final Set<BlockProperties> allowForUseBlockBelow = new HashSet<>();
 
 	OrebfuscatorProximityConfig(ConfigurationSection section, ConfigParsingContext context) {
 		super(section.getName());
@@ -41,21 +41,21 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 		context.errorMinValue("distance", 1, this.distance);
 
 		this.frustumCullingEnabled = section.getBoolean("frustumCulling.enabled", false);
-		this.frustumCullingMinDistance = (float) section.getDouble("frustumCulling.minDistance", 3);
-		this.frustumCullingFov = (float) section.getDouble("frustumCulling.fov", 80d);
+		this.frustumCullingMinDistance = section.getDouble("frustumCulling.minDistance", 3d).floatValue();
+		this.frustumCullingFov = section.getDouble("frustumCulling.fov", 80d).floatValue();
 
-		if (this.frustumCullingEnabled && (this.frustumCullingFov < 10 || this.frustumCullingFov > 170)) {
+		if (this.frustumCullingEnabled) {
 			context.errorMinMaxValue("frustumCulling.fov", 10, 170, (int) this.frustumCullingFov);
 		}
 
-		this.frustumCullingMinDistanceSquared = frustumCullingMinDistance * frustumCullingMinDistance;
+		this.frustumCullingMinDistanceSquared = this.frustumCullingMinDistance * this.frustumCullingMinDistance;
 		this.frustumCullingProjectionMatrix = new Matrix4f() // create projection matrix with aspect 16:9
-				.perspective(frustumCullingFov, 16f / 9f, 0.01f, 2 * distance);
+				.perspective(this.frustumCullingFov, 16f / 9f, 0.01f, 2 * this.distance);
 
 		this.rayCastCheckEnabled = section.getBoolean("rayCastCheck.enabled", false);
 		this.rayCastCheckOnlyCheckCenter = section.getBoolean("rayCastCheck.onlyCheckCenter", false);
 
-		this.defaultBlockFlags = ProximityHeightCondition.create(minY, maxY);
+		this.defaultBlockFlags = ProximityHeightCondition.create(this.minY, this.maxY);
 		if (section.getBoolean("useBlockBelow", true)) {
 			this.defaultBlockFlags |= BlockFlags.FLAG_USE_BLOCK_BELOW;
 		}
@@ -76,9 +76,9 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 
 		section.set("distance", this.distance);
 
-		section.set("frustumCulling.enabled", frustumCullingEnabled);
-		section.set("frustumCulling.minDistance", frustumCullingMinDistance);
-		section.set("frustumCulling.fov", frustumCullingFov);
+		section.set("frustumCulling.enabled", this.frustumCullingEnabled);
+		section.set("frustumCulling.minDistance", this.frustumCullingMinDistance);
+		section.set("frustumCulling.fov", this.frustumCullingFov);
 
 		section.set("rayCastCheck.enabled", this.rayCastCheckEnabled);
 		section.set("rayCastCheck.onlyCheckCenter", this.rayCastCheckOnlyCheckCenter);
@@ -91,24 +91,24 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 	private void deserializeHiddenBlocks(ConfigurationSection section, ConfigParsingContext context, String path) {
 		context = context.section(path);
 
-		ConfigurationSection blockSection = section.getConfigurationSection(path);
+		ConfigurationSection blockSection = section.getSection(path);
 		if (blockSection == null) {
 			return;
 		}
 
-		for (String blockName : blockSection.getKeys(false)) {
-			BlockProperties blockProperties = OrebfuscatorNms.getBlockByName(blockName);
+		for (ConfigurationSection block : blockSection.getSubSections()) {
+			BlockProperties blockProperties = OrebfuscatorNms.getBlockByName(block.getName());
 			if (blockProperties == null) {
-				context.warnUnknownBlock(blockName);
+				context.warnUnknownBlock(block.getName());
 			} else if (blockProperties.getDefaultBlockState().isAir()) {
-				context.warnAirBlock(blockName);
+				context.warnAirBlock(block.getName());
 			} else {
 				int blockFlags = this.defaultBlockFlags;
 
 				// parse block specific height condition
-				if (blockSection.isInt(blockName + ".minY") && blockSection.isInt(blockName + ".maxY")) {
-					int minY = blockSection.getInt(blockName + ".minY");
-					int maxY = blockSection.getInt(blockName + ".maxY");
+				if (block.isInt("minY") && block.isInt("maxY")) {
+					int minY = block.getInt("minY", this.minY);
+					int maxY = block.getInt("maxY", this.maxY);
 
 					blockFlags = ProximityHeightCondition.remove(blockFlags);
 					blockFlags |= ProximityHeightCondition.create(
@@ -118,8 +118,8 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 				}
 
 				// parse block specific flags
-				if (blockSection.isBoolean(blockName + ".useBlockBelow")) {
-					if (blockSection.getBoolean(blockName + ".useBlockBelow")) {
+				if (block.isBoolean("useBlockBelow")) {
+					if (block.getBoolean("useBlockBelow", true)) {
 						blockFlags |= BlockFlags.FLAG_USE_BLOCK_BELOW;
 					} else {
 						blockFlags &= ~BlockFlags.FLAG_USE_BLOCK_BELOW;
@@ -137,19 +137,19 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
 	}
 
 	private void serializeHiddenBlocks(ConfigurationSection section, String path) {
-		ConfigurationSection parentSection = section.createSection(path);
+		ConfigurationSection blockSection = section.createSection(path);
 
 		for (Map.Entry<BlockProperties, Integer> entry : this.hiddenBlocks.entrySet()) {
-			ConfigurationSection childSection = parentSection.createSection(entry.getKey().getKey().toString());
+			ConfigurationSection block = blockSection.createSection(entry.getKey().getKey().toString());
 
 			int blockFlags = entry.getValue();
 			if (!ProximityHeightCondition.equals(blockFlags, this.defaultBlockFlags)) {
-				childSection.set("minY", ProximityHeightCondition.getMinY(blockFlags));
-				childSection.set("maxY", ProximityHeightCondition.getMaxY(blockFlags));
+				block.set("minY", ProximityHeightCondition.getMinY(blockFlags));
+				block.set("maxY", ProximityHeightCondition.getMaxY(blockFlags));
 			}
 
 			if (BlockFlags.isUseBlockBelowBitSet(blockFlags) != BlockFlags.isUseBlockBelowBitSet(this.defaultBlockFlags)) {
-				childSection.set("useBlockBelow", BlockFlags.isUseBlockBelowBitSet(blockFlags));
+				block.set("useBlockBelow", BlockFlags.isUseBlockBelowBitSet(blockFlags));
 			}
 		}
 	}

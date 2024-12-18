@@ -2,16 +2,20 @@ package net.imprex.orebfuscator.config.migrations;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
-import org.bukkit.configuration.ConfigurationSection;
+import net.imprex.orebfuscator.config.yaml.ConfigurationSection;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 interface ConfigMigration {
 
 	int sourceVersion();
 
-	ConfigurationSection migrate(ConfigurationSection section);
+	@NotNull ConfigurationSection migrate(@NotNull ConfigurationSection root);
 
-	static void migrateNames(ConfigurationSection section, List<Map.Entry<String, String>> mapping) {
+	static void migrateNames(@Nullable ConfigurationSection section, @NotNull List<Map.Entry<String, String>> mapping) {
+		Objects.requireNonNull(mapping, "mappings can't be null");
 		if (section == null) {
 			return;
 		}

@@ -3,9 +3,9 @@ package net.imprex.orebfuscator.config.migrations;
 import java.util.List;
 import java.util.Map;
 
-import org.bukkit.configuration.ConfigurationSection;
-
+import net.imprex.orebfuscator.config.yaml.ConfigurationSection;
 import net.imprex.orebfuscator.util.BlockPos;
+import org.jetbrains.annotations.NotNull;
 
 class ConfigMigrationV3 implements ConfigMigration {
 
@@ -15,15 +15,15 @@ class ConfigMigrationV3 implements ConfigMigration {
 	}
 
 	@Override
-	public ConfigurationSection migrate(ConfigurationSection section) {
-		migrateAdvancedConfig(section.getConfigurationSection("advanced"));
-		migrateCacheConfig(section.getConfigurationSection("cache"));
-		migrateProximityConfigs(section.getConfigurationSection("proximity"));
-		return section;
+	public @NotNull ConfigurationSection migrate(@NotNull ConfigurationSection root) {
+		migrateAdvancedConfig(root);
+		migrateCacheConfig(root);
+		migrateProximityConfigs(root);
+		return root;
 	}
 
-	private static void migrateAdvancedConfig(ConfigurationSection section) {
-		ConfigMigration.migrateNames(section, List.of(
+	private static void migrateAdvancedConfig(ConfigurationSection root) {
+		ConfigMigration.migrateNames(root.getSection("advanced"), List.of(
 			// obfuscation mapping
 			Map.entry("obfuscationWorkerThreads", "obfuscation.threads"),
 			Map.entry("obfuscationTimeout", "obfuscation.timeout"),
@@ -36,8 +36,8 @@ class ConfigMigrationV3 implements ConfigMigration {
 		));
 	}
 
-	private static void migrateCacheConfig(ConfigurationSection section) {
-		ConfigMigration.migrateNames(section, List.of(
+	private static void migrateCacheConfig(ConfigurationSection root) {
+		ConfigMigration.migrateNames(root.getSection("cache"), List.of(
 			// memory cache mapping
 			Map.entry("maximumSize", "memoryCache.maximumSize"),
 			Map.entry("expireAfterAccess", "memoryCache.expireAfterAccess"),
@@ -50,43 +50,49 @@ class ConfigMigrationV3 implements ConfigMigration {
 		));
 	}
 
-	private static void migrateProximityConfigs(ConfigurationSection parentSection) {
-		for (String key : parentSection.getKeys(false)) {
-			ConfigurationSection section = parentSection.getConfigurationSection(key);
+	private static void migrateProximityConfigs(ConfigurationSection root) {
+		ConfigurationSection configContainer = root.getSection("proximity");
+		if (configContainer == null) {
+			return;
+		}
 
+		for (ConfigurationSection config : configContainer.getSubSections()) {
 			// LEGACY: transform to post 5.2.2
-			if (section.isConfigurationSection("defaults")) {
-				int y = section.getInt("defaults.y");
-				if (section.getBoolean("defaults.above")) {
-					section.set("minY", y);
-					section.set("maxY", BlockPos.MAX_Y);
+			if (config.isSection("defaults")) {
+				Integer y = config.getInt("defaults.y");
+				if (config.getBoolean("defaults.above", false)) {
+					config.set("minY", y);
+					config.set("maxY", BlockPos.MAX_Y);
 				} else {
-					section.set("minY", BlockPos.MIN_Y);
-					section.set("maxY", y);
+					config.set("minY", BlockPos.MIN_Y);
+					config.set("maxY", y);
 				}
 
-				section.set("useBlockBelow", section.getBoolean("defaults.useBlockBelow"));
+				config.set("useBlockBelow", config.getBoolean("defaults.useBlockBelow"));
 			}
 
 			// rename all ray cast name variations
-			if (section.isBoolean("useRayCastCheck") || section.isBoolean("useFastGazeCheck")) {
-				section.set("rayCastCheck.enabled",
-						section.getBoolean("useRayCastCheck",
-						section.getBoolean("useFastGazeCheck")));
+			if (config.isBoolean("useRayCastCheck") || config.isBoolean("useFastGazeCheck")) {
+				config.set("rayCastCheck.enabled",
+						config.getBoolean("useRayCastCheck",
+						config.getBoolean("useFastGazeCheck")));
 			}
 
 			// LEGACY: transform pre 5.2.2 height condition
-			ConfigurationSection blockSection = section.getConfigurationSection("hiddenBlocks");
-			for (String blockName : blockSection.getKeys(false)) {
-				
-				if (blockSection.isInt(blockName + ".y") && blockSection.isBoolean(blockName + ".above")) {
-					int y = blockSection.getInt(blockName + ".y");
-					if (blockSection.getBoolean(blockName + ".above")) {
-						blockSection.set(blockName + ".minY", y);
-						blockSection.set(blockName + ".maxY", BlockPos.MAX_Y);
+			ConfigurationSection hiddenBlocks = config.getSection("hiddenBlocks");
+			if (hiddenBlocks == null) {
+				continue;
+			}
+
+			for (ConfigurationSection block : hiddenBlocks.getSubSections()) {
+				if (block.isInt("y") && block.isBoolean("above")) {
+					Integer y = block.getInt("y");
+					if (block.getBoolean("above", false)) {
+						block.set("minY", y);
+						block.set("maxY", BlockPos.MAX_Y);
 					} else {
-						blockSection.set(blockName + ".minY", BlockPos.MIN_Y);
-						blockSection.set(blockName + ".maxY", y);
+						block.set("minY", BlockPos.MIN_Y);
+						block.set("maxY", y);
 					}
 				}
 			}

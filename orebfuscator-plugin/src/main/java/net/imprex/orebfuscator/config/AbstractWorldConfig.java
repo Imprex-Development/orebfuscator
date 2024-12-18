@@ -4,8 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import org.bukkit.configuration.ConfigurationSection;
-
+import net.imprex.orebfuscator.config.yaml.ConfigurationSection;
 import net.imprex.orebfuscator.config.components.WeightedBlockList;
 import net.imprex.orebfuscator.config.components.WorldMatcher;
 import net.imprex.orebfuscator.config.context.ConfigParsingContext;
@@ -38,8 +37,8 @@ public abstract class AbstractWorldConfig implements WorldConfig {
 		int minY = MathUtil.clamp(section.getInt("minY", BlockPos.MIN_Y), BlockPos.MIN_Y, BlockPos.MAX_Y);
 		int maxY = MathUtil.clamp(section.getInt("maxY", BlockPos.MAX_Y), BlockPos.MIN_Y, BlockPos.MAX_Y);
 
-        this.minY = Math.min(minY, maxY);
-        this.maxY = Math.max(minY, maxY);
+		this.minY = Math.min(minY, maxY);
+		this.maxY = Math.max(minY, maxY);
 	}
 
 	protected void serializeBase(ConfigurationSection section) {
@@ -65,15 +64,14 @@ public abstract class AbstractWorldConfig implements WorldConfig {
 	protected void deserializeRandomBlocks(ConfigurationSection section, ConfigParsingContext context, String path) {
 		context = context.section(path);
 
-		ConfigurationSection subSectionContainer = section.getConfigurationSection(path);
+		ConfigurationSection subSectionContainer = section.getSection(path);
 		if (subSectionContainer == null) {
 			context.errorMissingOrEmpty();
 			return;
 		}
 
-		for (String subSectionName : subSectionContainer.getKeys(false)) {
-			ConfigParsingContext subContext = context.section(subSectionName);
-			ConfigurationSection subSection = subSectionContainer.getConfigurationSection(subSectionName);
+		for (ConfigurationSection subSection : subSectionContainer.getSubSections()) {
+			ConfigParsingContext subContext = context.section(subSection.getName());
 			this.weightedBlockLists.add(new WeightedBlockList(subSection, subContext));
 		}
 
@@ -94,7 +92,7 @@ public abstract class AbstractWorldConfig implements WorldConfig {
 		this.enabled = context.disableIfError(this.enabledValue);
 	}
 
-	public String getName() {
+	protected String getName() {
 		return name;
 	}
 

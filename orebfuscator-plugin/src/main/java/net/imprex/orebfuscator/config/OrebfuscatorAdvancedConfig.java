@@ -1,7 +1,6 @@
 package net.imprex.orebfuscator.config;
 
-import org.bukkit.configuration.ConfigurationSection;
-
+import net.imprex.orebfuscator.config.yaml.ConfigurationSection;
 import net.imprex.orebfuscator.config.context.ConfigParsingContext;
 import net.imprex.orebfuscator.util.OFCLogger;
 
@@ -28,12 +27,12 @@ public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
 
 		// parse obfuscation section
 		ConfigParsingContext obfuscationContext = context.section("obfuscation");
-		ConfigurationSection obfuscationSection = section.getConfigurationSection("obfuscation");
+		ConfigurationSection obfuscationSection = section.getSection("obfuscation");
 		if (obfuscationSection != null) {
 			this.obfuscationThreads = obfuscationSection.getInt("threads", -1);
 			this.obfuscationWorkerThreadsSet = (this.obfuscationThreads > 0);
 
-			this.obfuscationTimeout = obfuscationSection.getLong("timeout", -1);
+			this.obfuscationTimeout = obfuscationSection.getLong("timeout", -1L);
 			this.hasObfuscationTimeout = (this.obfuscationTimeout > 0);
 
 			this.maxMillisecondsPerTick = obfuscationSection.getInt("maxMillisecondsPerTick", 10);
@@ -44,7 +43,7 @@ public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
 
 		// parse proximity section
 		ConfigParsingContext proximityContext = context.section("proximity");
-		ConfigurationSection proximitySection = section.getConfigurationSection("proximity");
+		ConfigurationSection proximitySection = section.getSection("proximity");
 		if (proximitySection != null) {
 			this.proximityThreads = proximitySection.getInt("threads", -1);
 			this.proximityHiderThreadsSet = (this.proximityThreads > 0);

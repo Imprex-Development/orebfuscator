@@ -1,6 +1,6 @@
 package net.imprex.orebfuscator.config;
 
-import org.bukkit.configuration.ConfigurationSection;
+import net.imprex.orebfuscator.config.yaml.ConfigurationSection;
 
 import net.imprex.orebfuscator.config.context.ConfigParsingContext;
 

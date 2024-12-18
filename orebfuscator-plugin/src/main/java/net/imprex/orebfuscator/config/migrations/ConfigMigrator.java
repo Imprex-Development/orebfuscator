@@ -3,8 +3,7 @@ package net.imprex.orebfuscator.config.migrations;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bukkit.configuration.ConfigurationSection;
-
+import net.imprex.orebfuscator.config.yaml.ConfigurationSection;
 import net.imprex.orebfuscator.util.OFCLogger;
 
 public class ConfigMigrator {
@@ -21,9 +20,9 @@ public class ConfigMigrator {
 		MIGRATIONS.put(migration.sourceVersion(), migration);
 	}
 
-	public static void migrateToLatestVersion(ConfigurationSection section) {
+	public static void migrateToLatestVersion(ConfigurationSection root) {
 		while (true) {
-			int sourceVersion = section.getInt("version", -1);
+			int sourceVersion = root.getInt("version", -1);
 			int targetVersion = sourceVersion + 1;
 
 			ConfigMigration migration = MIGRATIONS.get(sourceVersion);
@@ -33,8 +32,8 @@ public class ConfigMigrator {
 
 			OFCLogger.info("Starting to migrate config to version " + targetVersion);
 
-			section = migration.migrate(section);
-			section.set("version", targetVersion);
+			root = migration.migrate(root);
+			root.set("version", targetVersion);
 
 			OFCLogger.info("Successfully migrated config to version " + targetVersion);
 		}

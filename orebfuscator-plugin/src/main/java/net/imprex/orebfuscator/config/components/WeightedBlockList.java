@@ -7,10 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import org.bukkit.configuration.ConfigurationSection;
-
 import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.config.context.ConfigParsingContext;
+import net.imprex.orebfuscator.config.yaml.ConfigurationSection;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.BlockProperties;
 import net.imprex.orebfuscator.util.HeightAccessor;
@@ -84,16 +83,16 @@ public class WeightedBlockList {
         this.maxY = Math.max(minY, maxY);
 
         ConfigParsingContext blocksContext = context.section("blocks");
-        if (!section.isConfigurationSection("blocks")) {
+        ConfigurationSection blocksSection = section.getSection("blocks");
+        if (blocksSection == null) {
         	blocksContext.errorMissingOrEmpty();
             return;
         }
 
-        ConfigurationSection blockSection = section.getConfigurationSection("blocks");
-        for (String blockName : blockSection.getKeys(false)) {
+        for (String blockName : blocksSection.getKeys(false)) {
         	BlockProperties blockProperties = OrebfuscatorNms.getBlockByName(blockName);
             if (blockProperties != null) {
-                int weight = blockSection.getInt(blockName, 1);
+                int weight = blocksSection.getInt(blockName, 1);
                 this.blocks.put(blockProperties, weight);
             } else {
             	blocksContext.warnUnknownBlock(blockName);

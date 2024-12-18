@@ -8,8 +8,8 @@ import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
 import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
 
+import net.imprex.orebfuscator.config.yaml.ConfigurationSection;
 import net.imprex.orebfuscator.config.context.ConfigParsingContext;
 import net.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.util.OFCLogger;
@@ -36,7 +36,7 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 
 		// parse memoryCache section
 		ConfigParsingContext memoryContext = context.section("memoryCache");
-		ConfigurationSection memorySection = section.getConfigurationSection("memoryCache");
+		ConfigurationSection memorySection = section.getSection("memoryCache");
 		if (memorySection != null) {
 			this.maximumSize = memorySection.getInt("maximumSize", 8192);
 			memoryContext.errorMinValue("maximumSize", 1, this.maximumSize);
@@ -49,10 +49,10 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 
 		// parse diskCache section, isolate errors to disable only diskCache on section error
 		ConfigParsingContext diskContext = context.section("diskCache", true);
-		ConfigurationSection diskSection = section.getConfigurationSection("diskCache");
+		ConfigurationSection diskSection = section.getSection("diskCache");
 		if (diskSection != null) {
 			this.enableDiskCacheValue = diskSection.getBoolean("enabled", true);
-			this.deserializeBaseDirectory(diskSection, diskContext, "orebfuscator_cache/");
+			this.baseDirectory = this.deserializeBaseDirectory(diskSection, diskContext, "orebfuscator_cache/");
 
 			this.maximumOpenRegionFiles = diskSection.getInt("maximumOpenFiles", 256);
 			diskContext.errorMinValue("maximumOpenFiles", 1, this.maximumOpenRegionFiles);
@@ -66,7 +66,7 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 			diskContext.warnMissingSection();
 		}
 
-		// try create diskCache.directory
+		// try to create diskCache.directory
 		OFCLogger.debug("Using '" + this.baseDirectory.toAbsolutePath() + "' as chunk cache path");
 		try {
 			if (Files.notExists(this.baseDirectory)) {
@@ -95,16 +95,16 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 		section.set("diskCache.maximumTaskQueueSize", this.maximumTaskQueueSize);
 	}
 
-	private void deserializeBaseDirectory(ConfigurationSection section, ConfigParsingContext context, String defaultPath) {
+	private Path deserializeBaseDirectory(ConfigurationSection section, ConfigParsingContext context, String defaultPath) {
 		Path worldPath = Bukkit.getWorldContainer().toPath().normalize();
 		String baseDirectory = section.getString("directory", defaultPath);
 
 		try {
-			this.baseDirectory = Paths.get(baseDirectory).normalize();
+			return Paths.get(baseDirectory).normalize();
 		} catch (InvalidPathException e) {
 			context.warn("directory", String.format("contains malformed path {%s}, using default path {%s}",
 					baseDirectory, defaultPath));
-			this.baseDirectory = worldPath.resolve(defaultPath).normalize();
+			return worldPath.resolve(defaultPath).normalize();
 		}
 	}
 

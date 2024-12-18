@@ -1,8 +1,8 @@
 package net.imprex.orebfuscator.config.migrations;
 
-import org.bukkit.configuration.ConfigurationSection;
-
+import net.imprex.orebfuscator.config.yaml.ConfigurationSection;
 import net.imprex.orebfuscator.util.BlockPos;
+import org.jetbrains.annotations.NotNull;
 
 class ConfigMigrationV2 implements ConfigMigration {
 
@@ -12,17 +12,19 @@ class ConfigMigrationV2 implements ConfigMigration {
 	}
 
 	@Override
-	public ConfigurationSection migrate(ConfigurationSection section) {
-		this.convertRandomBlocksToSections(section.getConfigurationSection("obfuscation"));
-		this.convertRandomBlocksToSections(section.getConfigurationSection("proximity"));
-		return section;
+	public @NotNull ConfigurationSection migrate(@NotNull ConfigurationSection root) {
+		convertRandomBlocksToSections(root.getSection("obfuscation"));
+		convertRandomBlocksToSections(root.getSection("proximity"));
+		return root;
 	}
 
+	private static void convertRandomBlocksToSections(ConfigurationSection configContainer) {
+		if (configContainer == null) {
+			return;
+		}
 
-	private void convertRandomBlocksToSections(ConfigurationSection parentSection) {
-		for (String key : parentSection.getKeys(false)) {
-			ConfigurationSection config = parentSection.getConfigurationSection(key);
-			ConfigurationSection blockSection = config.getConfigurationSection("randomBlocks");
+		for (ConfigurationSection config : configContainer.getSubSections()) {
+			ConfigurationSection blockSection = config.getSection("randomBlocks");
 			if (blockSection == null) {
 				continue;
 			}
@@ -34,7 +36,7 @@ class ConfigMigrationV2 implements ConfigMigration {
 			newBlockSection = newBlockSection.createSection("blocks");
 
 			for (String blockName : blockSection.getKeys(false)) {
-				newBlockSection.set(blockName, blockSection.getInt(blockName, 1));
+				newBlockSection.set(blockName, blockSection.getInt(blockName));
 			}
 		}
 	}

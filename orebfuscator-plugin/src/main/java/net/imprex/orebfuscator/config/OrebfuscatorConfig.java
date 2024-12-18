@@ -16,7 +16,6 @@ import java.util.stream.Stream;
 
 import org.bukkit.Bukkit;
 import org.bukkit.World;
-import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.plugin.Plugin;
 
 import com.google.common.hash.Hashing;
@@ -27,6 +26,9 @@ import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.config.context.ConfigParsingContext;
 import net.imprex.orebfuscator.config.context.DefaultConfigParsingContext;
 import net.imprex.orebfuscator.config.migrations.ConfigMigrator;
+import net.imprex.orebfuscator.config.yaml.ConfigurationSection;
+import net.imprex.orebfuscator.config.yaml.InvalidConfigurationException;
+import net.imprex.orebfuscator.config.yaml.YamlConfiguration;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.HeightAccessor;
 import net.imprex.orebfuscator.util.MinecraftVersion;
@@ -48,57 +50,56 @@ public class OrebfuscatorConfig implements Config {
 	private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
 	private final Plugin plugin;
+	private final Path path;
+	private final YamlConfiguration configuration;
 
 	private byte[] systemHash;
 	private String configReport;
 
-	public OrebfuscatorConfig(Plugin plugin) {
+	public OrebfuscatorConfig(Plugin plugin, Path path) {
 		this.plugin = plugin;
-
-		this.load();
+		this.path = path;
+		this.configuration = this.loadConfiguration();
 	}
 
-	public void load() {
-		this.createConfigIfNotExist();
-		this.plugin.reloadConfig();
-		
-		DefaultConfigParsingContext context = new DefaultConfigParsingContext();
-		this.deserialize(this.plugin.getConfig(), context);
-		this.configReport = context.report();
+	public YamlConfiguration loadConfiguration() {
+		try {
+			if (Files.notExists(this.path)) {
+				Files.createDirectories(this.path.getParent());
 
-		if (context.hasErrors()) {
-			throw new IllegalArgumentException("Can't parse config due to errors, Orebfuscator will now disable itself!");
+				String configVersion = MinecraftVersion.majorVersion() + "." + MinecraftVersion.minorVersion();
+				Files.copy(Orebfuscator.class.getResourceAsStream("/config/config-" + configVersion + ".yml"), path);
+			}
+
+			this.systemHash = this.calculateSystemHash(this.path);
+
+			YamlConfiguration configuration = YamlConfiguration.loadConfig(this.path);
+			DefaultConfigParsingContext context = new DefaultConfigParsingContext();
+
+			this.deserialize(configuration, context);
+			this.configReport = context.report();
+
+			if (context.hasErrors()) {
+				throw new IllegalArgumentException("Can't parse config due to errors, Orebfuscator will now disable itself!");
+			}
+
+			return configuration;
+		} catch (IOException | InvalidConfigurationException e) {
+			throw new RuntimeException("Unable to create config", e);
 		}
 	}
 
 	public void store() {
-		ConfigurationSection section = this.plugin.getConfig();
-		for (String path : section.getKeys(false)) {
-			section.set(path, null);
+		for (String path : this.configuration.getKeys(false)) {
+			this.configuration.set(path, null);
 		}
 
-		this.serialize(section);
-		this.plugin.saveConfig();
-	}
+		this.serialize(this.configuration);
 
-	private void createConfigIfNotExist() {
 		try {
-			Path dataFolder = this.plugin.getDataFolder().toPath();
-			Path path = dataFolder.resolve("config.yml");
-
-			if (Files.notExists(path)) {
-				String configVersion = MinecraftVersion.majorVersion() + "." + MinecraftVersion.minorVersion();
-
-				if (Files.notExists(dataFolder)) {
-					Files.createDirectories(dataFolder);
-				}
-
-				Files.copy(Orebfuscator.class.getResourceAsStream("/config/config-" + configVersion + ".yml"), path);
-			}
-
-			this.systemHash = this.calculateSystemHash(path);
+			this.configuration.save(this.path);
 		} catch (IOException e) {
-			throw new RuntimeException("unable to create config", e);
+			OFCLogger.error("Can't save config", e);
 		}
 	}
 
@@ -122,7 +123,7 @@ public class OrebfuscatorConfig implements Config {
 
 		// parse general section
 		ConfigParsingContext generalContext = context.section("general");
-		ConfigurationSection generalSection = section.getConfigurationSection("general");
+		ConfigurationSection generalSection = section.getSection("general");
 		if (generalSection != null) {
 			this.generalConfig.deserialize(generalSection, generalContext);
 		} else {
@@ -131,7 +132,7 @@ public class OrebfuscatorConfig implements Config {
 
 		// parse advanced section
 		ConfigParsingContext advancedContext = context.section("advanced");
-		ConfigurationSection advancedSection = section.getConfigurationSection("advanced");
+		ConfigurationSection advancedSection = section.getSection("advanced");
 		if (advancedSection != null) {
 			this.advancedConfig.deserialize(advancedSection, advancedContext);
 		} else {
@@ -143,7 +144,7 @@ public class OrebfuscatorConfig implements Config {
 
 		// parse cache section
 		ConfigParsingContext cacheContext = context.section("cache", true);
-		ConfigurationSection cacheSection = section.getConfigurationSection("cache");
+		ConfigurationSection cacheSection = section.getSection("cache");
 		if (cacheSection != null) {
 			this.cacheConfig.deserialize(cacheSection, cacheContext);
 		} else {
@@ -157,11 +158,12 @@ public class OrebfuscatorConfig implements Config {
 
 		// parse obfuscation sections
 		ConfigParsingContext obfuscationContext = context.section("obfuscation");
-		ConfigurationSection obfuscationSection = section.getConfigurationSection("obfuscation");
-		for (String key : obfuscationSection.getKeys(false)) {
-			this.obfuscationConfigs.add(new OrebfuscatorObfuscationConfig(
-				obfuscationSection.getConfigurationSection(key),
-				obfuscationContext.section(key, true)));
+		ConfigurationSection obfuscationSection = section.getSection("obfuscation");
+		if (obfuscationSection != null) {
+			for (ConfigurationSection config : obfuscationSection.getSubSections()) {
+				ConfigParsingContext configContext = obfuscationContext.section(config.getName(), true);
+				this.obfuscationConfigs.add(new OrebfuscatorObfuscationConfig(config, configContext));
+			}
 		}
 		if (this.obfuscationConfigs.isEmpty()) {
 			obfuscationContext.warnMissingOrEmpty();
@@ -169,11 +171,12 @@ public class OrebfuscatorConfig implements Config {
 
 		// parse proximity sections
 		ConfigParsingContext proximityContext = context.section("proximity");
-		ConfigurationSection proximitySection = section.getConfigurationSection("proximity");
-		for (String key : proximitySection.getKeys(false)) {
-			this.proximityConfigs.add(new OrebfuscatorProximityConfig(
-				proximitySection.getConfigurationSection(key),
-				proximityContext.section(key, true)));
+		ConfigurationSection proximitySection = section.getSection("proximity");
+		if (proximitySection != null) {
+			for (ConfigurationSection config : proximitySection.getSubSections()) {
+				ConfigParsingContext configContext = proximityContext.section(config.getName(), true);
+				this.proximityConfigs.add(new OrebfuscatorProximityConfig(config, configContext));
+			}
 		}
 		if (this.proximityConfigs.isEmpty()) {
 			proximityContext.warnMissingOrEmpty();
