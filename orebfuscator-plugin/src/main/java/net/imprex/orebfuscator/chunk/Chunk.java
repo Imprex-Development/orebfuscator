@@ -95,13 +95,16 @@ public class Chunk implements AutoCloseable {
 			}
 		}
 
-		int dataLength = ByteBufUtil.readVarInt(this.inputBuffer);
-		if (SimpleVarBitBuffer.calculateArraySize(bitsPerValue, 64) != dataLength) {
-			throw new IndexOutOfBoundsException("data.length != VarBitBuffer::size " + dataLength + " " +
-					SimpleVarBitBuffer.calculateArraySize(bitsPerValue, 64));
+		int expectedDataLength = SimpleVarBitBuffer.calculateArraySize(bitsPerValue, 64);
+
+		if (ChunkCapabilities.hasLongArrayLengthField()) {
+			int dataLength = ByteBufUtil.readVarInt(this.inputBuffer);
+			if (expectedDataLength != dataLength) {
+				throw new IndexOutOfBoundsException("data.length != VarBitBuffer::size " + dataLength + " " + expectedDataLength);
+			}
 		}
 
-		this.inputBuffer.skipBytes(Long.BYTES * dataLength);
+		this.inputBuffer.skipBytes(Long.BYTES * expectedDataLength);
 	}
 
 	private class ChunkSectionHolder {

@@ -97,7 +97,11 @@ public class ChunkSection {
 		this.palette.write(buffer);
 
 		long[] data = this.data.toArray();
-		ByteBufUtil.writeVarInt(buffer, data.length);
+
+		if (ChunkCapabilities.hasLongArrayLengthField()) {
+			ByteBufUtil.writeVarInt(buffer, data.length);
+		}
+
 		for (long entry : data) {
 			buffer.writeLong(entry);
 		}
@@ -111,9 +115,12 @@ public class ChunkSection {
 		this.palette.read(buffer);
 
 		long[] data = this.data.toArray();
-		int length = ByteBufUtil.readVarInt(buffer);
-		if (data.length != length) {
-			throw new IndexOutOfBoundsException("data.length != VarBitBuffer::size " + length + " " + this.data);
+
+		if (ChunkCapabilities.hasLongArrayLengthField()) {
+			int length = ByteBufUtil.readVarInt(buffer);
+			if (data.length != length) {
+				throw new IndexOutOfBoundsException("data.length != VarBitBuffer::size " + length + " " + this.data);
+			}
 		}
 
 		for (int i = 0; i < data.length; i++) {
