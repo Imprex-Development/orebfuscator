@@ -13,6 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import net.imprex.orebfuscator.api.OrebfuscatorService;
 import net.imprex.orebfuscator.cache.ObfuscationCache;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
+import net.imprex.orebfuscator.injector.OrebfuscatorInjectorManager;
 import net.imprex.orebfuscator.obfuscation.ObfuscationSystem;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayerMap;
 import net.imprex.orebfuscator.proximity.ProximityDirectorThread;
@@ -33,6 +34,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 	private UpdateSystem updateSystem;
 	private ObfuscationCache obfuscationCache;
 	private ObfuscationSystem obfuscationSystem;
+	private OrebfuscatorInjectorManager injectorManager;
 	private ProximityDirectorThread proximityThread;
 	private ProximityPacketListener proximityPacketListener;
 
@@ -87,6 +89,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 
 			// Load packet listener
 			this.obfuscationSystem.registerChunkListener();
+			this.injectorManager = new OrebfuscatorInjectorManager(this);
 
 			// Store formatted config
 			this.config.store();
@@ -120,6 +123,10 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 		if (this.config != null && this.config.proximityEnabled() && this.proximityPacketListener != null && this.proximityThread != null) {
 			this.proximityPacketListener.unregister();
 			this.proximityThread.close();
+		}
+
+		if (this.injectorManager != null) {
+			this.injectorManager.close();
 		}
 
 		OrebfuscatorCompatibility.close();

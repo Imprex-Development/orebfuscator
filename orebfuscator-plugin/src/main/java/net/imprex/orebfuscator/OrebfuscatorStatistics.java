@@ -1,12 +1,17 @@
 package net.imprex.orebfuscator;
 
 import java.util.Objects;
-import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.LongAdder;
+import java.util.function.DoubleSupplier;
 import java.util.function.LongSupplier;
 
 import com.google.gson.JsonObject;
 
 public class OrebfuscatorStatistics {
+
+    private static final long MICRO_SCALE  = 1000L;
+    private static final long MILLI_SCALE  = 1000L * MICRO_SCALE;
+    private static final long SECOND_SCALE = 1000L * MILLI_SCALE;
 
 	private static String formatPrecent(double percent) {
 		return String.format("%.2f%%", percent * 100);
@@ -24,28 +29,41 @@ public class OrebfuscatorStatistics {
 		}
 	}
 
-	private final AtomicLong cacheHitCountMemory = new AtomicLong(0);
-	private final AtomicLong cacheHitCountDisk = new AtomicLong(0);
-	private final AtomicLong cacheMissCount = new AtomicLong(0);
-	private final AtomicLong cacheEstimatedSize = new AtomicLong(0);
+	private static String formatNanos(double nanos) {
+		if (nanos > SECOND_SCALE) {
+			return String.format("%.2f s", nanos / SECOND_SCALE);
+		} else if (nanos > MILLI_SCALE) {
+			return String.format("%.2f ms", nanos / MILLI_SCALE);
+		} else if (nanos > MICRO_SCALE) {
+			return String.format("%.2f µs", nanos / MICRO_SCALE);
+		} else {
+			return String.format("%d ns", nanos);
+		}
+	}
+
+	private final LongAdder cacheHitCountMemory = new LongAdder();
+	private final LongAdder cacheHitCountDisk = new LongAdder();
+	private final LongAdder cacheMissCount = new LongAdder();
+	private final LongAdder cacheEstimatedSize = new LongAdder();
 	private LongSupplier memoryCacheSize = () -> 0;
 	private LongSupplier diskCacheQueueLength = () -> 0;
 	private LongSupplier obfuscationQueueLength = () -> 0;
+	private DoubleSupplier averagePacketDelay = () -> 0;
 
 	public void onCacheHitMemory() {
-		this.cacheHitCountMemory.incrementAndGet();
+		this.cacheHitCountMemory.increment();
 	}
 
 	public void onCacheHitDisk() {
-		this.cacheHitCountDisk.incrementAndGet();
+		this.cacheHitCountDisk.increment();
 	}
 
 	public void onCacheMiss() {
-		this.cacheMissCount.incrementAndGet();
+		this.cacheMissCount.increment();
 	}
 
 	public void onCacheSizeChange(int delta) {
-		this.cacheEstimatedSize.addAndGet(delta);
+		this.cacheEstimatedSize.add(delta);
 	}
 
 	public void setMemoryCacheSizeSupplier(LongSupplier supplier) {
@@ -60,15 +78,20 @@ public class OrebfuscatorStatistics {
 		this.obfuscationQueueLength = Objects.requireNonNull(supplier);
 	}
 
+	public void setAveragePacketDelay(DoubleSupplier supplier) {
+		this.averagePacketDelay = Objects.requireNonNull(supplier);
+	}
+
 	@Override
 	public String toString() {
-		long cacheHitCountMemory = this.cacheHitCountMemory.get();
-		long cacheHitCountDisk = this.cacheHitCountDisk.get();
-		long cacheMissCount = this.cacheMissCount.get();
-		long cacheEstimatedSize = this.cacheEstimatedSize.get();
+		long cacheHitCountMemory = this.cacheHitCountMemory.sum();
+		long cacheHitCountDisk = this.cacheHitCountDisk.sum();
+		long cacheMissCount = this.cacheMissCount.sum();
+		long cacheEstimatedSize = this.cacheEstimatedSize.sum();
 		long memoryCacheSize = this.memoryCacheSize.getAsLong();
 		long diskCacheQueueLength = this.diskCacheQueueLength.getAsLong();
 		long obfuscationQueueLength = this.obfuscationQueueLength.getAsLong();
+		double averagePacketDelay = this.averagePacketDelay.getAsDouble();
 
 		double totalCacheRequest = (double) (cacheHitCountMemory + cacheHitCountDisk + cacheMissCount);
 
@@ -93,6 +116,7 @@ public class OrebfuscatorStatistics {
 		builder.append(" - memoryCacheEntries: ").append(memoryCacheSize).append('\n');
 		builder.append(" - diskCacheQueueLength: ").append(diskCacheQueueLength).append('\n');
 		builder.append(" - obfuscationQueueLength: ").append(obfuscationQueueLength).append('\n');
+		builder.append(" - averagePacketDelay: ").append(formatNanos(averagePacketDelay)).append('\n');
 
 		return builder.toString();
 	}
@@ -100,13 +124,14 @@ public class OrebfuscatorStatistics {
 	public JsonObject toJson() {
 		JsonObject object = new JsonObject();
 
-		object.addProperty("cacheHitCountMemory", this.cacheHitCountMemory.get());
-		object.addProperty("cacheHitCountDisk", this.cacheHitCountDisk.get());
-		object.addProperty("cacheMissCount", this.cacheMissCount.get());
-		object.addProperty("cacheEstimatedSize", this.cacheEstimatedSize.get());
+		object.addProperty("cacheHitCountMemory", this.cacheHitCountMemory.sum());
+		object.addProperty("cacheHitCountDisk", this.cacheHitCountDisk.sum());
+		object.addProperty("cacheMissCount", this.cacheMissCount.sum());
+		object.addProperty("cacheEstimatedSize", this.cacheEstimatedSize.sum());
 		object.addProperty("memoryCacheSize", this.memoryCacheSize.getAsLong());
 		object.addProperty("diskCacheQueueLength", this.diskCacheQueueLength.getAsLong());
 		object.addProperty("obfuscationQueueLength", this.obfuscationQueueLength.getAsLong());
+		object.addProperty("averagePacketDelayNano", this.averagePacketDelay.getAsDouble());
 
 		return object;
 	}
