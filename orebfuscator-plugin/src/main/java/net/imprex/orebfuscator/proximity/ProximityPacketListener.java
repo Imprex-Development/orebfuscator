@@ -28,7 +28,10 @@ public class ProximityPacketListener extends PacketAdapter {
 	private final OrebfuscatorPlayerMap playerMap;
 
 	public ProximityPacketListener(Orebfuscator orebfuscator) {
-		super(orebfuscator, PacketType.Play.Server.UNLOAD_CHUNK);
+		super(PacketAdapter.params()
+				.plugin(orebfuscator)
+				.types(PacketType.Play.Server.UNLOAD_CHUNK)
+				.optionAsync());
 
 		this.protocolManager = ProtocolLibrary.getProtocolManager();
 		this.protocolManager.addPacketListener(this);
