@@ -8,10 +8,17 @@ import net.imprex.orebfuscator.config.Config;
 
 public class PaperCompatibilityLayer extends AbstractPaperCompatibilityLayer {
 
+	private final Thread mainThread = Thread.currentThread();
+
 	private final BukkitScheduler scheduler;
 
 	public PaperCompatibilityLayer(Plugin plugin, Config config) {
 		this.scheduler = new BukkitScheduler(plugin);
+	}
+
+	@Override
+	public boolean isGameThread() {
+		return Thread.currentThread() == this.mainThread;
 	}
 
 	@Override

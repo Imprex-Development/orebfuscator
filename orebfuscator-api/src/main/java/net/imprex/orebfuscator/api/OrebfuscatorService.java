@@ -12,7 +12,7 @@ import org.bukkit.block.Block;
  * 
  * <p>
  * All calls to this service are expected to originate from the servers
- * main-thread.
+ * main-thread or in case of folia from a region thread (never the global region thread).
  * </p>
  * 
  * @since 5.2.0

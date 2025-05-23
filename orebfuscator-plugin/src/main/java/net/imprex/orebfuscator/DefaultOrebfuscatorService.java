@@ -11,18 +11,16 @@ import net.imprex.orebfuscator.obfuscation.ObfuscationSystem;
 
 public final class DefaultOrebfuscatorService implements OrebfuscatorService {
 
-	private final Orebfuscator orebfuscator;
 	private final ObfuscationSystem obfuscationSystem;
 
 	public DefaultOrebfuscatorService(Orebfuscator orebfuscator) {
-		this.orebfuscator = orebfuscator;
 		this.obfuscationSystem = orebfuscator.getObfuscationSystem();
 	}
 
 	@Override
 	public final void deobfuscate(Collection<? extends Block> blocks) {
-		if (!this.orebfuscator.isGameThread()) {
-            throw new IllegalStateException("Asynchronous deobfuscation!");
+		if (!OrebfuscatorCompatibility.isGameThread()) {
+			throw new IllegalStateException("Asynchronous deobfuscation! " + Thread.currentThread());
 		} else if (blocks == null || blocks.isEmpty()) {
 			throw new IllegalArgumentException("block list is null or empty");
 		}
