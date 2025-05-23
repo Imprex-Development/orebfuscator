@@ -25,8 +25,6 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 
 	public static final ThreadGroup THREAD_GROUP = new ThreadGroup("orebfuscator");
 
-	private final Thread mainThread = Thread.currentThread();
-
 	private OrebfuscatorStatistics statistics;
 	private OrebfuscatorConfig config;
 	private OrebfuscatorPlayerMap playerMap;
@@ -135,10 +133,6 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 			HandlerList.unregisterAll(listener);
 			Bukkit.getPluginManager().disablePlugin(this);
 		}
-	}
-
-	public boolean isGameThread() {
-		return Thread.currentThread() == this.mainThread;
 	}
 
 	public OrebfuscatorStatistics getStatistics() {
