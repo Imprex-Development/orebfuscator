@@ -1,5 +1,6 @@
 package net.imprex.orebfuscator.obfuscation;
 
+import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.locks.LockSupport;
@@ -23,7 +24,12 @@ class ObfuscationTaskDispatcher {
 			this.worker[i] = new ObfuscationTaskWorker(this, this.processor);
 		}
 
-		orebfuscator.getStatistics().setObfuscationQueueLengthSupplier(() -> this.tasks.size());
+		var statistics = orebfuscator.getStatistics();
+		statistics.setObfuscationQueueLengthSupplier(() -> this.tasks.size());
+		statistics.setObfuscationWaitTime(() -> (long) Arrays.stream(this.worker)
+				.mapToDouble(ObfuscationTaskWorker::getWaitTime).average().orElse(0d));
+		statistics.setObfuscationProcessTime(() -> (long) Arrays.stream(this.worker)
+				.mapToDouble(ObfuscationTaskWorker::getProcessTime).average().orElse(0d));
 	}
 
 	public void submitRequest(ObfuscationRequest request) {
@@ -39,9 +45,14 @@ class ObfuscationTaskDispatcher {
 	public ObfuscationTask retrieveTask() throws InterruptedException {
 		ObfuscationTask task;
 
-		while ((task = this.tasks.poll()) == null) {
-			// sleep for 1 tick = 50ms
-			LockSupport.parkNanos(this, 50000000L);
+		for (int i = 0; (task = this.tasks.poll()) == null; i++) {
+			if (i < 10_000) {
+				Thread.onSpinWait();
+			} else {
+				// sleep for 1ms
+				LockSupport.parkNanos(this, 1_000_000L);
+			}
+
 			if (Thread.interrupted()) {
 				throw new InterruptedException();
 			}

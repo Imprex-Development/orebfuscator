@@ -74,9 +74,9 @@ public final class ConsoleUtil {
 		int totalWidth = width + BOX_PADDING * 2;
 
 		// create top/bottom lines
-		String bottomTopLine = repeat('=', totalWidth);
-		String topLine = String.format("╔%s╗", bottomTopLine);
-		String bottomLine = String.format("╚%s╝", bottomTopLine);
+		String bottomTopLine = repeat('-', totalWidth);
+		String topLine = String.format("+%s+", bottomTopLine);
+		String bottomLine = String.format("+%s+", bottomTopLine);
 
 		// create box
 		List<String> box = new ArrayList<>(wrappedLines.size() + 2);
@@ -94,7 +94,7 @@ public final class ConsoleUtil {
 				rightPadding = repeat(' ', space / 2);
 			}
 
-			box.add(String.format("║%s%s%s║", leftPadding, line, rightPadding));
+			box.add(String.format("|%s%s%s|", leftPadding, line, rightPadding));
 		}
 
 		box.add(bottomLine);
