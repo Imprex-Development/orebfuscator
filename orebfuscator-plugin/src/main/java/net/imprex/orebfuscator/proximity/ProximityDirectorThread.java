@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Phaser;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
 import org.bukkit.Bukkit;
@@ -18,13 +19,14 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.config.AdvancedConfig;
 import net.imprex.orebfuscator.util.OFCLogger;
+import net.imprex.orebfuscator.util.RingTimer;
 
 public class ProximityDirectorThread extends Thread implements Listener {
 
 	private final Orebfuscator orebfuscator;
 	private final int workerCount;
 	private final int defaultBucketSize;
-	private final int checkInterval;
+	private final long checkInterval;
 
 	private final Phaser phaser = new Phaser(1);
 	private volatile boolean running = true;
@@ -33,6 +35,9 @@ public class ProximityDirectorThread extends Thread implements Listener {
 	private final ProximityWorkerThread[] workerThreads;
 
 	private final BlockingQueue<List<Player>> bucketQueue = new LinkedBlockingQueue<>();
+
+	private final RingTimer waitTimer = new RingTimer(100);
+	private final RingTimer processTimer = new RingTimer(100);
 
 	public ProximityDirectorThread(Orebfuscator orebfuscator) {
 		super(Orebfuscator.THREAD_GROUP, "ofc-proximity-director");
@@ -43,10 +48,14 @@ public class ProximityDirectorThread extends Thread implements Listener {
 		AdvancedConfig advancedConfig = orebfuscator.getOrebfuscatorConfig().advanced();
 		this.workerCount = advancedConfig.proximityThreads();
 		this.defaultBucketSize = advancedConfig.proximityDefaultBucketSize();
-		this.checkInterval = advancedConfig.proximityThreadCheckInterval();
+		this.checkInterval = TimeUnit.MILLISECONDS.toNanos(advancedConfig.proximityThreadCheckInterval());
 
 		this.worker = new ProximityWorker(orebfuscator);
 		this.workerThreads = new ProximityWorkerThread[workerCount - 1];
+
+		var statistics = this.orebfuscator.getStatistics();
+		statistics.setProximityWaitTime(() -> (long) waitTimer.average());
+		statistics.setProximityProcessTime(() -> (long) processTimer.average());
 	}
 
 	@EventHandler
@@ -97,6 +106,7 @@ public class ProximityDirectorThread extends Thread implements Listener {
 	public void run() {
 		while (this.isRunning()) {
 			try {
+				long processStart = System.nanoTime();
 				Collection<? extends Player> players = Bukkit.getOnlinePlayers();
 
 				// park thread if no players are online
@@ -149,8 +159,19 @@ public class ProximityDirectorThread extends Thread implements Listener {
 				// wait for all threads to finish and reset phaser
 				this.phaser.awaitAdvanceInterruptibly(this.phaser.arrive());
 
-				// sleep till next execution
-				Thread.sleep(this.checkInterval);
+				long processTime = System.nanoTime() - processStart;
+				processTimer.add(processTime);
+
+				// check if we have enough time to sleep
+				long waitTime = Math.max(0, this.checkInterval - processTime);
+				long waitMillis = TimeUnit.NANOSECONDS.toMillis(waitTime);
+
+				if (waitMillis > 0) {
+					// measure wait time
+					waitTimer.add(TimeUnit.MILLISECONDS.toNanos(waitMillis));
+
+					Thread.sleep(waitMillis);
+				}
 			} catch (InterruptedException e) {
 				continue;
 			} catch (Exception e) {

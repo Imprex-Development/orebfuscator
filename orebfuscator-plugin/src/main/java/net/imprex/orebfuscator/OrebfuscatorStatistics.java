@@ -12,6 +12,16 @@ public class OrebfuscatorStatistics {
 		return String.format("%.2f%%", percent * 100);
 	}
 
+	private static String formatNanos(long time) {
+		if (time > 1000_000L) {
+			return String.format("%.1fms", time / 1000_000d);
+		} else if (time > 1000L) {
+			return String.format("%.1fµs", time / 1000d);
+		} else {
+			return String.format("%dns", time);
+		}
+	}
+
 	private static String formatBytes(long bytes) {
 		if (bytes > 1073741824L) {
 			return String.format("%.1f GiB", bytes / 1073741824d);
@@ -31,6 +41,10 @@ public class OrebfuscatorStatistics {
 	private LongSupplier memoryCacheSize = () -> 0;
 	private LongSupplier diskCacheQueueLength = () -> 0;
 	private LongSupplier obfuscationQueueLength = () -> 0;
+	private LongSupplier obfuscationWaitTime = () -> 0;
+	private LongSupplier obfuscationProcessTime = () -> 0;
+	private LongSupplier proximityWaitTime = () -> 0;
+	private LongSupplier proximityProcessTime = () -> 0;
 
 	public void onCacheHitMemory() {
 		this.cacheHitCountMemory.incrementAndGet();
@@ -58,6 +72,22 @@ public class OrebfuscatorStatistics {
 
 	public void setObfuscationQueueLengthSupplier(LongSupplier supplier) {
 		this.obfuscationQueueLength = Objects.requireNonNull(supplier);
+	}
+
+	public void setObfuscationWaitTime(LongSupplier supplier) {
+		this.obfuscationWaitTime = Objects.requireNonNull(supplier);
+	}
+
+	public void setObfuscationProcessTime(LongSupplier supplier) {
+		this.obfuscationProcessTime = Objects.requireNonNull(supplier);
+	}
+
+	public void setProximityWaitTime(LongSupplier supplier) {
+		this.proximityWaitTime = Objects.requireNonNull(supplier);
+	}
+
+	public void setProximityProcessTime(LongSupplier supplier) {
+		this.proximityProcessTime = Objects.requireNonNull(supplier);
 	}
 
 	@Override
@@ -94,6 +124,34 @@ public class OrebfuscatorStatistics {
 		builder.append(" - diskCacheQueueLength: ").append(diskCacheQueueLength).append('\n');
 		builder.append(" - obfuscationQueueLength: ").append(obfuscationQueueLength).append('\n');
 
+		long obfuscationWaitTime = this.obfuscationWaitTime.getAsLong();
+		long obfuscationProcessTime = this.obfuscationProcessTime.getAsLong();
+		long obfuscationTotalTime = obfuscationWaitTime + obfuscationProcessTime;
+
+		double obfuscationUtilization = 0;
+		if (obfuscationTotalTime > 0) {
+			obfuscationUtilization = (double) obfuscationProcessTime / obfuscationTotalTime;
+		}
+
+		builder.append(" - obfuscation (wait/process/utilization): ")
+			.append(formatNanos(obfuscationWaitTime)).append(" | ")
+			.append(formatNanos(obfuscationProcessTime)).append(" | ")
+			.append(formatPrecent(obfuscationUtilization)).append('\n');
+
+		long proximityWaitTime = this.proximityWaitTime.getAsLong();
+		long proximityProcessTime = this.proximityProcessTime.getAsLong();
+		long proximityTotalTime = proximityWaitTime + proximityProcessTime;
+
+		double proximityUtilization = 0;
+		if (proximityTotalTime > 0) {
+			proximityUtilization = (double) proximityProcessTime / proximityTotalTime;
+		}
+
+		builder.append(" - proximity (wait/process/utilization): ")
+			.append(formatNanos(proximityWaitTime)).append(" | ")
+			.append(formatNanos(proximityProcessTime)).append(" | ")
+			.append(formatPrecent(proximityUtilization)).append('\n');
+
 		return builder.toString();
 	}
 
@@ -107,6 +165,10 @@ public class OrebfuscatorStatistics {
 		object.addProperty("memoryCacheSize", this.memoryCacheSize.getAsLong());
 		object.addProperty("diskCacheQueueLength", this.diskCacheQueueLength.getAsLong());
 		object.addProperty("obfuscationQueueLength", this.obfuscationQueueLength.getAsLong());
+		object.addProperty("obfuscationWaitTime", this.obfuscationWaitTime.getAsLong());
+		object.addProperty("obfuscationProcessTime", this.obfuscationProcessTime.getAsLong());
+		object.addProperty("proximityWaitTime", this.proximityWaitTime.getAsLong());
+		object.addProperty("proximityProcessTime", this.proximityProcessTime.getAsLong());
 
 		return object;
 	}
