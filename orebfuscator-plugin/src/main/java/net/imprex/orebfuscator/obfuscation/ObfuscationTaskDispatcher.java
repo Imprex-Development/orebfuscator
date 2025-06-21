@@ -3,12 +3,16 @@ package net.imprex.orebfuscator.obfuscation;
 import java.util.Arrays;
 import java.util.Queue;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.config.AdvancedConfig;
 
 class ObfuscationTaskDispatcher {
+
+	private static final long DEFAULT_PARK_DURATION = TimeUnit.MILLISECONDS.toNanos(1);
+	private static final long MAX_PARK_DURATION = TimeUnit.MILLISECONDS.toNanos(16);
 
 	private final Queue<ObfuscationTask> tasks = new ConcurrentLinkedQueue<>();
 
@@ -45,12 +49,17 @@ class ObfuscationTaskDispatcher {
 	public ObfuscationTask retrieveTask() throws InterruptedException {
 		ObfuscationTask task;
 
+		long parkDuration = DEFAULT_PARK_DURATION;
 		for (int i = 0; (task = this.tasks.poll()) == null; i++) {
-			if (i < 10_000) {
+			if (i < 8192) {
 				Thread.onSpinWait();
 			} else {
-				// sleep for 1ms
-				LockSupport.parkNanos(this, 1_000_000L);
+				LockSupport.parkNanos(this, parkDuration);
+
+				// exponential backoff
+				if (parkDuration < MAX_PARK_DURATION) {
+					parkDuration *= 2;
+				}
 			}
 
 			if (Thread.interrupted()) {
