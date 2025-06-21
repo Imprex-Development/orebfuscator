@@ -127,7 +127,11 @@ public class OrebfuscatorStatistics {
 		long obfuscationWaitTime = this.obfuscationWaitTime.getAsLong();
 		long obfuscationProcessTime = this.obfuscationProcessTime.getAsLong();
 		long obfuscationTotalTime = obfuscationWaitTime + obfuscationProcessTime;
-		double obfuscationUtilization = (double) obfuscationProcessTime / obfuscationTotalTime;
+
+		double obfuscationUtilization = 0;
+		if (obfuscationTotalTime > 0) {
+			obfuscationUtilization = (double) obfuscationProcessTime / obfuscationTotalTime;
+		}
 
 		builder.append(" - obfuscation (wait/process/utilization): ")
 			.append(formatNanos(obfuscationWaitTime)).append(" | ")
@@ -137,7 +141,11 @@ public class OrebfuscatorStatistics {
 		long proximityWaitTime = this.proximityWaitTime.getAsLong();
 		long proximityProcessTime = this.proximityProcessTime.getAsLong();
 		long proximityTotalTime = proximityWaitTime + proximityProcessTime;
-		double proximityUtilization = (double) proximityProcessTime / proximityTotalTime;
+
+		double proximityUtilization = 0;
+		if (proximityTotalTime > 0) {
+			proximityUtilization = (double) proximityProcessTime / proximityTotalTime;
+		}
 
 		builder.append(" - proximity (wait/process/utilization): ")
 			.append(formatNanos(proximityWaitTime)).append(" | ")

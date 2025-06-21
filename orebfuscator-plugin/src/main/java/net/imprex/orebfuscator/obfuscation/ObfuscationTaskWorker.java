@@ -27,11 +27,11 @@ class ObfuscationTaskWorker implements Runnable {
 		this.thread.start();
 	}
 
-	public double getWaitTime() {
+	public double waitTime() {
 		return waitTimer.average();
 	}
 
-	public double getProcessTime() {
+	public double processTime() {
 		return processTimer.average();
 	}
 

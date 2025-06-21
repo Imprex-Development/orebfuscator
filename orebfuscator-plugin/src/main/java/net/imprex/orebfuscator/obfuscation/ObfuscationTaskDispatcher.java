@@ -27,9 +27,9 @@ class ObfuscationTaskDispatcher {
 		var statistics = orebfuscator.getStatistics();
 		statistics.setObfuscationQueueLengthSupplier(() -> this.tasks.size());
 		statistics.setObfuscationWaitTime(() -> (long) Arrays.stream(this.worker)
-				.mapToDouble(ObfuscationTaskWorker::getWaitTime).average().orElse(0d));
+				.mapToDouble(ObfuscationTaskWorker::waitTime).average().orElse(0d));
 		statistics.setObfuscationProcessTime(() -> (long) Arrays.stream(this.worker)
-				.mapToDouble(ObfuscationTaskWorker::getProcessTime).average().orElse(0d));
+				.mapToDouble(ObfuscationTaskWorker::processTime).average().orElse(0d));
 	}
 
 	public void submitRequest(ObfuscationRequest request) {
