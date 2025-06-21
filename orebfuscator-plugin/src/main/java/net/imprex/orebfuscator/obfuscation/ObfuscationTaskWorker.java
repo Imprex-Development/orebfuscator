@@ -1,10 +1,9 @@
 package net.imprex.orebfuscator.obfuscation;
 
-import java.util.LinkedList;
-import java.util.Queue;
 import java.util.concurrent.atomic.AtomicInteger;
 
 import net.imprex.orebfuscator.Orebfuscator;
+import net.imprex.orebfuscator.util.RingTimer;
 
 class ObfuscationTaskWorker implements Runnable {
 
@@ -16,8 +15,8 @@ class ObfuscationTaskWorker implements Runnable {
 	private final Thread thread;
 	private volatile boolean running = true;
 
-	private final Queue<Long> lastWaitTime = new LinkedList<Long>();
-	private final Queue<Long> lastProcessTime = new LinkedList<Long>();
+	private final RingTimer waitTimer = new RingTimer(100);
+	private final RingTimer processTimer = new RingTimer(100);
 
 	public ObfuscationTaskWorker(ObfuscationTaskDispatcher dispatcher, ObfuscationProcessor processor) {
 		this.dispatcher = dispatcher;
@@ -29,36 +28,32 @@ class ObfuscationTaskWorker implements Runnable {
 	}
 
 	public double getWaitTime() {
-		return lastWaitTime.stream().mapToLong(Long::longValue).average().orElse(0d);
+		return waitTimer.average();
 	}
 
 	public double getProcessTime() {
-		return lastProcessTime.stream().mapToLong(Long::longValue).average().orElse(0d);
+		return processTimer.average();
 	}
 
 	@Override
 	public void run() {
 		while (this.running) {
 			try {
-				long waitStart = System.nanoTime();
-				ObfuscationTask task = this.dispatcher.retrieveTask();
-				long waitTime = System.nanoTime() - waitStart;
+				ObfuscationTask task;
 
-				// measure wait time
-				while (lastWaitTime.size() >= 100) {
-					lastWaitTime.poll();
+				waitTimer.start();
+				try {
+					task = dispatcher.retrieveTask();
+				} finally {
+					waitTimer.stop();
 				}
-				lastWaitTime.offer(waitTime);
-				
-				long processStart = System.nanoTime();
-				this.processor.process(task);
-				long processTime = System.nanoTime() - processStart;
 
-				// measure process time
-				while (lastProcessTime.size() >= 100) {
-					lastProcessTime.poll();
+				processTimer.start();
+				try {
+					processor.process(task);
+				} finally {
+					processTimer.stop();
 				}
-				lastProcessTime.offer(processTime);
 			} catch (InterruptedException e) {
 				break;
 			}

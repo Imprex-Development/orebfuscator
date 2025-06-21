@@ -3,9 +3,7 @@ package net.imprex.orebfuscator.proximity;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
-import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.Phaser;
@@ -21,6 +19,7 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.config.AdvancedConfig;
 import net.imprex.orebfuscator.util.OFCLogger;
+import net.imprex.orebfuscator.util.RingTimer;
 
 public class ProximityDirectorThread extends Thread implements Listener {
 
@@ -37,8 +36,8 @@ public class ProximityDirectorThread extends Thread implements Listener {
 
 	private final BlockingQueue<List<Player>> bucketQueue = new LinkedBlockingQueue<>();
 
-	private final Queue<Long> lastWaitTime = new LinkedList<Long>();
-	private final Queue<Long> lastProcessTime = new LinkedList<Long>();
+	private final RingTimer waitTimer = new RingTimer(100);
+	private final RingTimer processTimer = new RingTimer(100);
 
 	public ProximityDirectorThread(Orebfuscator orebfuscator) {
 		super(Orebfuscator.THREAD_GROUP, "ofc-proximity-director");
@@ -53,12 +52,10 @@ public class ProximityDirectorThread extends Thread implements Listener {
 
 		this.worker = new ProximityWorker(orebfuscator);
 		this.workerThreads = new ProximityWorkerThread[workerCount - 1];
-		
+
 		var statistics = this.orebfuscator.getStatistics();
-		statistics.setProximityWaitTime(() -> (long) lastWaitTime.stream()
-				.mapToLong(Long::longValue).average().orElse(0d));
-		statistics.setProximityProcessTime(() -> (long) lastProcessTime.stream()
-				.mapToLong(Long::longValue).average().orElse(0d));
+		statistics.setProximityWaitTime(() -> (long) waitTimer.average());
+		statistics.setProximityProcessTime(() -> (long) processTimer.average());
 	}
 
 	@EventHandler
@@ -161,13 +158,9 @@ public class ProximityDirectorThread extends Thread implements Listener {
 
 				// wait for all threads to finish and reset phaser
 				this.phaser.awaitAdvanceInterruptibly(this.phaser.arrive());
-				long processTime = System.nanoTime() - processStart;
 
-				// measure process time
-				while (lastProcessTime.size() >= 100) {
-					lastProcessTime.poll();
-				}
-				lastProcessTime.offer(processTime);
+				long processTime = System.nanoTime() - processStart;
+				processTimer.add(processTime);
 
 				// check if we have enough time to sleep
 				long waitTime = Math.max(0, this.checkInterval - processTime);
@@ -175,10 +168,7 @@ public class ProximityDirectorThread extends Thread implements Listener {
 
 				if (waitMillis > 0) {
 					// measure wait time
-					while (lastWaitTime.size() >= 100) {
-						lastWaitTime.poll();
-					}
-					lastWaitTime.offer(TimeUnit.MILLISECONDS.toNanos(waitMillis));
+					waitTimer.add(TimeUnit.MILLISECONDS.toNanos(waitMillis));
 
 					Thread.sleep(waitMillis);
 				}
