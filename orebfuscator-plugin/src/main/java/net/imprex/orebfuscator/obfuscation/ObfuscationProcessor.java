@@ -16,7 +16,6 @@ import net.imprex.orebfuscator.config.BlockFlags;
 import net.imprex.orebfuscator.config.ObfuscationConfig;
 import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.config.ProximityConfig;
-import net.imprex.orebfuscator.config.ProximityHeightCondition;
 import net.imprex.orebfuscator.config.WorldConfigBundle;
 import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.HeightAccessor;
@@ -95,8 +94,7 @@ public class ObfuscationProcessor {
 					if (!obfuscated && BlockFlags.isProximityBitSet(obfuscateBits) && proximityConfig.shouldObfuscate(y)) {
 						proximityBlocks.add(new BlockPos(x, y, z));
 						if (BlockFlags.isUseBlockBelowBitSet(obfuscateBits)) {
-							boolean allowNonOcclude = !isObfuscateBitSet || !ProximityHeightCondition.isPresent(obfuscateBits);
-							blockState = getBlockStateBelow(bundle, chunk, x, y, z, allowNonOcclude);
+							blockState = getBlockStateBelow(bundle, chunk, x, y, z);
 						} else {
 							blockState = bundle.nextRandomProximityBlock(y);
 						}
@@ -121,12 +119,12 @@ public class ObfuscationProcessor {
 
 	// returns first block below given position that wouldn't be obfuscated in any
 	// way at given position
-	private int getBlockStateBelow(WorldConfigBundle bundle, Chunk chunk, int x, int y, int z, boolean allowNonOcclude) {
+	private int getBlockStateBelow(WorldConfigBundle bundle, Chunk chunk, int x, int y, int z) {
 		BlockFlags blockFlags = bundle.blockFlags();
 
 		for (int targetY = y - 1; targetY > chunk.getHeightAccessor().getMinBuildHeight(); targetY--) {
 			int blockData = chunk.getBlockState(x, targetY, z);
-			if (blockData != -1 && (allowNonOcclude || OrebfuscatorNms.isOccluding(blockData))) {
+			if (blockData != -1 && OrebfuscatorNms.isOccluding(blockData)) {
 				int mask = blockFlags.flags(blockData, y);
 				if (BlockFlags.isEmpty(mask) || BlockFlags.isAllowForUseBlockBelowBitSet(mask)) {
 					return blockData;

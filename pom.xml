@@ -25,7 +25,7 @@
 		<dependency.bstats.version>3.1.0</dependency.bstats.version>
 		<dependency.junit.version>5.11.2</dependency.junit.version>
 		<dependency.netty.version>4.1.90.Final</dependency.netty.version>
-		<dependency.protocollib.version>5.0.0</dependency.protocollib.version>
+		<dependency.protocollib.version>5.3.0</dependency.protocollib.version>
 		<dependency.joml.version>1.10.8</dependency.joml.version>
 		<dependency.lz4.version>1.8.0</dependency.lz4.version>
 
