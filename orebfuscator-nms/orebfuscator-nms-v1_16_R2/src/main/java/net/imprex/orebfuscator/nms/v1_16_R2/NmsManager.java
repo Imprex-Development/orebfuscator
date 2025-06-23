@@ -25,6 +25,7 @@ import net.imprex.orebfuscator.util.BlockProperties;
 import net.imprex.orebfuscator.util.BlockStateProperties;
 import net.imprex.orebfuscator.util.NamespacedKey;
 import net.minecraft.server.v1_16_R2.Block;
+import net.minecraft.server.v1_16_R2.BlockAccessAir;
 import net.minecraft.server.v1_16_R2.BlockPosition;
 import net.minecraft.server.v1_16_R2.Blocks;
 import net.minecraft.server.v1_16_R2.Chunk;
@@ -81,13 +82,17 @@ public class NmsManager extends AbstractNmsManager {
 			for (IBlockData blockState : possibleBlockStates) {
 				Material material = CraftBlockData.fromData(blockState).getMaterial();
 
+				boolean isOccluding = material != null
+						? material.isOccluding()
+						: blockState.isOccluding(BlockAccessAir.INSTANCE, BlockPosition.ZERO);
+
 				BlockStateProperties properties = BlockStateProperties.builder(Block.getCombinedId(blockState))
 						.withIsAir(blockState.isAir())
 						/**
 						* l -> for barrier/slime_block/spawner/leaves
 						* isOccluding -> for every other block
 						*/
-						.withIsOccluding(material.isOccluding() && blockState.l()/*canOcclude*/)
+						.withIsOccluding(isOccluding && blockState.l()/*canOcclude*/)
 						.withIsBlockEntity(block.isTileEntity())
 						.withIsDefaultState(Objects.equals(block.getBlockData(), blockState))
 						.build();

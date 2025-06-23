@@ -35,6 +35,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -81,10 +82,14 @@ public class NmsManager extends AbstractNmsManager {
 			for (BlockState blockState : possibleBlockStates) {
 				Material material = CraftBlockData.fromData(blockState).getMaterial();
 
+				boolean isOccluding = material != null
+						? material.isOccluding()
+						: blockState.isRedstoneConductor(EmptyBlockGetter.INSTANCE, BlockPos.ZERO);
+
 				BlockStateProperties properties = BlockStateProperties.builder(Block.getId(blockState))
 						.withIsAir(blockState.isAir())
 						// check if material is occluding and use blockData check for rare edge cases like barrier, spawner, slime_block, ...
-						.withIsOccluding(material.isOccluding() && blockState.canOcclude())
+						.withIsOccluding(isOccluding && blockState.canOcclude())
 						.withIsBlockEntity(blockState.hasBlockEntity())
 						.withIsDefaultState(Objects.equals(block.defaultBlockState(), blockState))
 						.build();
