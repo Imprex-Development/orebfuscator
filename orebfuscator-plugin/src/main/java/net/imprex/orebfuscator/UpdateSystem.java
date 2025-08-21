@@ -67,20 +67,22 @@ public class UpdateSystem extends AbstractHttpService {
 		}
 
 		var uri = String.format(API_URI, "bukkit", MinecraftVersion.current());
-		return HTTP.sendAsync(request(uri).build(), json(ModrinthVersion[].class)).thenApply(request -> {
-			var version = Version.parse(installedVersion);
-			var latestVersion = Arrays.stream(request.body())
-					.filter(e -> Objects.equals(e.versionType, "release"))
-					.filter(e -> Objects.equals(e.status, "listed"))
-					.sorted(Comparator.reverseOrder())
-					.findFirst();
+		return HTTP.sendAsync(request(uri).build(), optionalJson(ModrinthVersion[].class)).thenApply(response ->
+			response.body().flatMap(body -> {
+				var version = Version.parse(installedVersion);
+				var latestVersion = Arrays.stream(body)
+						.filter(e -> Objects.equals(e.versionType, "release"))
+						.filter(e -> Objects.equals(e.status, "listed"))
+						.sorted(Comparator.reverseOrder())
+						.findFirst();
 
-			latestVersion.ifPresentOrElse(
-					v -> OFCLogger.debug("UpdateSystem - Fetched latest version " + v.version),
-					() -> OFCLogger.debug("UpdateSystem - Couldn't fetch latest version"));
-
-			return latestVersion.map(v -> version.isBelow(v.version) ? v : null);
-		}).exceptionally(throwable -> {
+				latestVersion.ifPresentOrElse(
+						v -> OFCLogger.debug("UpdateSystem - Fetched latest version " + v.version),
+						() -> OFCLogger.debug("UpdateSystem - Couldn't fetch latest version"));
+				
+				return latestVersion.map(v -> version.isBelow(v.version) ? v : null);
+			})
+		).exceptionally(throwable -> {
 			OFCLogger.log(Level.WARNING, "UpdateSystem - Unable to fetch latest version", throwable);
 			return Optional.empty();
 		});
