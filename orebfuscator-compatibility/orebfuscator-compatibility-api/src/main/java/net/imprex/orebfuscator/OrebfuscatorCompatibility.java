@@ -45,6 +45,10 @@ public class OrebfuscatorCompatibility {
 		OFCLogger.debug("Compatibility layer successfully loaded");
 	}
 
+	public static boolean isGameThread() {
+		return instance.isGameThread();
+	}
+
 	public static void runForPlayer(Player player, Runnable runnable) {
 		instance.getScheduler().runForPlayer(player, runnable);
 	}

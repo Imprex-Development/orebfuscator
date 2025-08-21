@@ -17,7 +17,6 @@ import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class ObfuscationCache {
 
-	private final Orebfuscator orebfuscator;
 	private final CacheConfig cacheConfig;
 	private final OrebfuscatorStatistics statistics;
 
@@ -25,7 +24,6 @@ public class ObfuscationCache {
 	private final AsyncChunkSerializer serializer;
 
 	public ObfuscationCache(Orebfuscator orebfuscator) {
-		this.orebfuscator = orebfuscator;
 		this.cacheConfig = orebfuscator.getOrebfuscatorConfig().cache();
 		this.statistics = orebfuscator.getStatistics();
 
@@ -52,7 +50,7 @@ public class ObfuscationCache {
 
 		// don't serialize invalidated chunks since this would require locking the main
 		// thread and wouldn't bring a huge improvement
-		if (this.cacheConfig.enableDiskCache() && notification.wasEvicted() && !this.orebfuscator.isGameThread()) {
+		if (this.cacheConfig.enableDiskCache() && notification.wasEvicted() && !OrebfuscatorCompatibility.isGameThread()) {
 			this.serializer.write(notification.getKey(), notification.getValue());
 		}
 	}

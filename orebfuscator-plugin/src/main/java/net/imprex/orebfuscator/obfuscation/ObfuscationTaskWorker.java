@@ -1,9 +1,9 @@
 package net.imprex.orebfuscator.obfuscation;
 
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.locks.LockSupport;
 
 import net.imprex.orebfuscator.Orebfuscator;
+import net.imprex.orebfuscator.util.RingTimer;
 
 class ObfuscationTaskWorker implements Runnable {
 
@@ -15,6 +15,9 @@ class ObfuscationTaskWorker implements Runnable {
 	private final Thread thread;
 	private volatile boolean running = true;
 
+	private final RingTimer waitTimer = new RingTimer(100);
+	private final RingTimer processTimer = new RingTimer(100);
+
 	public ObfuscationTaskWorker(ObfuscationTaskDispatcher dispatcher, ObfuscationProcessor processor) {
 		this.dispatcher = dispatcher;
 		this.processor = processor;
@@ -24,19 +27,33 @@ class ObfuscationTaskWorker implements Runnable {
 		this.thread.start();
 	}
 
-	public boolean unpark() {
-		if (LockSupport.getBlocker(this.thread) != null) {
-			LockSupport.unpark(this.thread);
-			return true;
-		}
-		return false;
+	public double waitTime() {
+		return waitTimer.average();
+	}
+
+	public double processTime() {
+		return processTimer.average();
 	}
 
 	@Override
 	public void run() {
 		while (this.running) {
 			try {
-				this.processor.process(this.dispatcher.retrieveTask());
+				ObfuscationTask task;
+
+				waitTimer.start();
+				try {
+					task = dispatcher.retrieveTask();
+				} finally {
+					waitTimer.stop();
+				}
+
+				processTimer.start();
+				try {
+					processor.process(task);
+				} finally {
+					processTimer.stop();
+				}
 			} catch (InterruptedException e) {
 				break;
 			}

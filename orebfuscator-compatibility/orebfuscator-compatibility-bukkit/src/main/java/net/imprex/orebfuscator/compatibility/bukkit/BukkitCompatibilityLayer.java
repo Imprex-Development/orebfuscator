@@ -13,12 +13,19 @@ import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class BukkitCompatibilityLayer implements CompatibilityLayer {
 
+	private final Thread mainThread = Thread.currentThread();
+
 	private final BukkitScheduler scheduler;
 	private final BukkitChunkLoader chunkLoader;
 
 	public BukkitCompatibilityLayer(Plugin plugin, Config config) {
 		this.scheduler = new BukkitScheduler(plugin);
 		this.chunkLoader = new BukkitChunkLoader(plugin, config);
+	}
+
+	@Override
+	public boolean isGameThread() {
+		return Thread.currentThread() == this.mainThread;
 	}
 
 	@Override

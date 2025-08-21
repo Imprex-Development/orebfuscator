@@ -80,7 +80,7 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>com.comphenix.protocol</groupId>
+			<groupId>net.dmulloy2</groupId>
 			<artifactId>ProtocolLib</artifactId>
 			<version>${dependency.protocollib.version}</version>
 			<scope>provided</scope>
@@ -323,6 +323,19 @@
 		<dependency>
 			<groupId>net.imprex</groupId>
 			<artifactId>orebfuscator-nms-v1_21_R4</artifactId>
+			<version>${revision}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.imprex</groupId>
+			<artifactId>orebfuscator-nms-v1_21_R5</artifactId>
+			<version>${revision}</version>
+			<classifier>mojang-mapped</classifier>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>net.imprex</groupId>
+			<artifactId>orebfuscator-nms-v1_21_R5</artifactId>
 			<version>${revision}</version>
 			<scope>compile</scope>
 		</dependency>
