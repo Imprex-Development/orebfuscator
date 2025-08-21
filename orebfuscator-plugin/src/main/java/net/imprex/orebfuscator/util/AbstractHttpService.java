@@ -2,11 +2,14 @@ package net.imprex.orebfuscator.util;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UncheckedIOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse.BodyHandler;
 import java.net.http.HttpResponse.BodySubscribers;
+import java.nio.charset.StandardCharsets;
+import java.util.Optional;
 
 import org.bukkit.plugin.PluginDescriptionFile;
 
@@ -27,7 +30,7 @@ public abstract class AbstractHttpService {
 
 	public AbstractHttpService(Orebfuscator orebfuscator) {
 		PluginDescriptionFile plugin = orebfuscator.getDescription();
-		this.userAgent = String.format("%s/%s", plugin.getName(), plugin.getVersion());
+		this.userAgent = String.format("Imprex-Development/%s/%s", plugin.getName(), plugin.getVersion());
 	}
 
 	protected HttpRequest.Builder request(String url) {
@@ -36,16 +39,15 @@ public abstract class AbstractHttpService {
 				.header("Accept", "application/json");
 	}
 
-	protected static <T> BodyHandler<T> json(Class<T> target) {
+	protected static <T> BodyHandler<Optional<T>> optionalJson(Class<T> target) {
 		return (responseInfo) -> responseInfo.statusCode() == 200
 				? BodySubscribers.mapping(BodySubscribers.ofInputStream(), inputStream -> {
-					try (InputStreamReader reader = new InputStreamReader(inputStream)) {
-						return GSON.fromJson(new InputStreamReader(inputStream), target);
+					try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+						return Optional.ofNullable(GSON.fromJson(reader, target));
 					} catch (IOException e) {
-						e.printStackTrace();
-						return null;
+						throw new UncheckedIOException("I/O while reading JSON", e);
 					}
 				})
-				: BodySubscribers.replacing(null);
+				: BodySubscribers.replacing(Optional.empty());
 	}
 }

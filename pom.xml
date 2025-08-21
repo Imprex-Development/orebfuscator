@@ -1,4 +1,6 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 
 	<groupId>net.imprex</groupId>
@@ -25,7 +27,7 @@
 		<dependency.bstats.version>3.1.0</dependency.bstats.version>
 		<dependency.junit.version>5.11.2</dependency.junit.version>
 		<dependency.netty.version>4.1.90.Final</dependency.netty.version>
-		<dependency.protocollib.version>5.0.0</dependency.protocollib.version>
+		<dependency.protocollib.version>5.3.0</dependency.protocollib.version>
 		<dependency.joml.version>1.10.8</dependency.joml.version>
 		<dependency.lz4.version>1.8.0</dependency.lz4.version>
 
@@ -42,10 +44,6 @@
 		<repository>
 			<id>spigot-repo</id>
 			<url>https://hub.spigotmc.org/nexus/content/repositories/snapshots/</url>
-		</repository>
-		<repository>
-			<id>dmulloy2-repo</id>
-			<url>https://repo.dmulloy2.net/repository/public/</url>
 		</repository>
 		<repository>
 			<id>papermc</id>
@@ -122,9 +120,9 @@
 				<artifactId>maven-surefire-plugin</artifactId>
 				<version>${plugin.sunfire.version}</version>
 				<configuration>
-                    <junitArtifactName>org.junit.jupiter:junit-jupiter</junitArtifactName>
-                    <trimStackTrace>false</trimStackTrace>
-                </configuration>
+					<junitArtifactName>org.junit.jupiter:junit-jupiter</junitArtifactName>
+					<trimStackTrace>false</trimStackTrace>
+				</configuration>
 			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -161,7 +159,7 @@
 			</plugin>
 		</plugins>
 	</build>
-	
+
 	<dependencies>
 		<!-- Test -->
 		<dependency>
