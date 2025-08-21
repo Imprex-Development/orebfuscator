@@ -67,14 +67,16 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 		}
 
 		// try create diskCache.directory
-		OFCLogger.debug("Using '" + this.baseDirectory.toAbsolutePath() + "' as chunk cache path");
-		try {
-			if (Files.notExists(this.baseDirectory)) {
-				Files.createDirectories(this.baseDirectory);
+		if (this.enableDiskCacheValue) {
+			OFCLogger.debug("Using '" + this.baseDirectory.toAbsolutePath() + "' as chunk cache path");
+			try {
+				if (Files.notExists(this.baseDirectory)) {
+					Files.createDirectories(this.baseDirectory);
+				}
+			} catch (IOException e) {
+				diskContext.error(String.format("can't create cache directory {%s}", e));
+				e.printStackTrace();
 			}
-		} catch (IOException e) {
-			diskContext.error(String.format("can't create cache directory {%s}", e));
-			e.printStackTrace();
 		}
 
 		// disable features if their config sections contain errors
