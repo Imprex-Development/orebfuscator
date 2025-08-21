@@ -25,6 +25,11 @@ public class CacheFileCleanupTask implements Runnable {
 
 	@Override
 	public void run() {
+		if (Files.notExists(this.cacheConfig.baseDirectory())) {
+			OFCLogger.debug("Skipping CacheFileCleanupTask as the cache directory doesn't exist.");
+			return;
+		}
+
 		long deleteAfterMillis = this.cacheConfig.deleteRegionFilesAfterAccess();
 		AbstractRegionFileCache<?> regionFileCache = OrebfuscatorNms.getRegionFileCache();
 

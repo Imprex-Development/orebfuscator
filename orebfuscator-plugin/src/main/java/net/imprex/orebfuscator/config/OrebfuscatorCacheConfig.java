@@ -67,7 +67,7 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 		}
 
 		// try create diskCache.directory
-		if (this.enableDiskCacheValue) {
+		if (this.enabledValue && this.enableDiskCacheValue) {
 			OFCLogger.debug("Using '" + this.baseDirectory.toAbsolutePath() + "' as chunk cache path");
 			try {
 				if (Files.notExists(this.baseDirectory)) {
