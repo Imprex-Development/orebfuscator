@@ -19,6 +19,7 @@ import com.comphenix.protocol.utility.MinecraftFields;
 
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelPipeline;
+import io.netty.channel.EventLoop;
 import io.netty.util.concurrent.Promise;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.chunk.ChunkStruct;
@@ -105,15 +106,15 @@ public class OrebfuscatorInjector {
 		return packetType == PacketType.Play.Server.MAP_CHUNK;
 	}
 
-	public void processOutboundAsync(PacketType packetType, Object packet, Promise<Object> promise) {
+	public Promise<Object> processOutboundAsync(PacketType packetType, Object packet, EventLoop eventLoop) {
 		if (this.shouldNotObfuscate(this.player)) {
-			return;
+			return null;
 		}
 
 		PacketContainer packetContainer = new PacketContainer(packetType, packet);
 		ChunkStruct struct = new ChunkStruct(packetContainer, this.player.getWorld());
 		if (struct.isEmpty()) {
-			return;
+			return null;
 		}
 
 		CompletableFuture<ObfuscationResult> future = this.obfuscationSystem.obfuscate(struct);
@@ -123,6 +124,7 @@ public class OrebfuscatorInjector {
 			future = future.orTimeout(advancedConfig.obfuscationTimeout(), TimeUnit.MILLISECONDS);
 		}
 
+		Promise<Object> promise = eventLoop.newPromise();
 		future.whenComplete((chunk, throwable) -> {
 			if (throwable != null) {
 				this.completeExceptionally(struct, throwable);
@@ -136,6 +138,8 @@ public class OrebfuscatorInjector {
 				promise.setSuccess(packet);
 			}
 		});
+		
+		return promise;
 	}
 
 	private boolean shouldNotObfuscate(Player player) {

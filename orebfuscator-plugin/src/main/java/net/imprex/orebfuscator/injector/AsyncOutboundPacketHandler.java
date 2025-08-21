@@ -12,6 +12,7 @@ import com.comphenix.protocol.utility.MinecraftReflection;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelOutboundHandlerAdapter;
 import io.netty.channel.ChannelPromise;
+import io.netty.channel.EventLoop;
 import io.netty.util.concurrent.Promise;
 import net.imprex.orebfuscator.util.OFCLogger;
 
@@ -33,24 +34,28 @@ public class AsyncOutboundPacketHandler extends ChannelOutboundHandlerAdapter {
 
 	@Override
 	public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
+		Promise<Object> task = null;
+		
 		PacketType packetType = getPacketType(msg);
 		if (packetType != null && this.injector.hasOutboundAsyncListener(packetType)) {
 			// process packet async if we have any listeners
-			Promise<Object> task = ctx.channel().eventLoop().newPromise();
-			this.injector.processOutboundAsync(packetType, msg, task);
-			this.pendingWrites.offer(new PendingWrite(msg, promise, task));
+			EventLoop eventLoop = ctx.channel().eventLoop();
+			task = this.injector.processOutboundAsync(packetType, msg, eventLoop);
 
-			// we can just call flush on completion as netty calls the listener on the
-			// channel promise (channel) event-loop
-			task.addListener(future -> this.flushWriteQueue());
+			if (task != null) {
+				// we can just call flush on completion as netty calls the listener on the
+				// channel promise (channel) event-loop
+				task.addListener(future -> this.flushWriteQueue());
+			}
+		}
 
-		} else if (this.pendingWrites.isEmpty()) {
-			// write if we don't wait on any previous message
-			ctx.write(msg, promise);
-		} else {
+		if (task != null || !this.pendingWrites.isEmpty()) {
 			// we also need to delay any other tasks as the en-/decoder is configured by
 			// a runnable that is written to the channels pipeline
-			this.pendingWrites.offer(new PendingWrite(msg, promise, null));
+			this.pendingWrites.offer(new PendingWrite(msg, promise, task));
+		} else {
+			// write if we don't wait on any previous message
+			ctx.write(msg, promise);
 		}
 	}
 
