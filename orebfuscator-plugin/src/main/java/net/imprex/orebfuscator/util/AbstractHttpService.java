@@ -15,7 +15,6 @@ import org.bukkit.plugin.PluginDescriptionFile;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-import com.google.gson.JsonParseException;
 
 import net.imprex.orebfuscator.Orebfuscator;
 
@@ -31,7 +30,7 @@ public abstract class AbstractHttpService {
 
 	public AbstractHttpService(Orebfuscator orebfuscator) {
 		PluginDescriptionFile plugin = orebfuscator.getDescription();
-		this.userAgent = String.format("%s/%s", plugin.getName(), plugin.getVersion());
+		this.userAgent = String.format("Imprex-Development/%s/%s", plugin.getName(), plugin.getVersion());
 	}
 
 	protected HttpRequest.Builder request(String url) {
