@@ -13,10 +13,13 @@ import com.google.common.base.Objects;
 
 import dev.imprex.orebfuscator.config.api.AdvancedConfig;
 import dev.imprex.orebfuscator.util.BlockPos;
-import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import net.imprex.orebfuscator.Orebfuscator;
 
 public class OrebfuscatorPlayer {
+
+	private static long chunkCoordsToLong(int chunkX, int chunkZ) {
+		return (chunkZ & 0xffffffffL) << 32 | chunkX & 0xffffffffL;
+	}
 
 	private final Player player;
 	private final AdvancedConfig config;
@@ -112,15 +115,15 @@ public class OrebfuscatorPlayer {
 	}
 
 	public void addChunk(int chunkX, int chunkZ, List<BlockPos> blocks) {
-		this.chunks.put(ChunkCacheKey.toLong(chunkX, chunkZ),
+		this.chunks.put(chunkCoordsToLong(chunkX, chunkZ),
 				new OrebfuscatorPlayerChunk(chunkX, chunkZ, blocks));
 	}
 
 	public OrebfuscatorPlayerChunk getChunk(int chunkX, int chunkZ) {
-		return this.chunks.get(ChunkCacheKey.toLong(chunkX, chunkZ));
+		return this.chunks.get(chunkCoordsToLong(chunkX, chunkZ));
 	}
 
 	public void removeChunk(int chunkX, int chunkZ) {
-		this.chunks.remove(ChunkCacheKey.toLong(chunkX, chunkZ));
+		this.chunks.remove(chunkCoordsToLong(chunkX, chunkZ));
 	}
 }

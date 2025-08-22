@@ -10,6 +10,9 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import org.jetbrains.annotations.NotNull;
+
+import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import net.imprex.orebfuscator.Orebfuscator;
 
@@ -32,32 +35,36 @@ public class AsyncChunkSerializer implements Runnable {
 
 	private final Map<ChunkCacheKey, Runnable> tasks = new HashMap<>();
 	private final Queue<ChunkCacheKey> positions = new LinkedList<>();
+
 	private final int maxTaskQueueSize;
+	private final ChunkSerializer serializer;
 
 	private final Thread thread;
 	private volatile boolean running = true;
 
 	public AsyncChunkSerializer(Orebfuscator orebfuscator) {
 		this.maxTaskQueueSize = orebfuscator.getOrebfuscatorConfig().cache().maximumTaskQueueSize();
+		this.serializer = new ChunkSerializer();
 
 		this.thread = new Thread(Orebfuscator.THREAD_GROUP, this, "ofc-chunk-serializer");
 		this.thread.setDaemon(true);
 		this.thread.start();
 
-		orebfuscator.getStatistics().setDiskCacheQueueLengthSupplier(() -> this.tasks.size());
+		orebfuscator.getStatistics().setDiskCacheQueueLengthSupplier(this.tasks::size);
 	}
 
-	public CompletableFuture<CacheChunkEntry> read(ChunkCacheKey position) {
+	@NotNull
+	public CompletableFuture<CacheChunkEntry> read(@NotNull ChunkCacheKey key) {
 		this.lock.lock();
 		try {
-			Runnable task = this.tasks.get(position);
+			Runnable task = this.tasks.get(key);
 			if (task instanceof WriteTask) {
 				return CompletableFuture.completedFuture(((WriteTask) task).chunk);
 			} else if (task instanceof ReadTask) {
 				return ((ReadTask) task).future;
 			} else {
 				CompletableFuture<CacheChunkEntry> future = new CompletableFuture<>();
-				this.queueTask(position, new ReadTask(position, future));
+				this.queueTask(key, new ReadTask(key, future));
 				return future;
 			}
 		} finally {
@@ -65,10 +72,10 @@ public class AsyncChunkSerializer implements Runnable {
 		}
 	}
 
-	public void write(ChunkCacheKey position, CacheChunkEntry chunk) {
+	public void write(@NotNull ChunkCacheKey key, @NotNull CacheChunkEntry chunk) {
 		this.lock.lock();
 		try {
-			Runnable prevTask = this.queueTask(position, new WriteTask(position, chunk));
+			Runnable prevTask = this.queueTask(key, new WriteTask(key, chunk));
 			if (prevTask instanceof ReadTask) {
 				((ReadTask) prevTask).future.complete(chunk);
 			}
@@ -77,7 +84,8 @@ public class AsyncChunkSerializer implements Runnable {
 		}
 	}
 
-	private Runnable queueTask(ChunkCacheKey position, Runnable nextTask) {
+	@NotNull
+	private Runnable queueTask(@NotNull ChunkCacheKey key, @NotNull Runnable nextTask) {
 		while (this.positions.size() >= this.maxTaskQueueSize) {
 			this.notFull.awaitUninterruptibly();
 		}
@@ -86,9 +94,9 @@ public class AsyncChunkSerializer implements Runnable {
 			throw new IllegalStateException("AsyncChunkSerializer already closed");
 		}
 
-		Runnable prevTask = this.tasks.put(position, nextTask);
+		Runnable prevTask = this.tasks.put(key, nextTask);
 		if (prevTask == null) {
-			this.positions.offer(position);
+			this.positions.offer(key);
 		}
 
 		this.notEmpty.signal();
@@ -133,37 +141,39 @@ public class AsyncChunkSerializer implements Runnable {
 	}
 
 	private class WriteTask implements Runnable {
-		private final ChunkCacheKey position;
+
+		private final ChunkCacheKey key;
 		private final CacheChunkEntry chunk;
 
-		public WriteTask(ChunkCacheKey position, CacheChunkEntry chunk) {
-			this.position = position;
+		public WriteTask(ChunkCacheKey key, CacheChunkEntry chunk) {
+			this.key = key;
 			this.chunk = chunk;
 		}
 
 		@Override
 		public void run() {
 			try {
-				ChunkSerializer.write(position, chunk);
+				serializer.write(key, chunk);
 			} catch (IOException e) {
-				e.printStackTrace();
+				OfcLogger.error(e);
 			}
 		}
 	}
 
 	private class ReadTask implements Runnable {
-		private final ChunkCacheKey position;
+
+		private final ChunkCacheKey key;
 		private final CompletableFuture<CacheChunkEntry> future;
 
-		public ReadTask(ChunkCacheKey position, CompletableFuture<CacheChunkEntry> future) {
-			this.position = position;
+		public ReadTask(ChunkCacheKey key, CompletableFuture<CacheChunkEntry> future) {
+			this.key = key;
 			this.future = future;
 		}
 
 		@Override
 		public void run() {
 			try {
-				future.complete(ChunkSerializer.read(position));
+				future.complete(serializer.read(key));
 			} catch (IOException e) {
 				future.completeExceptionally(e);
 			}

@@ -3,7 +3,6 @@ package dev.imprex.orebfuscator.util;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-
 import com.google.common.collect.ImmutableList;
 
 public class BlockProperties {

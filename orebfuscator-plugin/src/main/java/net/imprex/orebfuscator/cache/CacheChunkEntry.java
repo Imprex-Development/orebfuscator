@@ -43,18 +43,18 @@ public class CacheChunkEntry {
 				dataOutputStream.writeInt(blockPosition.toSectionPos());
 			}
 		} catch (Exception e) {
-			new IOException("Unable to compress chunk: " + result.getPosition(), e).printStackTrace();
+			new IOException("Unable to compress chunk: " + result.getCacheKey(), e).printStackTrace();
 			return null;
 		}
 
-		return new CacheChunkEntry(result.getPosition(), byteArrayOutputStream.toByteArray());
+		return new CacheChunkEntry(result.getCacheKey(), byteArrayOutputStream.toByteArray());
 	}
 
-	private final ChunkCacheKey position;
+	private final ChunkCacheKey key;
 	private final byte[] compressedData;
 
-	public CacheChunkEntry(ChunkCacheKey position, byte[] data) {
-		this.position = position;
+	public CacheChunkEntry(ChunkCacheKey key, byte[] data) {
+		this.key = key;
 		this.compressedData = data;
 	}
 
@@ -86,10 +86,10 @@ public class CacheChunkEntry {
 			byte[] data = new byte[dataInputStream.readInt()];
 			dataInputStream.readFully(data);
 
-			ObfuscationResult result = new ObfuscationResult(this.position, hash, data);
+			ObfuscationResult result = new ObfuscationResult(this.key, hash, data);
 
-			int x = this.position.x << 4;
-			int z = this.position.z << 4;
+			int x = this.key.x() << 4;
+			int z = this.key.z() << 4;
 
 			Collection<BlockPos> proximityBlocks = result.getProximityBlocks();
 			for (int i = dataInputStream.readInt(); i > 0; i--) {
@@ -103,7 +103,7 @@ public class CacheChunkEntry {
 
 			return Optional.of(result);
 		} catch (Exception e) {
-			new IOException("Unable to decompress chunk: " + this.position, e).printStackTrace();
+			new IOException("Unable to decompress chunk: " + this.key, e).printStackTrace();
 			return Optional.empty();
 		}
 	}

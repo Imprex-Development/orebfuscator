@@ -1,12 +1,9 @@
-package net.imprex.orebfuscator.config;
+package dev.imprex.orebfuscator.config;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-
 import org.junit.jupiter.api.Test;
-
-import dev.imprex.orebfuscator.config.ProximityHeightCondition;
 
 public class ProximityHeightConditionTest {
 

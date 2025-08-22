@@ -2,21 +2,21 @@ package dev.imprex.orebfuscator.config.api;
 
 public interface AdvancedConfig {
 
-	int obfuscationThreads();
+  int obfuscationThreads();
 
-	boolean hasObfuscationTimeout();
+  boolean hasObfuscationTimeout();
 
-	long obfuscationTimeout();
+  long obfuscationTimeout();
 
-	int maxMillisecondsPerTick();
+  int maxMillisecondsPerTick();
 
-	int proximityThreads();
+  int proximityThreads();
 
-	int proximityDefaultBucketSize();
+  int proximityDefaultBucketSize();
 
-	int proximityThreadCheckInterval();
+  int proximityThreadCheckInterval();
 
-	boolean hasProximityPlayerCheckInterval();
+  boolean hasProximityPlayerCheckInterval();
 
-	int proximityPlayerCheckInterval();
+  int proximityPlayerCheckInterval();
 }

@@ -1,7 +1,5 @@
 package dev.imprex.orebfuscator.util;
 
-import org.bukkit.World;
-
 public class BlockPos implements Comparable<BlockPos> {
 
 	// from net.minecraft.core.BlockPos
@@ -41,10 +39,6 @@ public class BlockPos implements Comparable<BlockPos> {
 		double dy = this.y - y;
 		double dz = this.z - z;
 		return dx * dx + dy * dy + dz * dz;
-	}
-
-	public ChunkCacheKey toChunkPosition(World world) {
-		return new ChunkCacheKey(world, this.x >> 4, this.z >> 4);
 	}
 
 	public long toLong() {

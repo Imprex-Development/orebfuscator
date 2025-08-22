@@ -4,156 +4,162 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.InvalidPathException;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.concurrent.TimeUnit;
 
-import org.bukkit.Bukkit;
-import org.bukkit.configuration.ConfigurationSection;
-
 import dev.imprex.orebfuscator.config.api.CacheConfig;
+import dev.imprex.orebfuscator.config.context.ConfigMessage;
 import dev.imprex.orebfuscator.config.context.ConfigParsingContext;
+import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
+import dev.imprex.orebfuscator.interop.ServerAccessor;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.ChunkCacheKey;
 
 public class OrebfuscatorCacheConfig implements CacheConfig {
 
-	private boolean enabledValue = true;
+  private final ServerAccessor server;
 
-	private int maximumSize = 8192;
-	private long expireAfterAccess = TimeUnit.SECONDS.toMillis(30);
+  private boolean enabledValue = true;
 
-	private boolean enableDiskCacheValue = true;
-	private Path baseDirectory = Bukkit.getWorldContainer().toPath().resolve("orebfuscator_cache/");
-	private int maximumOpenRegionFiles = 256;
-	private long deleteRegionFilesAfterAccess = TimeUnit.DAYS.toMillis(2);
-	private int maximumTaskQueueSize = 32768;
+  private int maximumSize = 8192;
+  private long expireAfterAccess = TimeUnit.SECONDS.toMillis(30);
 
-	// feature enabled states after context evaluation
-	private boolean enabled = false;
-	private boolean enableDiskCache = false;
+  private boolean enableDiskCacheValue = true;
+  private Path baseDirectory;
+  private int maximumOpenRegionFiles = 256;
+  private long deleteRegionFilesAfterAccess = TimeUnit.DAYS.toMillis(2);
+  private int maximumTaskQueueSize = 32768;
 
-	public void deserialize(ConfigurationSection section, ConfigParsingContext context) {
-		this.enabledValue = section.getBoolean("enabled", true);
+  // feature enabled states after context evaluation
+  private boolean enabled = false;
+  private boolean enableDiskCache = false;
 
-		// parse memoryCache section
-		ConfigParsingContext memoryContext = context.section("memoryCache");
-		ConfigurationSection memorySection = section.getConfigurationSection("memoryCache");
-		if (memorySection != null) {
-			this.maximumSize = memorySection.getInt("maximumSize", 8192);
-			memoryContext.errorMinValue("maximumSize", 1, this.maximumSize);
+  public OrebfuscatorCacheConfig(ServerAccessor server) {
+    this.server = server;
+    this.baseDirectory = server.getWorldDirectory().resolve("orebfuscator_cache/");
+  }
 
-			this.expireAfterAccess = memorySection.getLong("expireAfterAccess", TimeUnit.SECONDS.toMillis(30));
-			memoryContext.errorMinValue("expireAfterAccess", 1, this.expireAfterAccess);
-		} else {
-			memoryContext.warnMissingSection();
-		}
+  public void deserialize(ConfigurationSection section, ConfigParsingContext context) {
+    this.enabledValue = section.getBoolean("enabled", true);
 
-		// parse diskCache section, isolate errors to disable only diskCache on section error
-		ConfigParsingContext diskContext = context.section("diskCache", true);
-		ConfigurationSection diskSection = section.getConfigurationSection("diskCache");
-		if (diskSection != null) {
-			this.enableDiskCacheValue = diskSection.getBoolean("enabled", true);
-			this.deserializeBaseDirectory(diskSection, diskContext, "orebfuscator_cache/");
+    // parse memoryCache section
+    ConfigParsingContext memoryContext = context.section("memoryCache");
+    ConfigurationSection memorySection = section.getSection("memoryCache");
+    if (memorySection != null) {
+      this.maximumSize = memorySection.getInt("maximumSize", 8192);
+      memoryContext.errorMinValue("maximumSize", 1, this.maximumSize);
 
-			this.maximumOpenRegionFiles = diskSection.getInt("maximumOpenFiles", 256);
-			diskContext.errorMinValue("maximumOpenFiles", 1, this.maximumOpenRegionFiles);
+      this.expireAfterAccess = memorySection.getLong("expireAfterAccess", TimeUnit.SECONDS.toMillis(30));
+      memoryContext.errorMinValue("expireAfterAccess", 1, this.expireAfterAccess);
+    } else {
+      memoryContext.warn(ConfigMessage.MISSING_USING_DEFAULTS);
+    }
 
-			this.deleteRegionFilesAfterAccess = diskSection.getLong("deleteFilesAfterAccess", TimeUnit.DAYS.toMillis(2));
-			diskContext.errorMinValue("deleteFilesAfterAccess", 1, this.deleteRegionFilesAfterAccess);
+    // parse diskCache section, isolate errors to disable only diskCache on section error
+    ConfigParsingContext diskContext = context.section("diskCache", true);
+    ConfigurationSection diskSection = section.getSection("diskCache");
+    if (diskSection != null) {
+      this.enableDiskCacheValue = diskSection.getBoolean("enabled", true);
+      this.baseDirectory = this.deserializeBaseDirectory(diskSection, diskContext, "orebfuscator_cache/");
 
-			this.maximumTaskQueueSize = diskSection.getInt("maximumTaskQueueSize", 32768);
-			diskContext.errorMinValue("maximumTaskQueueSize", 1, this.maximumTaskQueueSize);
-		} else {
-			diskContext.warnMissingSection();
-		}
+      this.maximumOpenRegionFiles = diskSection.getInt("maximumOpenFiles", 256);
+      diskContext.errorMinValue("maximumOpenFiles", 1, this.maximumOpenRegionFiles);
 
-		// try create diskCache.directory
-		if (this.enabledValue && this.enableDiskCacheValue) {
-			OfcLogger.debug("Using '" + this.baseDirectory.toAbsolutePath() + "' as chunk cache path");
-			try {
-				if (Files.notExists(this.baseDirectory)) {
-					Files.createDirectories(this.baseDirectory);
-				}
-			} catch (IOException e) {
-				diskContext.error(String.format("can't create cache directory {%s}", e));
-				e.printStackTrace();
-			}
-		}
+      this.deleteRegionFilesAfterAccess = diskSection.getLong("deleteFilesAfterAccess",
+          TimeUnit.DAYS.toMillis(2));
+      diskContext.errorMinValue("deleteFilesAfterAccess", 1, this.deleteRegionFilesAfterAccess);
 
-		// disable features if their config sections contain errors
-		this.enabled = context.disableIfError(this.enabledValue);
-		this.enableDiskCache = diskContext.disableIfError(this.enableDiskCacheValue);
-	}
+      this.maximumTaskQueueSize = diskSection.getInt("maximumTaskQueueSize", 32768);
+      diskContext.errorMinValue("maximumTaskQueueSize", 1, this.maximumTaskQueueSize);
+    } else {
+      diskContext.warn(ConfigMessage.MISSING_USING_DEFAULTS);
+    }
 
-	public void serialize(ConfigurationSection section) {
-		section.set("enabled", this.enabledValue);
+    // try to create diskCache.directory
+    if (this.enabledValue && this.enableDiskCacheValue) {
+      OfcLogger.debug("Using '" + this.baseDirectory.toAbsolutePath() + "' as chunk cache path");
+      try {
+        if (Files.notExists(this.baseDirectory)) {
+          Files.createDirectories(this.baseDirectory);
+        }
+      } catch (IOException e) {
+        diskContext.error(ConfigMessage.CACHE_CANT_CREATE, e);
+      }
+    }
 
-		section.set("memoryCache.maximumSize", this.maximumSize);
-		section.set("memoryCache.expireAfterAccess", this.expireAfterAccess);
+    // disable features if their config sections contain errors
+    this.enabled = context.disableIfError(this.enabledValue);
+    this.enableDiskCache = diskContext.disableIfError(this.enableDiskCacheValue);
+  }
 
-		section.set("diskCache.enabled", this.enableDiskCacheValue);
-		section.set("diskCache.directory", this.baseDirectory.toString());
-		section.set("diskCache.maximumOpenFiles", this.maximumOpenRegionFiles);
-		section.set("diskCache.deleteFilesAfterAccess", this.deleteRegionFilesAfterAccess);
-		section.set("diskCache.maximumTaskQueueSize", this.maximumTaskQueueSize);
-	}
+  public void serialize(ConfigurationSection section) {
+    section.set("enabled", this.enabledValue);
 
-	private void deserializeBaseDirectory(ConfigurationSection section, ConfigParsingContext context, String defaultPath) {
-		Path worldPath = Bukkit.getWorldContainer().toPath().normalize();
-		String baseDirectory = section.getString("directory", defaultPath);
+    section.set("memoryCache.maximumSize", this.maximumSize);
+    section.set("memoryCache.expireAfterAccess", this.expireAfterAccess);
 
-		try {
-			this.baseDirectory = Paths.get(baseDirectory).normalize();
-		} catch (InvalidPathException e) {
-			context.warn("directory", String.format("contains malformed path {%s}, using default path {%s}",
-					baseDirectory, defaultPath));
-			this.baseDirectory = worldPath.resolve(defaultPath).normalize();
-		}
-	}
+    section.set("diskCache.enabled", this.enableDiskCacheValue);
+    section.set("diskCache.directory", this.baseDirectory.toString());
+    section.set("diskCache.maximumOpenFiles", this.maximumOpenRegionFiles);
+    section.set("diskCache.deleteFilesAfterAccess", this.deleteRegionFilesAfterAccess);
+    section.set("diskCache.maximumTaskQueueSize", this.maximumTaskQueueSize);
+  }
 
-	@Override
-	public boolean enabled() {
-		return this.enabled;
-	}
+  private Path deserializeBaseDirectory(ConfigurationSection section, ConfigParsingContext context,
+      String defaultPath) {
+    Path worldPath = this.server.getWorldDirectory().normalize();
+    String baseDirectory = section.getString("directory", defaultPath);
 
-	@Override
-	public int maximumSize() {
-		return this.maximumSize;
-	}
+    try {
+      return worldPath.resolve(baseDirectory).normalize();
+    } catch (InvalidPathException e) {
+      context.warn("directory", ConfigMessage.CACHE_INVALID_PATH, baseDirectory, defaultPath);
+      return worldPath.resolve(defaultPath).normalize();
+    }
+  }
 
-	@Override
-	public long expireAfterAccess() {
-		return this.expireAfterAccess;
-	}
+  @Override
+  public boolean enabled() {
+    return this.enabled;
+  }
 
-	@Override
-	public boolean enableDiskCache() {
-		return this.enableDiskCache;
-	}
+  @Override
+  public int maximumSize() {
+    return this.maximumSize;
+  }
 
-	@Override
-	public Path baseDirectory() {
-		return this.baseDirectory;
-	}
+  @Override
+  public long expireAfterAccess() {
+    return this.expireAfterAccess;
+  }
 
-	@Override
-	public Path regionFile(ChunkCacheKey key) {
-		return this.baseDirectory.resolve(key.world)
-				.resolve("r." + (key.x >> 5) + "." + (key.z >> 5) + ".mca");
-	}
+  @Override
+  public boolean enableDiskCache() {
+    return this.enableDiskCache;
+  }
 
-	@Override
-	public int maximumOpenRegionFiles() {
-		return this.maximumOpenRegionFiles;
-	}
+  @Override
+  public Path baseDirectory() {
+    return this.baseDirectory;
+  }
 
-	@Override
-	public long deleteRegionFilesAfterAccess() {
-		return this.deleteRegionFilesAfterAccess;
-	}
+  @Override
+  public Path regionFile(ChunkCacheKey key) {
+    return this.baseDirectory.resolve(key.world())
+        .resolve("r." + (key.x() >> 5) + "." + (key.z() >> 5) + ".mca");
+  }
 
-	@Override
-	public int maximumTaskQueueSize() {
-		return this.maximumTaskQueueSize;
-	}
+  @Override
+  public int maximumOpenRegionFiles() {
+    return this.maximumOpenRegionFiles;
+  }
+
+  @Override
+  public long deleteRegionFilesAfterAccess() {
+    return this.deleteRegionFilesAfterAccess;
+  }
+
+  @Override
+  public int maximumTaskQueueSize() {
+    return this.maximumTaskQueueSize;
+  }
 }

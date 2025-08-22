@@ -13,5 +13,5 @@ public interface CompatibilityLayer {
 
 	CompatibilityScheduler getScheduler();
 
-	CompletableFuture<ReadOnlyChunk[]> getNeighboringChunks(World world, ChunkCacheKey position);
+	CompletableFuture<ReadOnlyChunk[]> getNeighboringChunks(World world, ChunkCacheKey key);
 }

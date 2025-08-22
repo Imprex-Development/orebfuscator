@@ -7,8 +7,8 @@ import java.util.concurrent.CompletableFuture;
 import org.bukkit.World;
 
 import dev.imprex.orebfuscator.util.BlockPos;
-import dev.imprex.orebfuscator.util.ChunkDirection;
 import dev.imprex.orebfuscator.util.ChunkCacheKey;
+import dev.imprex.orebfuscator.util.ChunkDirection;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.chunk.ChunkStruct;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
@@ -16,10 +16,10 @@ import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 public class ObfuscationTask {
 
 	public static CompletableFuture<ObfuscationTask> fromRequest(ObfuscationRequest request) {
-		World world = request.getChunkStruct().world;
-		ChunkCacheKey position = request.getPosition();
+		World world = request.getChunkStruct().worldAccessor.world;
+		ChunkCacheKey key = request.getCacheKey();
 
-		return OrebfuscatorCompatibility.getNeighboringChunks(world, position)
+		return OrebfuscatorCompatibility.getNeighboringChunks(world, key)
 			.thenApply(chunks -> new ObfuscationTask(request, chunks));
 	}
 
@@ -48,7 +48,7 @@ public class ObfuscationTask {
 	}
 
 	public int getBlockState(int x, int y, int z) {
-		ChunkDirection direction = ChunkDirection.fromPosition(request.getPosition(), x, z);
+		ChunkDirection direction = ChunkDirection.fromPosition(request.getCacheKey(), x, z);
 		return this.neighboringChunks[direction.ordinal()].getBlockState(x, y, z);
 	}
 }

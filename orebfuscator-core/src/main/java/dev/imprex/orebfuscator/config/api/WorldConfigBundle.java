@@ -2,25 +2,25 @@ package dev.imprex.orebfuscator.config.api;
 
 public interface WorldConfigBundle {
 
-	BlockFlags blockFlags();
+  BlockFlags blockFlags();
 
-	ObfuscationConfig obfuscation();
+  ObfuscationConfig obfuscation();
 
-	ProximityConfig proximity();
+  ProximityConfig proximity();
 
-	boolean needsObfuscation();
+  boolean needsObfuscation();
 
-	boolean skipReadSectionIndex(int index);
+  boolean skipReadSectionIndex(int index);
 
-	boolean skipProcessingSectionIndex(int index);
+  boolean skipProcessingSectionIndex(int index);
 
-	int minSectionIndex();
+  int minSectionIndex();
 
-	int maxSectionIndex();
+  int maxSectionIndex();
 
-	boolean shouldObfuscate(int y);
+  boolean shouldObfuscate(int y);
 
-	int nextRandomObfuscationBlock(int y);
+  int nextRandomObfuscationBlock(int y);
 
-	int nextRandomProximityBlock(int y);
+  int nextRandomProximityBlock(int y);
 }

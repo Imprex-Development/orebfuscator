@@ -1,5 +1,8 @@
 package net.imprex.orebfuscator;
 
+import java.nio.file.Path;
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
@@ -11,9 +14,15 @@ import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
+import dev.imprex.orebfuscator.config.api.Config;
+import dev.imprex.orebfuscator.interop.RegistryAccessor;
+import dev.imprex.orebfuscator.interop.ServerAccessor;
+import dev.imprex.orebfuscator.interop.WorldAccessor;
 import dev.imprex.orebfuscator.logging.OfcLogger;
+import dev.imprex.orebfuscator.util.Version;
 import net.imprex.orebfuscator.api.OrebfuscatorService;
 import net.imprex.orebfuscator.cache.ObfuscationCache;
+import net.imprex.orebfuscator.iterop.BukkitLoggerAccessor;
 import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 import net.imprex.orebfuscator.obfuscation.ObfuscationSystem;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayerMap;
@@ -21,7 +30,7 @@ import net.imprex.orebfuscator.proximity.ProximityDirectorThread;
 import net.imprex.orebfuscator.proximity.ProximityPacketListener;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 
-public class Orebfuscator extends JavaPlugin implements Listener {
+public class Orebfuscator extends JavaPlugin implements Listener, ServerAccessor {
 
 	public static final ThreadGroup THREAD_GROUP = new ThreadGroup("orebfuscator");
 
@@ -36,7 +45,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 
 	@Override
 	public void onLoad() {
-		OfcLogger.LOGGER = getLogger();
+		OfcLogger.setLogger(new BukkitLoggerAccessor(getLogger()));
 	}
 
 	@Override
@@ -53,15 +62,14 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 				throw new RuntimeException("ProtocolLib can't be found or is disabled! Orebfuscator can't be enabled.");
 			}
 
+			BukkitWorldAccessor.registerListener(this);
+
 			this.statistics = new OrebfuscatorStatistics();
 
 			// Load configurations
 			this.config = new OrebfuscatorConfig(this);
 
 			this.playerMap = new OrebfuscatorPlayerMap(this);
-
-			// register cleanup listener
-			BukkitWorldAccessor.registerListener(this);
 
 			// Initialize metrics
 			new MetricsSystem(this);
@@ -161,5 +169,45 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 
 	public ProximityPacketListener getProximityPacketListener() {
 		return this.proximityPacketListener;
+	}
+
+	@Override
+	public Path getConfigDirectory() {
+		return getDataFolder().toPath();
+	}
+
+	@Override
+	public Path getWorldDirectory() {
+		return Bukkit.getWorldContainer().toPath();
+	}
+
+	@Override
+	public String getOrebfuscatorVersion() {
+		return getDescription().getVersion();
+	}
+
+	@Override
+	public Version getMinecraftVersion() {
+		return MinecraftVersion.current();
+	}
+
+	@Override
+	public RegistryAccessor getRegistry() {
+		return OrebfuscatorNms.registry();
+	}
+
+	@Override
+	public List<WorldAccessor> getWorlds() {
+		return BukkitWorldAccessor.getWorlds().stream()
+				.map(WorldAccessor.class::cast)
+				.toList();
+	}
+
+	@Override
+	public void initializeRegistry(Config config) {
+		OrebfuscatorCompatibility.initialize(this, config);
+
+		OrebfuscatorNms.close();
+		OrebfuscatorNms.initialize(config);
 	}
 }

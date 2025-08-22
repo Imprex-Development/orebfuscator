@@ -3,6 +3,8 @@ package net.imprex.orebfuscator.cache;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalNotification;
@@ -45,7 +47,7 @@ public class ObfuscationCache {
 		}
 	}
 
-	private void onRemoval(RemovalNotification<ChunkCacheKey, CacheChunkEntry> notification) {
+	private void onRemoval(@NotNull RemovalNotification<ChunkCacheKey, CacheChunkEntry> notification) {
 		this.statistics.onCacheSizeChange(-notification.getValue().estimatedSize());
 
 		// don't serialize invalidated chunks since this would require locking the main
@@ -55,18 +57,19 @@ public class ObfuscationCache {
 		}
 	}
 
-	private void requestObfuscation(ObfuscationRequest request) {
+	private void requestObfuscation(@NotNull ObfuscationRequest request) {
 		request.submitForObfuscation().thenAccept(chunk -> {
 			var compressedChunk = CacheChunkEntry.create(chunk);
 			if (compressedChunk != null) {
-				this.cache.put(request.getPosition(), compressedChunk);
+				this.cache.put(request.getCacheKey(), compressedChunk);
 				this.statistics.onCacheSizeChange(compressedChunk.estimatedSize());
 			}
 		});
 	}
 
-	public CompletableFuture<ObfuscationResult> get(ObfuscationRequest request) {
-		ChunkCacheKey key = request.getPosition();
+	@NotNull
+	public CompletableFuture<ObfuscationResult> get(@NotNull ObfuscationRequest request) {
+		ChunkCacheKey key = request.getCacheKey();
 
 		CacheChunkEntry cacheChunk = this.cache.getIfPresent(key);
 		if (cacheChunk != null && cacheChunk.isValid(request)) {

@@ -1,89 +1,79 @@
 package dev.imprex.orebfuscator.logging;
 
-import java.util.LinkedList;
+import java.util.Objects;
 import java.util.Queue;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
-public final class OfcLogger {
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-	public static Logger LOGGER = Logger.getLogger("Orebfuscator");
+public class OfcLogger {
 
-	private static final Queue<String> VERBOSE_LOG = new LinkedList<String>();
-	private static boolean verbose = false;
+  private static LoggerAccessor logger = new SystemLogger();
 
-	public static void setVerboseLogging(boolean verbose) {
-		OfcLogger.verbose = verbose;
-		if (OfcLogger.verbose) {
-			debug("Verbose logging has been enabled");
-		}
-	}
+  private static final Queue<String> VERBOSE_LOG = new ConcurrentLinkedQueue<>();
+  private static boolean verbose;
 
-	public static void debug(String message) {
-		if (OfcLogger.verbose) {
-			OfcLogger.LOGGER.log(Level.INFO, "[Debug] " + message);
-		}
+  public static void setLogger(@NotNull LoggerAccessor logger) {
+    if (OfcLogger.logger instanceof SystemLogger) {
+      OfcLogger.logger = Objects.requireNonNull(logger);
+    }
+  }
 
-		synchronized (VERBOSE_LOG) {
-			while (VERBOSE_LOG.size() >= 1000) {
-				VERBOSE_LOG.poll();
-			}
-			VERBOSE_LOG.offer(message);
-		}
-	}
+  public static void enableVerboseLogging() {
+    if (!verbose) {
+      verbose = true;
+      debug("Verbose logging has been enabled");
+    }
+  }
 
-	public static String getLatestVerboseLog() {
-		synchronized (VERBOSE_LOG) {
-			int length = 0;
-			for (String message : VERBOSE_LOG) {
-				length += message.length() + 1;
-			}
+  @NotNull
+  public static String getLatestVerboseLog() {
+    return String.join("\n", VERBOSE_LOG);
+  }
 
-			StringBuilder builder = new StringBuilder(length);
-			for (String message : VERBOSE_LOG) {
-				builder.append(message).append("\n");
-			}
-			builder.deleteCharAt(builder.length() - 1);
-			return builder.toString();
-		}
-	}
+  public static void debug(@NotNull String message) {
+    log(LogLevel.DEBUG, message);
+  }
 
-	public static void warn(String message) {
-		log(Level.WARNING, message);
-	}
+  public static void info(@NotNull String message) {
+    log(LogLevel.INFO, message);
+  }
 
-	/**
-	 * Log an information
-	 */
-	public static void info(String message) {
-		log(Level.INFO, message);
-	}
+  public static void warn(@NotNull String message) {
+    log(LogLevel.WARN, message);
+  }
 
-	/**
-	 * Log with a specified level
-	 */
-	public static void log(Level level, String message) {
-		OfcLogger.LOGGER.log(level, message);
-	}
+  public static void error(@NotNull Throwable throwable) {
+    log(LogLevel.ERROR, "An error occurred:", throwable);
+  }
 
-	/**
-	 * Log an error
-	 */
-	public static void error(Throwable e) {
-		log(Level.SEVERE, e.getMessage(), e);
-	}
+  public static void error(@NotNull String message, @Nullable Throwable throwable) {
+    log(LogLevel.ERROR, message, throwable);
+  }
 
-	/**
-	 * Log an error
-	 */
-	public static void error(String message, Throwable e) {
-		log(Level.SEVERE, message, e);
-	}
+  public static void log(@NotNull LogLevel level, @NotNull String message) {
+    log(level, message, null);
+  }
 
-	/**
-	 * Log with a specified level and throwable
-	 */
-	public static void log(Level level, String message, Throwable throwable) {
-		OfcLogger.LOGGER.log(level, message, throwable);
-	}
+  public static void log(@NotNull LogLevel level, @NotNull String message, @Nullable Throwable throwable) {
+    Objects.requireNonNull(level);
+    Objects.requireNonNull(message);
+
+    if (level == LogLevel.DEBUG) {
+      // always store debug messages for system dumps
+      while (VERBOSE_LOG.size() >= 1000) {
+        VERBOSE_LOG.poll();
+      }
+
+      VERBOSE_LOG.offer(message);
+
+      // filter out debug if verbose logging is disabled
+      if (!verbose) {
+        return;
+      }
+    }
+
+    logger.log(level, message, throwable);
+  }
 }

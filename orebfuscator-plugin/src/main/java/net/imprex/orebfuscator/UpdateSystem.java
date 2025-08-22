@@ -10,7 +10,6 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
-import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -19,6 +18,7 @@ import org.bukkit.entity.Player;
 import com.google.gson.annotations.SerializedName;
 
 import dev.imprex.orebfuscator.config.api.GeneralConfig;
+import dev.imprex.orebfuscator.logging.LogLevel;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.Version;
 import net.imprex.orebfuscator.util.AbstractHttpService;
@@ -83,7 +83,7 @@ public class UpdateSystem extends AbstractHttpService {
 				return latestVersion.map(v -> version.isBelow(v.version) ? v : null);
 			})
 		).exceptionally(throwable -> {
-			OfcLogger.log(Level.WARNING, "UpdateSystem - Unable to fetch latest version", throwable);
+			OfcLogger.log(LogLevel.WARN, "UpdateSystem - Unable to fetch latest version", throwable);
 			return Optional.empty();
 		});
 	}
@@ -120,7 +120,7 @@ public class UpdateSystem extends AbstractHttpService {
 	private void checkForUpdates() {
 		this.ifNewerVersionAvailable(version -> {
 			String downloadUri = String.format(DOWNLOAD_URI, version.version);
-			ConsoleUtil.printBox(Level.WARNING, "UPDATE AVAILABLE", "", downloadUri);
+			ConsoleUtil.printBox(LogLevel.WARN, "UPDATE AVAILABLE", "", downloadUri);
 		});
 	}
 

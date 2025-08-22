@@ -4,74 +4,70 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
-
-import org.bukkit.configuration.ConfigurationSection;
-
 import dev.imprex.orebfuscator.config.api.ObfuscationConfig;
+import dev.imprex.orebfuscator.config.components.ConfigBlockValue;
+import dev.imprex.orebfuscator.config.context.ConfigMessage;
 import dev.imprex.orebfuscator.config.context.ConfigParsingContext;
-import dev.imprex.orebfuscator.util.BlockProperties;
-import net.imprex.orebfuscator.OrebfuscatorNms;
+import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
+import dev.imprex.orebfuscator.interop.RegistryAccessor;
 
 public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implements ObfuscationConfig {
 
-	private boolean layerObfuscation = false;
+  private boolean layerObfuscation = false;
 
-	private final Set<BlockProperties> hiddenBlocks = new LinkedHashSet<>();
+  private final Set<ConfigBlockValue> hiddenBlocks = new LinkedHashSet<>();
 
-	OrebfuscatorObfuscationConfig(ConfigurationSection section, ConfigParsingContext context) {
-		super(section.getName());
-		this.deserializeBase(section);
-		this.deserializeWorlds(section, context, "worlds");
-		this.layerObfuscation = section.getBoolean("layerObfuscation", false);
-		this.deserializeHiddenBlocks(section, context, "hiddenBlocks");
-		this.deserializeRandomBlocks(section, context, "randomBlocks");
-		this.disableOnError(context);
-	}
+  OrebfuscatorObfuscationConfig(RegistryAccessor registry, ConfigurationSection section,
+      ConfigParsingContext context) {
+    super(section.getName());
+    this.deserializeBase(section, context);
 
-	void serialize(ConfigurationSection section) {
-		this.serializeBase(section);
-		this.serializeWorlds(section, "worlds");
-		section.set("layerObfuscation", this.layerObfuscation);
-		this.serializeHiddenBlocks(section, "hiddenBlocks");
-		this.serializeRandomBlocks(section, "randomBlocks");
-	}
+    this.layerObfuscation = section.getBoolean("layerObfuscation", false);
 
-	private void deserializeHiddenBlocks(ConfigurationSection section, ConfigParsingContext context, String path) {
-		context = context.section(path);
+    this.deserializeHiddenBlocks(registry, section, context);
+    this.deserializeRandomBlocks(registry, section, context);
+    this.disableOnError(context);
+  }
 
-		for (String blockName : section.getStringList(path)) {
-			BlockProperties blockProperties = OrebfuscatorNms.getBlockByName(blockName);
-			if (blockProperties == null) {
-				context.warnUnknownBlock(blockName);
-			} else if (blockProperties.getDefaultBlockState().isAir()) {
-				context.warnAirBlock(blockName);
-			} else {
-				this.hiddenBlocks.add(blockProperties);
-			}
-		}
+  void serialize(ConfigurationSection section) {
+    this.serializeBase(section);
 
-		if (this.hiddenBlocks.isEmpty()) {
-			context.errorMissingOrEmpty();
-		}
-	}
+    section.set("layerObfuscation", this.layerObfuscation);
 
-	private void serializeHiddenBlocks(ConfigurationSection section, String path) {
-		List<String> blockNames = new ArrayList<>();
+    this.serializeHiddenBlocks(section);
+    this.serializeRandomBlocks(section);
+  }
 
-		for (BlockProperties block : this.hiddenBlocks) {
-			blockNames.add(block.getKey().toString());
-		}
+  private void deserializeHiddenBlocks(RegistryAccessor registry, ConfigurationSection section,
+      ConfigParsingContext context) {
+    context = context.section("hiddenBlocks");
 
-		section.set(path, blockNames);
-	}
+    for (String value : section.getStringList("hiddenBlocks")) {
+      this.hiddenBlocks.add(BlockParser.parseBlockOrBlockTag(registry, context, value, true));
+    }
 
-	@Override
-	public boolean layerObfuscation() {
-		return this.layerObfuscation;
-	}
+    if (this.hiddenBlocks.isEmpty()) {
+      context.error(ConfigMessage.MISSING_OR_EMPTY);
+    }
+  }
 
-	@Override
-	public Iterable<BlockProperties> hiddenBlocks() {
-		return this.hiddenBlocks;
-	}
+  private void serializeHiddenBlocks(ConfigurationSection section) {
+    List<String> blockNames = new ArrayList<>();
+
+    for (ConfigBlockValue block : this.hiddenBlocks) {
+      blockNames.add(block.value());
+    }
+
+    section.set("hiddenBlocks", blockNames);
+  }
+
+  @Override
+  public boolean layerObfuscation() {
+    return this.layerObfuscation;
+  }
+
+  @Override
+  public Iterable<ConfigBlockValue> hiddenBlocks() {
+    return this.hiddenBlocks;
+  }
 }

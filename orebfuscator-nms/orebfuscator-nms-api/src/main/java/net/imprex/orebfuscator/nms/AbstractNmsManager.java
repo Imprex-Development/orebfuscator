@@ -3,9 +3,12 @@ package net.imprex.orebfuscator.nms;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jetbrains.annotations.Nullable;
+
 import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.util.BlockProperties;
 import dev.imprex.orebfuscator.util.BlockStateProperties;
+import dev.imprex.orebfuscator.util.BlockTag;
 import dev.imprex.orebfuscator.util.MathUtil;
 import dev.imprex.orebfuscator.util.NamespacedKey;
 
@@ -52,8 +55,13 @@ public abstract class AbstractNmsManager implements NmsManager {
 	}
 
 	@Override
-	public final BlockProperties getBlockByName(NamespacedKey key) {
-		return this.blocks.get(key);
+	public final BlockProperties getBlockByName(String key) {
+		return this.blocks.get(NamespacedKey.fromString(key));
+	}
+
+	@Override
+	public final @Nullable BlockTag getBlockTagByName(String name) {
+		throw new UnsupportedOperationException();
 	}
 
 	@Override

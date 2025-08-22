@@ -5,21 +5,19 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import org.bukkit.World;
-
 import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
 import dev.imprex.orebfuscator.config.ProximityHeightCondition;
 import dev.imprex.orebfuscator.config.api.BlockFlags;
 import dev.imprex.orebfuscator.config.api.ObfuscationConfig;
 import dev.imprex.orebfuscator.config.api.ProximityConfig;
 import dev.imprex.orebfuscator.config.api.WorldConfigBundle;
+import dev.imprex.orebfuscator.interop.WorldAccessor;
 import dev.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.chunk.Chunk;
 import net.imprex.orebfuscator.chunk.ChunkSection;
 import net.imprex.orebfuscator.chunk.ChunkStruct;
-import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 
 public class ObfuscationProcessor {
 
@@ -32,10 +30,9 @@ public class ObfuscationProcessor {
 	public void process(ObfuscationTask task) {
 		ChunkStruct chunkStruct = task.getChunkStruct();
 
-		World world = chunkStruct.world;
-		BukkitWorldAccessor heightAccessor = BukkitWorldAccessor.get(world);
+		WorldAccessor worldAccessor = chunkStruct.worldAccessor;
 
-		WorldConfigBundle bundle = this.config.world(world);
+		WorldConfigBundle bundle = this.config.world(worldAccessor);
 		BlockFlags blockFlags = bundle.blockFlags();
 		ObfuscationConfig obfuscationConfig = bundle.obfuscation();
 		ProximityConfig proximityConfig = bundle.proximity();
@@ -57,7 +54,7 @@ public class ObfuscationProcessor {
 					continue;
 				}
 
-				final int baseY = heightAccessor.getMinBuildHeight() + (sectionIndex << 4);
+				final int baseY = worldAccessor.getMinBuildHeight() + (sectionIndex << 4);
 				for (int index = 0; index < 4096; index++) {
 					int y = baseY + (index >> 8 & 15);
 					if (!bundle.shouldObfuscate(y)) {
@@ -124,7 +121,7 @@ public class ObfuscationProcessor {
 	private int getBlockStateBelow(WorldConfigBundle bundle, Chunk chunk, int x, int y, int z, boolean allowNonOcclude) {
 		BlockFlags blockFlags = bundle.blockFlags();
 
-		for (int targetY = y - 1; targetY > chunk.getHeightAccessor().getMinBuildHeight(); targetY--) {
+		for (int targetY = y - 1; targetY > chunk.getWorldAccessor().getMinBuildHeight(); targetY--) {
 			int blockData = chunk.getBlockState(x, targetY, z);
 			if (blockData != -1 && (allowNonOcclude || OrebfuscatorNms.isOccluding(blockData))) {
 				int mask = blockFlags.flags(blockData, y);
@@ -147,7 +144,7 @@ public class ObfuscationProcessor {
 	}
 
 	private boolean isAdjacentBlockOccluding(ObfuscationTask task, Chunk chunk, int x, int y, int z) {
-		if (y >= chunk.getHeightAccessor().getMaxBuildHeight() || y < chunk.getHeightAccessor().getMinBuildHeight()) {
+		if (y >= chunk.getWorldAccessor().getMaxBuildHeight() || y < chunk.getWorldAccessor().getMinBuildHeight()) {
 			return false;
 		}
 

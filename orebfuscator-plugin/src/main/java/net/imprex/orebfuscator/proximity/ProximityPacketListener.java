@@ -1,6 +1,5 @@
 package net.imprex.orebfuscator.proximity;
 
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import com.comphenix.protocol.PacketType;
@@ -14,8 +13,10 @@ import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 
 import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
 import dev.imprex.orebfuscator.config.api.ProximityConfig;
+import dev.imprex.orebfuscator.interop.WorldAccessor;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.chunk.ChunkCapabilities;
+import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayer;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayerMap;
 import net.imprex.orebfuscator.util.PermissionUtil;
@@ -48,8 +49,8 @@ public class ProximityPacketListener extends PacketAdapter {
 			return;
 		}
 
-		World world = player.getWorld();
-		ProximityConfig proximityConfig = config.world(world).proximity();
+		WorldAccessor worldAccessor = BukkitWorldAccessor.get(player.getWorld());
+		ProximityConfig proximityConfig = config.world(worldAccessor).proximity();
 		if (proximityConfig == null || !proximityConfig.isEnabled()) {
 			return;
 		}

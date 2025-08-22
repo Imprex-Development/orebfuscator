@@ -1,10 +1,10 @@
 package dev.imprex.orebfuscator.config.api;
 
-import dev.imprex.orebfuscator.util.BlockProperties;
+import dev.imprex.orebfuscator.config.components.ConfigBlockValue;
 
 public interface ObfuscationConfig extends WorldConfig {
 
-	boolean layerObfuscation();
+  boolean layerObfuscation();
 
-	Iterable<BlockProperties> hiddenBlocks();
+  Iterable<ConfigBlockValue> hiddenBlocks();
 }

@@ -1,0 +1,16 @@
+[31;1mEncountered 9 issue(s) while parsing the config:
+[m[31;1m- is missing or empty
+[33;1m- is missing or empty
+[33;1mchild:
+  [31;1m- is missing or empty
+  [33;1m- is missing or empty
+  [33;1m- got disabled due to errors
+  [33;1ma:
+    [31;1m- is missing or empty
+    [33;1m- is missing or empty
+[33;1ma:
+  [33;1mb:
+    [33;1mc:
+      [31;1m- is missing or empty
+      [33;1m- is missing or empty
+[m

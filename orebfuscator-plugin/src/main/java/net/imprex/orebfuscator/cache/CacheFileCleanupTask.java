@@ -9,9 +9,9 @@ import java.nio.file.attribute.BasicFileAttributes;
 
 import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.config.api.CacheConfig;
-import dev.imprex.orebfuscator.logging.OfcLogger;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorNms;
+import dev.imprex.orebfuscator.logging.OfcLogger;
 
 public class CacheFileCleanupTask implements Runnable {
 

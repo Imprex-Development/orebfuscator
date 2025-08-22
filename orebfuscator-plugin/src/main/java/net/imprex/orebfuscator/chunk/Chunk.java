@@ -16,7 +16,7 @@ public class Chunk implements AutoCloseable {
 	private final int chunkX;
 	private final int chunkZ;
 
-	private final BukkitWorldAccessor heightAccessor;
+	private final BukkitWorldAccessor worldAccessor;
 	private final ChunkSectionHolder[] sections;
 
 	private final ByteBuf inputBuffer;
@@ -26,8 +26,8 @@ public class Chunk implements AutoCloseable {
 		this.chunkX = chunkStruct.chunkX;
 		this.chunkZ = chunkStruct.chunkZ;
 
-		this.heightAccessor = BukkitWorldAccessor.get(chunkStruct.world);
-		this.sections = new ChunkSectionHolder[this.heightAccessor.getSectionCount()];
+		this.worldAccessor = chunkStruct.worldAccessor;
+		this.sections = new ChunkSectionHolder[this.worldAccessor.getSectionCount()];
 
 		this.inputBuffer = Unpooled.wrappedBuffer(chunkStruct.data);
 		this.outputBuffer = PooledByteBufAllocator.DEFAULT.heapBuffer(chunkStruct.data.length);
@@ -43,8 +43,8 @@ public class Chunk implements AutoCloseable {
 		return this.sections.length;
 	}
 
-	public BukkitWorldAccessor getHeightAccessor() {
-		return heightAccessor;
+	public BukkitWorldAccessor getWorldAccessor() {
+		return worldAccessor;
 	}
 
 	public ChunkSection getSection(int index) {
@@ -57,7 +57,7 @@ public class Chunk implements AutoCloseable {
 
 	public int getBlockState(int x, int y, int z) {
 		if (x >> 4 == this.chunkX && z >> 4 == this.chunkZ) {
-			ChunkSectionHolder chunkSection = this.sections[this.heightAccessor.getSectionIndex(y)];
+			ChunkSectionHolder chunkSection = this.sections[this.worldAccessor.getSectionIndex(y)];
 			if (chunkSection != null) {
 				return chunkSection.data[ChunkSection.positionToIndex(x & 0xF, y & 0xF, z & 0xF)];
 			}

@@ -19,6 +19,7 @@ import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.cache.ObfuscationCache;
+import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 
 public class DeobfuscationWorker {
 
@@ -44,7 +45,8 @@ public class DeobfuscationWorker {
 		}
 
 		World world = Iterables.get(blocks, 0).getWorld();
-		WorldConfigBundle bundle = this.config.world(world);
+		BukkitWorldAccessor worldAccessor = BukkitWorldAccessor.get(world);
+		WorldConfigBundle bundle = this.config.world(worldAccessor);
 
 		ObfuscationConfig obfuscationConfig = bundle.obfuscation();
 		if (obfuscationConfig == null || !obfuscationConfig.isEnabled()) {
@@ -54,7 +56,7 @@ public class DeobfuscationWorker {
 		int updateRadius = this.config.general().updateRadius();
 		BlockFlags blockFlags = bundle.blockFlags();
 
-		try (Processor processor = new Processor(world, blockFlags)) {
+		try (Processor processor = new Processor(worldAccessor, blockFlags)) {
 			for (Block block : blocks) {
 				if (!occluding || block.getType().isOccluding()) {
 					BlockPos position = new BlockPos(block.getX(), block.getY(), block.getZ());
@@ -69,21 +71,21 @@ public class DeobfuscationWorker {
 		private final Set<BlockPos> updatedBlocks = new HashSet<>();
 		private final Set<ChunkCacheKey> invalidChunks = new HashSet<>();
 
-		private final World world;
+		private final BukkitWorldAccessor worldAccessor;
 		private final BlockFlags blockFlags;
 
-		public Processor(World world, BlockFlags blockFlags) {
-			this.world = world;
+		public Processor(BukkitWorldAccessor worldAccessor, BlockFlags blockFlags) {
+			this.worldAccessor = worldAccessor;
 			this.blockFlags = blockFlags;
 		}
 
 		public void processPosition(BlockPos position, int depth) {
-			int blockId = OrebfuscatorNms.getBlockState(this.world, position);
+			int blockId = OrebfuscatorNms.getBlockState(worldAccessor.world, position);
 			if (BlockFlags.isObfuscateBitSet(blockFlags.flags(blockId)) && updatedBlocks.add(position)) {
 
 				// invalidate cache if enabled
 				if (config.cache().enabled()) {
-					ChunkCacheKey chunkPosition = position.toChunkPosition(world);
+					ChunkCacheKey chunkPosition = new ChunkCacheKey(worldAccessor, position);
 					if (this.invalidChunks.add(chunkPosition)) {
 						cache.invalidate(chunkPosition);
 					}
@@ -102,7 +104,7 @@ public class DeobfuscationWorker {
 
 		@Override
 		public void close() {
-			OrebfuscatorNms.sendBlockUpdates(this.world, this.updatedBlocks);
+			OrebfuscatorNms.sendBlockUpdates(worldAccessor.world, this.updatedBlocks);
 		}
 	}
 }

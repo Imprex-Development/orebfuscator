@@ -9,7 +9,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import dev.imprex.orebfuscator.config.api.CacheConfig;
 import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import dev.imprex.orebfuscator.util.SimpleCache;
@@ -77,6 +76,7 @@ public abstract class AbstractRegionFileCache<T> {
 
 		this.lock.writeLock().lock();
 		try {
+			// TODO close file handle if another thread was faster
 			this.regionFiles.putIfAbsent(path, t);
 			return this.regionFiles.get(path);
 		} finally {

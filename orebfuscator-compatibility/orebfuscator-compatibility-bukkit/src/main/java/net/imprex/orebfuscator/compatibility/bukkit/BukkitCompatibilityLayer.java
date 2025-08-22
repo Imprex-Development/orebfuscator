@@ -34,7 +34,7 @@ public class BukkitCompatibilityLayer implements CompatibilityLayer {
 	}
 
 	@Override
-	public CompletableFuture<ReadOnlyChunk[]> getNeighboringChunks(World world, ChunkCacheKey position) {
-		return this.chunkLoader.submitRequest(world, position);
+	public CompletableFuture<ReadOnlyChunk[]> getNeighboringChunks(World world, ChunkCacheKey key) {
+		return this.chunkLoader.submitRequest(world, key);
 	}
 }

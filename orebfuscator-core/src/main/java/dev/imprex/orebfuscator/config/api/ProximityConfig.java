@@ -4,21 +4,21 @@ import java.util.Map;
 
 import org.joml.Matrix4f;
 
-import dev.imprex.orebfuscator.util.BlockProperties;
+import dev.imprex.orebfuscator.config.components.ConfigBlockValue;
 
 public interface ProximityConfig extends WorldConfig {
 
-	int distance();
+  int distance();
 
-	boolean frustumCullingEnabled();
+  boolean frustumCullingEnabled();
 
-	float frustumCullingMinDistanceSquared();
+  float frustumCullingMinDistanceSquared();
 
-	Matrix4f frustumCullingProjectionMatrix();
+  Matrix4f frustumCullingProjectionMatrix();
 
-	boolean rayCastCheckEnabled();
+  boolean rayCastCheckEnabled();
 
-	boolean rayCastCheckOnlyCheckCenter();
+  boolean rayCastCheckOnlyCheckCenter();
 
-	Iterable<Map.Entry<BlockProperties, Integer>> hiddenBlocks();
+  Iterable<Map.Entry<ConfigBlockValue, Integer>> hiddenBlocks();
 }

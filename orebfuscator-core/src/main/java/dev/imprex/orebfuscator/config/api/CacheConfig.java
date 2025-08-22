@@ -1,26 +1,25 @@
 package dev.imprex.orebfuscator.config.api;
 
 import java.nio.file.Path;
-
 import dev.imprex.orebfuscator.util.ChunkCacheKey;
 
 public interface CacheConfig {
 
-	boolean enabled();
+  boolean enabled();
 
-	int maximumSize();
+  int maximumSize();
 
-	long expireAfterAccess();
-	
-	boolean enableDiskCache();
+  long expireAfterAccess();
 
-	Path baseDirectory();
+  boolean enableDiskCache();
 
-	Path regionFile(ChunkCacheKey chunkPosition);
+  Path baseDirectory();
 
-	int maximumOpenRegionFiles();
+  Path regionFile(ChunkCacheKey chunkPosition);
 
-	long deleteRegionFilesAfterAccess();
+  int maximumOpenRegionFiles();
 
-	int maximumTaskQueueSize();
+  long deleteRegionFilesAfterAccess();
+
+  int maximumTaskQueueSize();
 }

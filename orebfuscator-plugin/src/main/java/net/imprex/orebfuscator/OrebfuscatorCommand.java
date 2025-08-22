@@ -29,10 +29,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonWriter;
 
-import dev.imprex.orebfuscator.logging.OfcLogger;
-import dev.imprex.orebfuscator.util.JavaVersion;
 import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 import net.imprex.orebfuscator.util.MinecraftVersion;
+import dev.imprex.orebfuscator.logging.OfcLogger;
+import dev.imprex.orebfuscator.util.JavaVersion;
 import net.imprex.orebfuscator.util.PermissionUtil;
 
 public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {

@@ -1,64 +1,65 @@
 package dev.imprex.orebfuscator.config.migrations;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.bukkit.configuration.ConfigurationSection;
+import org.jetbrains.annotations.NotNull;
+
+import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
 
 class ConfigMigrationV1 implements ConfigMigration {
 
-	@Override
-	public int sourceVersion() {
-		return 1;
-	}
+  @Override
+  public int sourceVersion() {
+    return 1;
+  }
 
-	@Override
-	public ConfigurationSection migrate(ConfigurationSection section) {
-		// check if config is still using old path
-		String obfuscationConfigPath = section.contains("world") ? "world" : "obfuscation";
-		this.convertSectionListToSection(section, obfuscationConfigPath);
-		this.convertSectionListToSection(section, "proximity");
+  @Override
+  public @NotNull ConfigurationSection migrate(@NotNull ConfigurationSection root) {
+    // check if config is still using old path
+    String obfuscationConfigPath = root.contains("world") ? "world" : "obfuscation";
+    convertSectionListToSection(root, obfuscationConfigPath);
+    convertSectionListToSection(root, "proximity");
 
-		return section;
-	}
+    return root;
+  }
 
-	private void convertSectionListToSection(ConfigurationSection parentSection, String path) {
-		List<ConfigurationSection> sections = this.deserializeSectionList(parentSection, path);
-		ConfigurationSection section = parentSection.createSection(path);
-		for (ConfigurationSection childSection : sections) {
-			section.set(childSection.getName(), childSection);
-		}
-	}
+  private static void convertSectionListToSection(ConfigurationSection root, String path) {
+    List<ConfigurationSection> configList = getSectionList(root, path);
+    ConfigurationSection configContainer = root.createSection(path);
 
-	private List<ConfigurationSection> deserializeSectionList(ConfigurationSection parentSection, String path) {
-		List<ConfigurationSection> sections = new ArrayList<>();
+    for (ConfigurationSection config : configList) {
+      configContainer.set(config.getName(), config);
+    }
+  }
 
-		List<?> sectionList = parentSection.getList(path);
-		if (sectionList != null) {
-			for (int i = 0; i < sectionList.size(); i++) {
-				Object section = sectionList.get(i);
-				if (section instanceof Map) {
-					sections.add(this.convertMapsToSections((Map<?, ?>) section,
-							parentSection.createSection(path + "-" + i)));
-				}
-			}
-		}
+  private static List<ConfigurationSection> getSectionList(ConfigurationSection root, String path) {
+    List<ConfigurationSection> configList = new ArrayList<>();
 
-		return sections;
-	}
+    List<?> list = root.getList(path, Collections.emptyList());
+    for (int i = 0; i < list.size(); i++) {
+      if (list.get(i) instanceof Map<?, ?> map) {
+        ConfigurationSection config = root.createSection(path + "-" + i);
+        configList.add(convertMapsToSections(map, config));
+      }
+    }
 
-	private ConfigurationSection convertMapsToSections(Map<?, ?> input, ConfigurationSection section) {
-		for (Map.Entry<?, ?> entry : input.entrySet()) {
-			String key = entry.getKey().toString();
-			Object value = entry.getValue();
+    return configList;
+  }
 
-			if (value instanceof Map) {
-				this.convertMapsToSections((Map<?, ?>) value, section.createSection(key));
-			} else {
-				section.set(key, value);
-			}
-		}
-		return section;
-	}
+  private static ConfigurationSection convertMapsToSections(Map<?, ?> entries, ConfigurationSection section) {
+    for (Map.Entry<?, ?> entry : entries.entrySet()) {
+      String key = entry.getKey().toString();
+      Object value = entry.getValue();
+
+      if (value instanceof Map<?, ?> map) {
+        convertMapsToSections(map, section.createSection(key));
+      } else {
+        section.set(key, value);
+      }
+    }
+    return section;
+  }
 }

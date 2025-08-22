@@ -2,14 +2,14 @@ package dev.imprex.orebfuscator.config.api;
 
 public interface WorldConfig {
 
-	boolean isEnabled();
+  boolean isEnabled();
 
-	int getMinY();
+  int getMinY();
 
-	int getMaxY();
+  int getMaxY();
 
-	boolean matchesWorldName(String worldName);
+  boolean matchesWorldName(String worldName);
 
-	boolean shouldObfuscate(int y);
+  boolean shouldObfuscate(int y);
 
 }

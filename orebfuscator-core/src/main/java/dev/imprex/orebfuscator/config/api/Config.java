@@ -1,20 +1,20 @@
 package dev.imprex.orebfuscator.config.api;
 
-import org.bukkit.World;
+import dev.imprex.orebfuscator.interop.WorldAccessor;
 
 public interface Config {
 
-	byte[] systemHash();
+  byte[] systemHash();
 
-	String report();
+  String report();
 
-	GeneralConfig general();
+  GeneralConfig general();
 
-	AdvancedConfig advanced();
+  AdvancedConfig advanced();
 
-	CacheConfig cache();
+  CacheConfig cache();
 
-	WorldConfigBundle world(World world);
+  WorldConfigBundle world(WorldAccessor world);
 
-	boolean proximityEnabled();
+  boolean proximityEnabled();
 }

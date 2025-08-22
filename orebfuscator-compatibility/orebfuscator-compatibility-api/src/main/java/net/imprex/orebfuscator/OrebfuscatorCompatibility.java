@@ -65,8 +65,8 @@ public class OrebfuscatorCompatibility {
 		instance.getScheduler().cancelTasks();
 	}
 
-	public static CompletableFuture<ReadOnlyChunk[]> getNeighboringChunks(World world, ChunkCacheKey position) {
-		return instance.getNeighboringChunks(world, position);
+	public static CompletableFuture<ReadOnlyChunk[]> getNeighboringChunks(World world, ChunkCacheKey key) {
+		return instance.getNeighboringChunks(world, key);
 	}
 
 	public static void close() {

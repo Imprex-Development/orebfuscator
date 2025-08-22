@@ -4,6 +4,10 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import net.imprex.orebfuscator.OrebfuscatorNms;
 
@@ -11,16 +15,11 @@ public class ChunkSerializer {
 
 	private static final int CACHE_VERSION = 2;
 
-	private static DataInputStream createInputStream(ChunkCacheKey key) throws IOException {
-		return OrebfuscatorNms.getRegionFileCache().createInputStream(key);
-	}
+	private final AbstractRegionFileCache<?> regionFileCache = OrebfuscatorNms.getRegionFileCache();
 
-	private static DataOutputStream createOutputStream(ChunkCacheKey key) throws IOException {
-		return OrebfuscatorNms.getRegionFileCache().createOutputStream(key);
-	}
-
-	public static CacheChunkEntry read(ChunkCacheKey key) throws IOException {
-		try (DataInputStream dataInputStream = createInputStream(key)) {
+	@Nullable
+	public CacheChunkEntry read(@NotNull ChunkCacheKey key) throws IOException {
+		try (DataInputStream dataInputStream = this.regionFileCache.createInputStream(key)) {
 			if (dataInputStream != null) {
 				// check if cache entry has right version and if chunk is present
 				if (dataInputStream.readInt() != CACHE_VERSION || !dataInputStream.readBoolean()) {
@@ -39,8 +38,8 @@ public class ChunkSerializer {
 		return null;
 	}
 
-	public static void write(ChunkCacheKey key, CacheChunkEntry value) throws IOException {
-		try (DataOutputStream dataOutputStream = createOutputStream(key)) {
+	public void write(@NotNull ChunkCacheKey key, @Nullable CacheChunkEntry value) throws IOException {
+		try (DataOutputStream dataOutputStream = this.regionFileCache.createOutputStream(key)) {
 			dataOutputStream.writeInt(CACHE_VERSION);
 
 			if (value != null) {

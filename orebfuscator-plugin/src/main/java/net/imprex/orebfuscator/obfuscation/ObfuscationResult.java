@@ -10,7 +10,7 @@ import dev.imprex.orebfuscator.util.ChunkCacheKey;
 
 public class ObfuscationResult {
 
-	private final ChunkCacheKey position;
+	private final ChunkCacheKey key;
 
 	private final byte[] hash;
 	private final byte[] data;
@@ -18,21 +18,21 @@ public class ObfuscationResult {
 	private final Set<BlockPos> blockEntities;
 	private final List<BlockPos> proximityBlocks;
 
-	public ObfuscationResult(ChunkCacheKey position, byte[] hash, byte[] data) {
-		this(position, hash, data, new HashSet<>(), new ArrayList<>());
+	public ObfuscationResult(ChunkCacheKey key, byte[] hash, byte[] data) {
+		this(key, hash, data, new HashSet<>(), new ArrayList<>());
 	}
 
-	public ObfuscationResult(ChunkCacheKey position, byte[] hash, byte[] data,
+	public ObfuscationResult(ChunkCacheKey key, byte[] hash, byte[] data,
 			Set<BlockPos> blockEntities, List<BlockPos> proximityBlocks) {
-		this.position = position;
+		this.key = key;
 		this.hash = hash;
 		this.data = data;
 		this.blockEntities = blockEntities;
 		this.proximityBlocks = proximityBlocks;
 	}
 
-	public ChunkCacheKey getPosition() {
-		return position;
+	public ChunkCacheKey getCacheKey() {
+		return key;
 	}
 
 	public byte[] getHash() {

@@ -17,8 +17,8 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
 import dev.imprex.orebfuscator.config.api.AdvancedConfig;
-import dev.imprex.orebfuscator.logging.OfcLogger;
 import net.imprex.orebfuscator.Orebfuscator;
+import dev.imprex.orebfuscator.logging.OfcLogger;
 import net.imprex.orebfuscator.util.RingTimer;
 
 public class ProximityDirectorThread extends Thread implements Listener {

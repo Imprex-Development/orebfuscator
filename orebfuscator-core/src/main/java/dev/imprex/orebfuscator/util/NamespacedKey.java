@@ -1,9 +1,6 @@
 package dev.imprex.orebfuscator.util;
 
-import java.util.Locale;
 import java.util.UUID;
-
-import org.bukkit.plugin.Plugin;
 
 /**
  * Represents a String based key which consists of two components - a namespace
@@ -95,41 +92,6 @@ public final class NamespacedKey {
 		}
 	}
 
-	/**
-	 * Create a key in the plugin's namespace.
-	 * <p>
-	 * Namespaces may only contain lowercase alphanumeric characters, periods,
-	 * underscores, and hyphens.
-	 * <p>
-	 * Keys may only contain lowercase alphanumeric characters, periods,
-	 * underscores, hyphens, and forward slashes.
-	 *
-	 * @param plugin the plugin to use for the namespace
-	 * @param key    the key to create
-	 */
-	public NamespacedKey(Plugin plugin, String key) {
-		if (plugin == null) {
-			throw new IllegalArgumentException("Plugin cannot be null");
-		} else if (key == null) {
-			throw new IllegalArgumentException("Key cannot be null");
-		}
-
-		this.namespace = plugin.getName().toLowerCase(Locale.ROOT);
-		this.key = key.toLowerCase(Locale.ROOT);
-
-		// Check validity after normalization
-		if (!isValidNamespace(this.namespace)) {
-			throw new IllegalArgumentException(String.format("Invalid namespace. Must be [a-z0-9._-]: %s", this.namespace));
-		} else if (!isValidKey(this.key)) {
-			throw new IllegalArgumentException(String.format("Invalid key. Must be [a-z0-9/._-]: %s", this.key));
-		}
-
-		String string = toString();
-		if (string.length() >= 256) {
-			throw new IllegalArgumentException(String.format("NamespacedKey must be less than 256 characters (%s)", string));
-		}
-	}
-
 	public String getNamespace() {
 		return namespace;
 	}
@@ -184,32 +146,17 @@ public final class NamespacedKey {
 		return new NamespacedKey(MINECRAFT, key);
 	}
 
+
 	/**
-	 * Get a NamespacedKey from the supplied string with a default namespace if a
-	 * namespace is not defined. This is a utility method meant to fetch a
-	 * NamespacedKey from user input. Please note that casing does matter and any
-	 * instance of uppercase characters will be considered invalid. The input
-	 * contract is as follows:
-	 * 
-	 * <pre>
-	 * fromString("foo", plugin) -{@literal >} "plugin:foo"
-	 * fromString("foo:bar", plugin) -{@literal >} "foo:bar"
-	 * fromString(":foo", null) -{@literal >} "minecraft:foo"
-	 * fromString("foo", null) -{@literal >} "minecraft:foo"
-	 * fromString("Foo", plugin) -{@literal >} null
-	 * fromString(":Foo", plugin) -{@literal >} null
-	 * fromString("foo:bar:bazz", plugin) -{@literal >} null
-	 * fromString("", plugin) -{@literal >} null
-	 * </pre>
+	 * Get a NamespacedKey from the supplied string.
 	 *
-	 * @param string           the string to convert to a NamespacedKey
-	 * @param defaultNamespace the default namespace to use if none was supplied. If
-	 *                         null, the {@code minecraft} namespace
-	 *                         ({@link #minecraft(String)}) will be used
-	 * @return the created NamespacedKey. null if invalid key
-	 * @see #fromString(String)
+	 * The default namespace will be Minecraft's (i.e. {@link #minecraft(String)}).
+	 *
+	 * @param key the key to convert to a NamespacedKey
+	 * @return the created NamespacedKey. null if invalid
+	 * @see #fromString(String, Plugin)
 	 */
-	public static NamespacedKey fromString(String string, Plugin defaultNamespace) {
+	public static NamespacedKey fromString(String string) {
 		if (string == null || string.isEmpty()) {
 			throw new IllegalArgumentException("Input string must not be empty or null");
 		}
@@ -226,14 +173,14 @@ public final class NamespacedKey {
 				return null;
 			}
 
-			return (defaultNamespace != null) ? new NamespacedKey(defaultNamespace, value) : minecraft(value);
+			return minecraft(value);
 		} else if (components.length == 2 && !isValidKey(key)) {
 			return null;
 		}
 
 		String namespace = components[0];
 		if (namespace.isEmpty()) {
-			return (defaultNamespace != null) ? new NamespacedKey(defaultNamespace, key) : minecraft(key);
+			return minecraft(key);
 		}
 
 		if (!isValidNamespace(namespace)) {
@@ -241,18 +188,5 @@ public final class NamespacedKey {
 		}
 
 		return new NamespacedKey(namespace, key);
-	}
-
-	/**
-	 * Get a NamespacedKey from the supplied string.
-	 *
-	 * The default namespace will be Minecraft's (i.e. {@link #minecraft(String)}).
-	 *
-	 * @param key the key to convert to a NamespacedKey
-	 * @return the created NamespacedKey. null if invalid
-	 * @see #fromString(String, Plugin)
-	 */
-	public static NamespacedKey fromString(String key) {
-		return fromString(key, null);
 	}
 }

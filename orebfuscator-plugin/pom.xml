@@ -53,6 +53,10 @@
 							<pattern>net.jpountz</pattern>
 							<shadedPattern>net.imprex.shaded.net.jpountz</shadedPattern>
 						</relocation>
+						<relocation>
+							<pattern>org.jetbrains</pattern>
+							<shadedPattern>net.imprex.shaded.org.jetbrains</shadedPattern>
+						</relocation>
 					</relocations>
 				</configuration>
 			</plugin>
@@ -72,6 +76,32 @@
 			<artifactId>spigot-api</artifactId>
 			<version>${dependency.bukkit.version}</version>
 			<scope>provided</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>com.google.code.gson</groupId>
+					<artifactId>gson</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.yaml</groupId>
+					<artifactId>snakeyaml</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.joml</groupId>
+					<artifactId>joml</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.lz4</groupId>
+					<artifactId>lz4-java</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>net.dmulloy2</groupId>
@@ -113,7 +143,7 @@
 			<version>${revision}</version>
 			<scope>compile</scope>
 		</dependency>
-	
+
 		<!-- Orebfuscator compatibility -->
 		<dependency>
 			<groupId>net.imprex</groupId>

@@ -5,155 +5,161 @@ import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
+import java.util.Objects;
 
-import dev.imprex.orebfuscator.logging.OfcLogger;
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 public class DefaultConfigParsingContext implements ConfigParsingContext {
 
-	private static final String ANSI_RESET = "\u001B[m";
-	private static final String ANSI_ERROR = "\u001B[31;1m"; // Bold Red
-	private static final String ANSI_WARN = "\u001B[33;1m"; // Bold Yellow
+  private static final String ANSI_RESET = "\u001B[m";
+  private static final String ANSI_ERROR = "\u001B[31;1m"; // Bold Red
+  private static final String ANSI_WARN = "\u001B[33;1m"; // Bold Yellow
 
-	private final int depth;
-	private boolean isolateErrors = false;
+  private final int depth;
+  private boolean isolateErrors = false;
 
-	private final Map<String, DefaultConfigParsingContext> section = new LinkedHashMap<>();
-	private final List<Message> messages = new ArrayList<>();
+  private final Map<String, DefaultConfigParsingContext> section = new LinkedHashMap<>();
+  private final List<Message> messages = new ArrayList<>();
 
-	public DefaultConfigParsingContext() {
-		this(0);
-	}
+  public DefaultConfigParsingContext() {
+    this(null);
+  }
 
-	private DefaultConfigParsingContext(int depth) {
-		this.depth = depth;
-	}
+  private DefaultConfigParsingContext(@Nullable DefaultConfigParsingContext parentContext) {
+    this.depth = parentContext != null
+        ? parentContext.depth + 1
+        : 0;
+  }
 
-	@Override
-	public DefaultConfigParsingContext section(String path, boolean isolateErrors) {
-		DefaultConfigParsingContext context = getContext(path);
-		context.isolateErrors = isolateErrors;
-		return context;
-	}
+  @Override
+  @NotNull
+  public DefaultConfigParsingContext section(@NotNull String path, boolean isolateErrors) {
+    DefaultConfigParsingContext context = getContext(path);
+    context.isolateErrors = isolateErrors;
+    return context;
+  }
 
-	@Override
-	public ConfigParsingContext warn(String message) {
-		this.messages.add(new Message(false, message));
-		return this;
-	}
+  @Override
+  public void warn(@NotNull ConfigMessage message, @Nullable Object... arguments) {
+    Objects.requireNonNull(message, "message can't be null");
 
-	@Override
-	public ConfigParsingContext warn(String path, String message) {
-		getContext(path).warn(message);
-		return this;
-	}
+    this.messages.add(new Message(false, message.format(arguments)));
+  }
 
-	@Override
-	public ConfigParsingContext error(String message) {
-		this.messages.add(new Message(true, message));
-		return this;
-	}
+  @Override
+  public void warn(@NotNull String path, @NotNull ConfigMessage message, @Nullable Object... arguments) {
+    getContext(path).warn(message, arguments);
+  }
 
-	@Override
-	public ConfigParsingContext error(String path, String message) {
-		getContext(path).error(message);
-		return this;
-	}
+  @Override
+  public void error(@NotNull ConfigMessage message, @Nullable Object... arguments) {
+    Objects.requireNonNull(message, "message can't be null");
 
-	@Override
-	public boolean hasErrors() {
-		for (Message message : this.messages) {
-			if (message.isError()) {
-				return true;
-			}
-		}
+    this.messages.add(new Message(true, message.format(arguments)));
+  }
 
-		for (var section : this.section.values()) {
-			if (!section.isolateErrors && section.hasErrors()) {
-				return true;
-			}
-		}
+  @Override
+  public void error(@NotNull String path, @NotNull ConfigMessage message, @Nullable Object... arguments) {
+    getContext(path).error(message, arguments);
+  }
 
-		return false;
-	}
+  @Override
+  @Contract(pure = true)
+  public boolean hasErrors() {
+    for (Message message : this.messages) {
+      if (message.isError()) {
+        return true;
+      }
+    }
 
-	private DefaultConfigParsingContext getContext(String path) {
-		DefaultConfigParsingContext context = this;
+    for (var section : this.section.values()) {
+      if (!section.isolateErrors && section.hasErrors()) {
+        return true;
+      }
+    }
 
-		for (String segment : path.split("\\.")) {
-			DefaultConfigParsingContext nextContext = context.section.get(segment);
-			if (nextContext == null) {
-				nextContext = new DefaultConfigParsingContext(context.depth + 1);
-				context.section.put(segment, nextContext);
-			}
-			context = nextContext;
-		}
+    return false;
+  }
 
-		return context;
-	}
+  private DefaultConfigParsingContext getContext(@NotNull String path) {
+    Objects.requireNonNull(path, "context path can't be null");
 
-	private int getMessageCount() {
-		int messageCount = this.messages.size();
+    DefaultConfigParsingContext context = this;
+    for (String segment : path.split("\\.")) {
+      if (segment.isBlank()) {
+        throw new IllegalArgumentException("ConfigParsingContext path doesn't support blank segments: " + path);
+      }
 
-		for (DefaultConfigParsingContext section : section.values()) {
-			messageCount += section.getMessageCount();
-		}
+      DefaultConfigParsingContext nextContext = context.section.get(segment);
+      if (nextContext == null) {
+        nextContext = new DefaultConfigParsingContext(context);
+        context.section.put(segment, nextContext);
+      }
+      context = nextContext;
+    }
 
-		return messageCount;
-	}
+    return context;
+  }
 
-	private String buildReport() {
-		int messageCount = this.getMessageCount();
-		if (messageCount == 0) {
-			return "";
-		}
+  private int getMessageCount() {
+    int messageCount = this.messages.size();
 
-		final StringBuilder builder = new StringBuilder();
-		final String indent = "  ".repeat(this.depth);
+    for (DefaultConfigParsingContext section : section.values()) {
+      messageCount += section.getMessageCount();
+    }
 
-		// sort -> errors should come before warnings
-		Collections.sort(this.messages);
+    return messageCount;
+  }
 
-		for (Message message : this.messages) {
-			String color = message.isError() ? ANSI_ERROR : ANSI_WARN;
-			builder.append(indent).append(color).append("- ").append(message.content()).append('\n');
-		}
+  private StringBuilder buildReport(final StringBuilder builder) {
+    final String indent = "  ".repeat(this.depth);
 
-		for (var entry : this.section.entrySet()) {
-			if (entry.getValue().getMessageCount() == 0) {
-				continue;
-			}
-			builder.append(indent).append(ANSI_WARN).append(entry.getKey()).append(":\n");
-			builder.append(entry.getValue().buildReport());
-		}
+    // sort -> errors should come before warnings
+    Collections.sort(this.messages);
 
-		return builder.toString();
-	}
+    for (Message message : this.messages) {
+      String color = message.isError() ? ANSI_ERROR : ANSI_WARN;
+      builder.append(indent).append(color).append("- ").append(message.content()).append('\n');
+    }
 
-	public String report() {
-		int messageCount = this.getMessageCount();
-		if (messageCount == 0) {
-			return null;
-		}
+    for (var entry : this.section.entrySet()) {
+      if (entry.getValue().getMessageCount() == 0) {
+        continue;
+      }
 
-		StringBuilder builder = new StringBuilder();
-		builder.append("Encountered ").append(messageCount).append(" issue(s) while parsing the config:\n")
-			.append(ANSI_RESET)
-			.append(buildReport())
-			.append(ANSI_RESET);
+      builder.append(indent).append(ANSI_WARN).append(entry.getKey()).append(":\n");
+      entry.getValue().buildReport(builder);
+    }
 
-		String message = builder.toString();
-		OfcLogger.log(hasErrors() ? Level.SEVERE : Level.WARNING, message);
-		return message;
-	}
+    return builder;
+  }
 
-	private record Message(boolean isError, String content) implements Comparable<Message> {
+  @Nullable
+  public String report() {
+    int messageCount = this.getMessageCount();
+    if (messageCount == 0) {
+      return null;
+    }
 
-		@Override
-		public int compareTo(Message o) {
-			int a = this.isError ? 1 : 0;
-			int b = o.isError ? 1 : 0;
-			return b - a;
-		}
-	}
+    StringBuilder builder = new StringBuilder()
+        .append(hasErrors() ? ANSI_ERROR : ANSI_WARN)
+        .append("Encountered ").append(messageCount).append(" issue(s) while parsing the config:\n")
+        .append(ANSI_RESET);
+
+    return buildReport(builder)
+        .append(ANSI_RESET)
+        .toString();
+  }
+
+  private record Message(boolean isError, @NotNull String content) implements Comparable<Message> {
+
+    @Override
+    public int compareTo(Message o) {
+      int a = this.isError ? 1 : 0;
+      int b = o.isError ? 1 : 0;
+      return b - a;
+    }
+  }
 }

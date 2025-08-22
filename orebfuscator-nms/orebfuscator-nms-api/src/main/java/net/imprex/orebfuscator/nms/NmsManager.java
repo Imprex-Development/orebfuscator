@@ -4,25 +4,12 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
+import dev.imprex.orebfuscator.interop.RegistryAccessor;
 import dev.imprex.orebfuscator.util.BlockPos;
-import dev.imprex.orebfuscator.util.BlockProperties;
-import dev.imprex.orebfuscator.util.NamespacedKey;
 
-public interface NmsManager {
+public interface NmsManager extends RegistryAccessor {
 
 	AbstractRegionFileCache<?> getRegionFileCache();
-
-	int getUniqueBlockStateCount();
-
-	int getMaxBitsPerBlockState();
-
-	BlockProperties getBlockByName(NamespacedKey key);
-
-	boolean isAir(int blockId);
-
-	boolean isOccluding(int blockId);
-
-	boolean isBlockEntity(int blockId);
 
 	ReadOnlyChunk getReadOnlyChunk(World world, int chunkX, int chunkZ);
 

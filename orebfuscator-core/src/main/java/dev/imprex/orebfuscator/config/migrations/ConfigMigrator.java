@@ -3,40 +3,44 @@ package dev.imprex.orebfuscator.config.migrations;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.bukkit.configuration.ConfigurationSection;
-
+import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 
 public class ConfigMigrator {
 
-	private static final Map<Integer, ConfigMigration> MIGRATIONS = new HashMap<>();
+  private static final Map<Integer, ConfigMigration> MIGRATIONS = new HashMap<>();
 
-	static {
-		register(new ConfigMigrationV1());
-		register(new ConfigMigrationV2());
-		register(new ConfigMigrationV3());
-	}
+  static {
+    register(new ConfigMigrationV1());
+    register(new ConfigMigrationV2());
+    register(new ConfigMigrationV3());
+  }
 
-	private static void register(ConfigMigration migration) {
-		MIGRATIONS.put(migration.sourceVersion(), migration);
-	}
+  private static void register(ConfigMigration migration) {
+    MIGRATIONS.put(migration.sourceVersion(), migration);
+  }
 
-	public static void migrateToLatestVersion(ConfigurationSection section) {
-		while (true) {
-			int sourceVersion = section.getInt("version", -1);
-			int targetVersion = sourceVersion + 1;
+  public static boolean willMigrate(ConfigurationSection root) {
+    int version = root.getInt("version", -1);
+    return MIGRATIONS.get(version) != null;
+  }
 
-			ConfigMigration migration = MIGRATIONS.get(sourceVersion);
-			if (migration == null) {
-				break;
-			}
+  public static void migrateToLatestVersion(ConfigurationSection root) {
+    while (true) {
+      int sourceVersion = root.getInt("version", -1);
+      int targetVersion = sourceVersion + 1;
 
-			OfcLogger.info("Starting to migrate config to version " + targetVersion);
+      ConfigMigration migration = MIGRATIONS.get(sourceVersion);
+      if (migration == null) {
+        break;
+      }
 
-			section = migration.migrate(section);
-			section.set("version", targetVersion);
+      OfcLogger.info("Starting to migrate config to version " + targetVersion);
 
-			OfcLogger.info("Successfully migrated config to version " + targetVersion);
-		}
-	}
+      root = migration.migrate(root);
+      root.set("version", targetVersion);
+
+      OfcLogger.info("Successfully migrated config to version " + targetVersion);
+    }
+  }
 }
