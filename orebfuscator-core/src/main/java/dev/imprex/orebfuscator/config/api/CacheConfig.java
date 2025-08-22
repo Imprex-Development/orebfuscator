@@ -2,7 +2,7 @@ package dev.imprex.orebfuscator.config.api;
 
 import java.nio.file.Path;
 
-import dev.imprex.orebfuscator.util.ChunkPosition;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
 
 public interface CacheConfig {
 
@@ -16,7 +16,7 @@ public interface CacheConfig {
 
 	Path baseDirectory();
 
-	Path regionFile(ChunkPosition chunkPosition);
+	Path regionFile(ChunkCacheKey chunkPosition);
 
 	int maximumOpenRegionFiles();
 

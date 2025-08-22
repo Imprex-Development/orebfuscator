@@ -14,11 +14,11 @@ import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import net.imprex.orebfuscator.api.OrebfuscatorService;
 import net.imprex.orebfuscator.cache.ObfuscationCache;
+import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 import net.imprex.orebfuscator.obfuscation.ObfuscationSystem;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayerMap;
 import net.imprex.orebfuscator.proximity.ProximityDirectorThread;
 import net.imprex.orebfuscator.proximity.ProximityPacketListener;
-import net.imprex.orebfuscator.util.HeightAccessor;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 
 public class Orebfuscator extends JavaPlugin implements Listener {
@@ -61,7 +61,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 			this.playerMap = new OrebfuscatorPlayerMap(this);
 
 			// register cleanup listener
-			HeightAccessor.registerListener(this);
+			BukkitWorldAccessor.registerListener(this);
 
 			// Initialize metrics
 			new MetricsSystem(this);

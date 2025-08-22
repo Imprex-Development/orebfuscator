@@ -9,7 +9,7 @@ import org.bukkit.plugin.Plugin;
 
 import dev.imprex.orebfuscator.config.api.Config;
 import dev.imprex.orebfuscator.logging.OfcLogger;
-import dev.imprex.orebfuscator.util.ChunkPosition;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import net.imprex.orebfuscator.compatibility.CompatibilityLayer;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 import net.imprex.orebfuscator.util.MinecraftVersion;
@@ -65,7 +65,7 @@ public class OrebfuscatorCompatibility {
 		instance.getScheduler().cancelTasks();
 	}
 
-	public static CompletableFuture<ReadOnlyChunk[]> getNeighboringChunks(World world, ChunkPosition position) {
+	public static CompletableFuture<ReadOnlyChunk[]> getNeighboringChunks(World world, ChunkCacheKey position) {
 		return instance.getNeighboringChunks(world, position);
 	}
 

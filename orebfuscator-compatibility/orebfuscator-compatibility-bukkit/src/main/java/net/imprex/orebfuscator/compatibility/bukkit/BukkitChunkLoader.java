@@ -11,7 +11,7 @@ import org.bukkit.plugin.Plugin;
 
 import dev.imprex.orebfuscator.config.api.Config;
 import dev.imprex.orebfuscator.util.ChunkDirection;
-import dev.imprex.orebfuscator.util.ChunkPosition;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 
@@ -27,7 +27,7 @@ public class BukkitChunkLoader implements Runnable {
 		Bukkit.getScheduler().runTaskTimer(plugin, this, 0, 1);
 	}
 
-	public CompletableFuture<ReadOnlyChunk[]> submitRequest(World world, ChunkPosition chunkPosition) {
+	public CompletableFuture<ReadOnlyChunk[]> submitRequest(World world, ChunkCacheKey chunkPosition) {
 		Request request = new Request(world, chunkPosition);
 		this.requests.offer(request);
 		return request.future;
@@ -46,11 +46,11 @@ public class BukkitChunkLoader implements Runnable {
 	private class Request implements Runnable {
 
 		private final World world;
-		private final ChunkPosition position;
+		private final ChunkCacheKey position;
 
 		private final CompletableFuture<ReadOnlyChunk[]> future = new CompletableFuture<>();
 
-		public Request(World world, ChunkPosition position) {
+		public Request(World world, ChunkCacheKey position) {
 			this.world = world;
 			this.position = position;
 		}

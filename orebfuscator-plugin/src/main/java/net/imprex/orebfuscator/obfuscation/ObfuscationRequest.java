@@ -9,7 +9,7 @@ import com.google.common.hash.Hashing;
 
 import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
 import dev.imprex.orebfuscator.util.BlockPos;
-import dev.imprex.orebfuscator.util.ChunkPosition;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import net.imprex.orebfuscator.chunk.ChunkStruct;
 
 public class ObfuscationRequest {
@@ -25,7 +25,7 @@ public class ObfuscationRequest {
 
 	public static ObfuscationRequest fromChunk(ChunkStruct struct, OrebfuscatorConfig config,
 			ObfuscationTaskDispatcher dispatcher) {
-		ChunkPosition position = new ChunkPosition(struct.world, struct.chunkX, struct.chunkZ);
+		ChunkCacheKey position = new ChunkCacheKey(struct.world, struct.chunkX, struct.chunkZ);
 		byte[] hash = config.cache().enabled() ? hash(config.systemHash(), struct.data) : EMPTY_HASH;
 		return new ObfuscationRequest(dispatcher, position, hash, struct);
 	}
@@ -33,11 +33,11 @@ public class ObfuscationRequest {
 	private final CompletableFuture<ObfuscationResult> future = new CompletableFuture<>();
 
 	private final ObfuscationTaskDispatcher dispatcher;
-	private final ChunkPosition position;
+	private final ChunkCacheKey position;
 	private final byte[] chunkHash;
 	private final ChunkStruct chunkStruct;
 
-	private ObfuscationRequest(ObfuscationTaskDispatcher dispatcher, ChunkPosition position, byte[] chunkHash,
+	private ObfuscationRequest(ObfuscationTaskDispatcher dispatcher, ChunkCacheKey position, byte[] chunkHash,
 			ChunkStruct chunkStruct) {
 		this.dispatcher = dispatcher;
 		this.position = position;
@@ -49,7 +49,7 @@ public class ObfuscationRequest {
 		return future;
 	}
 
-	public ChunkPosition getPosition() {
+	public ChunkCacheKey getPosition() {
 		return position;
 	}
 

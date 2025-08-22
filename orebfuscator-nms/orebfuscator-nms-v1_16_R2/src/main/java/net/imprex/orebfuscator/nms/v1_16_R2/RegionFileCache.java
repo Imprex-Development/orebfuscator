@@ -10,7 +10,7 @@ import org.bukkit.craftbukkit.v1_16_R2.CraftServer;
 
 import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.config.api.CacheConfig;
-import dev.imprex.orebfuscator.util.ChunkPosition;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import net.minecraft.server.v1_16_R2.ChunkCoordIntPair;
 import net.minecraft.server.v1_16_R2.RegionFile;
 import net.minecraft.server.v1_16_R2.RegionFileCompression;
@@ -33,12 +33,12 @@ public class RegionFileCache extends AbstractRegionFileCache<RegionFile> {
 	}
 
 	@Override
-	protected DataInputStream createInputStream(RegionFile t, ChunkPosition key) throws IOException {
+	protected DataInputStream createInputStream(RegionFile t, ChunkCacheKey key) throws IOException {
 		return t.a(new ChunkCoordIntPair(key.x, key.z));
 	}
 
 	@Override
-	protected DataOutputStream createOutputStream(RegionFile t, ChunkPosition key) throws IOException {
+	protected DataOutputStream createOutputStream(RegionFile t, ChunkCacheKey key) throws IOException {
 		return t.c(new ChunkCoordIntPair(key.x, key.z));
 	}
 }

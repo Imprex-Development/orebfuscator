@@ -13,7 +13,7 @@ import org.bukkit.configuration.ConfigurationSection;
 import dev.imprex.orebfuscator.config.api.CacheConfig;
 import dev.imprex.orebfuscator.config.context.ConfigParsingContext;
 import dev.imprex.orebfuscator.logging.OfcLogger;
-import dev.imprex.orebfuscator.util.ChunkPosition;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
 
 public class OrebfuscatorCacheConfig implements CacheConfig {
 
@@ -137,7 +137,7 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 	}
 
 	@Override
-	public Path regionFile(ChunkPosition key) {
+	public Path regionFile(ChunkCacheKey key) {
 		return this.baseDirectory.resolve(key.world)
 				.resolve("r." + (key.x >> 5) + "." + (key.z >> 5) + ".mca");
 	}

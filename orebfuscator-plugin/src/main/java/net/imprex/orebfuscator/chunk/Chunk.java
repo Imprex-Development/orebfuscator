@@ -5,7 +5,7 @@ import java.util.Arrays;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;
-import net.imprex.orebfuscator.util.HeightAccessor;
+import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 
 public class Chunk implements AutoCloseable {
 
@@ -16,7 +16,7 @@ public class Chunk implements AutoCloseable {
 	private final int chunkX;
 	private final int chunkZ;
 
-	private final HeightAccessor heightAccessor;
+	private final BukkitWorldAccessor heightAccessor;
 	private final ChunkSectionHolder[] sections;
 
 	private final ByteBuf inputBuffer;
@@ -26,7 +26,7 @@ public class Chunk implements AutoCloseable {
 		this.chunkX = chunkStruct.chunkX;
 		this.chunkZ = chunkStruct.chunkZ;
 
-		this.heightAccessor = HeightAccessor.get(chunkStruct.world);
+		this.heightAccessor = BukkitWorldAccessor.get(chunkStruct.world);
 		this.sections = new ChunkSectionHolder[this.heightAccessor.getSectionCount()];
 
 		this.inputBuffer = Unpooled.wrappedBuffer(chunkStruct.data);
@@ -43,7 +43,7 @@ public class Chunk implements AutoCloseable {
 		return this.sections.length;
 	}
 
-	public HeightAccessor getHeightAccessor() {
+	public BukkitWorldAccessor getHeightAccessor() {
 		return heightAccessor;
 	}
 

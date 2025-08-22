@@ -5,7 +5,7 @@ import java.util.concurrent.CompletableFuture;
 import org.bukkit.World;
 
 import dev.imprex.orebfuscator.util.ChunkDirection;
-import dev.imprex.orebfuscator.util.ChunkPosition;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.compatibility.CompatibilityLayer;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
@@ -13,7 +13,7 @@ import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 public abstract class AbstractPaperCompatibilityLayer implements CompatibilityLayer {
 
 	@Override
-	public CompletableFuture<ReadOnlyChunk[]> getNeighboringChunks(World world, ChunkPosition position) {
+	public CompletableFuture<ReadOnlyChunk[]> getNeighboringChunks(World world, ChunkCacheKey position) {
 		CompletableFuture<?>[] futures = new CompletableFuture<?>[4];
 		ReadOnlyChunk[] neighboringChunks = new ReadOnlyChunk[4];
 

@@ -10,15 +10,15 @@ import java.util.Collection;
 import java.util.Optional;
 
 import dev.imprex.orebfuscator.util.BlockPos;
-import dev.imprex.orebfuscator.util.ChunkPosition;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import net.imprex.orebfuscator.obfuscation.ObfuscationRequest;
 import net.imprex.orebfuscator.obfuscation.ObfuscationResult;
 import net.jpountz.lz4.LZ4BlockInputStream;
 import net.jpountz.lz4.LZ4BlockOutputStream;
 
-public class CompressedObfuscationResult {
+public class CacheChunkEntry {
 
-	public static CompressedObfuscationResult create(ObfuscationResult result) {
+	public static CacheChunkEntry create(ObfuscationResult result) {
 		ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
 		try (
@@ -47,13 +47,13 @@ public class CompressedObfuscationResult {
 			return null;
 		}
 
-		return new CompressedObfuscationResult(result.getPosition(), byteArrayOutputStream.toByteArray());
+		return new CacheChunkEntry(result.getPosition(), byteArrayOutputStream.toByteArray());
 	}
 
-	private final ChunkPosition position;
+	private final ChunkCacheKey position;
 	private final byte[] compressedData;
 
-	public CompressedObfuscationResult(ChunkPosition position, byte[] data) {
+	public CacheChunkEntry(ChunkCacheKey position, byte[] data) {
 		this.position = position;
 		this.compressedData = data;
 	}

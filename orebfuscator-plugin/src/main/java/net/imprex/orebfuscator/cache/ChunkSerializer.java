@@ -4,22 +4,22 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
-import dev.imprex.orebfuscator.util.ChunkPosition;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import net.imprex.orebfuscator.OrebfuscatorNms;
 
 public class ChunkSerializer {
 
 	private static final int CACHE_VERSION = 2;
 
-	private static DataInputStream createInputStream(ChunkPosition key) throws IOException {
+	private static DataInputStream createInputStream(ChunkCacheKey key) throws IOException {
 		return OrebfuscatorNms.getRegionFileCache().createInputStream(key);
 	}
 
-	private static DataOutputStream createOutputStream(ChunkPosition key) throws IOException {
+	private static DataOutputStream createOutputStream(ChunkCacheKey key) throws IOException {
 		return OrebfuscatorNms.getRegionFileCache().createOutputStream(key);
 	}
 
-	public static CompressedObfuscationResult read(ChunkPosition key) throws IOException {
+	public static CacheChunkEntry read(ChunkCacheKey key) throws IOException {
 		try (DataInputStream dataInputStream = createInputStream(key)) {
 			if (dataInputStream != null) {
 				// check if cache entry has right version and if chunk is present
@@ -30,7 +30,7 @@ public class ChunkSerializer {
 				byte[] compressedData = new byte[dataInputStream.readInt()];
 				dataInputStream.readFully(compressedData);
 
-				return new CompressedObfuscationResult(key, compressedData);
+				return new CacheChunkEntry(key, compressedData);
 			}
 		} catch (IOException e) {
 			throw new IOException("Unable to read chunk: " + key, e);
@@ -39,7 +39,7 @@ public class ChunkSerializer {
 		return null;
 	}
 
-	public static void write(ChunkPosition key, CompressedObfuscationResult value) throws IOException {
+	public static void write(ChunkCacheKey key, CacheChunkEntry value) throws IOException {
 		try (DataOutputStream dataOutputStream = createOutputStream(key)) {
 			dataOutputStream.writeInt(CACHE_VERSION);
 

@@ -6,11 +6,11 @@ import java.util.List;
 import java.util.Set;
 
 import dev.imprex.orebfuscator.util.BlockPos;
-import dev.imprex.orebfuscator.util.ChunkPosition;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
 
 public class ObfuscationResult {
 
-	private final ChunkPosition position;
+	private final ChunkCacheKey position;
 
 	private final byte[] hash;
 	private final byte[] data;
@@ -18,11 +18,11 @@ public class ObfuscationResult {
 	private final Set<BlockPos> blockEntities;
 	private final List<BlockPos> proximityBlocks;
 
-	public ObfuscationResult(ChunkPosition position, byte[] hash, byte[] data) {
+	public ObfuscationResult(ChunkCacheKey position, byte[] hash, byte[] data) {
 		this(position, hash, data, new HashSet<>(), new ArrayList<>());
 	}
 
-	public ObfuscationResult(ChunkPosition position, byte[] hash, byte[] data,
+	public ObfuscationResult(ChunkCacheKey position, byte[] hash, byte[] data,
 			Set<BlockPos> blockEntities, List<BlockPos> proximityBlocks) {
 		this.position = position;
 		this.hash = hash;
@@ -31,7 +31,7 @@ public class ObfuscationResult {
 		this.proximityBlocks = proximityBlocks;
 	}
 
-	public ChunkPosition getPosition() {
+	public ChunkCacheKey getPosition() {
 		return position;
 	}
 

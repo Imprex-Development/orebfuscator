@@ -13,7 +13,7 @@ import com.comphenix.protocol.wrappers.nbt.NbtBase;
 import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 
 import dev.imprex.orebfuscator.util.BlockPos;
-import net.imprex.orebfuscator.util.HeightAccessor;
+import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 
 public class ChunkStruct {
 
@@ -53,7 +53,7 @@ public class ChunkStruct {
 			}
 		} else {
 			this.sectionMask = new BitSet();
-			this.sectionMask.set(0, HeightAccessor.get(world).getSectionCount());
+			this.sectionMask.set(0, BukkitWorldAccessor.get(world).getSectionCount());
 		}
 	}
 

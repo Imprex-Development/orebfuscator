@@ -20,7 +20,7 @@ public enum ChunkDirection {
 		return offsetZ;
 	}
 
-	public static ChunkDirection fromPosition(ChunkPosition position, int targetX, int targetZ) {
+	public static ChunkDirection fromPosition(ChunkCacheKey position, int targetX, int targetZ) {
 		int offsetX = (targetX >> 4) - position.x;
 		int offsetZ = (targetZ >> 4) - position.z;
 

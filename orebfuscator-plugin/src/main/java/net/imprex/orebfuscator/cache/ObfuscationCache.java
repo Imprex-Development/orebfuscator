@@ -8,7 +8,7 @@ import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalNotification;
 
 import dev.imprex.orebfuscator.config.api.CacheConfig;
-import dev.imprex.orebfuscator.util.ChunkPosition;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.OrebfuscatorStatistics;
@@ -20,7 +20,7 @@ public class ObfuscationCache {
 	private final CacheConfig cacheConfig;
 	private final OrebfuscatorStatistics statistics;
 
-	private final Cache<ChunkPosition, CompressedObfuscationResult> cache;
+	private final Cache<ChunkCacheKey, CacheChunkEntry> cache;
 	private final AsyncChunkSerializer serializer;
 
 	public ObfuscationCache(Orebfuscator orebfuscator) {
@@ -45,7 +45,7 @@ public class ObfuscationCache {
 		}
 	}
 
-	private void onRemoval(RemovalNotification<ChunkPosition, CompressedObfuscationResult> notification) {
+	private void onRemoval(RemovalNotification<ChunkCacheKey, CacheChunkEntry> notification) {
 		this.statistics.onCacheSizeChange(-notification.getValue().estimatedSize());
 
 		// don't serialize invalidated chunks since this would require locking the main
@@ -57,7 +57,7 @@ public class ObfuscationCache {
 
 	private void requestObfuscation(ObfuscationRequest request) {
 		request.submitForObfuscation().thenAccept(chunk -> {
-			var compressedChunk = CompressedObfuscationResult.create(chunk);
+			var compressedChunk = CacheChunkEntry.create(chunk);
 			if (compressedChunk != null) {
 				this.cache.put(request.getPosition(), compressedChunk);
 				this.statistics.onCacheSizeChange(compressedChunk.estimatedSize());
@@ -66,9 +66,9 @@ public class ObfuscationCache {
 	}
 
 	public CompletableFuture<ObfuscationResult> get(ObfuscationRequest request) {
-		ChunkPosition key = request.getPosition();
+		ChunkCacheKey key = request.getPosition();
 
-		CompressedObfuscationResult cacheChunk = this.cache.getIfPresent(key);
+		CacheChunkEntry cacheChunk = this.cache.getIfPresent(key);
 		if (cacheChunk != null && cacheChunk.isValid(request)) {
 			this.statistics.onCacheHitMemory();
 
@@ -114,7 +114,7 @@ public class ObfuscationCache {
 		return request.getFuture();
 	}
 
-	public void invalidate(ChunkPosition key) {
+	public void invalidate(ChunkCacheKey key) {
 		this.cache.invalidate(key);
 	}
 

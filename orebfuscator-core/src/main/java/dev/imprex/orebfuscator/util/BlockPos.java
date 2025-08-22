@@ -43,8 +43,8 @@ public class BlockPos implements Comparable<BlockPos> {
 		return dx * dx + dy * dy + dz * dz;
 	}
 
-	public ChunkPosition toChunkPosition(World world) {
-		return new ChunkPosition(world, this.x >> 4, this.z >> 4);
+	public ChunkCacheKey toChunkPosition(World world) {
+		return new ChunkCacheKey(world, this.x >> 4, this.z >> 4);
 	}
 
 	public long toLong() {

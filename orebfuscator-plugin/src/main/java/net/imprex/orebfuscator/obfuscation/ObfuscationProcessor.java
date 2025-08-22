@@ -19,7 +19,7 @@ import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.chunk.Chunk;
 import net.imprex.orebfuscator.chunk.ChunkSection;
 import net.imprex.orebfuscator.chunk.ChunkStruct;
-import net.imprex.orebfuscator.util.HeightAccessor;
+import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 
 public class ObfuscationProcessor {
 
@@ -33,7 +33,7 @@ public class ObfuscationProcessor {
 		ChunkStruct chunkStruct = task.getChunkStruct();
 
 		World world = chunkStruct.world;
-		HeightAccessor heightAccessor = HeightAccessor.get(world);
+		BukkitWorldAccessor heightAccessor = BukkitWorldAccessor.get(world);
 
 		WorldConfigBundle bundle = this.config.world(world);
 		BlockFlags blockFlags = bundle.blockFlags();

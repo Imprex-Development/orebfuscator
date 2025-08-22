@@ -15,7 +15,7 @@ import dev.imprex.orebfuscator.config.api.BlockFlags;
 import dev.imprex.orebfuscator.config.api.ObfuscationConfig;
 import dev.imprex.orebfuscator.config.api.WorldConfigBundle;
 import dev.imprex.orebfuscator.util.BlockPos;
-import dev.imprex.orebfuscator.util.ChunkPosition;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.cache.ObfuscationCache;
@@ -67,7 +67,7 @@ public class DeobfuscationWorker {
 	public class Processor implements AutoCloseable {
 
 		private final Set<BlockPos> updatedBlocks = new HashSet<>();
-		private final Set<ChunkPosition> invalidChunks = new HashSet<>();
+		private final Set<ChunkCacheKey> invalidChunks = new HashSet<>();
 
 		private final World world;
 		private final BlockFlags blockFlags;
@@ -83,7 +83,7 @@ public class DeobfuscationWorker {
 
 				// invalidate cache if enabled
 				if (config.cache().enabled()) {
-					ChunkPosition chunkPosition = position.toChunkPosition(world);
+					ChunkCacheKey chunkPosition = position.toChunkPosition(world);
 					if (this.invalidChunks.add(chunkPosition)) {
 						cache.invalidate(chunkPosition);
 					}

@@ -10,7 +10,7 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import dev.imprex.orebfuscator.util.ChunkPosition;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import net.imprex.orebfuscator.Orebfuscator;
 
 /**
@@ -30,8 +30,8 @@ public class AsyncChunkSerializer implements Runnable {
 	private final Condition notFull = lock.newCondition();
 	private final Condition notEmpty = lock.newCondition();
 
-	private final Map<ChunkPosition, Runnable> tasks = new HashMap<>();
-	private final Queue<ChunkPosition> positions = new LinkedList<>();
+	private final Map<ChunkCacheKey, Runnable> tasks = new HashMap<>();
+	private final Queue<ChunkCacheKey> positions = new LinkedList<>();
 	private final int maxTaskQueueSize;
 
 	private final Thread thread;
@@ -47,7 +47,7 @@ public class AsyncChunkSerializer implements Runnable {
 		orebfuscator.getStatistics().setDiskCacheQueueLengthSupplier(() -> this.tasks.size());
 	}
 
-	public CompletableFuture<CompressedObfuscationResult> read(ChunkPosition position) {
+	public CompletableFuture<CacheChunkEntry> read(ChunkCacheKey position) {
 		this.lock.lock();
 		try {
 			Runnable task = this.tasks.get(position);
@@ -56,7 +56,7 @@ public class AsyncChunkSerializer implements Runnable {
 			} else if (task instanceof ReadTask) {
 				return ((ReadTask) task).future;
 			} else {
-				CompletableFuture<CompressedObfuscationResult> future = new CompletableFuture<>();
+				CompletableFuture<CacheChunkEntry> future = new CompletableFuture<>();
 				this.queueTask(position, new ReadTask(position, future));
 				return future;
 			}
@@ -65,7 +65,7 @@ public class AsyncChunkSerializer implements Runnable {
 		}
 	}
 
-	public void write(ChunkPosition position, CompressedObfuscationResult chunk) {
+	public void write(ChunkCacheKey position, CacheChunkEntry chunk) {
 		this.lock.lock();
 		try {
 			Runnable prevTask = this.queueTask(position, new WriteTask(position, chunk));
@@ -77,7 +77,7 @@ public class AsyncChunkSerializer implements Runnable {
 		}
 	}
 
-	private Runnable queueTask(ChunkPosition position, Runnable nextTask) {
+	private Runnable queueTask(ChunkCacheKey position, Runnable nextTask) {
 		while (this.positions.size() >= this.maxTaskQueueSize) {
 			this.notFull.awaitUninterruptibly();
 		}
@@ -133,10 +133,10 @@ public class AsyncChunkSerializer implements Runnable {
 	}
 
 	private class WriteTask implements Runnable {
-		private final ChunkPosition position;
-		private final CompressedObfuscationResult chunk;
+		private final ChunkCacheKey position;
+		private final CacheChunkEntry chunk;
 
-		public WriteTask(ChunkPosition position, CompressedObfuscationResult chunk) {
+		public WriteTask(ChunkCacheKey position, CacheChunkEntry chunk) {
 			this.position = position;
 			this.chunk = chunk;
 		}
@@ -152,10 +152,10 @@ public class AsyncChunkSerializer implements Runnable {
 	}
 
 	private class ReadTask implements Runnable {
-		private final ChunkPosition position;
-		private final CompletableFuture<CompressedObfuscationResult> future;
+		private final ChunkCacheKey position;
+		private final CompletableFuture<CacheChunkEntry> future;
 
-		public ReadTask(ChunkPosition position, CompletableFuture<CompressedObfuscationResult> future) {
+		public ReadTask(ChunkCacheKey position, CompletableFuture<CacheChunkEntry> future) {
 			this.position = position;
 			this.future = future;
 		}

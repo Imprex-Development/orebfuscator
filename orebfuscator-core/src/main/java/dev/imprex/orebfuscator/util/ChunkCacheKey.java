@@ -4,7 +4,7 @@ import java.util.Objects;
 
 import org.bukkit.World;
 
-public class ChunkPosition {
+public class ChunkCacheKey {
 
 	public static long toLong(int chunkX, int chunkZ) {
 		return (chunkZ & 0xffffffffL) << 32 | chunkX & 0xffffffffL;
@@ -14,7 +14,7 @@ public class ChunkPosition {
 	public final int x;
 	public final int z;
 
-	public ChunkPosition(World world, int x, int z) {
+	public ChunkCacheKey(World world, int x, int z) {
 		this.world = Objects.requireNonNull(world).getName();
 		this.x = x;
 		this.z = z;
@@ -34,10 +34,10 @@ public class ChunkPosition {
 		if (this == obj) {
 			return true;
 		}
-		if (!(obj instanceof ChunkPosition)) {
+		if (!(obj instanceof ChunkCacheKey)) {
 			return false;
 		}
-		ChunkPosition other = (ChunkPosition) obj;
+		ChunkCacheKey other = (ChunkCacheKey) obj;
 		return x == other.x && z == other.z && Objects.equals(world, other.world);
 	}
 

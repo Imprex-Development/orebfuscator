@@ -1,4 +1,4 @@
-package net.imprex.orebfuscator.util;
+package net.imprex.orebfuscator.iterop;
 
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
@@ -16,12 +16,12 @@ import com.comphenix.protocol.reflect.accessors.MethodAccessor;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import net.imprex.orebfuscator.chunk.ChunkCapabilities;
 
-public class HeightAccessor {
+public class BukkitWorldAccessor {
 
-	private static final Map<World, HeightAccessor> ACCESSOR_LOOKUP = new ConcurrentHashMap<>();
+	private static final Map<World, BukkitWorldAccessor> ACCESSOR_LOOKUP = new ConcurrentHashMap<>();
 
-	public static HeightAccessor get(World world) {
-		return ACCESSOR_LOOKUP.computeIfAbsent(world, HeightAccessor::new);
+	public static BukkitWorldAccessor get(World world) {
+		return ACCESSOR_LOOKUP.computeIfAbsent(world, BukkitWorldAccessor::new);
 	}
 
 	private static final MethodAccessor WORLD_GET_MAX_HEIGHT = getWorldMethod("getMaxHeight");
@@ -71,7 +71,7 @@ public class HeightAccessor {
 	private final int maxHeight;
 	private final int minHeight;
 
-	private HeightAccessor(World world) {
+	private BukkitWorldAccessor(World world) {
 		this.worldName = world.getName();
 
 		if (ChunkCapabilities.hasDynamicHeight()) {
