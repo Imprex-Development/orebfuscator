@@ -8,9 +8,9 @@ import java.nio.file.Path;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_16_R3.CraftServer;
 
-import net.imprex.orebfuscator.config.CacheConfig;
-import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
-import net.imprex.orebfuscator.util.ChunkPosition;
+import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
+import dev.imprex.orebfuscator.config.api.CacheConfig;
+import dev.imprex.orebfuscator.util.ChunkPosition;
 import net.minecraft.server.v1_16_R3.ChunkCoordIntPair;
 import net.minecraft.server.v1_16_R3.RegionFile;
 import net.minecraft.server.v1_16_R3.RegionFileCompression;

@@ -7,6 +7,9 @@ import java.util.regex.Pattern;
 
 import org.bukkit.Bukkit;
 
+import dev.imprex.orebfuscator.logging.OfcLogger;
+import dev.imprex.orebfuscator.util.Version;
+
 public final class MinecraftVersion {
 
 	private static final class NmsMapping {
@@ -26,7 +29,7 @@ public final class MinecraftVersion {
 			for (NmsMapping mapping : MAPPINGS) {
 				if (version.isAtOrAbove(mapping.version)) {
 					if (mapping.version.minor() != version.minor()) {
-						OFCLogger.warn(String.format("Using nms mapping with mismatched minor versions: %s - %s",
+						OfcLogger.warn(String.format("Using nms mapping with mismatched minor versions: %s - %s",
 								mapping.version, version));
 					}
 

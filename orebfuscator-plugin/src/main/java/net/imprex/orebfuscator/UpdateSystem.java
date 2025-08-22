@@ -18,12 +18,12 @@ import org.bukkit.entity.Player;
 
 import com.google.gson.annotations.SerializedName;
 
-import net.imprex.orebfuscator.config.GeneralConfig;
+import dev.imprex.orebfuscator.config.api.GeneralConfig;
+import dev.imprex.orebfuscator.logging.OfcLogger;
+import dev.imprex.orebfuscator.util.Version;
 import net.imprex.orebfuscator.util.AbstractHttpService;
 import net.imprex.orebfuscator.util.ConsoleUtil;
 import net.imprex.orebfuscator.util.MinecraftVersion;
-import net.imprex.orebfuscator.util.OFCLogger;
-import net.imprex.orebfuscator.util.Version;
 import net.md_5.bungee.api.chat.BaseComponent;
 import net.md_5.bungee.api.chat.ClickEvent;
 import net.md_5.bungee.api.chat.ComponentBuilder;
@@ -62,7 +62,7 @@ public class UpdateSystem extends AbstractHttpService {
 	private CompletableFuture<Optional<ModrinthVersion>> requestLatestVersion() {
 		String installedVersion = this.orebfuscator.getDescription().getVersion();
 		if (!this.generalConfig.checkForUpdates() || isDevVersion(installedVersion)) {
-			OFCLogger.debug("UpdateSystem - Update check disabled or dev version detected; skipping");
+			OfcLogger.debug("UpdateSystem - Update check disabled or dev version detected; skipping");
 			return CompletableFuture.completedFuture(Optional.empty());
 		}
 
@@ -77,13 +77,13 @@ public class UpdateSystem extends AbstractHttpService {
 						.findFirst();
 
 				latestVersion.ifPresentOrElse(
-						v -> OFCLogger.debug("UpdateSystem - Fetched latest version " + v.version),
-						() -> OFCLogger.debug("UpdateSystem - Couldn't fetch latest version"));
+						v -> OfcLogger.debug("UpdateSystem - Fetched latest version " + v.version),
+						() -> OfcLogger.debug("UpdateSystem - Couldn't fetch latest version"));
 				
 				return latestVersion.map(v -> version.isBelow(v.version) ? v : null);
 			})
 		).exceptionally(throwable -> {
-			OFCLogger.log(Level.WARNING, "UpdateSystem - Unable to fetch latest version", throwable);
+			OfcLogger.log(Level.WARNING, "UpdateSystem - Unable to fetch latest version", throwable);
 			return Optional.empty();
 		});
 	}
@@ -91,7 +91,7 @@ public class UpdateSystem extends AbstractHttpService {
 	private CompletableFuture<Optional<ModrinthVersion>> getLatestVersion() {
 		Instant validUntil = this.validUntil.get();
 		if (validUntil != null && validUntil.compareTo(Instant.now()) < 0 && this.validUntil.compareAndSet(validUntil, null)) {
-			OFCLogger.debug("UpdateSystem - Cleared latest cached version");
+			OfcLogger.debug("UpdateSystem - Cleared latest cached version");
 			this.latestVersion.set(null);
 		}
 
@@ -102,7 +102,7 @@ public class UpdateSystem extends AbstractHttpService {
 
 		CompletableFuture<Optional<ModrinthVersion>> newFuture = new CompletableFuture<>();
 		if (this.latestVersion.compareAndSet(null, newFuture)) {
-			OFCLogger.debug("UpdateSystem - Starting to check for updates");
+			OfcLogger.debug("UpdateSystem - Starting to check for updates");
 			this.requestLatestVersion().thenAccept(version -> {
 				this.validUntil.set(Instant.now().plus(CACHE_DURATION));
 				newFuture.complete(version);

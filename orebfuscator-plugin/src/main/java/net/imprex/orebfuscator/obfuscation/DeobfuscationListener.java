@@ -19,9 +19,9 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.UpdateSystem;
-import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.util.ConsoleUtil;
 import net.imprex.orebfuscator.util.PermissionUtil;
 

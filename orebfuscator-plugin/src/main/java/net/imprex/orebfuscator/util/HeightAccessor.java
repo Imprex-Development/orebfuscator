@@ -13,6 +13,7 @@ import org.bukkit.plugin.Plugin;
 import com.comphenix.protocol.reflect.accessors.Accessors;
 import com.comphenix.protocol.reflect.accessors.MethodAccessor;
 
+import dev.imprex.orebfuscator.logging.OfcLogger;
 import net.imprex.orebfuscator.chunk.ChunkCapabilities;
 
 public class HeightAccessor {
@@ -32,7 +33,7 @@ public class HeightAccessor {
 			if (methodAccessor == null) {
 				throw new RuntimeException("unable to find method: World::" + methodName + "()");
 			}
-			OFCLogger.debug("HeightAccessor found method: World::" + methodName + "()");
+			OfcLogger.debug("HeightAccessor found method: World::" + methodName + "()");
 			return methodAccessor;
 		}
 		return null;

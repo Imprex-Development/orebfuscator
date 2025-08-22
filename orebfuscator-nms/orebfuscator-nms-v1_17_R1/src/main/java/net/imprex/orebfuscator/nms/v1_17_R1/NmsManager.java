@@ -18,12 +18,12 @@ import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.events.PacketContainer;
 import com.google.common.collect.ImmutableList;
 
-import net.imprex.orebfuscator.config.Config;
+import dev.imprex.orebfuscator.config.api.Config;
+import dev.imprex.orebfuscator.util.BlockProperties;
+import dev.imprex.orebfuscator.util.BlockStateProperties;
+import dev.imprex.orebfuscator.util.NamespacedKey;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
-import net.imprex.orebfuscator.util.BlockProperties;
-import net.imprex.orebfuscator.util.BlockStateProperties;
-import net.imprex.orebfuscator.util.NamespacedKey;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Registry;
 import net.minecraft.core.SectionPos;
@@ -118,18 +118,18 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public void sendBlockUpdates(World world, Iterable<net.imprex.orebfuscator.util.BlockPos> iterable) {
+	public void sendBlockUpdates(World world, Iterable<dev.imprex.orebfuscator.util.BlockPos> iterable) {
 		ServerChunkCache serverChunkCache = level(world).getChunkProvider();
 		BlockPos.MutableBlockPos position = new BlockPos.MutableBlockPos();
 
-		for (net.imprex.orebfuscator.util.BlockPos pos : iterable) {
+		for (dev.imprex.orebfuscator.util.BlockPos pos : iterable) {
 			position.set(pos.x, pos.y, pos.z);
 			serverChunkCache.blockChanged(position);
 		}
 	}
 
 	@Override
-	public void sendBlockUpdates(Player player, Iterable<net.imprex.orebfuscator.util.BlockPos> iterable) {
+	public void sendBlockUpdates(Player player, Iterable<dev.imprex.orebfuscator.util.BlockPos> iterable) {
 		ServerPlayer serverPlayer = player(player);
 		ServerLevel level = serverPlayer.getLevel();
 		ServerChunkCache serverChunkCache = level.getChunkProvider();
@@ -139,7 +139,7 @@ public class NmsManager extends AbstractNmsManager {
 		Map<SectionPos, Map<Short, BlockState>> sectionPackets = new HashMap<>();
 		List<Packet<ClientGamePacketListener>> blockEntityPackets = new ArrayList<>();
 
-		for (net.imprex.orebfuscator.util.BlockPos pos : iterable) {
+		for (dev.imprex.orebfuscator.util.BlockPos pos : iterable) {
 			if (!serverChunkCache.isChunkLoaded(pos.x >> 4, pos.z >> 4)) {
 				continue;
 			}

@@ -19,15 +19,15 @@ import com.comphenix.protocol.async.AsyncListenerHandler;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 
+import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
+import dev.imprex.orebfuscator.config.api.AdvancedConfig;
+import dev.imprex.orebfuscator.logging.OfcLogger;
+import dev.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.chunk.ChunkStruct;
-import net.imprex.orebfuscator.config.AdvancedConfig;
-import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayer;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayerMap;
-import net.imprex.orebfuscator.util.BlockPos;
-import net.imprex.orebfuscator.util.OFCLogger;
 import net.imprex.orebfuscator.util.PermissionUtil;
 import net.imprex.orebfuscator.util.ServerVersion;
 
@@ -116,7 +116,7 @@ public class ObfuscationListener extends PacketAdapter {
 			} else if (chunk != null) {
 				this.complete(event, struct, chunk);
 			} else {
-				OFCLogger.warn(String.format("skipping chunk[world=%s, x=%d, z=%d] because obfuscation result is missing",
+				OfcLogger.warn(String.format("skipping chunk[world=%s, x=%d, z=%d] because obfuscation result is missing",
 						struct.world.getName(), struct.chunkX, struct.chunkZ));
 				this.asynchronousManager.signalPacketTransmission(event);
 			}
@@ -129,10 +129,10 @@ public class ObfuscationListener extends PacketAdapter {
 
 	private void completeExceptionally(PacketEvent event, ChunkStruct struct, Throwable throwable) {
 		if (throwable instanceof TimeoutException) {
-			OFCLogger.warn(String.format("Obfuscation for chunk[world=%s, x=%d, z=%d] timed out",
+			OfcLogger.warn(String.format("Obfuscation for chunk[world=%s, x=%d, z=%d] timed out",
 					struct.world.getName(), struct.chunkX, struct.chunkZ));
 		} else {
-			OFCLogger.error(String.format("An error occurred while obfuscating chunk[world=%s, x=%d, z=%d]",
+			OfcLogger.error(String.format("An error occurred while obfuscating chunk[world=%s, x=%d, z=%d]",
 					struct.world.getName(), struct.chunkX, struct.chunkZ), throwable);
 		}
 

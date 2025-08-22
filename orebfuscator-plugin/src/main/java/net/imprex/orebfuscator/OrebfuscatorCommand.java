@@ -29,10 +29,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonWriter;
 
+import dev.imprex.orebfuscator.logging.OfcLogger;
+import dev.imprex.orebfuscator.util.JavaVersion;
 import net.imprex.orebfuscator.util.HeightAccessor;
-import net.imprex.orebfuscator.util.JavaVersion;
 import net.imprex.orebfuscator.util.MinecraftVersion;
-import net.imprex.orebfuscator.util.OFCLogger;
 import net.imprex.orebfuscator.util.PermissionUtil;
 
 public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {
@@ -112,7 +112,7 @@ public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {
 
 			Base64.Encoder encoder = Base64.getUrlEncoder();
 
-			String latestLog = OFCLogger.getLatestVerboseLog();
+			String latestLog = OfcLogger.getLatestVerboseLog();
 			root.addProperty("verboseLog", encoder.encodeToString(latestLog.getBytes(StandardCharsets.UTF_8)));
 
 			try {

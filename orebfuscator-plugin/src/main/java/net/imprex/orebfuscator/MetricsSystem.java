@@ -10,8 +10,8 @@ import org.bstats.charts.DrilldownPie;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 
-import net.imprex.orebfuscator.config.OrebfuscatorConfig;
-import net.imprex.orebfuscator.util.MathUtil;
+import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
+import dev.imprex.orebfuscator.util.MathUtil;
 
 public class MetricsSystem {
 

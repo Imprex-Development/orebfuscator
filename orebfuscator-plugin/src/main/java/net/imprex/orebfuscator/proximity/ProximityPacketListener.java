@@ -12,10 +12,10 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 
+import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
+import dev.imprex.orebfuscator.config.api.ProximityConfig;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.chunk.ChunkCapabilities;
-import net.imprex.orebfuscator.config.OrebfuscatorConfig;
-import net.imprex.orebfuscator.config.ProximityConfig;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayer;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayerMap;
 import net.imprex.orebfuscator.util.PermissionUtil;

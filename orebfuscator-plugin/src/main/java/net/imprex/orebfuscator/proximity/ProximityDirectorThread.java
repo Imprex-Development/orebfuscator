@@ -16,9 +16,9 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 
+import dev.imprex.orebfuscator.config.api.AdvancedConfig;
+import dev.imprex.orebfuscator.logging.OfcLogger;
 import net.imprex.orebfuscator.Orebfuscator;
-import net.imprex.orebfuscator.config.AdvancedConfig;
-import net.imprex.orebfuscator.util.OFCLogger;
 import net.imprex.orebfuscator.util.RingTimer;
 
 public class ProximityDirectorThread extends Thread implements Listener {
@@ -180,7 +180,7 @@ public class ProximityDirectorThread extends Thread implements Listener {
 		}
 
 		if (this.phaser.isTerminated() && this.running) {
-			OFCLogger.error("Looks like we encountered an invalid state, please report this:",
+			OfcLogger.error("Looks like we encountered an invalid state, please report this:",
 					new IllegalStateException("Proximity Phaser terminated!"));
 		}
 	}

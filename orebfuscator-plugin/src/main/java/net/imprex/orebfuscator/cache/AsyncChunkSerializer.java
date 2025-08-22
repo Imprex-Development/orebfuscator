@@ -10,8 +10,8 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import dev.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.Orebfuscator;
-import net.imprex.orebfuscator.util.ChunkPosition;
 
 /**
  * This class works similar to a bounded buffer for cache read and write

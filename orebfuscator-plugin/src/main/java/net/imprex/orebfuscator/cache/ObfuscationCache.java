@@ -7,13 +7,13 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalNotification;
 
+import dev.imprex.orebfuscator.config.api.CacheConfig;
+import dev.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.OrebfuscatorStatistics;
-import net.imprex.orebfuscator.config.CacheConfig;
 import net.imprex.orebfuscator.obfuscation.ObfuscationRequest;
 import net.imprex.orebfuscator.obfuscation.ObfuscationResult;
-import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class ObfuscationCache {
 

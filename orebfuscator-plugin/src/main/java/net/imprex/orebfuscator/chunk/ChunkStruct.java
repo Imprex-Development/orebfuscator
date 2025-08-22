@@ -12,7 +12,7 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.nbt.NbtBase;
 import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 
-import net.imprex.orebfuscator.util.BlockPos;
+import dev.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.HeightAccessor;
 
 public class ChunkStruct {

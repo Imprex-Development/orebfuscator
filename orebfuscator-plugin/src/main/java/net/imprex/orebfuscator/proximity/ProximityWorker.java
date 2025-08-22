@@ -11,15 +11,15 @@ import org.bukkit.entity.Player;
 import org.joml.FrustumIntersection;
 import org.joml.Quaternionf;
 
+import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
+import dev.imprex.orebfuscator.config.api.ProximityConfig;
+import dev.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.OrebfuscatorNms;
-import net.imprex.orebfuscator.config.OrebfuscatorConfig;
-import net.imprex.orebfuscator.config.ProximityConfig;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayer;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayerChunk;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayerMap;
-import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.FastGazeUtil;
 import net.imprex.orebfuscator.util.PermissionUtil;
 

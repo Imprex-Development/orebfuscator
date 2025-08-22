@@ -7,12 +7,12 @@ import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
+import dev.imprex.orebfuscator.config.api.Config;
+import dev.imprex.orebfuscator.logging.OfcLogger;
+import dev.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.compatibility.CompatibilityLayer;
-import net.imprex.orebfuscator.config.Config;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
-import net.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.util.MinecraftVersion;
-import net.imprex.orebfuscator.util.OFCLogger;
 import net.imprex.orebfuscator.util.ServerVersion;
 
 public class OrebfuscatorCompatibility {
@@ -32,7 +32,7 @@ public class OrebfuscatorCompatibility {
 		}
 
 		try {
-			OFCLogger.debug("Loading compatibility layer for: " + className);
+			OfcLogger.debug("Loading compatibility layer for: " + className);
 			Class<? extends CompatibilityLayer> nmsManager = Class.forName(className).asSubclass(CompatibilityLayer.class);
 			Constructor<? extends CompatibilityLayer> constructor = nmsManager.getConstructor(Plugin.class, Config.class);
 			OrebfuscatorCompatibility.instance = constructor.newInstance(plugin, config);
@@ -42,7 +42,7 @@ public class OrebfuscatorCompatibility {
 			throw new RuntimeException("Couldn't initialize compatibility layer", e);
 		}
 
-		OFCLogger.debug("Compatibility layer successfully loaded");
+		OfcLogger.debug("Compatibility layer successfully loaded");
 	}
 
 	public static boolean isGameThread() {
