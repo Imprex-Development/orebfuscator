@@ -11,12 +11,15 @@ import org.bukkit.entity.Player;
 
 import com.google.common.base.Objects;
 
+import dev.imprex.orebfuscator.config.api.AdvancedConfig;
+import dev.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.Orebfuscator;
-import net.imprex.orebfuscator.config.AdvancedConfig;
-import net.imprex.orebfuscator.util.BlockPos;
-import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class OrebfuscatorPlayer {
+
+	private static long chunkCoordsToLong(int chunkX, int chunkZ) {
+		return (chunkZ & 0xffffffffL) << 32 | chunkX & 0xffffffffL;
+	}
 
 	private final Player player;
 	private final AdvancedConfig config;
@@ -112,15 +115,15 @@ public class OrebfuscatorPlayer {
 	}
 
 	public void addChunk(int chunkX, int chunkZ, List<BlockPos> blocks) {
-		this.chunks.put(ChunkPosition.toLong(chunkX, chunkZ),
+		this.chunks.put(chunkCoordsToLong(chunkX, chunkZ),
 				new OrebfuscatorPlayerChunk(chunkX, chunkZ, blocks));
 	}
 
 	public OrebfuscatorPlayerChunk getChunk(int chunkX, int chunkZ) {
-		return this.chunks.get(ChunkPosition.toLong(chunkX, chunkZ));
+		return this.chunks.get(chunkCoordsToLong(chunkX, chunkZ));
 	}
 
 	public void removeChunk(int chunkX, int chunkZ) {
-		this.chunks.remove(ChunkPosition.toLong(chunkX, chunkZ));
+		this.chunks.remove(chunkCoordsToLong(chunkX, chunkZ));
 	}
 }

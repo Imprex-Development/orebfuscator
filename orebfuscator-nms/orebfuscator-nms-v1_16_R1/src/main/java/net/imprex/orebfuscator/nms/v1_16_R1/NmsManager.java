@@ -2,9 +2,12 @@ package net.imprex.orebfuscator.nms.v1_16_R1;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
+import java.util.Set;
 
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -20,13 +23,14 @@ import com.comphenix.protocol.wrappers.MultiBlockChangeInfo;
 import com.comphenix.protocol.wrappers.WrappedBlockData;
 import com.google.common.collect.ImmutableList;
 
-import net.imprex.orebfuscator.config.Config;
+import dev.imprex.orebfuscator.config.api.Config;
+import dev.imprex.orebfuscator.util.BlockPos;
+import dev.imprex.orebfuscator.util.BlockProperties;
+import dev.imprex.orebfuscator.util.BlockStateProperties;
+import dev.imprex.orebfuscator.util.BlockTag;
+import dev.imprex.orebfuscator.util.NamespacedKey;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
-import net.imprex.orebfuscator.util.BlockPos;
-import net.imprex.orebfuscator.util.BlockProperties;
-import net.imprex.orebfuscator.util.BlockStateProperties;
-import net.imprex.orebfuscator.util.NamespacedKey;
 import net.minecraft.server.v1_16_R1.Block;
 import net.minecraft.server.v1_16_R1.BlockPosition;
 import net.minecraft.server.v1_16_R1.Blocks;
@@ -36,9 +40,12 @@ import net.minecraft.server.v1_16_R1.ChunkSection;
 import net.minecraft.server.v1_16_R1.EntityPlayer;
 import net.minecraft.server.v1_16_R1.IBlockData;
 import net.minecraft.server.v1_16_R1.IRegistry;
+import net.minecraft.server.v1_16_R1.MinecraftKey;
 import net.minecraft.server.v1_16_R1.Packet;
 import net.minecraft.server.v1_16_R1.PacketListenerPlayOut;
 import net.minecraft.server.v1_16_R1.ResourceKey;
+import net.minecraft.server.v1_16_R1.Tag;
+import net.minecraft.server.v1_16_R1.TagsBlock;
 import net.minecraft.server.v1_16_R1.TileEntity;
 import net.minecraft.server.v1_16_R1.WorldServer;
 
@@ -95,7 +102,21 @@ public class NmsManager extends AbstractNmsManager {
 				builder.withBlockState(properties);
 			}
 
-			this.registerBlockProperties(builder.build());
+			registerBlockProperties(builder.build());
+		}
+
+		for (Entry<MinecraftKey, Tag<Block>> entry : TagsBlock.b().b().entrySet()) {
+			NamespacedKey namespacedKey = NamespacedKey.fromString(entry.getKey().toString());
+			
+			Set<BlockProperties> blocks = new HashSet<>();
+			for (Block block : entry.getValue().getTagged()) {
+				BlockProperties properties = getBlockByName(IRegistry.BLOCK.getKey(block).toString());
+				if (properties != null) {
+					blocks.add(properties);
+				}
+			}
+
+			registerBlockTag(new BlockTag(namespacedKey, blocks));
 		}
 	}
 
@@ -122,11 +143,11 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
-	public void sendBlockUpdates(World world, Iterable<net.imprex.orebfuscator.util.BlockPos> iterable) {
+	public void sendBlockUpdates(World world, Iterable<dev.imprex.orebfuscator.util.BlockPos> iterable) {
 		ChunkProviderServer serverChunkCache = level(world).getChunkProvider();
 		BlockPosition.MutableBlockPosition position = new BlockPosition.MutableBlockPosition();
 
-		for (net.imprex.orebfuscator.util.BlockPos pos : iterable) {
+		for (dev.imprex.orebfuscator.util.BlockPos pos : iterable) {
 			position.c(pos.x, pos.y, pos.z);
 			serverChunkCache.flagDirty(position);
 		}
@@ -142,7 +163,7 @@ public class NmsManager extends AbstractNmsManager {
 		Map<ChunkCoordIntPair, List<MultiBlockChangeInfo>> sectionPackets = new HashMap<>();
 		List<Packet<PacketListenerPlayOut>> blockEntityPackets = new ArrayList<>();
 
-		for (net.imprex.orebfuscator.util.BlockPos pos : iterable) {
+		for (dev.imprex.orebfuscator.util.BlockPos pos : iterable) {
 			if (!serverChunkCache.isChunkLoaded(pos.x >> 4, pos.z >> 4)) {
 				continue;
 			}

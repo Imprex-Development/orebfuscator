@@ -3,9 +3,11 @@ package net.imprex.orebfuscator.util;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
+
+import dev.imprex.orebfuscator.logging.LogLevel;
+import dev.imprex.orebfuscator.logging.OfcLogger;
 
 public final class ConsoleUtil {
 
@@ -22,9 +24,9 @@ public final class ConsoleUtil {
 		return value;
 	}
 
-	public static void printBox(Level level, String...lines) {
+	public static void printBox(LogLevel level, String...lines) {
 		for (String line : createBox(lines)) {
-			OFCLogger.log(level, line);
+			OfcLogger.log(level, line);
 		}
 	}
 

@@ -5,10 +5,10 @@ import java.util.concurrent.CompletableFuture;
 
 import org.bukkit.block.Block;
 
+import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.cache.ObfuscationCache;
 import net.imprex.orebfuscator.chunk.ChunkStruct;
-import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 
 public class ObfuscationSystem {
 

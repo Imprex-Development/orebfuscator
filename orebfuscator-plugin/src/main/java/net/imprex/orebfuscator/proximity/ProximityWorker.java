@@ -11,15 +11,17 @@ import org.bukkit.entity.Player;
 import org.joml.FrustumIntersection;
 import org.joml.Quaternionf;
 
+import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
+import dev.imprex.orebfuscator.config.api.ProximityConfig;
+import dev.imprex.orebfuscator.interop.WorldAccessor;
+import dev.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.OrebfuscatorNms;
-import net.imprex.orebfuscator.config.OrebfuscatorConfig;
-import net.imprex.orebfuscator.config.ProximityConfig;
+import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayer;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayerChunk;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayerMap;
-import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.FastGazeUtil;
 import net.imprex.orebfuscator.util.PermissionUtil;
 
@@ -57,9 +59,10 @@ public class ProximityWorker {
 		}
 
 		World world = player.getWorld();
+		WorldAccessor worldAccessor = BukkitWorldAccessor.get(world);
 
 		// check if world has enabled proximity config
-		ProximityConfig proximityConfig = this.config.world(world).proximity();
+		ProximityConfig proximityConfig = this.config.world(worldAccessor).proximity();
 		if (proximityConfig == null || !proximityConfig.isEnabled()) {
 			return;
 		}

@@ -18,19 +18,10 @@
 			<scope>provided</scope>
 		</dependency>
 		<dependency>
-			<groupId>net.imprex</groupId>
-			<artifactId>orebfuscator-common</artifactId>
+			<groupId>dev.imprex</groupId>
+			<artifactId>orebfuscator-core</artifactId>
 			<version>${revision}</version>
 			<scope>compile</scope>
 		</dependency>
 	</dependencies>
-
-	<build>
-		<plugins>
-			<plugin>
-				<groupId>org.apache.maven.plugins</groupId>
-				<artifactId>maven-shade-plugin</artifactId>
-			</plugin>
-		</plugins>
-	</build>
 </project>

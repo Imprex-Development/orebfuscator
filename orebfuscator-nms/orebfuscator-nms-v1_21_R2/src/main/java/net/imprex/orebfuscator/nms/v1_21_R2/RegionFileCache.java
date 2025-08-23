@@ -8,9 +8,9 @@ import java.nio.file.Path;
 import org.bukkit.Bukkit;
 import org.bukkit.craftbukkit.v1_21_R2.CraftServer;
 
-import net.imprex.orebfuscator.config.CacheConfig;
-import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
-import net.imprex.orebfuscator.util.ChunkPosition;
+import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
+import dev.imprex.orebfuscator.config.api.CacheConfig;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.storage.RegionFile;
 import net.minecraft.world.level.chunk.storage.RegionFileVersion;
@@ -33,12 +33,12 @@ public class RegionFileCache extends AbstractRegionFileCache<RegionFile> {
 	}
 
 	@Override
-	protected DataInputStream createInputStream(RegionFile t, ChunkPosition key) throws IOException {
-		return t.getChunkDataInputStream(new ChunkPos(key.x, key.z));
+	protected DataInputStream createInputStream(RegionFile t, ChunkCacheKey key) throws IOException {
+		return t.getChunkDataInputStream(new ChunkPos(key.x(), key.z()));
 	}
 
 	@Override
-	protected DataOutputStream createOutputStream(RegionFile t, ChunkPosition key) throws IOException {
-		return t.getChunkDataOutputStream(new ChunkPos(key.x, key.z));
+	protected DataOutputStream createOutputStream(RegionFile t, ChunkCacheKey key) throws IOException {
+		return t.getChunkDataOutputStream(new ChunkPos(key.x(), key.z()));
 	}
 }

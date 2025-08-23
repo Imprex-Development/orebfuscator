@@ -16,6 +16,7 @@ import org.bukkit.plugin.PluginDescriptionFile;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 
+import dev.imprex.orebfuscator.util.Version;
 import net.imprex.orebfuscator.Orebfuscator;
 
 public abstract class AbstractHttpService {

@@ -3,10 +3,15 @@ package net.imprex.orebfuscator.nms;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.imprex.orebfuscator.util.BlockProperties;
-import net.imprex.orebfuscator.util.BlockStateProperties;
-import net.imprex.orebfuscator.util.MathUtil;
-import net.imprex.orebfuscator.util.NamespacedKey;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
+import dev.imprex.orebfuscator.util.BlockProperties;
+import dev.imprex.orebfuscator.util.BlockStateProperties;
+import dev.imprex.orebfuscator.util.BlockTag;
+import dev.imprex.orebfuscator.util.MathUtil;
+import dev.imprex.orebfuscator.util.NamespacedKey;
 
 public abstract class AbstractNmsManager implements NmsManager {
 
@@ -17,6 +22,7 @@ public abstract class AbstractNmsManager implements NmsManager {
 
 	private final BlockStateProperties[] blockStates;
 	private final Map<NamespacedKey, BlockProperties> blocks = new HashMap<>();
+	protected final Map<NamespacedKey, BlockTag> tags = new HashMap<>();
 
 	public AbstractNmsManager(int uniqueBlockStateCount, AbstractRegionFileCache<?> regionFileCache) {
 		this.regionFileCache = regionFileCache;
@@ -35,6 +41,10 @@ public abstract class AbstractNmsManager implements NmsManager {
 		}
 	}
 
+	protected final void registerBlockTag(BlockTag tag) {
+		this.tags.put(tag.key(), tag);
+	}
+
 	@Override
 	public final AbstractRegionFileCache<?> getRegionFileCache() {
 		return this.regionFileCache;
@@ -51,8 +61,13 @@ public abstract class AbstractNmsManager implements NmsManager {
 	}
 
 	@Override
-	public final BlockProperties getBlockByName(NamespacedKey key) {
-		return this.blocks.get(key);
+	public final @Nullable BlockProperties getBlockByName(@NotNull String name) {
+		return this.blocks.get(NamespacedKey.fromString(name));
+	}
+
+	@Override
+	public final @Nullable BlockTag getBlockTagByName(@NotNull String name) {
+		return this.tags.get(NamespacedKey.fromString(name));
 	}
 
 	@Override

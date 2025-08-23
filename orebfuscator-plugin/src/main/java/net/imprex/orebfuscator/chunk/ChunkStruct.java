@@ -5,19 +5,17 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
 
-import org.bukkit.World;
-
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.nbt.NbtBase;
 import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 
-import net.imprex.orebfuscator.util.BlockPos;
-import net.imprex.orebfuscator.util.HeightAccessor;
+import dev.imprex.orebfuscator.util.BlockPos;
+import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 
 public class ChunkStruct {
 
-	public final World world;
+	public final BukkitWorldAccessor worldAccessor;
 
 	public final int chunkX;
 	public final int chunkZ;
@@ -28,12 +26,11 @@ public class ChunkStruct {
 	private final PacketContainer packet;
 	private final WrappedClientboundLevelChunkPacketData packetData;
 
-	public ChunkStruct(PacketContainer packet, World world) {
+	public ChunkStruct(PacketContainer packet, BukkitWorldAccessor worldAccessor) {
 		this.packet = packet;
+		this.worldAccessor = worldAccessor;
+
 		StructureModifier<Integer> packetInteger = packet.getIntegers();
-
-		this.world = world;
-
 		this.chunkX = packetInteger.read(0);
 		this.chunkZ = packetInteger.read(1);
 
@@ -53,7 +50,7 @@ public class ChunkStruct {
 			}
 		} else {
 			this.sectionMask = new BitSet();
-			this.sectionMask.set(0, HeightAccessor.get(world).getSectionCount());
+			this.sectionMask.set(0, worldAccessor.getSectionCount());
 		}
 	}
 

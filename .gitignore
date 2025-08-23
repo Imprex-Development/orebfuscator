@@ -1,42 +1,55 @@
-.metadata
-bin/
+# ---- OS junk ----
+.DS_Store
+Thumbs.db
+
+# ---- Maven / Java ----
 target/
+pom.xml.tag
+pom.xml.releaseBackup
+pom.xml.versionsBackup
+pom.xml.next
+release.properties
+dependency-reduced-pom.xml
+.flattened-pom.xml
+# JVM crash logs
+hs_err_pid*
+replay_pid*
+
+# If you're on the newer Maven Wrapper that downloads the jar, ignore it.
+# Otherwise, REMOVE this line so the jar is committed.
+.mvn/wrapper/maven-wrapper.jar
+
+# ---- Eclipse / STS ----
+.project
+.classpath
+.settings/
+.metadata/
+.recommenders/
+.loadpath
+.externalToolBuilders/
+*.launch
+.factorypath
+# Common generated/temporary
+bin/
 tmp/
 *.tmp
 *.bak
 *.swp
 *~.nib
 local.properties
-.settings/
-.loadpath
-.recommenders
 
-# Eclipse Core
-.project
+# ---- IntelliJ IDEA ----
+.idea/
+*.iml
+*.iws
+out/
+# IntelliJ shelves & local tasks
+.idea/shelf/
+.idea/workspace.xml
+.idea/tasks.xml
+.idea/usage.statistics.xml
+.idea/dictionaries/
+.idea/libraries/
 
-# External tool builders
-.externalToolBuilders/
-
-# Locally stored "Eclipse launch configurations"
-*.launch
-
-# JDT-specific (Eclipse Java Development Tools)
-.classpath
-
-# Java annotation processor (APT)
-.factorypath
-
-# sbteclipse plugin
-.target
-
-# Code Recommenders
-.recommenders/
-/target/
-
-#Logs
-*.log
-.test
-
-# Maven
-dependency-reduced-pom.xml
-.flattened-pom.xml
+# ---- VS Code (optional) ----
+.vscode/

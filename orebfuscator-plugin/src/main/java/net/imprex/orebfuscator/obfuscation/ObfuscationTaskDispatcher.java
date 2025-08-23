@@ -6,8 +6,8 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.locks.LockSupport;
 
+import dev.imprex.orebfuscator.config.api.AdvancedConfig;
 import net.imprex.orebfuscator.Orebfuscator;
-import net.imprex.orebfuscator.config.AdvancedConfig;
 
 class ObfuscationTaskDispatcher {
 
