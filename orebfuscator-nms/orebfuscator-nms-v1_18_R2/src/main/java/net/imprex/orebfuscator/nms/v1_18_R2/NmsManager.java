@@ -5,6 +5,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -15,10 +18,12 @@ import org.bukkit.entity.Player;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.google.common.collect.ImmutableList;
+import com.mojang.datafixers.util.Pair;
 
 import dev.imprex.orebfuscator.config.api.Config;
 import dev.imprex.orebfuscator.util.BlockProperties;
 import dev.imprex.orebfuscator.util.BlockStateProperties;
+import dev.imprex.orebfuscator.util.BlockTag;
 import dev.imprex.orebfuscator.util.NamespacedKey;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
@@ -94,6 +99,18 @@ public class NmsManager extends AbstractNmsManager {
 
 			this.registerBlockProperties(builder.build());
 		}
+
+		Registry.BLOCK.getTags().map(Pair::getSecond).forEach(tag -> {
+			NamespacedKey namespacedKey = NamespacedKey.fromString(tag.key().location().toString());
+
+			Set<BlockProperties> blocks = tag.stream()
+				.map(holder -> holder.unwrapKey().map(key -> getBlockByName(key.location().toString())))
+				.filter(Optional::isPresent)
+				.map(Optional::get)
+				.collect(Collectors.toUnmodifiableSet());
+
+			registerBlockTag(new BlockTag(namespacedKey, blocks));
+		});
 	}
 
 	@Override

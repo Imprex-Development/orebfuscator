@@ -1,10 +1,7 @@
-package net.imprex.orebfuscator.util;
+package dev.imprex.orebfuscator.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
-
 import org.junit.jupiter.api.Test;
-
-import dev.imprex.orebfuscator.util.BlockPos;
 
 public class BlockPosTest {
 

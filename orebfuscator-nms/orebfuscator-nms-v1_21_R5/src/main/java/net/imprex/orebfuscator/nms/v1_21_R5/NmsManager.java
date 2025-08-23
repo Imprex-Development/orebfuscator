@@ -19,7 +19,6 @@ import org.bukkit.entity.Player;
 import com.google.common.collect.ImmutableList;
 
 import dev.imprex.orebfuscator.config.api.Config;
-import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.BlockProperties;
 import dev.imprex.orebfuscator.util.BlockStateProperties;
 import dev.imprex.orebfuscator.util.BlockTag;

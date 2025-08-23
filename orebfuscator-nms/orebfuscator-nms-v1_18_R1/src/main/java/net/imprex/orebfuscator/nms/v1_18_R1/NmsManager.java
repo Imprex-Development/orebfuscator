@@ -2,9 +2,11 @@ package net.imprex.orebfuscator.nms.v1_18_R1;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -19,6 +21,7 @@ import com.google.common.collect.ImmutableList;
 import dev.imprex.orebfuscator.config.api.Config;
 import dev.imprex.orebfuscator.util.BlockProperties;
 import dev.imprex.orebfuscator.util.BlockStateProperties;
+import dev.imprex.orebfuscator.util.BlockTag;
 import dev.imprex.orebfuscator.util.NamespacedKey;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
@@ -32,9 +35,12 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.Tag;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -92,7 +98,21 @@ public class NmsManager extends AbstractNmsManager {
 				builder.withBlockState(properties);
 			}
 
-			this.registerBlockProperties(builder.build());
+			registerBlockProperties(builder.build());
+		}
+
+		for (Map.Entry<ResourceLocation, Tag<Block>> entry : BlockTags.getAllTags().getAllTags().entrySet()) {
+			NamespacedKey namespacedKey = NamespacedKey.fromString(entry.getKey().toString());
+			
+			Set<BlockProperties> blocks = new HashSet<>();
+			for (Block block : entry.getValue().getValues()) {
+				BlockProperties properties = getBlockByName(Registry.BLOCK.getKey(block).toString());
+				if (properties != null) {
+					blocks.add(properties);
+				}
+			}
+
+			registerBlockTag(new BlockTag(namespacedKey, blocks));
 		}
 	}
 

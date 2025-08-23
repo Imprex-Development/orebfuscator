@@ -2,8 +2,10 @@ package net.imprex.orebfuscator.nms.v1_16_R2;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
@@ -21,6 +23,7 @@ import dev.imprex.orebfuscator.config.api.Config;
 import dev.imprex.orebfuscator.util.BlockPos;
 import dev.imprex.orebfuscator.util.BlockProperties;
 import dev.imprex.orebfuscator.util.BlockStateProperties;
+import dev.imprex.orebfuscator.util.BlockTag;
 import dev.imprex.orebfuscator.util.NamespacedKey;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
@@ -33,12 +36,15 @@ import net.minecraft.server.v1_16_R2.ChunkSection;
 import net.minecraft.server.v1_16_R2.EntityPlayer;
 import net.minecraft.server.v1_16_R2.IBlockData;
 import net.minecraft.server.v1_16_R2.IRegistry;
+import net.minecraft.server.v1_16_R2.MinecraftKey;
 import net.minecraft.server.v1_16_R2.Packet;
 import net.minecraft.server.v1_16_R2.PacketListenerPlayOut;
 import net.minecraft.server.v1_16_R2.PacketPlayOutBlockChange;
 import net.minecraft.server.v1_16_R2.PacketPlayOutMultiBlockChange;
 import net.minecraft.server.v1_16_R2.ResourceKey;
 import net.minecraft.server.v1_16_R2.SectionPosition;
+import net.minecraft.server.v1_16_R2.Tag;
+import net.minecraft.server.v1_16_R2.TagsBlock;
 import net.minecraft.server.v1_16_R2.TileEntity;
 import net.minecraft.server.v1_16_R2.WorldServer;
 
@@ -95,7 +101,21 @@ public class NmsManager extends AbstractNmsManager {
 				builder.withBlockState(properties);
 			}
 
-			this.registerBlockProperties(builder.build());
+			registerBlockProperties(builder.build());
+		}
+
+		for (Entry<MinecraftKey, Tag<Block>> entry : TagsBlock.a().a().entrySet()) {
+			NamespacedKey namespacedKey = NamespacedKey.fromString(entry.getKey().toString());
+			
+			Set<BlockProperties> blocks = new HashSet<>();
+			for (Block block : entry.getValue().getTagged()) {
+				BlockProperties properties = getBlockByName(IRegistry.BLOCK.getKey(block).toString());
+				if (properties != null) {
+					blocks.add(properties);
+				}
+			}
+
+			registerBlockTag(new BlockTag(namespacedKey, blocks));
 		}
 	}
 
