@@ -1,6 +1,7 @@
 package dev.imprex.orebfuscator.util;
 
 import java.util.UUID;
+import org.jetbrains.annotations.NotNull;
 
 /**
  * Represents a String based key which consists of two components - a namespace
@@ -156,7 +157,7 @@ public final class NamespacedKey {
 	 * @return the created NamespacedKey. null if invalid
 	 * @see #fromString(String, Plugin)
 	 */
-	public static NamespacedKey fromString(String string) {
+	public static NamespacedKey fromString(@NotNull String string) {
 		if (string == null || string.isEmpty()) {
 			throw new IllegalArgumentException("Input string must not be empty or null");
 		}

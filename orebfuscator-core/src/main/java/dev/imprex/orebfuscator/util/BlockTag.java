@@ -27,9 +27,4 @@ public record BlockTag(@NotNull NamespacedKey key, @NotNull Set<BlockProperties>
 		}
 		return Objects.equals(key, other.key);
 	}
-
-	@Override
-	public String toString() {
-		return "BlockTag [key=" + key + ", blocks=" + blocks + "]";
-	}
 }

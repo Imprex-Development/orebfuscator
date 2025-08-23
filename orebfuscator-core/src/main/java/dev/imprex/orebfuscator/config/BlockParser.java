@@ -14,7 +14,7 @@ import dev.imprex.orebfuscator.util.BlockTag;
 
 public class BlockParser {
 
-  private static final Pattern CONFIG_FUNCTION_PATTERN = Pattern.compile("^(?<function>\\w+)\\((?<argument>.*)\\)$");
+  private static final Pattern CONFIG_FUNCTION_PATTERN = Pattern.compile("^(?<function>\\w+)\\((?<argument>.+)\\)$");
 
   @NotNull
   public static ConfigBlockValue parseBlockOrBlockTag(
@@ -50,13 +50,13 @@ public class BlockParser {
     BlockTag tag = registry.getBlockTagByName(value);
     if (tag == null) {
       context.warn(ConfigMessage.BLOCK_TAG_UNKNOWN, value);
-      return ConfigBlockValue.invalid(value);
+      return ConfigBlockValue.invalidTag(value);
     }
 
     Set<BlockProperties> blocks = tag.blocks();
     if (blocks.isEmpty()) {
       context.warn(ConfigMessage.BLOCK_TAG_EMPTY, value);
-      return ConfigBlockValue.invalid(value);
+      return ConfigBlockValue.invalidTag(value);
     }
 
     if (excludeAir) {
@@ -74,7 +74,7 @@ public class BlockParser {
 
       if (blocks.isEmpty()) {
         context.warn(ConfigMessage.BLOCK_TAG_AIR_ONLY, value);
-        return ConfigBlockValue.invalid(value);
+        return ConfigBlockValue.invalidTag(value);
       }
     }
 

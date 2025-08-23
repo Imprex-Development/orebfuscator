@@ -1,0 +1,2 @@
+# Force LF for test files
+**/src/test/resources/** text eol=lf

@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import dev.imprex.orebfuscator.config.BlockParser;
 import dev.imprex.orebfuscator.config.context.ConfigMessage;
 import dev.imprex.orebfuscator.config.context.ConfigParsingContext;
 import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
@@ -91,15 +92,21 @@ public class WeightedBlockList {
       return;
     }
 
-    for (String blockName : blocksSection.getKeys()) {
-      BlockProperties blockProperties = registry.getBlockByName(blockName);
-      if (blockProperties != null) {
-        int weight = blocksSection.getInt(blockName, 1);
-        this.blocks.put(ConfigBlockValue.block(blockProperties), weight);
-      } else {
-        this.blocks.put(ConfigBlockValue.invalid(blockName), 1);
-        blocksContext.warn(ConfigMessage.BLOCK_UNKNOWN, blockName);
-      }
+    for (String value : blocksSection.getKeys()) {
+      int weight = blocksSection.getInt(value, 1);
+      // TODO: how is weight distributed between multiple blocks
+      // TODO: should we support non default block states in future?
+      // TODO: can we merge multiple of the same block?
+      this.blocks.put(BlockParser.parseBlockOrBlockTag(registry, context, value, false), weight);
+
+//      BlockProperties blockProperties = registry.getBlockByName(value);
+//      if (blockProperties != null) {
+//        int weight = blocksSection.getInt(value, 1);
+//        this.blocks.put(ConfigBlockValue.block(blockProperties), weight);
+//      } else {
+//        this.blocks.put(ConfigBlockValue.invalid(value), 1);
+//        blocksContext.warn(ConfigMessage.BLOCK_UNKNOWN, value);
+//      }
     }
 
     // TODO: ignore invalid values in this check

@@ -19,7 +19,12 @@ public record ConfigBlockValue(@NotNull String value, @NotNull Set<BlockProperti
   }
 
   @NotNull
+  public static ConfigBlockValue invalidTag(@NotNull String value) {
+    return new ConfigBlockValue(String.format("tag(%s)", value), Collections.emptySet());
+  }
+
+  @NotNull
   public static ConfigBlockValue tag(@NotNull BlockTag tag, @NotNull Set<BlockProperties> blocks) {
-    return new ConfigBlockValue(tag.key().toString(), Collections.unmodifiableSet(blocks));
+    return new ConfigBlockValue(String.format("tag(%s)", tag.key().toString()), Collections.unmodifiableSet(blocks));
   }
 }

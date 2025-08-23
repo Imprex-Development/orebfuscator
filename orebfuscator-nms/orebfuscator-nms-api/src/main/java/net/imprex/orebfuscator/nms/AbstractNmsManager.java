@@ -3,6 +3,7 @@ package net.imprex.orebfuscator.nms;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
@@ -21,6 +22,7 @@ public abstract class AbstractNmsManager implements NmsManager {
 
 	private final BlockStateProperties[] blockStates;
 	private final Map<NamespacedKey, BlockProperties> blocks = new HashMap<>();
+	protected final Map<NamespacedKey, BlockTag> tags = new HashMap<>();
 
 	public AbstractNmsManager(int uniqueBlockStateCount, AbstractRegionFileCache<?> regionFileCache) {
 		this.regionFileCache = regionFileCache;
@@ -39,6 +41,10 @@ public abstract class AbstractNmsManager implements NmsManager {
 		}
 	}
 
+	protected final void registerBlockTag(BlockTag tag) {
+		this.tags.put(tag.key(), tag);
+	}
+
 	@Override
 	public final AbstractRegionFileCache<?> getRegionFileCache() {
 		return this.regionFileCache;
@@ -55,13 +61,13 @@ public abstract class AbstractNmsManager implements NmsManager {
 	}
 
 	@Override
-	public final BlockProperties getBlockByName(String key) {
-		return this.blocks.get(NamespacedKey.fromString(key));
+	public final @Nullable BlockProperties getBlockByName(@NotNull String name) {
+		return this.blocks.get(NamespacedKey.fromString(name));
 	}
 
 	@Override
-	public final @Nullable BlockTag getBlockTagByName(String name) {
-		throw new UnsupportedOperationException();
+	public final @Nullable BlockTag getBlockTagByName(@NotNull String name) {
+		return this.tags.get(NamespacedKey.fromString(name));
 	}
 
 	@Override
