@@ -63,11 +63,10 @@
 	<modules>
 		<module>orebfuscator-api</module>
 		<module>orebfuscator-api-example</module>
-		<module>orebfuscator-common</module>
+		<module>orebfuscator-core</module>
 		<module>orebfuscator-compatibility</module>
 		<module>orebfuscator-nms</module>
 		<module>orebfuscator-plugin</module>
-		<module>orebfuscator-core</module>
 	</modules>
 
 	<profiles>
@@ -114,12 +113,28 @@
 							<filter>
 								<artifact>*:*</artifact>
 								<excludes>
+									<!-- signatures -->
 									<exclude>META-INF/*.SF</exclude>
 									<exclude>META-INF/*.DSA</exclude>
 									<exclude>META-INF/*.RSA</exclude>
+
+									<!-- duplicate/irrelevant in uber-jar -->
+									<exclude>META-INF/MANIFEST.MF</exclude>
+									<exclude>META-INF/LICENSE*</exclude>
+									<exclude>META-INF/NOTICE*</exclude>
+									<exclude>META-INF/maven/**</exclude>
+
+									<!-- kill JPMS descriptors to avoid "Shading
+									will break strong encapsulation" -->
+									<exclude>module-info.class</exclude>
+									<exclude>META-INF/versions/**/module-info.class</exclude>
 								</excludes>
 							</filter>
 						</filters>
+						<transformers>
+							<transformer implementation="org.apache.maven.plugins.shade.resource.ManifestResourceTransformer" />
+							<transformer implementation="org.apache.maven.plugins.shade.resource.ServicesResourceTransformer" />
+						</transformers>
 					</configuration>
 				</plugin>
 			</plugins>
@@ -189,7 +204,7 @@
 		    <groupId>org.jetbrains</groupId>
 		    <artifactId>annotations</artifactId>
 		    <version>${dependency.jetannotations.version}</version>
-		    <scope>compile</scope>
+		    <scope>provided</scope>
 		</dependency>
 	</dependencies>
 </project>

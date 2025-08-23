@@ -76,32 +76,6 @@
 			<artifactId>spigot-api</artifactId>
 			<version>${dependency.bukkit.version}</version>
 			<scope>provided</scope>
-			<exclusions>
-				<exclusion>
-					<groupId>com.google.guava</groupId>
-					<artifactId>guava</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.google.guava</groupId>
-					<artifactId>guava</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>com.google.code.gson</groupId>
-					<artifactId>gson</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.yaml</groupId>
-					<artifactId>snakeyaml</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.joml</groupId>
-					<artifactId>joml</artifactId>
-				</exclusion>
-				<exclusion>
-					<groupId>org.lz4</groupId>
-					<artifactId>lz4-java</artifactId>
-				</exclusion>
-			</exclusions>
 		</dependency>
 		<dependency>
 			<groupId>net.dmulloy2</groupId>
@@ -118,10 +92,22 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
+			<groupId>org.joml</groupId>
+			<artifactId>joml</artifactId>
+			<version>${dependency.joml.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.lz4</groupId>
 			<artifactId>lz4-java</artifactId>
 			<version>${dependency.lz4.version}</version>
 			<scope>compile</scope>
+		</dependency>
+		<dependency>
+		    <groupId>org.jetbrains</groupId>
+		    <artifactId>annotations</artifactId>
+		    <version>${dependency.jetannotations.version}</version>
+		    <scope>compile</scope>
 		</dependency>
 
 		<!-- Orebfuscator -->
@@ -132,16 +118,28 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>net.imprex</groupId>
-			<artifactId>orebfuscator-common</artifactId>
-			<version>${revision}</version>
-			<scope>compile</scope>
-		</dependency>
-		<dependency>
 			<groupId>dev.imprex</groupId>
 			<artifactId>orebfuscator-core</artifactId>
 			<version>${revision}</version>
 			<scope>compile</scope>
+			<exclusions>
+				<exclusion>
+					<groupId>com.google.guava</groupId>
+					<artifactId>guava</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.yaml</groupId>
+					<artifactId>snakeyaml</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.joml</groupId>
+					<artifactId>joml</artifactId>
+				</exclusion>
+				<exclusion>
+					<groupId>org.lz4</groupId>
+					<artifactId>lz4-java</artifactId>
+				</exclusion>
+			</exclusions>
 		</dependency>
 
 		<!-- Orebfuscator compatibility -->

@@ -37,7 +37,7 @@
 			<groupId>com.google.code.gson</groupId>
 			<artifactId>gson</artifactId>
 			<version>${dependency.gson.version}</version>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
 		<dependency>
 		    <groupId>org.yaml</groupId>
@@ -49,7 +49,7 @@
 			<groupId>org.joml</groupId>
 			<artifactId>joml</artifactId>
 			<version>${dependency.joml.version}</version>
-			<scope>compile</scope>
+			<scope>provided</scope>
 		</dependency>
 		<!--<dependency>
 			<groupId>org.lz4</groupId>
@@ -68,11 +68,11 @@
 					<relocations>
 						<relocation>
 							<pattern>com.google.common</pattern>
-							<shadedPattern>net.imprex.shaded.com.google.common</shadedPattern>
+							<shadedPattern>dev.imprex.shaded.com.google.common</shadedPattern>
 						</relocation>
 						<relocation>
 							<pattern>org.yaml.snakeyaml</pattern>
-							<shadedPattern>net.imprex.shaded.org.yaml.snakeyaml</shadedPattern>
+							<shadedPattern>dev.imprex.shaded.org.yaml.snakeyaml</shadedPattern>
 						</relocation>
 					</relocations>
 				</configuration>
