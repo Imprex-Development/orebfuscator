@@ -3,6 +3,7 @@ package dev.imprex.orebfuscator.reflect.accessor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
@@ -36,8 +37,8 @@ class ConstructorAccessorTest {
     var constructor = ConstructorTest.class.getDeclaredConstructor(String[].class);
     var accessor = Accessors.wrap(constructor);
 
-    var values = new String[] {"a", "b", "c"};
-    var instance = (ConstructorTest) accessor.invoke(new Object[] {values});
+    var values = new String[]{"a", "b", "c"};
+    var instance = (ConstructorTest) accessor.invoke(new Object[]{values});
     assertEquals(List.of(values), instance.values);
 
     assertThrows(IllegalStateException.class, () -> accessor.invoke(1));

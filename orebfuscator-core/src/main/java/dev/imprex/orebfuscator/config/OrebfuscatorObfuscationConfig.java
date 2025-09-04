@@ -42,11 +42,14 @@ public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implement
       ConfigParsingContext context) {
     context = context.section("hiddenBlocks");
 
+    boolean isEmpty = true;
     for (String value : section.getStringList("hiddenBlocks")) {
-      this.hiddenBlocks.add(BlockParser.parseBlockOrBlockTag(registry, context, value, true));
+      var parsed = BlockParser.parseBlockOrBlockTag(registry, context, value, true);
+      this.hiddenBlocks.add(parsed);
+      isEmpty &= parsed.blocks().isEmpty();
     }
 
-    if (this.hiddenBlocks.isEmpty()) {
+    if (isEmpty) {
       context.error(ConfigMessage.MISSING_OR_EMPTY);
     }
   }

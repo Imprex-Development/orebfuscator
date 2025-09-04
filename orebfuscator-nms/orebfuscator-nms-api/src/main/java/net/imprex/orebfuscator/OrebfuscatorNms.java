@@ -19,7 +19,7 @@ public class OrebfuscatorNms {
 
 	private static NmsManager instance;
 
-	public static void initialize(Config config) {
+	public static void initialize() {
 		if (OrebfuscatorNms.instance != null) {
 			throw new IllegalStateException("NMS adapter is already initialized!");
 		}
@@ -34,8 +34,8 @@ public class OrebfuscatorNms {
 		try {
 			String className = "net.imprex.orebfuscator.nms." + nmsVersion + ".NmsManager";
 			Class<? extends NmsManager> nmsManager = Class.forName(className).asSubclass(NmsManager.class);
-			Constructor<? extends NmsManager> constructor = nmsManager.getConstructor(Config.class);
-			OrebfuscatorNms.instance = constructor.newInstance(config);
+			Constructor<? extends NmsManager> constructor = nmsManager.getConstructor();
+			OrebfuscatorNms.instance = constructor.newInstance();
 		} catch (ClassNotFoundException e) {
 			throw new RuntimeException("Server version \"" + nmsVersion + "\" is currently not supported!", e);
 		} catch (Exception e) {
@@ -49,8 +49,8 @@ public class OrebfuscatorNms {
 		return instance;
 	}
 
-	public static AbstractRegionFileCache<?> getRegionFileCache() {
-		return instance.getRegionFileCache();
+	public static AbstractRegionFileCache<?> createRegionFileCache(Config config) {
+		return instance.createRegionFileCache(config);
 	}
 
 	public static int getUniqueBlockStateCount() {
@@ -78,7 +78,7 @@ public class OrebfuscatorNms {
 	}
 
 	public static int getBlockState(World world, BlockPos position) {
-		return getBlockState(world, position.x, position.y, position.z);
+		return getBlockState(world, position.x(), position.y(), position.z());
 	}
 
 	public static int getBlockState(World world, int x, int y, int z) {
@@ -91,12 +91,5 @@ public class OrebfuscatorNms {
 
 	public static void sendBlockUpdates(Player player, Iterable<BlockPos> iterable) {
 		instance.sendBlockUpdates(player, iterable);
-	}
-
-	public static void close() {
-		if (instance != null) {
-			instance.close();
-			instance = null;
-		}
 	}
 }

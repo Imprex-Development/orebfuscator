@@ -14,7 +14,7 @@ import dev.imprex.orebfuscator.interop.WorldAccessor;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.BlockPos;
 import dev.imprex.orebfuscator.util.MathUtil;
-import dev.imprex.orebfuscator.util.WeightedIntRandom;
+import dev.imprex.orebfuscator.util.WeightedRandom;
 
 public abstract class AbstractWorldConfig implements WorldConfig {
 
@@ -129,7 +129,7 @@ public abstract class AbstractWorldConfig implements WorldConfig {
   }
 
 
-  WeightedIntRandom[] createWeightedRandoms(WorldAccessor world) {
+  WeightedRandom[] createWeightedRandoms(WorldAccessor world) {
     OfcLogger.debug(String.format("Creating weighted randoms for %s for world %s:", name, world));
     return WeightedBlockList.create(world, this.weightedBlockLists);
   }

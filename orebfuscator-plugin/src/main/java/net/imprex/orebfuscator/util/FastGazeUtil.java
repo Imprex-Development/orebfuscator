@@ -22,9 +22,9 @@ public class FastGazeUtil {
 		double ex = eyes.getX();
 		double ey = eyes.getY();
 		double ez = eyes.getZ();
-		double x = pos.x;
-		double y = pos.y;
-		double z = pos.z;
+		double x = pos.x();
+		double y = pos.y();
+		double z = pos.z();
 		if (onlyCheckCenter) {
 			return // center
 				FastGazeUtil.fastAABBRayCheck(x, y, z, x + 0.5, y + 0.5, z + 0.5, ex, ey, ez, player);

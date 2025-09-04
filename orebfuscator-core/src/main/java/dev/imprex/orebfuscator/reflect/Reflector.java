@@ -26,7 +26,7 @@ public class Reflector {
   private final @NotNull Class<?> target;
   private @NotNull Class<?> recursiveUntil;
 
-  public Reflector(@NotNull Class<?> target) {
+  private Reflector(@NotNull Class<?> target) {
     this.target = Objects.requireNonNull(target);
     this.recursiveUntil = target;
   }

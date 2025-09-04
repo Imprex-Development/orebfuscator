@@ -3,6 +3,7 @@ package dev.imprex.orebfuscator.reflect.accessor;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
@@ -21,7 +22,7 @@ class MethodAccessorTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")  
+  @SuppressWarnings("deprecation")
   void testWrapStaticMethod() throws Exception {
     var method = MethodTest.class.getMethod("staticSum", int.class, int.class);
     assertFalse(method.isAccessible());
@@ -46,8 +47,8 @@ class MethodAccessorTest {
     var method = MethodTest.class.getDeclaredMethod("sum", int.class, int[].class);
     var accessor = Accessors.wrap(method);
 
-    assertEquals(10, accessor.invoke(MethodTest.INSTANCE, 1, new int[] {2, 3, 4}));
-    assertThrows(IllegalStateException.class, () -> accessor.invoke(null, 1, new int[] {2, 3, 4}));
+    assertEquals(10, accessor.invoke(MethodTest.INSTANCE, 1, new int[]{2, 3, 4}));
+    assertThrows(IllegalStateException.class, () -> accessor.invoke(null, 1, new int[]{2, 3, 4}));
   }
 
   @Test
@@ -64,8 +65,8 @@ class MethodAccessorTest {
     var method = MethodTest.class.getDeclaredMethod("staticSum", int.class, int[].class);
     var accessor = Accessors.wrap(method);
 
-    assertEquals(10, accessor.invoke(null, 1, new int[] {2, 3, 4}));
-    assertEquals(10, accessor.invoke("ab", 1, new int[] {2, 3, 4}));
+    assertEquals(10, accessor.invoke(null, 1, new int[]{2, 3, 4}));
+    assertEquals(10, accessor.invoke("ab", 1, new int[]{2, 3, 4}));
   }
 
   public static class MethodTest {

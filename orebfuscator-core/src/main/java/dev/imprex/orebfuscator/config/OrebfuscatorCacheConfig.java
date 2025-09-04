@@ -16,7 +16,7 @@ import dev.imprex.orebfuscator.util.ChunkCacheKey;
 
 public class OrebfuscatorCacheConfig implements CacheConfig {
 
-  private final ServerAccessor server;
+  private final Path worldDirectory;
 
   private boolean enabledValue = true;
 
@@ -34,8 +34,8 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
   private boolean enableDiskCache = false;
 
   public OrebfuscatorCacheConfig(ServerAccessor server) {
-    this.server = server;
-    this.baseDirectory = server.getWorldDirectory().resolve("orebfuscator_cache/");
+    this.worldDirectory = server.getWorldDirectory().normalize();
+    this.baseDirectory = this.worldDirectory.resolve("orebfuscator_cache/");
   }
 
   public void deserialize(ConfigurationSection section, ConfigParsingContext context) {
@@ -98,7 +98,10 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
     section.set("memoryCache.expireAfterAccess", this.expireAfterAccess);
 
     section.set("diskCache.enabled", this.enableDiskCacheValue);
-    section.set("diskCache.directory", this.baseDirectory.toString());
+
+    String directoryString = this.worldDirectory.relativize(baseDirectory).toString();
+    section.set("diskCache.directory", directoryString);
+
     section.set("diskCache.maximumOpenFiles", this.maximumOpenRegionFiles);
     section.set("diskCache.deleteFilesAfterAccess", this.deleteRegionFilesAfterAccess);
     section.set("diskCache.maximumTaskQueueSize", this.maximumTaskQueueSize);
@@ -106,14 +109,13 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 
   private Path deserializeBaseDirectory(ConfigurationSection section, ConfigParsingContext context,
       String defaultPath) {
-    Path worldPath = this.server.getWorldDirectory().normalize();
     String baseDirectory = section.getString("directory", defaultPath);
 
     try {
-      return worldPath.resolve(baseDirectory).normalize();
+      return this.worldDirectory.resolve(baseDirectory).normalize();
     } catch (InvalidPathException e) {
       context.warn("directory", ConfigMessage.CACHE_INVALID_PATH, baseDirectory, defaultPath);
-      return worldPath.resolve(defaultPath).normalize();
+      return this.worldDirectory.resolve(defaultPath).normalize();
     }
   }
 

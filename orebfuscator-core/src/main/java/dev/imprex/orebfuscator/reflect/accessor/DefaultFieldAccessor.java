@@ -5,7 +5,8 @@ import java.lang.reflect.Field;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-final record DefaultFieldAccessor(@NotNull Field member, @NotNull MethodHandle getterHandle, @Nullable MethodHandle setterHandle) implements FieldAccessor {
+record DefaultFieldAccessor(@NotNull Field member, @NotNull MethodHandle getterHandle,
+                                  @Nullable MethodHandle setterHandle) implements FieldAccessor {
 
   @Override
   public boolean readonly() {

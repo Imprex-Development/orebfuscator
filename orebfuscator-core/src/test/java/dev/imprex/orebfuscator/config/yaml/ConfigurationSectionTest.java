@@ -281,9 +281,9 @@ class ConfigurationSectionTest {
     section.set("number", 1);
     section.set("other", true);
 
-    assertEquals(1L, section.getDouble("double"));
-    assertEquals(1L, section.getDouble("doubleObject"));
-    assertEquals(1L, section.getDouble("number"));
+    assertEquals(1d, section.getDouble("double"));
+    assertEquals(1d, section.getDouble("doubleObject"));
+    assertEquals(1d, section.getDouble("number"));
     assertNull(section.getDouble("other"));
     assertNull(section.getDouble("unknown"));
   }

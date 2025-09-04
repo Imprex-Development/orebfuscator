@@ -20,7 +20,8 @@ public final class Accessors {
   private static final MethodType FIELD_GETTER = MethodType.methodType(Object.class, Object.class);
   private static final MethodType FIELD_SETTER = MethodType.methodType(void.class, Object.class, Object.class);
 
-  private Accessors() {}
+  private Accessors() {
+  }
 
   public static @NotNull ConstructorAccessor wrap(@NotNull Constructor<?> constructor) {
     return create(constructor, () -> {
@@ -35,7 +36,7 @@ public final class Accessors {
     return create(field, () -> {
       MethodHandle getter = LOOKUP.unreflectGetter(field);
       MethodHandle setter = null;
-      
+
       try {
         setter = LOOKUP.unreflectSetter(field);
       } catch (IllegalAccessException e) {
@@ -102,6 +103,7 @@ public final class Accessors {
   }
 
   private interface AccessorFactory<T> {
+
     T create() throws IllegalAccessException;
   }
 }

@@ -6,6 +6,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 import dev.imprex.orebfuscator.config.BlockParser;
 import dev.imprex.orebfuscator.config.context.ConfigMessage;
 import dev.imprex.orebfuscator.config.context.ConfigParsingContext;
@@ -14,14 +15,14 @@ import dev.imprex.orebfuscator.interop.RegistryAccessor;
 import dev.imprex.orebfuscator.interop.WorldAccessor;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.BlockPos;
-import dev.imprex.orebfuscator.util.BlockProperties;
+import dev.imprex.orebfuscator.util.BlockStateProperties;
 import dev.imprex.orebfuscator.util.MathUtil;
-import dev.imprex.orebfuscator.util.WeightedIntRandom;
+import dev.imprex.orebfuscator.util.WeightedRandom;
 
 public class WeightedBlockList {
 
-  public static WeightedIntRandom[] create(WorldAccessor world, List<WeightedBlockList> lists) {
-    WeightedIntRandom[] heightMap = new WeightedIntRandom[world.getHeight()];
+  public static WeightedRandom[] create(WorldAccessor world, List<WeightedBlockList> lists) {
+    WeightedRandom[] heightMap = new WeightedRandom[world.getHeight()];
 
     List<WeightedBlockList> last = new ArrayList<>();
     List<WeightedBlockList> next = new ArrayList<>();
@@ -40,15 +41,18 @@ public class WeightedBlockList {
         // copy last weighted random
         heightMap[index] = heightMap[index - 1];
       } else {
-        WeightedIntRandom.Builder builder = WeightedIntRandom.builder();
+        WeightedRandom.Builder builder = WeightedRandom.builder();
 
         for (WeightedBlockList list : next) {
           for (Map.Entry<ConfigBlockValue, Integer> entry : list.blocks.entrySet()) {
-            for (BlockProperties block : entry.getKey().blocks()) {
-              if (!builder.add(block.getDefaultBlockState().getId(), entry.getValue())) {
-                OfcLogger.warn(String.format("duplicate randomBlock entry for %s in %s", block.getKey(),
-                    list.name));
-              }
+            // TODO: only default state or all block states? compression size?
+            var blockStates = entry.getKey().blocks().stream()
+                .flatMap(block -> block.getBlockStates().stream())
+                .collect(Collectors.toSet());
+            double weight = (double) entry.getValue() / (double) blockStates.size();
+
+            for (BlockStateProperties state : blockStates) {
+              builder.add(state.getId(), weight);
             }
           }
         }
@@ -92,25 +96,15 @@ public class WeightedBlockList {
       return;
     }
 
+    boolean isEmpty = true;
     for (String value : blocksSection.getKeys()) {
       int weight = blocksSection.getInt(value, 1);
-      // TODO: how is weight distributed between multiple blocks
-      // TODO: should we support non default block states in future?
-      // TODO: can we merge multiple of the same block?
-      this.blocks.put(BlockParser.parseBlockOrBlockTag(registry, context, value, false), weight);
-
-//      BlockProperties blockProperties = registry.getBlockByName(value);
-//      if (blockProperties != null) {
-//        int weight = blocksSection.getInt(value, 1);
-//        this.blocks.put(ConfigBlockValue.block(blockProperties), weight);
-//      } else {
-//        this.blocks.put(ConfigBlockValue.invalid(value), 1);
-//        blocksContext.warn(ConfigMessage.BLOCK_UNKNOWN, value);
-//      }
+      var parsed = BlockParser.parseBlockOrBlockTag(registry, context, value, false);
+      this.blocks.put(parsed, weight);
+      isEmpty &= parsed.blocks().isEmpty();
     }
 
-    // TODO: ignore invalid values in this check
-    if (this.blocks.isEmpty()) {
+    if (isEmpty) {
       blocksContext.error(ConfigMessage.MISSING_OR_EMPTY);
     }
   }

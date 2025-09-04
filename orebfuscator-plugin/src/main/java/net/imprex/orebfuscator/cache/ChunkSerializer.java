@@ -9,13 +9,16 @@ import org.jetbrains.annotations.Nullable;
 
 import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.util.ChunkCacheKey;
-import net.imprex.orebfuscator.OrebfuscatorNms;
 
 public class ChunkSerializer {
 
 	private static final int CACHE_VERSION = 2;
 
-	private final AbstractRegionFileCache<?> regionFileCache = OrebfuscatorNms.getRegionFileCache();
+	private final AbstractRegionFileCache<?> regionFileCache;
+
+	public ChunkSerializer(AbstractRegionFileCache<?> regionFileCache) {
+		this.regionFileCache = regionFileCache;
+	}
 
 	@Nullable
 	public CacheChunkEntry read(@NotNull ChunkCacheKey key) throws IOException {

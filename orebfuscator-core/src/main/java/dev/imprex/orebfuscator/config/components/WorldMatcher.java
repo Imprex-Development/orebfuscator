@@ -2,13 +2,15 @@ package dev.imprex.orebfuscator.config.components;
 
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
+import org.jetbrains.annotations.NotNull;
 
-// TODO: rewrite to new function style
 public class WorldMatcher implements Predicate<String> {
 
-  public static WorldMatcher parseMatcher(String value) {
-    if (value.startsWith("regex:")) {
-      return new WorldMatcher(parseRegexMatcher(value.substring(6)), Type.REGEX);
+  @NotNull
+  public static WorldMatcher parseMatcher(@NotNull String value) {
+    var parsed = ConfigFunctionValue.parse(value);
+    if (parsed != null && parsed.function().equals("regex")) {
+      return new WorldMatcher(parseRegexMatcher(parsed.argument()), Type.REGEX);
     } else {
       return new WorldMatcher(parseWildcardMatcher(value), Type.WILDCARD);
     }
@@ -38,7 +40,7 @@ public class WorldMatcher implements Predicate<String> {
 
   public String serialize() {
     if (this.type == Type.REGEX) {
-      return "regex:" + this.pattern.pattern();
+      return String.format("regex(%s)", this.pattern.pattern());
     } else {
       return this.pattern.pattern()
           .replace("\\E.*\\Q", "*")

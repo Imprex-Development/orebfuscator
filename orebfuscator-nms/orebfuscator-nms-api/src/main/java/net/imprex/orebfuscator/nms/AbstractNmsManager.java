@@ -6,7 +6,6 @@ import java.util.Map;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.util.BlockProperties;
 import dev.imprex.orebfuscator.util.BlockStateProperties;
 import dev.imprex.orebfuscator.util.BlockTag;
@@ -15,8 +14,6 @@ import dev.imprex.orebfuscator.util.NamespacedKey;
 
 public abstract class AbstractNmsManager implements NmsManager {
 
-	private final AbstractRegionFileCache<?> regionFileCache;
-
 	private final int uniqueBlockStateCount;
 	private final int maxBitsPerBlockState;
 
@@ -24,9 +21,7 @@ public abstract class AbstractNmsManager implements NmsManager {
 	private final Map<NamespacedKey, BlockProperties> blocks = new HashMap<>();
 	protected final Map<NamespacedKey, BlockTag> tags = new HashMap<>();
 
-	public AbstractNmsManager(int uniqueBlockStateCount, AbstractRegionFileCache<?> regionFileCache) {
-		this.regionFileCache = regionFileCache;
-
+	public AbstractNmsManager(int uniqueBlockStateCount) {
 		this.uniqueBlockStateCount = uniqueBlockStateCount;
 		this.maxBitsPerBlockState = MathUtil.ceilLog2(uniqueBlockStateCount);
 
@@ -43,11 +38,6 @@ public abstract class AbstractNmsManager implements NmsManager {
 
 	protected final void registerBlockTag(BlockTag tag) {
 		this.tags.put(tag.key(), tag);
-	}
-
-	@Override
-	public final AbstractRegionFileCache<?> getRegionFileCache() {
-		return this.regionFileCache;
 	}
 
 	@Override
@@ -83,10 +73,5 @@ public abstract class AbstractNmsManager implements NmsManager {
 	@Override
 	public final boolean isBlockEntity(int id) {
 		return this.blockStates[id].isBlockEntity();
-	}
-
-	@Override
-	public final void close() {
-		this.regionFileCache.clear();
 	}
 }

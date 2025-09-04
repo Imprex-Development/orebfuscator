@@ -12,6 +12,7 @@ import java.util.concurrent.locks.ReentrantLock;
 
 import org.jetbrains.annotations.NotNull;
 
+import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import net.imprex.orebfuscator.Orebfuscator;
@@ -42,9 +43,9 @@ public class AsyncChunkSerializer implements Runnable {
 	private final Thread thread;
 	private volatile boolean running = true;
 
-	public AsyncChunkSerializer(Orebfuscator orebfuscator) {
+	public AsyncChunkSerializer(Orebfuscator orebfuscator, AbstractRegionFileCache<?> regionFileCache) {
 		this.maxTaskQueueSize = orebfuscator.getOrebfuscatorConfig().cache().maximumTaskQueueSize();
-		this.serializer = new ChunkSerializer();
+		this.serializer = new ChunkSerializer(regionFileCache);
 
 		this.thread = new Thread(Orebfuscator.THREAD_GROUP, this, "ofc-chunk-serializer");
 		this.thread.setDaemon(true);

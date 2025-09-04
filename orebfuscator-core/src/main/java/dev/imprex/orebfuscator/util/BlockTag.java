@@ -7,24 +7,24 @@ import org.jetbrains.annotations.NotNull;
 
 public record BlockTag(@NotNull NamespacedKey key, @NotNull Set<BlockProperties> blocks) {
 
-	public BlockTag(@NotNull NamespacedKey key, @NotNull Set<BlockProperties> blocks) {
-		this.key = key;
-		this.blocks = Collections.unmodifiableSet(blocks);
-	}
+  public BlockTag(@NotNull NamespacedKey key, @NotNull Set<BlockProperties> blocks) {
+    this.key = key;
+    this.blocks = Collections.unmodifiableSet(blocks);
+  }
 
-	@Override
-	public int hashCode() {
-		return this.key.hashCode();
-	}
+  @Override
+  public int hashCode() {
+    return this.key.hashCode();
+  }
 
-	@Override
-	public boolean equals(Object obj) {
-		if (this == obj) {
-			return true;
-		}
-		if (!(obj instanceof BlockTag other)) {
-			return false;
-		}
-		return Objects.equals(key, other.key);
-	}
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof BlockTag other)) {
+      return false;
+    }
+    return Objects.equals(key, other.key);
+  }
 }

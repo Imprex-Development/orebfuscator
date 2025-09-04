@@ -14,7 +14,6 @@ import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
-import dev.imprex.orebfuscator.config.api.Config;
 import dev.imprex.orebfuscator.interop.RegistryAccessor;
 import dev.imprex.orebfuscator.interop.ServerAccessor;
 import dev.imprex.orebfuscator.interop.WorldAccessor;
@@ -67,7 +66,9 @@ public class Orebfuscator extends JavaPlugin implements Listener, ServerAccessor
 			this.statistics = new OrebfuscatorStatistics();
 
 			// Load configurations
+			OrebfuscatorNms.initialize();
 			this.config = new OrebfuscatorConfig(this);
+			OrebfuscatorCompatibility.initialize(this, config);
 
 			this.playerMap = new OrebfuscatorPlayerMap(this);
 
@@ -129,7 +130,6 @@ public class Orebfuscator extends JavaPlugin implements Listener, ServerAccessor
 		}
 
 		OrebfuscatorCompatibility.close();
-		OrebfuscatorNms.close();
 		
 		this.config = null;
 	}
@@ -201,13 +201,5 @@ public class Orebfuscator extends JavaPlugin implements Listener, ServerAccessor
 		return BukkitWorldAccessor.getWorlds().stream()
 				.map(WorldAccessor.class::cast)
 				.toList();
-	}
-
-	@Override
-	public void initializeRegistry(Config config) {
-		OrebfuscatorCompatibility.initialize(this, config);
-
-		OrebfuscatorNms.close();
-		OrebfuscatorNms.initialize(config);
 	}
 }

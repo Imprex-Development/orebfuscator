@@ -34,11 +34,11 @@ import dev.imprex.orebfuscator.interop.WorldAccessor;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.BlockPos;
 import dev.imprex.orebfuscator.util.Version;
-import dev.imprex.orebfuscator.util.WeightedIntRandom;
+import dev.imprex.orebfuscator.util.WeightedRandom;
 
 public class OrebfuscatorConfig implements Config {
 
-  private static final int CONFIG_VERSION = 4;
+  private static final int CONFIG_VERSION = 5;
 
   private final OrebfuscatorGeneralConfig generalConfig = new OrebfuscatorGeneralConfig();
   private final OrebfuscatorAdvancedConfig advancedConfig = new OrebfuscatorAdvancedConfig();
@@ -129,20 +129,20 @@ public class OrebfuscatorConfig implements Config {
         .hash().asBytes();
   }
 
-  private void deserialize(ConfigurationSection section, ConfigParsingContext context) {
-    if (ConfigMigrator.willMigrate(section)) {
+  private void deserialize(YamlConfiguration configuration, ConfigParsingContext context) {
+    if (ConfigMigrator.willMigrate(configuration)) {
       try {
-        this.configuration.save(server.getConfigDirectory().resolve("config-old.yml"));
+        configuration.save(server.getConfigDirectory().resolve("config-old.yml"));
       } catch (IOException e) {
         OfcLogger.error("Can't save original config before migration", e);
       }
     }
 
     // try to migrate to latest version
-    ConfigMigrator.migrateToLatestVersion(section);
+    ConfigMigrator.migrateToLatestVersion(configuration);
 
     // instantly fail on invalid config version
-    if (section.getInt("version", -1) != CONFIG_VERSION) {
+    if (configuration.getInt("version", -1) != CONFIG_VERSION) {
       throw new RuntimeException("config is not up to date, please delete your config");
     }
 
@@ -152,7 +152,7 @@ public class OrebfuscatorConfig implements Config {
 
     // parse general section
     ConfigParsingContext generalContext = context.section("general");
-    ConfigurationSection generalSection = section.getSection("general");
+    ConfigurationSection generalSection = configuration.getSection("general");
     if (generalSection != null) {
       this.generalConfig.deserialize(generalSection, generalContext);
     } else {
@@ -161,7 +161,7 @@ public class OrebfuscatorConfig implements Config {
 
     // parse advanced section
     ConfigParsingContext advancedContext = context.section("advanced");
-    ConfigurationSection advancedSection = section.getSection("advanced");
+    ConfigurationSection advancedSection = configuration.getSection("advanced");
     if (advancedSection != null) {
       this.advancedConfig.deserialize(advancedSection, advancedContext);
     } else {
@@ -173,19 +173,16 @@ public class OrebfuscatorConfig implements Config {
 
     // parse cache section
     ConfigParsingContext cacheContext = context.section("cache", true);
-    ConfigurationSection cacheSection = section.getSection("cache");
+    ConfigurationSection cacheSection = configuration.getSection("cache");
     if (cacheSection != null) {
       this.cacheConfig.deserialize(cacheSection, cacheContext);
     } else {
       cacheContext.warn(ConfigMessage.MISSING_USING_DEFAULTS);
     }
-    
-    // TODO find a better way to init registry, etc.
-    this.server.initializeRegistry(this);
 
     // parse obfuscation sections
     ConfigParsingContext obfuscationContext = context.section("obfuscation");
-    ConfigurationSection obfuscationSection = section.getSection("obfuscation");
+    ConfigurationSection obfuscationSection = configuration.getSection("obfuscation");
     if (obfuscationSection != null) {
       for (ConfigurationSection config : obfuscationSection.getSubSections()) {
         ConfigParsingContext configContext = obfuscationContext.section(config.getName(), true);
@@ -199,7 +196,7 @@ public class OrebfuscatorConfig implements Config {
 
     // parse proximity sections
     ConfigParsingContext proximityContext = context.section("proximity");
-    ConfigurationSection proximitySection = section.getSection("proximity");
+    ConfigurationSection proximitySection = configuration.getSection("proximity");
     if (proximitySection != null) {
       for (ConfigurationSection config : proximitySection.getSubSections()) {
         ConfigParsingContext configContext = proximityContext.section(config.getName(), true);
@@ -336,8 +333,8 @@ public class OrebfuscatorConfig implements Config {
     private final int maxSectionIndex;
 
     private final WorldAccessor world;
-    private final WeightedIntRandom[] obfuscationRandoms;
-    private final WeightedIntRandom[] proximityRandoms;
+    private final WeightedRandom[] obfuscationRandoms;
+    private final WeightedRandom[] proximityRandoms;
 
     public OrebfuscatorWorldConfigBundle(WorldAccessor world) {
       String worldName = world.getName();

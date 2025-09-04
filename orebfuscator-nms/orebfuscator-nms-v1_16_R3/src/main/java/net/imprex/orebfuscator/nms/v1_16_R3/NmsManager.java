@@ -19,6 +19,7 @@ import org.bukkit.entity.Player;
 import com.comphenix.protocol.events.PacketContainer;
 import com.google.common.collect.ImmutableList;
 
+import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.config.api.Config;
 import dev.imprex.orebfuscator.util.BlockPos;
 import dev.imprex.orebfuscator.util.BlockProperties;
@@ -74,8 +75,8 @@ public class NmsManager extends AbstractNmsManager {
 		return ((CraftPlayer) player).getHandle();
 	}
 
-	public NmsManager(Config config) {
-		super(Block.REGISTRY_ID.a(), new RegionFileCache(config.cache()));
+	public NmsManager() {
+		super(Block.REGISTRY_ID.a());
 
 		for (Map.Entry<ResourceKey<Block>, Block> entry : IRegistry.BLOCK.d()) {
 			NamespacedKey namespacedKey = NamespacedKey.fromString(entry.getKey().a().toString());
@@ -120,6 +121,11 @@ public class NmsManager extends AbstractNmsManager {
 	}
 
 	@Override
+	public AbstractRegionFileCache<?> createRegionFileCache(Config config) {
+		return new RegionFileCache(config.cache());
+	}
+
+	@Override
 	public ReadOnlyChunk getReadOnlyChunk(World world, int chunkX, int chunkZ) {
 		ChunkProviderServer chunkProviderServer = level(world).getChunkProvider();
 		Chunk chunk = chunkProviderServer.getChunkAt(chunkX, chunkZ, true);
@@ -147,7 +153,7 @@ public class NmsManager extends AbstractNmsManager {
 		BlockPosition.MutableBlockPosition position = new BlockPosition.MutableBlockPosition();
 
 		for (dev.imprex.orebfuscator.util.BlockPos pos : iterable) {
-			position.c(pos.x, pos.y, pos.z);
+			position.c(pos.x(), pos.y(), pos.z());
 			serverChunkCache.flagDirty(position);
 		}
 	}
@@ -163,11 +169,11 @@ public class NmsManager extends AbstractNmsManager {
 		List<Packet<PacketListenerPlayOut>> blockEntityPackets = new ArrayList<>();
 
 		for (dev.imprex.orebfuscator.util.BlockPos pos : iterable) {
-			if (!serverChunkCache.isChunkLoaded(pos.x >> 4, pos.z >> 4)) {
+			if (!serverChunkCache.isChunkLoaded(pos.x() >> 4, pos.z() >> 4)) {
 				continue;
 			}
 
-			position.c(pos.x, pos.y, pos.z);
+			position.c(pos.x(), pos.y(), pos.z());
 			IBlockData blockState = level.getType(position);
 
 			sectionPackets.computeIfAbsent(SectionPosition.a(position), key -> new HashMap<>())

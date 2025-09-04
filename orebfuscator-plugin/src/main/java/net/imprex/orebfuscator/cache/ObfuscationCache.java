@@ -9,10 +9,12 @@ import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalNotification;
 
+import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.config.api.CacheConfig;
 import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
+import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.OrebfuscatorStatistics;
 import net.imprex.orebfuscator.obfuscation.ObfuscationRequest;
 import net.imprex.orebfuscator.obfuscation.ObfuscationResult;
@@ -22,6 +24,7 @@ public class ObfuscationCache {
 	private final CacheConfig cacheConfig;
 	private final OrebfuscatorStatistics statistics;
 
+	private final AbstractRegionFileCache<?> regionFileCache;
 	private final Cache<ChunkCacheKey, CacheChunkEntry> cache;
 	private final AsyncChunkSerializer serializer;
 
@@ -36,14 +39,16 @@ public class ObfuscationCache {
 				.build();
 		this.statistics.setMemoryCacheSizeSupplier(() -> this.cache.size());
 
+		this.regionFileCache = OrebfuscatorNms.createRegionFileCache(orebfuscator.getOrebfuscatorConfig());
+
 		if (this.cacheConfig.enableDiskCache()) {
-			this.serializer = new AsyncChunkSerializer(orebfuscator);
+			this.serializer = new AsyncChunkSerializer(orebfuscator, regionFileCache);
 		} else {
 			this.serializer = null;
 		}
 
 		if (this.cacheConfig.enabled() && this.cacheConfig.deleteRegionFilesAfterAccess() > 0) {
-			OrebfuscatorCompatibility.runAsyncAtFixedRate(new CacheFileCleanupTask(orebfuscator), 0, 72000L);
+			OrebfuscatorCompatibility.runAsyncAtFixedRate(new CacheFileCleanupTask(orebfuscator, regionFileCache), 0, 72000L);
 		}
 	}
 
@@ -122,7 +127,7 @@ public class ObfuscationCache {
 	}
 
 	public void close() {
-		if (this.cacheConfig.enableDiskCache()) {
+		if (this.serializer != null) {
 			// flush memory cache to disk on shutdown
 			this.cache.asMap().entrySet().removeIf(entry -> {
 				this.serializer.write(entry.getKey(), entry.getValue());
@@ -131,5 +136,7 @@ public class ObfuscationCache {
 
 			this.serializer.close();
 		}
+
+		this.regionFileCache.clear();
 	}
 }

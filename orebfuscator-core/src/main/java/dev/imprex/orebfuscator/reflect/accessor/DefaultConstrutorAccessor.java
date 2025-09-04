@@ -5,7 +5,8 @@ import org.jetbrains.annotations.NotNull;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Constructor;
 
-final record DefaultConstructorAccessor(@NotNull Constructor<?> member, @NotNull MethodHandle methodHandle) implements ConstructorAccessor {
+record DefaultConstructorAccessor(@NotNull Constructor<?> member, @NotNull MethodHandle methodHandle) implements
+    ConstructorAccessor {
 
   @Override
   public Object invoke(Object... args) {

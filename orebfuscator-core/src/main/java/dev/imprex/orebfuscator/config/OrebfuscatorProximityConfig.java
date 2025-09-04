@@ -99,13 +99,14 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
       return;
     }
 
+    boolean isEmpty = true;
     for (ConfigurationSection block : blockSection.getSubSections()) {
-      ConfigBlockValue blockLike = BlockParser.parseBlockOrBlockTag(registry, context, block.getName(), true);
+      ConfigBlockValue parsed = BlockParser.parseBlockOrBlockTag(registry, context, block.getName(), true);
 
       int blockFlags = this.defaultBlockFlags;
 
       // parse block specific height condition
-      if (block.isInt("minY") && block.isInt("maxY")) {
+      if (block.isNumber("minY") && block.isNumber("maxY")) {
         int minY = block.getInt("minY", this.minY);
         int maxY = block.getInt("maxY", this.maxY);
 
@@ -126,10 +127,11 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
         usesBlockSpecificConfigs = true;
       }
 
-      this.hiddenBlocks.put(blockLike, blockFlags);
+      this.hiddenBlocks.put(parsed, blockFlags);
+      isEmpty &= parsed.blocks().isEmpty();
     }
 
-    if (this.hiddenBlocks.isEmpty()) {
+    if (isEmpty) {
       context.error(ConfigMessage.MISSING_OR_EMPTY);
     }
   }

@@ -14,6 +14,7 @@ public class ConfigMigrator {
     register(new ConfigMigrationV1());
     register(new ConfigMigrationV2());
     register(new ConfigMigrationV3());
+    register(new ConfigMigrationV4());
   }
 
   private static void register(ConfigMigration migration) {

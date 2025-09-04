@@ -125,8 +125,8 @@ public class ProximityWorker {
 
 						// check if block AABB is inside frustum
 						int result = frustum.intersectAab(
-								blockPos.x, blockPos.y, blockPos.z,
-								blockPos.x + 1, blockPos.y + 1, blockPos.z + 1);
+                blockPos.x(), blockPos.y(), blockPos.z(),
+								blockPos.x() + 1, blockPos.y() + 1, blockPos.z() + 1);
 
 						// block is outside
 						if (result != FrustumIntersection.INSIDE && result != FrustumIntersection.INTERSECT) {

@@ -2,10 +2,9 @@ package dev.imprex.orebfuscator.config;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import org.jetbrains.annotations.NotNull;
 import dev.imprex.orebfuscator.config.components.ConfigBlockValue;
+import dev.imprex.orebfuscator.config.components.ConfigFunctionValue;
 import dev.imprex.orebfuscator.config.context.ConfigMessage;
 import dev.imprex.orebfuscator.config.context.ConfigParsingContext;
 import dev.imprex.orebfuscator.interop.RegistryAccessor;
@@ -14,8 +13,6 @@ import dev.imprex.orebfuscator.util.BlockTag;
 
 public class BlockParser {
 
-  private static final Pattern CONFIG_FUNCTION_PATTERN = Pattern.compile("^(?<function>\\w+)\\((?<argument>.+)\\)$");
-
   @NotNull
   public static ConfigBlockValue parseBlockOrBlockTag(
       @NotNull RegistryAccessor registry,
@@ -23,15 +20,12 @@ public class BlockParser {
       @NotNull String value,
       boolean excludeAir
   ) {
-    Matcher matcher = CONFIG_FUNCTION_PATTERN.matcher(value);
-    if (matcher.find()) {
-      String function = matcher.group("function");
-      String argument = matcher.group("argument");
-
-      return switch (function.toLowerCase()) {
-        case "tag" -> parseBlockTag(registry, context, argument, excludeAir);
+    var parsed = ConfigFunctionValue.parse(value);
+    if (parsed != null) {
+      return switch (parsed.function()) {
+        case "tag" -> parseBlockTag(registry, context, parsed.argument(), excludeAir);
         default -> {
-          context.warn(ConfigMessage.FUNCTION_UNKNOWN, function, argument);
+          context.warn(ConfigMessage.FUNCTION_UNKNOWN, parsed.function(), parsed.argument());
           yield ConfigBlockValue.invalid(value);
         }
       };
