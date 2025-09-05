@@ -10,20 +10,20 @@ public class RollingAverage {
 
 	private final long[] buffer;
 
-    private final AtomicInteger head = new AtomicInteger(0);
-    private final AtomicInteger size = new AtomicInteger(0);
+	private final AtomicInteger head = new AtomicInteger(0);
+	private final AtomicInteger size = new AtomicInteger(0);
 
 	public RollingAverage(int capacity) {
-        this.buffer = new long[capacity];
+		this.buffer = new long[capacity];
 	}
 
 	public void add(long value) {
-        int index = head.getAndUpdate(h -> (h + 1) % buffer.length);
-        BUFFER_HANDLE.setRelease(buffer, index, value);
+		int index = head.getAndUpdate(h -> (h + 1) % buffer.length);
+		BUFFER_HANDLE.setRelease(buffer, index, value);
 
-        if (size.get() < buffer.length) {
-        	size.updateAndGet(s -> s < buffer.length ? s + 1 : s);
-        }
+		if (size.get() < buffer.length) {
+			size.updateAndGet(s -> s < buffer.length ? s + 1 : s);
+		}
 	}
 
 	public double average() {
