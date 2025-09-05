@@ -45,9 +45,9 @@ public class WeightedBlockList {
 
         for (WeightedBlockList list : next) {
           for (Map.Entry<ConfigBlockValue, Integer> entry : list.blocks.entrySet()) {
-            // TODO: only default state or all block states? compression size?
+            // TODO: add support for other block states in future
             var blockStates = entry.getKey().blocks().stream()
-                .flatMap(block -> block.getBlockStates().stream())
+                .map(block -> block.getDefaultBlockState())
                 .collect(Collectors.toSet());
             double weight = (double) entry.getValue() / (double) blockStates.size();
 

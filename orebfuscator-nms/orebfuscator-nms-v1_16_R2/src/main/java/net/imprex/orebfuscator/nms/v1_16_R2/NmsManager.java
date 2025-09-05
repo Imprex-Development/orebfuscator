@@ -9,10 +9,8 @@ import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
 
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_16_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_16_R2.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_16_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
@@ -29,6 +27,7 @@ import dev.imprex.orebfuscator.util.NamespacedKey;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 import net.minecraft.server.v1_16_R2.Block;
+import net.minecraft.server.v1_16_R2.BlockAccessAir;
 import net.minecraft.server.v1_16_R2.BlockPosition;
 import net.minecraft.server.v1_16_R2.Blocks;
 import net.minecraft.server.v1_16_R2.Chunk;
@@ -86,15 +85,9 @@ public class NmsManager extends AbstractNmsManager {
 			BlockProperties.Builder builder = BlockProperties.builder(namespacedKey);
 
 			for (IBlockData blockState : possibleBlockStates) {
-				Material material = CraftBlockData.fromData(blockState).getMaterial();
-
 				BlockStateProperties properties = BlockStateProperties.builder(Block.getCombinedId(blockState))
 						.withIsAir(blockState.isAir())
-						/**
-						* l -> for barrier/slime_block/spawner/leaves
-						* isOccluding -> for every other block
-						*/
-						.withIsOccluding(material.isOccluding() && blockState.l()/*canOcclude*/)
+						.withIsOccluding(blockState.i(BlockAccessAir.INSTANCE, BlockPosition.ZERO)/*isSolidRender*/)
 						.withIsBlockEntity(block.isTileEntity())
 						.withIsDefaultState(Objects.equals(block.getBlockData(), blockState))
 						.build();

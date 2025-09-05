@@ -9,10 +9,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_21_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_21_R3.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
@@ -83,12 +81,9 @@ public class NmsManager extends AbstractNmsManager {
 			BlockProperties.Builder builder = BlockProperties.builder(namespacedKey);
 
 			for (BlockState blockState : possibleBlockStates) {
-				Material material = CraftBlockData.fromData(blockState).getMaterial();
-
 				BlockStateProperties properties = BlockStateProperties.builder(Block.getId(blockState))
 						.withIsAir(blockState.isAir())
-						// check if material is occluding and use blockData check for rare edge cases like barrier, spawner, slime_block, ...
-						.withIsOccluding(material.isOccluding() && blockState.canOcclude())
+						.withIsOccluding(blockState.isSolidRender())
 						.withIsBlockEntity(blockState.hasBlockEntity())
 						.withIsDefaultState(Objects.equals(block.defaultBlockState(), blockState))
 						.build();

@@ -45,6 +45,8 @@ public class OrebfuscatorStatistics {
 	private LongSupplier obfuscationProcessTime = () -> 0;
 	private LongSupplier proximityWaitTime = () -> 0;
 	private LongSupplier proximityProcessTime = () -> 0;
+	private LongSupplier originalChunkSize = () -> 0;
+	private LongSupplier obfuscatedChunkSize = () -> 0;
 
 	public void onCacheHitMemory() {
 		this.cacheHitCountMemory.incrementAndGet();
@@ -90,6 +92,14 @@ public class OrebfuscatorStatistics {
 		this.proximityProcessTime = Objects.requireNonNull(supplier);
 	}
 
+	public void setOriginalChunkSize(LongSupplier supplier) {
+		this.originalChunkSize = Objects.requireNonNull(supplier);
+	}
+
+	public void setObfuscatedChunkSize(LongSupplier supplier) {
+		this.obfuscatedChunkSize = Objects.requireNonNull(supplier);
+	}
+
 	@Override
 	public String toString() {
 		long cacheHitCountMemory = this.cacheHitCountMemory.get();
@@ -108,7 +118,7 @@ public class OrebfuscatorStatistics {
 			memoryCacheHitRate = (double) cacheHitCountMemory / totalCacheRequest;
 			diskCacheHitRate = (double) cacheHitCountDisk / totalCacheRequest;
 		}
-		
+
 		long memoryCacheBytesPerEntry = 0;
 		if (memoryCacheSize > 0) {
 			memoryCacheBytesPerEntry = cacheEstimatedSize / memoryCacheSize;
@@ -134,9 +144,9 @@ public class OrebfuscatorStatistics {
 		}
 
 		builder.append(" - obfuscation (wait/process/utilization): ")
-			.append(formatNanos(obfuscationWaitTime)).append(" | ")
-			.append(formatNanos(obfuscationProcessTime)).append(" | ")
-			.append(formatPrecent(obfuscationUtilization)).append('\n');
+				.append(formatNanos(obfuscationWaitTime)).append(" | ")
+				.append(formatNanos(obfuscationProcessTime)).append(" | ")
+				.append(formatPrecent(obfuscationUtilization)).append('\n');
 
 		long proximityWaitTime = this.proximityWaitTime.getAsLong();
 		long proximityProcessTime = this.proximityProcessTime.getAsLong();
@@ -148,9 +158,22 @@ public class OrebfuscatorStatistics {
 		}
 
 		builder.append(" - proximity (wait/process/utilization): ")
-			.append(formatNanos(proximityWaitTime)).append(" | ")
-			.append(formatNanos(proximityProcessTime)).append(" | ")
-			.append(formatPrecent(proximityUtilization)).append('\n');
+				.append(formatNanos(proximityWaitTime)).append(" | ")
+				.append(formatNanos(proximityProcessTime)).append(" | ")
+				.append(formatPrecent(proximityUtilization)).append('\n');
+
+		long originalChunkSize = this.originalChunkSize.getAsLong();
+		long obfuscatedChunkSize = this.obfuscatedChunkSize.getAsLong();
+
+		double ratio = 1;
+		if (originalChunkSize > 0) {
+			ratio = (double) obfuscatedChunkSize / originalChunkSize;
+		}
+
+		builder.append(" - size (original/obfuscated/ratio): ")
+				.append(formatBytes(originalChunkSize)).append(" | ")
+				.append(formatBytes(obfuscatedChunkSize)).append(" | ")
+				.append(formatPrecent(ratio)).append('\n');
 
 		return builder.toString();
 	}
@@ -169,6 +192,8 @@ public class OrebfuscatorStatistics {
 		object.addProperty("obfuscationProcessTime", this.obfuscationProcessTime.getAsLong());
 		object.addProperty("proximityWaitTime", this.proximityWaitTime.getAsLong());
 		object.addProperty("proximityProcessTime", this.proximityProcessTime.getAsLong());
+		object.addProperty("originalChunkSize", this.originalChunkSize.getAsLong());
+		object.addProperty("obfuscatedChunkSize", this.obfuscatedChunkSize.getAsLong());
 
 		return object;
 	}

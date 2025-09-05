@@ -8,10 +8,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_18_R1.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
@@ -42,6 +40,7 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.BlockTags;
 import net.minecraft.tags.Tag;
+import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -86,12 +85,9 @@ public class NmsManager extends AbstractNmsManager {
 			BlockProperties.Builder builder = BlockProperties.builder(namespacedKey);
 
 			for (BlockState blockState : possibleBlockStates) {
-				Material material = CraftBlockData.fromData(blockState).getMaterial();
-
 				BlockStateProperties properties = BlockStateProperties.builder(Block.getId(blockState))
 						.withIsAir(blockState.isAir())
-						// check if material is occluding and use blockData check for rare edge cases like barrier, spawner, slime_block, ...
-						.withIsOccluding(material.isOccluding() && blockState.canOcclude())
+						.withIsOccluding(blockState.isSolidRender(EmptyBlockGetter.INSTANCE, BlockPos.ZERO))
 						.withIsBlockEntity(blockState.hasBlockEntity())
 						.withIsDefaultState(Objects.equals(block.defaultBlockState(), blockState))
 						.build();
