@@ -30,7 +30,7 @@ import net.imprex.orebfuscator.player.OrebfuscatorPlayerMap;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.PermissionUtil;
-import net.imprex.orebfuscator.util.RingLongBuffer;
+import net.imprex.orebfuscator.util.RollingAverage;
 import net.imprex.orebfuscator.util.ServerVersion;
 
 public class ObfuscationListener extends PacketAdapter {
@@ -57,8 +57,8 @@ public class ObfuscationListener extends PacketAdapter {
 	private final AsynchronousManager asynchronousManager;
 	private final AsyncListenerHandler asyncListenerHandler;
 
-	private final RingLongBuffer originalSize = new RingLongBuffer(1000);
-	private final RingLongBuffer obfuscatedSize = new RingLongBuffer(1000);
+	private final RollingAverage originalSize = new RollingAverage(2048);
+	private final RollingAverage obfuscatedSize = new RollingAverage(2048);
 
 	public ObfuscationListener(Orebfuscator orebfuscator) {
 		super(orebfuscator, PACKET_TYPES.stream()
