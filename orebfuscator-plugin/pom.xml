@@ -118,7 +118,7 @@
 			<scope>compile</scope>
 		</dependency>
 		<dependency>
-			<groupId>dev.imprex</groupId>
+			<groupId>dev.imprex.orebfuscator</groupId>
 			<artifactId>orebfuscator-core</artifactId>
 			<version>${revision}</version>
 			<scope>compile</scope>

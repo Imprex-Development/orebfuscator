@@ -170,7 +170,7 @@ public class OrebfuscatorStatistics {
 			ratio = (double) obfuscatedChunkSize / originalChunkSize;
 		}
 
-		builder.append(" - size (original/obfuscated/ratio): ")
+		builder.append(" - chunk size (original/obfuscated/ratio): ")
 				.append(formatBytes(originalChunkSize)).append(" | ")
 				.append(formatBytes(obfuscatedChunkSize)).append(" | ")
 				.append(formatPrecent(ratio)).append('\n');
