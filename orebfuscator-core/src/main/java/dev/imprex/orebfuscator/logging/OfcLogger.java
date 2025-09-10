@@ -20,10 +20,12 @@ public class OfcLogger {
     }
   }
 
-  public static void enableVerboseLogging() {
-    if (!verbose) {
+  public static void setVerboseLogging(boolean enabled) {
+    if (!verbose && enabled) {
       verbose = true;
       debug("Verbose logging has been enabled");
+    } else {
+      verbose = enabled;
     }
   }
 

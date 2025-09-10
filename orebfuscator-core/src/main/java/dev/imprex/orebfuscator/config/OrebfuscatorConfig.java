@@ -22,6 +22,7 @@ import dev.imprex.orebfuscator.config.api.GeneralConfig;
 import dev.imprex.orebfuscator.config.api.ObfuscationConfig;
 import dev.imprex.orebfuscator.config.api.ProximityConfig;
 import dev.imprex.orebfuscator.config.api.WorldConfigBundle;
+import dev.imprex.orebfuscator.config.components.BlockParser;
 import dev.imprex.orebfuscator.config.context.ConfigMessage;
 import dev.imprex.orebfuscator.config.context.ConfigParsingContext;
 import dev.imprex.orebfuscator.config.context.DefaultConfigParsingContext;
@@ -168,9 +169,6 @@ public class OrebfuscatorConfig implements Config {
       advancedContext.warn(ConfigMessage.MISSING_USING_DEFAULTS);
     }
 
-    // post init advanced config
-    this.advancedConfig.initialize();
-
     // parse cache section
     ConfigParsingContext cacheContext = context.section("cache", true);
     ConfigurationSection cacheSection = configuration.getSection("cache");
@@ -180,6 +178,8 @@ public class OrebfuscatorConfig implements Config {
       cacheContext.warn(ConfigMessage.MISSING_USING_DEFAULTS);
     }
 
+    final BlockParser.Factory blockParserFactory = BlockParser.factory(server.getRegistry());
+
     // parse obfuscation sections
     ConfigParsingContext obfuscationContext = context.section("obfuscation");
     ConfigurationSection obfuscationSection = configuration.getSection("obfuscation");
@@ -187,7 +187,7 @@ public class OrebfuscatorConfig implements Config {
       for (ConfigurationSection config : obfuscationSection.getSubSections()) {
         ConfigParsingContext configContext = obfuscationContext.section(config.getName(), true);
         this.obfuscationConfigs.add(
-            new OrebfuscatorObfuscationConfig(server.getRegistry(), config, configContext));
+            new OrebfuscatorObfuscationConfig(blockParserFactory, config, configContext));
       }
     }
     if (this.obfuscationConfigs.isEmpty()) {
@@ -200,7 +200,7 @@ public class OrebfuscatorConfig implements Config {
     if (proximitySection != null) {
       for (ConfigurationSection config : proximitySection.getSubSections()) {
         ConfigParsingContext configContext = proximityContext.section(config.getName(), true);
-        this.proximityConfigs.add(new OrebfuscatorProximityConfig(server.getRegistry(), config, configContext));
+        this.proximityConfigs.add(new OrebfuscatorProximityConfig(blockParserFactory, config, configContext));
       }
     }
     if (this.proximityConfigs.isEmpty()) {
@@ -400,16 +400,6 @@ public class OrebfuscatorConfig implements Config {
     @Override
     public boolean needsObfuscation() {
       return this.needsObfuscation;
-    }
-
-    @Override
-    public boolean skipReadSectionIndex(int index) {
-      return index < this.minSectionIndex || index > this.maxSectionIndex;
-    }
-
-    @Override
-    public boolean skipProcessingSectionIndex(int index) {
-      return index < this.minSectionIndex || index > this.maxSectionIndex;
     }
 
     @Override

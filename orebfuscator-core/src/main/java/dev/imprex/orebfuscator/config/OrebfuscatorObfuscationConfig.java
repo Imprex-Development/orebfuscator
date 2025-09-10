@@ -5,11 +5,11 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 import dev.imprex.orebfuscator.config.api.ObfuscationConfig;
+import dev.imprex.orebfuscator.config.components.BlockParser;
 import dev.imprex.orebfuscator.config.components.ConfigBlockValue;
 import dev.imprex.orebfuscator.config.context.ConfigMessage;
 import dev.imprex.orebfuscator.config.context.ConfigParsingContext;
 import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
-import dev.imprex.orebfuscator.interop.RegistryAccessor;
 
 public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implements ObfuscationConfig {
 
@@ -17,15 +17,15 @@ public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implement
 
   private final Set<ConfigBlockValue> hiddenBlocks = new LinkedHashSet<>();
 
-  OrebfuscatorObfuscationConfig(RegistryAccessor registry, ConfigurationSection section,
+  OrebfuscatorObfuscationConfig(BlockParser.Factory blockParserFactory, ConfigurationSection section,
       ConfigParsingContext context) {
     super(section.getName());
     this.deserializeBase(section, context);
 
     this.layerObfuscation = section.getBoolean("layerObfuscation", false);
 
-    this.deserializeHiddenBlocks(registry, section, context);
-    this.deserializeRandomBlocks(registry, section, context);
+    this.deserializeHiddenBlocks(blockParserFactory, section, context);
+    this.deserializeRandomBlocks(blockParserFactory, section, context);
     this.disableOnError(context);
   }
 
@@ -38,13 +38,15 @@ public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implement
     this.serializeRandomBlocks(section);
   }
 
-  private void deserializeHiddenBlocks(RegistryAccessor registry, ConfigurationSection section,
+  private void deserializeHiddenBlocks(BlockParser.Factory blockParserFactory, ConfigurationSection section,
       ConfigParsingContext context) {
     context = context.section("hiddenBlocks");
 
+    final BlockParser blockParser = blockParserFactory.excludeAir();
+
     boolean isEmpty = true;
     for (String value : section.getStringList("hiddenBlocks")) {
-      var parsed = BlockParser.parseBlockOrBlockTag(registry, context, value, true);
+      var parsed = blockParser.parse(context, value);
       this.hiddenBlocks.add(parsed);
       isEmpty &= parsed.blocks().isEmpty();
     }

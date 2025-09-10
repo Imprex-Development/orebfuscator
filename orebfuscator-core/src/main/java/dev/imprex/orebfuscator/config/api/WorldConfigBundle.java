@@ -10,10 +10,6 @@ public interface WorldConfigBundle {
 
   boolean needsObfuscation();
 
-  boolean skipReadSectionIndex(int index);
-
-  boolean skipProcessingSectionIndex(int index);
-
   int minSectionIndex();
 
   int maxSectionIndex();

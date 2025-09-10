@@ -4,12 +4,12 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 import dev.imprex.orebfuscator.config.api.WorldConfig;
+import dev.imprex.orebfuscator.config.components.BlockParser;
 import dev.imprex.orebfuscator.config.components.WeightedBlockList;
 import dev.imprex.orebfuscator.config.components.WorldMatcher;
 import dev.imprex.orebfuscator.config.context.ConfigMessage;
 import dev.imprex.orebfuscator.config.context.ConfigParsingContext;
 import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
-import dev.imprex.orebfuscator.interop.RegistryAccessor;
 import dev.imprex.orebfuscator.interop.WorldAccessor;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.BlockPos;
@@ -62,7 +62,7 @@ public abstract class AbstractWorldConfig implements WorldConfig {
         .collect(Collectors.toList()));
   }
 
-  protected void deserializeRandomBlocks(RegistryAccessor registry, ConfigurationSection section,
+  protected void deserializeRandomBlocks(BlockParser.Factory blockParserFactory, ConfigurationSection section,
       ConfigParsingContext context) {
     context = context.section("randomBlocks");
 
@@ -74,7 +74,7 @@ public abstract class AbstractWorldConfig implements WorldConfig {
 
     for (ConfigurationSection subSection : subSectionContainer.getSubSections()) {
       ConfigParsingContext subContext = context.section(subSection.getName());
-      this.weightedBlockLists.add(new WeightedBlockList(registry, subSection, subContext));
+      this.weightedBlockLists.add(new WeightedBlockList(blockParserFactory, subSection, subContext));
     }
 
     if (this.weightedBlockLists.isEmpty()) {

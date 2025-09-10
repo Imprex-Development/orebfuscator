@@ -7,11 +7,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import dev.imprex.orebfuscator.config.BlockParser;
 import dev.imprex.orebfuscator.config.context.ConfigMessage;
 import dev.imprex.orebfuscator.config.context.ConfigParsingContext;
 import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
-import dev.imprex.orebfuscator.interop.RegistryAccessor;
 import dev.imprex.orebfuscator.interop.WorldAccessor;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.BlockPos;
@@ -80,7 +78,8 @@ public class WeightedBlockList {
 
   private final Map<ConfigBlockValue, Integer> blocks = new LinkedHashMap<>();
 
-  public WeightedBlockList(RegistryAccessor registry, ConfigurationSection section, ConfigParsingContext context) {
+  public WeightedBlockList(BlockParser.Factory blockParserFactory, ConfigurationSection section,
+      ConfigParsingContext context) {
     this.name = section.getName();
 
     int minY = MathUtil.clamp(section.getInt("minY", BlockPos.MIN_Y), BlockPos.MIN_Y, BlockPos.MAX_Y);
@@ -95,11 +94,13 @@ public class WeightedBlockList {
       blocksContext.error(ConfigMessage.MISSING_OR_EMPTY);
       return;
     }
+    
+    final BlockParser parser = blockParserFactory.includeAir();
 
     boolean isEmpty = true;
     for (String value : blocksSection.getKeys()) {
       int weight = blocksSection.getInt(value, 1);
-      var parsed = BlockParser.parseBlockOrBlockTag(registry, context, value, false);
+      var parsed = parser.parse(context, value);
       this.blocks.put(parsed, weight);
       isEmpty &= parsed.blocks().isEmpty();
     }

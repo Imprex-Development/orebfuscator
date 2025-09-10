@@ -19,9 +19,8 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
   private final Path worldDirectory;
 
   private boolean enabledValue = true;
-
-  private int maximumSize = 8192;
-  private long expireAfterAccess = TimeUnit.SECONDS.toMillis(30);
+  private int maximumSize = 32768;
+  private long expireAfterAccess = TimeUnit.SECONDS.toMillis(60);
 
   private boolean enableDiskCacheValue = true;
   private Path baseDirectory;
@@ -45,10 +44,10 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
     ConfigParsingContext memoryContext = context.section("memoryCache");
     ConfigurationSection memorySection = section.getSection("memoryCache");
     if (memorySection != null) {
-      this.maximumSize = memorySection.getInt("maximumSize", 8192);
+      this.maximumSize = memorySection.getInt("maximumSize", 32768);
       memoryContext.errorMinValue("maximumSize", 1, this.maximumSize);
 
-      this.expireAfterAccess = memorySection.getLong("expireAfterAccess", TimeUnit.SECONDS.toMillis(30));
+      this.expireAfterAccess = memorySection.getLong("expireAfterAccess", TimeUnit.SECONDS.toMillis(60));
       memoryContext.errorMinValue("expireAfterAccess", 1, this.expireAfterAccess);
     } else {
       memoryContext.warn(ConfigMessage.MISSING_USING_DEFAULTS);

@@ -7,12 +7,12 @@ import java.util.Set;
 import org.joml.Matrix4f;
 import dev.imprex.orebfuscator.config.api.BlockFlags;
 import dev.imprex.orebfuscator.config.api.ProximityConfig;
+import dev.imprex.orebfuscator.config.components.BlockParser;
 import dev.imprex.orebfuscator.config.components.ConfigBlockValue;
 import dev.imprex.orebfuscator.config.components.WeightedBlockList;
 import dev.imprex.orebfuscator.config.context.ConfigMessage;
 import dev.imprex.orebfuscator.config.context.ConfigParsingContext;
 import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
-import dev.imprex.orebfuscator.interop.RegistryAccessor;
 import dev.imprex.orebfuscator.util.BlockProperties;
 
 public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements ProximityConfig {
@@ -34,7 +34,8 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
   private final Map<ConfigBlockValue, Integer> hiddenBlocks = new LinkedHashMap<>();
   private final Set<BlockProperties> allowForUseBlockBelow = new HashSet<>();
 
-  OrebfuscatorProximityConfig(RegistryAccessor registry, ConfigurationSection section, ConfigParsingContext context) {
+  OrebfuscatorProximityConfig(BlockParser.Factory blockParserFactory, ConfigurationSection section,
+      ConfigParsingContext context) {
     super(section.getName());
     this.deserializeBase(section, context);
 
@@ -61,8 +62,8 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
       this.defaultBlockFlags |= BlockFlags.FLAG_USE_BLOCK_BELOW;
     }
 
-    this.deserializeHiddenBlocks(registry, section, context);
-    this.deserializeRandomBlocks(registry, section, context);
+    this.deserializeHiddenBlocks(blockParserFactory, section, context);
+    this.deserializeRandomBlocks(blockParserFactory, section, context);
 
     for (WeightedBlockList blockList : this.weightedBlockLists) {
       this.allowForUseBlockBelow.addAll(blockList.getBlocks().stream()
@@ -90,7 +91,7 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
     this.serializeRandomBlocks(section);
   }
 
-  private void deserializeHiddenBlocks(RegistryAccessor registry, ConfigurationSection section,
+  private void deserializeHiddenBlocks(BlockParser.Factory blockParserFactory, ConfigurationSection section,
       ConfigParsingContext context) {
     context = context.section("hiddenBlocks");
 
@@ -99,9 +100,11 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
       return;
     }
 
+    final BlockParser blockParser = blockParserFactory.excludeAir();
+
     boolean isEmpty = true;
     for (ConfigurationSection block : blockSection.getSubSections()) {
-      ConfigBlockValue parsed = BlockParser.parseBlockOrBlockTag(registry, context, block.getName(), true);
+      ConfigBlockValue parsed = blockParser.parse(context, block.getName());
 
       int blockFlags = this.defaultBlockFlags;
 

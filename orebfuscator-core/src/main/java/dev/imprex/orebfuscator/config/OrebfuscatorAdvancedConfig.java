@@ -19,9 +19,9 @@ public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
   private int proximityThreadCheckInterval = 50;
   private int proximityPlayerCheckInterval = 5000;
 
-  private boolean obfuscationWorkerThreadsSet = false;
+  private boolean obfuscationThreadsSet = false;
   private boolean hasObfuscationTimeout = false;
-  private boolean proximityHiderThreadsSet = false;
+  private boolean proximityThreadsSet = false;
   private boolean hasProximityPlayerCheckInterval = true;
 
   public void deserialize(ConfigurationSection section, ConfigParsingContext context) {
@@ -32,7 +32,7 @@ public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
     ConfigurationSection obfuscationSection = section.getSection("obfuscation");
     if (obfuscationSection != null) {
       this.obfuscationThreads = obfuscationSection.getInt("threads", -1);
-      this.obfuscationWorkerThreadsSet = (this.obfuscationThreads > 0);
+      this.obfuscationThreadsSet = (this.obfuscationThreads > 0);
 
       this.obfuscationTimeout = obfuscationSection.getLong("timeout", 10_000L);
       this.hasObfuscationTimeout = (this.obfuscationTimeout > 0);
@@ -48,7 +48,7 @@ public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
     ConfigurationSection proximitySection = section.getSection("proximity");
     if (proximitySection != null) {
       this.proximityThreads = proximitySection.getInt("threads", -1);
-      this.proximityHiderThreadsSet = (this.proximityThreads > 0);
+      this.proximityThreadsSet = (this.proximityThreads > 0);
 
       this.proximityDefaultBucketSize = proximitySection.getInt("defaultBucketSize", 50);
       proximityContext.errorMinValue("defaultBucketSize", 1, this.proximityDefaultBucketSize);
@@ -61,29 +61,24 @@ public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
     } else {
       proximityContext.warn(ConfigMessage.MISSING_USING_DEFAULTS);
     }
-  }
 
-  public void initialize() {
     int availableThreads = Runtime.getRuntime().availableProcessors();
-    this.obfuscationThreads = obfuscationWorkerThreadsSet ? obfuscationThreads : availableThreads;
-    this.proximityThreads = (int) (proximityHiderThreadsSet ? proximityThreads : Math.ceil(availableThreads / 2f));
+    this.obfuscationThreads = obfuscationThreadsSet ? obfuscationThreads : availableThreads;
+    this.proximityThreads = (int) (proximityThreadsSet ? proximityThreads : Math.ceil(availableThreads / 2f));
 
-    if (this.verbose) {
-      OfcLogger.enableVerboseLogging();
-    }
-
-    OfcLogger.debug("advanced.obfuscationWorkerThreads = " + this.obfuscationThreads);
-    OfcLogger.debug("advanced.proximityHiderThreads = " + this.proximityThreads);
+    OfcLogger.setVerboseLogging(this.verbose);
+    OfcLogger.debug("advanced.obfuscationThreads = " + this.obfuscationThreads);
+    OfcLogger.debug("advanced.proximityThreads = " + this.proximityThreads);
   }
 
   public void serialize(ConfigurationSection section) {
     section.set("verbose", this.verbose);
 
-    section.set("obfuscation.threads", this.obfuscationWorkerThreadsSet ? this.obfuscationThreads : -1);
+    section.set("obfuscation.threads", this.obfuscationThreadsSet ? this.obfuscationThreads : -1);
     section.set("obfuscation.timeout", this.hasObfuscationTimeout ? this.obfuscationTimeout : -1);
     section.set("obfuscation.maxMillisecondsPerTick", this.maxMillisecondsPerTick);
 
-    section.set("proximity.threads", this.proximityHiderThreadsSet ? this.proximityThreads : -1);
+    section.set("proximity.threads", this.proximityThreadsSet ? this.proximityThreads : -1);
     section.set("proximity.defaultBucketSize", this.proximityDefaultBucketSize);
     section.set("proximity.threadCheckInterval", this.proximityThreadCheckInterval);
     section.set("proximity.playerCheckInterval",
