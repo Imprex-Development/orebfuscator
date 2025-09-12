@@ -14,6 +14,7 @@ import java.util.WeakHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import com.google.common.hash.Hashing;
+import com.google.gson.JsonObject;
 import dev.imprex.orebfuscator.config.api.AdvancedConfig;
 import dev.imprex.orebfuscator.config.api.BlockFlags;
 import dev.imprex.orebfuscator.config.api.CacheConfig;
@@ -73,17 +74,11 @@ public class OrebfuscatorConfig implements Config {
         Files.createDirectories(this.path.getParent());
 
         Version version = this.server.getMinecraftVersion();
-        InputStream inputStream = OrebfuscatorConfig.class.getResourceAsStream(
-            "/config/config-" + version + ".yml");
+        Version configVersion = ConfigLookup.getConfigVersion(version);
+        
+        OfcLogger.info(String.format("No config found, creating default config for version %s and above", configVersion));
 
-        // check for prefix if full version doesn't match
-        if (inputStream == null) {
-          String configVersion = version.major() + "." + version.minor();
-          inputStream = OrebfuscatorConfig.class.getResourceAsStream(
-              "/config/config-" + configVersion + ".yml");
-        }
-
-        try (InputStream stream = Objects.requireNonNull(inputStream,
+        try (InputStream stream = Objects.requireNonNull(ConfigLookup.loadConfig(configVersion),
             "Can't find default config for version: " + version)) {
           Files.copy(stream, path);
         }
@@ -228,6 +223,20 @@ public class OrebfuscatorConfig implements Config {
     for (OrebfuscatorProximityConfig proximityConfig : this.proximityConfigs) {
       proximityConfig.serialize(proximity.createSection(proximityConfig.getName()));
     }
+  }
+  
+  public JsonObject toJson() {
+    JsonObject object = new JsonObject();
+
+    for (var config : obfuscationConfigs) {
+      object.add(config.getName(), config.toJson());
+    }
+
+    for (var config : proximityConfigs) {
+      object.add(config.getName(), config.toJson());
+    }
+
+    return object;
   }
 
   @Override

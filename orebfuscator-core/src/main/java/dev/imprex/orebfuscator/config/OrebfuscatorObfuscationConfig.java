@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
+import com.google.gson.JsonObject;
 import dev.imprex.orebfuscator.config.api.ObfuscationConfig;
 import dev.imprex.orebfuscator.config.components.BlockParser;
 import dev.imprex.orebfuscator.config.components.ConfigBlockValue;
@@ -64,6 +65,13 @@ public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implement
     }
 
     section.set("hiddenBlocks", blockNames);
+  }
+
+  public JsonObject toJson() {
+    JsonObject object = new JsonObject();
+    object.add("hiddenBlocks", ConfigBlockValue.toJson(hiddenBlocks));
+    object.add("randomBlocks", randomBlocksToJson());
+    return object;
   }
 
   @Override

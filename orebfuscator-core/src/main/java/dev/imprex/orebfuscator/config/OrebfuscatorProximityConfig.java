@@ -5,6 +5,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 import org.joml.Matrix4f;
+import com.google.gson.JsonObject;
 import dev.imprex.orebfuscator.config.api.BlockFlags;
 import dev.imprex.orebfuscator.config.api.ProximityConfig;
 import dev.imprex.orebfuscator.config.components.BlockParser;
@@ -156,6 +157,13 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
         block.set("useBlockBelow", BlockFlags.isUseBlockBelowBitSet(blockFlags));
       }
     }
+  }
+
+  public JsonObject toJson() {
+    JsonObject object = new JsonObject();
+    object.add("hiddenBlocks", ConfigBlockValue.toJson(hiddenBlocks.keySet()));
+    object.add("randomBlocks", randomBlocksToJson());
+    return object;
   }
 
   @Override

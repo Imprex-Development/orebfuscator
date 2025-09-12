@@ -29,10 +29,10 @@ import com.google.gson.JsonObject;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonWriter;
 
-import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
-import net.imprex.orebfuscator.util.MinecraftVersion;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.JavaVersion;
+import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
+import net.imprex.orebfuscator.util.MinecraftVersion;
 import net.imprex.orebfuscator.util.PermissionUtil;
 
 public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {
@@ -109,6 +109,8 @@ public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {
 				listeners.add(key, listener);
 			}
 			root.add("listeners", listeners);
+			
+			root.add("blocks", orebfuscator.getOrebfuscatorConfig().toJson());
 
 			Base64.Encoder encoder = Base64.getUrlEncoder();
 

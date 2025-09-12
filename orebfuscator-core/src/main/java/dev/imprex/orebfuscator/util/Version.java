@@ -2,6 +2,7 @@ package dev.imprex.orebfuscator.util;
 
 import java.io.IOException;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import com.google.gson.TypeAdapter;
@@ -14,10 +15,15 @@ public record Version(int major, int minor, int patch) implements Comparable<Ver
       Pattern.compile("(?<major>\\d+)(?:\\.(?<minor>\\d+))?(?:\\.(?<patch>\\d+))?");
 
   public static Version parse(String version) {
+    return tryParse(version)
+        .orElseThrow(() -> new IllegalArgumentException("Can't parse version: " + version));
+  }
+
+  public static Optional<Version> tryParse(String version) {
     Matcher matcher = VERSION_PATTERN.matcher(version);
 
     if (!matcher.find()) {
-      throw new IllegalArgumentException("can't parse version: " + version);
+      return Optional.empty();
     }
 
     int major = Integer.parseInt(matcher.group("major"));
@@ -28,7 +34,7 @@ public record Version(int major, int minor, int patch) implements Comparable<Ver
     String patchGroup = matcher.group("patch");
     int patch = patchGroup != null ? Integer.parseInt(patchGroup) : 0;
 
-    return new Version(major, minor, patch);
+    return Optional.of(new Version(major, minor, patch));
   }
 
   public boolean isAbove(Version version) {

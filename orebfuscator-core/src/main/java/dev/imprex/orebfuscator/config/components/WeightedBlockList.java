@@ -122,6 +122,10 @@ public class WeightedBlockList {
     }
   }
 
+  public String getName() {
+    return name;
+  }
+
   public Set<ConfigBlockValue> getBlocks() {
     return Collections.unmodifiableSet(this.blocks.keySet());
   }

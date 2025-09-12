@@ -3,8 +3,10 @@ package dev.imprex.orebfuscator.config;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import com.google.gson.JsonObject;
 import dev.imprex.orebfuscator.config.api.WorldConfig;
 import dev.imprex.orebfuscator.config.components.BlockParser;
+import dev.imprex.orebfuscator.config.components.ConfigBlockValue;
 import dev.imprex.orebfuscator.config.components.WeightedBlockList;
 import dev.imprex.orebfuscator.config.components.WorldMatcher;
 import dev.imprex.orebfuscator.config.context.ConfigMessage;
@@ -96,6 +98,14 @@ public abstract class AbstractWorldConfig implements WorldConfig {
 
   protected String getName() {
     return name;
+  }
+
+  public JsonObject randomBlocksToJson() {
+    JsonObject object = new JsonObject();
+    for (WeightedBlockList list : weightedBlockLists) {
+      object.add(list.getName(), ConfigBlockValue.toJson(list.getBlocks()));
+    }
+    return object;
   }
 
   @Override
