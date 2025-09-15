@@ -40,7 +40,7 @@ public class ConfigLookup {
 
     return null;
   }
-  
+
   public static InputStream loadConfig(Version version) {
     String path = String.format("/config/config-%s.yml", version);
     return ConfigLookup.class.getResourceAsStream(path);

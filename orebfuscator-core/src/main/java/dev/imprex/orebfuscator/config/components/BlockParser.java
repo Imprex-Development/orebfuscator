@@ -89,7 +89,7 @@ public class BlockParser {
 
     return ConfigBlockValue.invalid(value);
   }
-  
+
   public static class Factory {
 
     private final @NotNull RegistryAccessor registry;
@@ -99,7 +99,7 @@ public class BlockParser {
 
     public Factory(@NotNull RegistryAccessor registry) {
       this.registry = Objects.requireNonNull(registry);
-      
+
       this.excludeAir = new BlockParser(registry, true);
       this.includeAir = new BlockParser(registry, false);
     }

@@ -1,4 +1,4 @@
-package net.imprex.orebfuscator.chunk;
+package net.imprex.orebfuscator.iterop;
 
 import java.util.BitSet;
 import java.util.Iterator;
@@ -10,23 +10,30 @@ import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.nbt.NbtBase;
 import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 
+import dev.imprex.orebfuscator.interop.ChunkPacketAccessor;
+import dev.imprex.orebfuscator.interop.WorldAccessor;
 import dev.imprex.orebfuscator.util.BlockPos;
-import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
+import net.imprex.orebfuscator.util.MinecraftVersion;
+import net.imprex.orebfuscator.util.WrappedClientboundLevelChunkPacketData;
 
-public class ChunkStruct {
+public class BukkitChunkPacketAccessor implements ChunkPacketAccessor {
+
+	private static final boolean HAS_CLIENTBOUND_LEVEL_CHUNK_PACKET_DATA = MinecraftVersion.isAtOrAbove("1.18");
+	private static final boolean HAS_HEIGHT_BITMASK = MinecraftVersion.isBelow("1.18");
+	private static final boolean HAS_VARINT_BITMASK = MinecraftVersion.isBelow("1.17");
 
 	public final BukkitWorldAccessor worldAccessor;
 
-	public final int chunkX;
-	public final int chunkZ;
+	private final int chunkX;
+	private final int chunkZ;
 
-	public final BitSet sectionMask;
-	public final byte[] data;
+	private final BitSet sectionMask;
+	private final byte[] data;
 
 	private final PacketContainer packet;
 	private final WrappedClientboundLevelChunkPacketData packetData;
 
-	public ChunkStruct(PacketContainer packet, BukkitWorldAccessor worldAccessor) {
+	public BukkitChunkPacketAccessor(PacketContainer packet, BukkitWorldAccessor worldAccessor) {
 		this.packet = packet;
 		this.worldAccessor = worldAccessor;
 
@@ -34,7 +41,7 @@ public class ChunkStruct {
 		this.chunkX = packetInteger.read(0);
 		this.chunkZ = packetInteger.read(1);
 
-		if (ChunkCapabilities.hasClientboundLevelChunkPacketData()) {
+		if (HAS_CLIENTBOUND_LEVEL_CHUNK_PACKET_DATA) {
 			this.packetData = new WrappedClientboundLevelChunkPacketData(packet);
 			this.data = this.packetData.getBuffer();
 		} else {
@@ -42,11 +49,11 @@ public class ChunkStruct {
 			this.data = packet.getByteArrays().read(0);
 		}
 
-		if (ChunkCapabilities.hasHeightBitMask()) {
-			if (ChunkCapabilities.hasDynamicHeight()) {
-				this.sectionMask = packet.getSpecificModifier(BitSet.class).read(0);
-			} else {
+		if (HAS_HEIGHT_BITMASK) {
+			if (HAS_VARINT_BITMASK) {
 				this.sectionMask = convertIntToBitSet(packetInteger.read(2));
+			} else {
+				this.sectionMask = packet.getSpecificModifier(BitSet.class).read(0);
 			}
 		} else {
 			this.sectionMask = new BitSet();
@@ -54,7 +61,33 @@ public class ChunkStruct {
 		}
 	}
 
-	public void setDataBuffer(byte[] data) {
+	@Override
+	public WorldAccessor world() {
+		return this.worldAccessor;
+	}
+
+	@Override
+	public int chunkX() {
+		return this.chunkX;
+	}
+
+	@Override
+	public int chunkZ() {
+		return this.chunkZ;
+	}
+
+	@Override
+	public boolean isSectionPresent(int index) {
+		return this.sectionMask.get(index);
+	}
+
+	@Override
+	public byte[] data() {
+		return this.data;
+	}
+
+	@Override
+	public void setData(byte[] data) {
 		if (this.packetData != null) {
 			this.packetData.setBuffer(data);
 		} else {
@@ -62,7 +95,8 @@ public class ChunkStruct {
 		}
 	}
 
-	public void removeBlockEntityIf(Predicate<BlockPos> predicate) {
+	@Override
+	public void filterBlockEntities(Predicate<BlockPos> predicate) {
 		if (this.packetData != null) {
 			this.packetData.removeBlockEntityIf(relativePostion -> 
 			predicate.test(relativePostion.add(chunkX << 4, 0, chunkZ << 4)));
@@ -98,7 +132,7 @@ public class ChunkStruct {
 		return this.sectionMask.isEmpty();
 	}
 
-	private BitSet convertIntToBitSet(int value) {
+	private static BitSet convertIntToBitSet(int value) {
 		BitSet bitSet = new BitSet();
 		for (int index = 0; value != 0; index++) {
 			if ((value & 1) == 1) {

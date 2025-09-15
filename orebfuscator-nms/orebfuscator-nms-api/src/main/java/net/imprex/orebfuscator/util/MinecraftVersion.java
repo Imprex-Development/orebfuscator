@@ -86,18 +86,18 @@ public final class MinecraftVersion {
 	}
 
 	public static boolean isAbove(String version) {
-		return CURRENT_VERSION.isAbove(Version.parse(version));
+		return CURRENT_VERSION.isAbove(version);
 	}
 
 	public static boolean isAtOrAbove(String version) {
-		return CURRENT_VERSION.isAtOrAbove(Version.parse(version));
+		return CURRENT_VERSION.isAtOrAbove(version);
 	}
 
 	public static boolean isAtOrBelow(String version) {
-		return CURRENT_VERSION.isAtOrBelow(Version.parse(version));
+		return CURRENT_VERSION.isAtOrBelow(version);
 	}
 
 	public static boolean isBelow(String version) {
-		return CURRENT_VERSION.isBelow(Version.parse(version));
+		return CURRENT_VERSION.isBelow(version);
 	}
 }

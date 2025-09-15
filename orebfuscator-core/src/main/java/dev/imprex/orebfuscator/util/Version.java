@@ -37,16 +37,32 @@ public record Version(int major, int minor, int patch) implements Comparable<Ver
     return Optional.of(new Version(major, minor, patch));
   }
 
+  public boolean isAbove(String version) {
+    return this.isAbove(Version.parse(version));
+  }
+
   public boolean isAbove(Version version) {
     return this.compareTo(version) > 0;
+  }
+
+  public boolean isAtOrAbove(String version) {
+    return this.isAtOrAbove(Version.parse(version));
   }
 
   public boolean isAtOrAbove(Version version) {
     return this.compareTo(version) >= 0;
   }
 
+  public boolean isAtOrBelow(String version) {
+    return this.isAtOrBelow(Version.parse(version));
+  }
+
   public boolean isAtOrBelow(Version version) {
     return this.compareTo(version) <= 0;
+  }
+
+  public boolean isBelow(String version) {
+    return this.isBelow(Version.parse(version));
   }
 
   public boolean isBelow(Version version) {

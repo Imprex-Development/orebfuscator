@@ -6,7 +6,7 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 record DefaultFieldAccessor(@NotNull Field member, @NotNull MethodHandle getterHandle,
-                                  @Nullable MethodHandle setterHandle) implements FieldAccessor {
+                            @Nullable MethodHandle setterHandle) implements FieldAccessor {
 
   @Override
   public boolean readonly() {

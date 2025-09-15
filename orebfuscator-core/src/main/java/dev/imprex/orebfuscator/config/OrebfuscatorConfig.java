@@ -75,8 +75,9 @@ public class OrebfuscatorConfig implements Config {
 
         Version version = this.server.getMinecraftVersion();
         Version configVersion = ConfigLookup.getConfigVersion(version);
-        
-        OfcLogger.info(String.format("No config found, creating default config for version %s and above", configVersion));
+
+        OfcLogger.info(
+            String.format("No config found, creating default config for version %s and above", configVersion));
 
         try (InputStream stream = Objects.requireNonNull(ConfigLookup.loadConfig(configVersion),
             "Can't find default config for version: " + version)) {
@@ -224,7 +225,7 @@ public class OrebfuscatorConfig implements Config {
       proximityConfig.serialize(proximity.createSection(proximityConfig.getName()));
     }
   }
-  
+
   public JsonObject toJson() {
     JsonObject object = new JsonObject();
 

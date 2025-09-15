@@ -94,7 +94,7 @@ public class WeightedBlockList {
       blocksContext.error(ConfigMessage.MISSING_OR_EMPTY);
       return;
     }
-    
+
     final BlockParser parser = blockParserFactory.includeAir();
 
     boolean isEmpty = true;

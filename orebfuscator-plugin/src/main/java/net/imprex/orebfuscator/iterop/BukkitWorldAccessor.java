@@ -18,9 +18,11 @@ import com.comphenix.protocol.reflect.accessors.MethodAccessor;
 
 import dev.imprex.orebfuscator.interop.WorldAccessor;
 import dev.imprex.orebfuscator.logging.OfcLogger;
-import net.imprex.orebfuscator.chunk.ChunkCapabilities;
+import net.imprex.orebfuscator.util.MinecraftVersion;
 
 public class BukkitWorldAccessor implements WorldAccessor {
+
+	private static final boolean HAS_DYNAMIC_HEIGHT = MinecraftVersion.isAtOrAbove("1.17");
 
 	private static final Map<World, BukkitWorldAccessor> ACCESSOR_LOOKUP = new ConcurrentHashMap<>();
 
@@ -35,7 +37,7 @@ public class BukkitWorldAccessor implements WorldAccessor {
 	private static final MethodAccessor WORLD_GET_MIN_HEIGHT = getWorldMethod("getMinHeight");
 
 	private static MethodAccessor getWorldMethod(String methodName) {
-		if (ChunkCapabilities.hasDynamicHeight()) {
+		if (HAS_DYNAMIC_HEIGHT) {
 			MethodAccessor methodAccessor = getWorldMethod0(World.class, methodName);
 			if (methodAccessor == null) {
 				throw new RuntimeException("unable to find method: World::" + methodName + "()");
@@ -95,7 +97,7 @@ public class BukkitWorldAccessor implements WorldAccessor {
 	private BukkitWorldAccessor(World world) {
 		this.world = Objects.requireNonNull(world);
 
-		if (ChunkCapabilities.hasDynamicHeight()) {
+		if (HAS_DYNAMIC_HEIGHT) {
 			this.maxHeight = (int) WORLD_GET_MAX_HEIGHT.invoke(world);
 			this.minHeight = (int) WORLD_GET_MIN_HEIGHT.invoke(world);
 		} else {

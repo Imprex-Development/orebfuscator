@@ -1,4 +1,4 @@
-package net.imprex.orebfuscator.chunk;
+package net.imprex.orebfuscator.util;
 
 import java.util.Iterator;
 import java.util.List;

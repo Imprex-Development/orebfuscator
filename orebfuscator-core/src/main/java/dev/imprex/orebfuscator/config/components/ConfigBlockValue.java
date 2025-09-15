@@ -2,6 +2,7 @@ package dev.imprex.orebfuscator.config.components;
 
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Objects;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
@@ -11,12 +12,13 @@ import com.google.gson.JsonObject;
 import dev.imprex.orebfuscator.util.BlockProperties;
 import dev.imprex.orebfuscator.util.BlockTag;
 
-public record ConfigBlockValue(@NotNull String value, @NotNull Set<BlockProperties> blocks) implements Comparable<ConfigBlockValue> {
+public record ConfigBlockValue(@NotNull String value, @NotNull Set<BlockProperties> blocks) implements
+    Comparable<ConfigBlockValue> {
 
   public static JsonObject toJson(Collection<? extends ConfigBlockValue> values) {
     JsonObject object = new JsonObject();
 
-    var list = values.stream().sorted((a, b) -> a.value().compareTo(b.value())).toList();
+    var list = values.stream().sorted(Comparator.comparing((ConfigBlockValue a) -> a.value())).toList();
 
     for (var entry : list) {
       if (entry.blocks().size() > 1) {
@@ -67,12 +69,12 @@ public record ConfigBlockValue(@NotNull String value, @NotNull Set<BlockProperti
   public int compareTo(ConfigBlockValue o) {
     boolean isATag = this.value().startsWith("tag(");
     boolean isBTag = o.value().startsWith("tag(");
-    
+
     int tag = Boolean.compare(isATag, isBTag);
     if (tag == 0) {
       return this.value().compareTo(o.value());
     }
-    
+
     return tag;
   }
 }

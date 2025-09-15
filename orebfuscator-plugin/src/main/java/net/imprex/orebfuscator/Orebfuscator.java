@@ -13,6 +13,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import dev.imprex.orebfuscator.chunk.ChunkFactory;
 import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
 import dev.imprex.orebfuscator.interop.RegistryAccessor;
 import dev.imprex.orebfuscator.interop.ServerAccessor;
@@ -41,6 +42,7 @@ public class Orebfuscator extends JavaPlugin implements Listener, ServerAccessor
 	private ObfuscationSystem obfuscationSystem;
 	private ProximityDirectorThread proximityThread;
 	private ProximityPacketListener proximityPacketListener;
+	private ChunkFactory chunkFactory;
 
 	@Override
 	public void onLoad() {
@@ -82,6 +84,7 @@ public class Orebfuscator extends JavaPlugin implements Listener, ServerAccessor
 			this.obfuscationCache = new ObfuscationCache(this);
 
 			// Load obfuscater
+			this.chunkFactory = new ChunkFactory(this);
 			this.obfuscationSystem = new ObfuscationSystem(this);
 
 			// Load proximity hider
@@ -169,6 +172,10 @@ public class Orebfuscator extends JavaPlugin implements Listener, ServerAccessor
 
 	public ProximityPacketListener getProximityPacketListener() {
 		return this.proximityPacketListener;
+	}
+
+	public ChunkFactory getChunkFactory() {
+		return chunkFactory;
 	}
 
 	@Override

@@ -15,7 +15,7 @@
 
   <dependencies>
     <!-- Netty -->
-    <!--<dependency>
+    <dependency>
       <groupId>io.netty</groupId>
       <artifactId>netty-buffer</artifactId>
       <version>${dependency.netty.version}</version>
@@ -26,7 +26,7 @@
       <artifactId>netty-transport</artifactId>
       <version>${dependency.netty.version}</version>
       <scope>provided</scope>
-    </dependency>-->
+    </dependency>
 
     <!-- Third-Party -->
     <dependency>

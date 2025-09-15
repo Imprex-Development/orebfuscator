@@ -10,7 +10,7 @@ import com.google.common.hash.Hashing;
 import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
 import dev.imprex.orebfuscator.util.BlockPos;
 import dev.imprex.orebfuscator.util.ChunkCacheKey;
-import net.imprex.orebfuscator.chunk.ChunkStruct;
+import net.imprex.orebfuscator.iterop.BukkitChunkPacketAccessor;
 
 public class ObfuscationRequest {
 
@@ -23,25 +23,25 @@ public class ObfuscationRequest {
 		return HASH_FUNCTION.newHasher().putBytes(systemHash).putBytes(data).hash().asBytes();
 	}
 
-	public static ObfuscationRequest fromChunk(ChunkStruct struct, OrebfuscatorConfig config,
+	public static ObfuscationRequest fromChunk(BukkitChunkPacketAccessor packet, OrebfuscatorConfig config,
 			ObfuscationTaskDispatcher dispatcher) {
-		byte[] hash = config.cache().enabled() ? hash(config.systemHash(), struct.data) : EMPTY_HASH;
-		return new ObfuscationRequest(dispatcher, struct, hash);
+		byte[] hash = config.cache().enabled() ? hash(config.systemHash(), packet.data()) : EMPTY_HASH;
+		return new ObfuscationRequest(dispatcher, packet, hash);
 	}
 
 	private final CompletableFuture<ObfuscationResult> future = new CompletableFuture<>();
 
 	private final ObfuscationTaskDispatcher dispatcher;
-	private final ChunkStruct chunkStruct;
+	private final BukkitChunkPacketAccessor packet;
 
 	private final ChunkCacheKey chunkCacheKey;
 	private final byte[] chunkHash;
 
-	private ObfuscationRequest(ObfuscationTaskDispatcher dispatcher, ChunkStruct chunkStruct, byte[] chunkHash) {
+	private ObfuscationRequest(ObfuscationTaskDispatcher dispatcher, BukkitChunkPacketAccessor packet, byte[] chunkHash) {
 		this.dispatcher = dispatcher;
-		this.chunkStruct = chunkStruct;
+		this.packet = packet;
 
-		this.chunkCacheKey = new ChunkCacheKey(chunkStruct.worldAccessor.getName(), chunkStruct.chunkX, chunkStruct.chunkZ);
+		this.chunkCacheKey = new ChunkCacheKey(packet.world().getName(), packet.chunkX(), packet.chunkZ());
 		this.chunkHash = chunkHash;
 	}
 
@@ -57,8 +57,8 @@ public class ObfuscationRequest {
 		return chunkHash;
 	}
 
-	public ChunkStruct getChunkStruct() {
-		return chunkStruct;
+	public BukkitChunkPacketAccessor getPacket() {
+		return packet;
 	}
 
 	public CompletableFuture<ObfuscationResult> submitForObfuscation() {
