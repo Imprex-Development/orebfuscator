@@ -44,14 +44,14 @@ public class AsyncChunkSerializer implements Runnable {
 	private volatile boolean running = true;
 
 	public AsyncChunkSerializer(Orebfuscator orebfuscator, AbstractRegionFileCache<?> regionFileCache) {
-		this.maxTaskQueueSize = orebfuscator.getOrebfuscatorConfig().cache().maximumTaskQueueSize();
+		this.maxTaskQueueSize = orebfuscator.config().cache().maximumTaskQueueSize();
 		this.serializer = new ChunkSerializer(regionFileCache);
 
 		this.thread = new Thread(Orebfuscator.THREAD_GROUP, this, "ofc-chunk-serializer");
 		this.thread.setDaemon(true);
 		this.thread.start();
 
-		orebfuscator.getStatistics().setDiskCacheQueueLengthSupplier(this.tasks::size);
+		orebfuscator.statistics().setDiskCacheQueueLengthSupplier(this.tasks::size);
 	}
 
 	@NotNull

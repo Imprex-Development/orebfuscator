@@ -1,6 +1,6 @@
 package net.imprex.orebfuscator.nms;
 
-public interface ReadOnlyChunk {
+import dev.imprex.orebfuscator.interop.ChunkAccessor;
 
-	int getBlockState(int x, int y, int z);
+public interface ReadOnlyChunk extends ChunkAccessor {
 }

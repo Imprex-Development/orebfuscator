@@ -54,7 +54,7 @@ public class UpdateSystem extends AbstractHttpService {
 		super(orebfuscator);
 
 		this.orebfuscator = orebfuscator;
-		this.generalConfig = orebfuscator.getOrebfuscatorConfig().general();
+		this.generalConfig = orebfuscator.config().general();
 		
 		this.checkForUpdates();
 	}

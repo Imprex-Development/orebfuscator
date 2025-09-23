@@ -22,13 +22,13 @@ class ObfuscationTaskDispatcher {
 	public ObfuscationTaskDispatcher(Orebfuscator orebfuscator, ObfuscationProcessor processor) {
 		this.processor = processor;
 
-		AdvancedConfig config = orebfuscator.getOrebfuscatorConfig().advanced();
+		AdvancedConfig config = orebfuscator.config().advanced();
 		this.worker = new ObfuscationTaskWorker[config.obfuscationThreads()];
 		for (int i = 0; i < this.worker.length; i++) {
 			this.worker[i] = new ObfuscationTaskWorker(this, this.processor);
 		}
 
-		var statistics = orebfuscator.getStatistics();
+		var statistics = orebfuscator.statistics();
 		statistics.setObfuscationQueueLengthSupplier(() -> this.tasks.size());
 		statistics.setObfuscationWaitTime(() -> (long) Arrays.stream(this.worker)
 				.mapToDouble(ObfuscationTaskWorker::waitTime).average().orElse(0d));

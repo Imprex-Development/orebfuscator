@@ -3,7 +3,6 @@ package net.imprex.orebfuscator.obfuscation;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
@@ -22,7 +21,6 @@ import com.comphenix.protocol.events.PacketEvent;
 import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
 import dev.imprex.orebfuscator.config.api.AdvancedConfig;
 import dev.imprex.orebfuscator.logging.OfcLogger;
-import dev.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.iterop.BukkitChunkPacketAccessor;
@@ -66,7 +64,7 @@ public class ObfuscationListener extends PacketAdapter {
 				.filter(PacketType::isSupported)
 				.collect(Collectors.toList()));
 
-		this.config = orebfuscator.getOrebfuscatorConfig();
+		this.config = orebfuscator.config();
 		this.playerMap = orebfuscator.getPlayerMap();
 		this.obfuscationSystem = orebfuscator.getObfuscationSystem();
 
@@ -79,7 +77,7 @@ public class ObfuscationListener extends PacketAdapter {
 			this.asyncListenerHandler.start();
 		}
 
-		var statistics = orebfuscator.getStatistics();
+		var statistics = orebfuscator.statistics();
 		statistics.setOriginalChunkSize(() -> (long) originalSize.average());
 		statistics.setObfuscatedChunkSize(() -> (long) obfuscatedSize.average());
 	}
@@ -153,12 +151,12 @@ public class ObfuscationListener extends PacketAdapter {
 		originalSize.add(packet.data().length);
 		obfuscatedSize.add(chunk.getData().length);
 
-		packet.setData(chunk.getData());
-
-		Set<BlockPos> blockEntities = chunk.getBlockEntities();
-		if (!blockEntities.isEmpty()) {
-			packet.filterBlockEntities(blockEntities::contains);
-		}
+//		packet.setData(chunk.getData());
+//
+//		Set<BlockPos> blockEntities = chunk.getBlockEntities();
+//		if (!blockEntities.isEmpty()) {
+//			packet.filterBlockEntities(blockEntities::contains);
+//		}
 
 		final OrebfuscatorPlayer player = this.playerMap.get(event.getPlayer());
 		if (player != null) {

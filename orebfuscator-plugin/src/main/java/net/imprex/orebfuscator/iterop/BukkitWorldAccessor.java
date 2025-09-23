@@ -3,6 +3,7 @@ package net.imprex.orebfuscator.iterop;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.bukkit.Bukkit;
@@ -16,8 +17,12 @@ import org.bukkit.plugin.Plugin;
 import com.comphenix.protocol.reflect.accessors.Accessors;
 import com.comphenix.protocol.reflect.accessors.MethodAccessor;
 
+import dev.imprex.orebfuscator.interop.ChunkAccessor;
 import dev.imprex.orebfuscator.interop.WorldAccessor;
 import dev.imprex.orebfuscator.logging.OfcLogger;
+import dev.imprex.orebfuscator.util.BlockPos;
+import net.imprex.orebfuscator.OrebfuscatorCompatibility;
+import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 
 public class BukkitWorldAccessor implements WorldAccessor {
@@ -144,6 +149,21 @@ public class BukkitWorldAccessor implements WorldAccessor {
 	@Override
 	public int getSectionIndex(int y) {
 		return blockToSectionCoord(y) - getMinSection();
+	}
+
+	@Override
+	public CompletableFuture<ChunkAccessor[]> getNeighboringChunks(int chunkX, int chunkZ) {
+		return OrebfuscatorCompatibility.getNeighboringChunks(world, chunkX, chunkZ);
+	}
+
+	@Override
+	public ChunkAccessor getChunk(int chunkX, int chunkZ) {
+		return OrebfuscatorNms.getReadOnlyChunk(world, chunkX, chunkZ);
+	}
+
+	@Override
+	public void sendBlockUpdates(Iterable<BlockPos> iterable) {
+		OrebfuscatorNms.sendBlockUpdates(world, iterable);
 	}
 
 	@Override

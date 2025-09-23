@@ -12,6 +12,7 @@ import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 
 import dev.imprex.orebfuscator.interop.ChunkPacketAccessor;
 import dev.imprex.orebfuscator.interop.WorldAccessor;
+import dev.imprex.orebfuscator.obfuscation.ObfuscationResponse;
 import dev.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 import net.imprex.orebfuscator.util.WrappedClientboundLevelChunkPacketData;
@@ -87,33 +88,26 @@ public class BukkitChunkPacketAccessor implements ChunkPacketAccessor {
 	}
 
 	@Override
-	public void setData(byte[] data) {
+	public void update(ObfuscationResponse response) {
 		if (this.packetData != null) {
-			this.packetData.setBuffer(data);
+			this.packetData.setBuffer(response.data());
+			this.packetData.removeBlockEntityIf(relativePostion -> response.blockEntities()
+					.contains(relativePostion.add(chunkX << 4, 0, chunkZ << 4)));
 		} else {
-			this.packet.getByteArrays().write(0, data);
+			this.packet.getByteArrays().write(0, response.data());
+			removeBlockEntityIf(this.packet, response.blockEntities()::contains);
 		}
 	}
 
-	@Override
-	public void filterBlockEntities(Predicate<BlockPos> predicate) {
-		if (this.packetData != null) {
-			this.packetData.removeBlockEntityIf(relativePostion -> 
-			predicate.test(relativePostion.add(chunkX << 4, 0, chunkZ << 4)));
-		} else {
-			removeTileEntitiesFromPacket(this.packet, predicate);
-		}
-	}
-
-	private void removeTileEntitiesFromPacket(PacketContainer packet, Predicate<BlockPos> predicate) {
+	private void removeBlockEntityIf(PacketContainer packet, Predicate<BlockPos> predicate) {
 		StructureModifier<List<NbtBase<?>>> packetNbtList = packet.getListNbtModifier();
 
 		List<NbtBase<?>> tileEntities = packetNbtList.read(0);
-		this.removeTileEntities(tileEntities, predicate);
+		this.removeBlockEntities(tileEntities, predicate);
 		packetNbtList.write(0, tileEntities);
 	}
 
-	private void removeTileEntities(List<NbtBase<?>> tileEntities, Predicate<BlockPos> predicate) {
+	private void removeBlockEntities(List<NbtBase<?>> tileEntities, Predicate<BlockPos> predicate) {
 		for (Iterator<NbtBase<?>> iterator = tileEntities.iterator(); iterator.hasNext();) {
 			NbtCompound tileEntity = (NbtCompound) iterator.next();
 

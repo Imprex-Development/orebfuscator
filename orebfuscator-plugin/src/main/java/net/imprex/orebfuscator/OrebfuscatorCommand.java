@@ -62,7 +62,7 @@ public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {
 
 		if (args.length == 0) {
 			sender.sendMessage("You are using " + this.orebfuscator.toString());
-			sender.sendMessage(this.orebfuscator.getStatistics().toString());
+			sender.sendMessage(this.orebfuscator.statistics().toString());
 		} else if (args[0].equalsIgnoreCase("dump")) {
 			TemporalAccessor now = OffsetDateTime.now(ZoneOffset.UTC);
 
@@ -78,7 +78,7 @@ public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {
 			versions.addProperty("orebfuscator", orebfuscator.toString());
 			root.add("versions", versions);
 
-			root.add("statistics", orebfuscator.getStatistics().toJson());
+			root.add("statistics", orebfuscator.statistics().toJson());
 
 			JsonObject plugins = new JsonObject();
 			for (Plugin bukkitPlugin : Bukkit.getPluginManager().getPlugins()) {
@@ -110,7 +110,7 @@ public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {
 			}
 			root.add("listeners", listeners);
 			
-			root.add("blocks", orebfuscator.getOrebfuscatorConfig().toJson());
+			root.add("blocks", orebfuscator.config().toJson());
 
 			Base64.Encoder encoder = Base64.getUrlEncoder();
 
@@ -125,7 +125,7 @@ public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {
 				e.printStackTrace();
 			}
 
-			String configReport = orebfuscator.getOrebfuscatorConfig().report();
+			String configReport = orebfuscator.config().report();
 			configReport = configReport != null ? configReport : "";
 			root.addProperty("configReport", encoder.encodeToString(configReport.getBytes(StandardCharsets.UTF_8)));
 

@@ -27,7 +27,7 @@ public class DeobfuscationWorker {
 	private final ObfuscationCache cache;
 
 	public DeobfuscationWorker(Orebfuscator orebfuscator) {
-		this.config = orebfuscator.getOrebfuscatorConfig();
+		this.config = orebfuscator.config();
 		this.cache = orebfuscator.getObfuscationCache();
 	}
 

@@ -29,8 +29,8 @@ public class ObfuscationCache {
 	private final AsyncChunkSerializer serializer;
 
 	public ObfuscationCache(Orebfuscator orebfuscator) {
-		this.cacheConfig = orebfuscator.getOrebfuscatorConfig().cache();
-		this.statistics = orebfuscator.getStatistics();
+		this.cacheConfig = orebfuscator.config().cache();
+		this.statistics = orebfuscator.statistics();
 
 		this.cache = CacheBuilder.newBuilder()
 				.maximumSize(this.cacheConfig.maximumSize())
@@ -39,7 +39,7 @@ public class ObfuscationCache {
 				.build();
 		this.statistics.setMemoryCacheSizeSupplier(() -> this.cache.size());
 
-		this.regionFileCache = OrebfuscatorNms.createRegionFileCache(orebfuscator.getOrebfuscatorConfig());
+		this.regionFileCache = OrebfuscatorNms.createRegionFileCache(orebfuscator.config());
 
 		if (this.cacheConfig.enableDiskCache()) {
 			this.serializer = new AsyncChunkSerializer(orebfuscator, regionFileCache);

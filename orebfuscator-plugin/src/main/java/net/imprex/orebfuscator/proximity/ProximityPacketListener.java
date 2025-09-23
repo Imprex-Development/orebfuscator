@@ -36,7 +36,7 @@ public class ProximityPacketListener extends PacketAdapter {
 		this.protocolManager = ProtocolLibrary.getProtocolManager();
 		this.protocolManager.addPacketListener(this);
 
-		this.config = orebfuscator.getOrebfuscatorConfig();
+		this.config = orebfuscator.config();
 		this.playerMap = orebfuscator.getPlayerMap();
 	}
 

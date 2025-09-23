@@ -24,7 +24,7 @@ public class ObfuscationSystem {
 
 	public ObfuscationSystem(Orebfuscator orebfuscator) {
 		this.orebfuscator = orebfuscator;
-		this.config = orebfuscator.getOrebfuscatorConfig();
+		this.config = orebfuscator.config();
 		this.cache = orebfuscator.getObfuscationCache();
 
 		this.processor = new ObfuscationProcessor(orebfuscator);

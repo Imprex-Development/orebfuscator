@@ -38,7 +38,7 @@ public class DeobfuscationListener implements Listener {
 
 	private DeobfuscationListener(Orebfuscator orebfuscator, DeobfuscationWorker deobfuscationWorker) {
 		this.updateSystem = orebfuscator.getUpdateSystem();
-		this.config = orebfuscator.getOrebfuscatorConfig();
+		this.config = orebfuscator.config();
 		this.deobfuscationWorker = deobfuscationWorker;
 	}
 

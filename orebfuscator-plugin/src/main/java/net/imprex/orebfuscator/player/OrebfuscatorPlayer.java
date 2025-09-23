@@ -32,7 +32,7 @@ public class OrebfuscatorPlayer {
 
 	public OrebfuscatorPlayer(Orebfuscator orebfuscator, Player player) {
 		this.player = player;
-		this.config = orebfuscator.getOrebfuscatorConfig().advanced();
+		this.config = orebfuscator.config().advanced();
 		this.location = player.getLocation();
 	}
 

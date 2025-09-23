@@ -31,7 +31,7 @@ public class ProximityWorker {
 	private final OrebfuscatorPlayerMap playerMap;
 
 	public ProximityWorker(Orebfuscator orebfuscator) {
-		this.config = orebfuscator.getOrebfuscatorConfig();
+		this.config = orebfuscator.config();
 		this.playerMap = orebfuscator.getPlayerMap();
 	}
 

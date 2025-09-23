@@ -20,7 +20,7 @@ public class CacheFileCleanupTask implements Runnable {
 	private int deleteCount = 0;
 
 	public CacheFileCleanupTask(Orebfuscator orebfuscator, AbstractRegionFileCache<?> regionFileCache) {
-		this.cacheConfig = orebfuscator.getOrebfuscatorConfig().cache();
+		this.cacheConfig = orebfuscator.config().cache();
 		this.regionFileCache = regionFileCache;
 	}
 

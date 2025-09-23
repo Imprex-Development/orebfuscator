@@ -32,8 +32,8 @@ public class MetricsSystem {
 		this.metrics = new Metrics(orebfuscator, 8942);
 		this.addMemoryChart();
 		this.addPlayerCountChart();
-		this.addConfigCharts(orebfuscator.getOrebfuscatorConfig());
-		this.addUsageCharts(orebfuscator.getOrebfuscatorConfig());
+		this.addConfigCharts(orebfuscator.config());
+		this.addUsageCharts(orebfuscator.config());
 	}
 
 	public void addMemoryChart() {

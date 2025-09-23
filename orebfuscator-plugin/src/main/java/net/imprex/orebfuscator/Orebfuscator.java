@@ -13,6 +13,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.chunk.ChunkFactory;
 import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
 import dev.imprex.orebfuscator.interop.RegistryAccessor;
@@ -146,11 +147,11 @@ public class Orebfuscator extends JavaPlugin implements Listener, ServerAccessor
 		}
 	}
 
-	public OrebfuscatorStatistics getStatistics() {
+	public OrebfuscatorStatistics statistics() {
 		return statistics;
 	}
 
-	public OrebfuscatorConfig getOrebfuscatorConfig() {
+	public OrebfuscatorConfig config() {
 		return this.config;
 	}
 
@@ -179,6 +180,11 @@ public class Orebfuscator extends JavaPlugin implements Listener, ServerAccessor
 	}
 
 	@Override
+	public boolean isGameThread() {
+		return OrebfuscatorCompatibility.isGameThread();
+	}
+
+	@Override
 	public Path getConfigDirectory() {
 		return getDataFolder().toPath();
 	}
@@ -189,8 +195,8 @@ public class Orebfuscator extends JavaPlugin implements Listener, ServerAccessor
 	}
 
 	@Override
-	public String getOrebfuscatorVersion() {
-		return getDescription().getVersion();
+	public Version getOrebfuscatorVersion() {
+		return Version.parse(getDescription().getVersion());
 	}
 
 	@Override
@@ -208,5 +214,10 @@ public class Orebfuscator extends JavaPlugin implements Listener, ServerAccessor
 		return BukkitWorldAccessor.getWorlds().stream()
 				.map(WorldAccessor.class::cast)
 				.toList();
+	}
+
+	@Override
+	public AbstractRegionFileCache<?> createRegionFileCache() {
+		return OrebfuscatorNms.createRegionFileCache(config);
 	}
 }

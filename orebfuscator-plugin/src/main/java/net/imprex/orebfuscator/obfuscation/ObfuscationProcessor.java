@@ -26,7 +26,7 @@ public class ObfuscationProcessor {
 	private final ChunkFactory chunkFactory;
 
 	public ObfuscationProcessor(Orebfuscator orebfuscator) {
-		this.config = orebfuscator.getOrebfuscatorConfig();
+		this.config = orebfuscator.config();
 		this.chunkFactory = orebfuscator.getChunkFactory();
 	}
 

@@ -6,10 +6,9 @@ import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 
 import dev.imprex.orebfuscator.config.api.Config;
-import dev.imprex.orebfuscator.util.ChunkCacheKey;
+import dev.imprex.orebfuscator.interop.ChunkAccessor;
 import net.imprex.orebfuscator.compatibility.CompatibilityLayer;
 import net.imprex.orebfuscator.compatibility.CompatibilityScheduler;
-import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 
 public class BukkitCompatibilityLayer implements CompatibilityLayer {
 
@@ -34,7 +33,7 @@ public class BukkitCompatibilityLayer implements CompatibilityLayer {
 	}
 
 	@Override
-	public CompletableFuture<ReadOnlyChunk[]> getNeighboringChunks(World world, ChunkCacheKey key) {
-		return this.chunkLoader.submitRequest(world, key);
+	public CompletableFuture<ChunkAccessor[]> getNeighboringChunks(World world, int chunkX, int chunkZ) {
+		return this.chunkLoader.submitRequest(world, chunkX, chunkZ);
 	}
 }

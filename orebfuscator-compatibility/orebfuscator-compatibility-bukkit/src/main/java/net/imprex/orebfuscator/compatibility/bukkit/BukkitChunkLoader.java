@@ -10,10 +10,9 @@ import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 
 import dev.imprex.orebfuscator.config.api.Config;
-import dev.imprex.orebfuscator.util.ChunkCacheKey;
+import dev.imprex.orebfuscator.interop.ChunkAccessor;
 import dev.imprex.orebfuscator.util.ChunkDirection;
 import net.imprex.orebfuscator.OrebfuscatorNms;
-import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 
 public class BukkitChunkLoader implements Runnable {
 
@@ -27,8 +26,8 @@ public class BukkitChunkLoader implements Runnable {
 		Bukkit.getScheduler().runTaskTimer(plugin, this, 0, 1);
 	}
 
-	public CompletableFuture<ReadOnlyChunk[]> submitRequest(World world, ChunkCacheKey key) {
-		Request request = new Request(world, key);
+	public CompletableFuture<ChunkAccessor[]> submitRequest(World world, int chunkX, int chunkZ) {
+		Request request = new Request(world, chunkX, chunkZ);
 		this.requests.offer(request);
 		return request.future;
 	}
@@ -46,22 +45,24 @@ public class BukkitChunkLoader implements Runnable {
 	private class Request implements Runnable {
 
 		private final World world;
-		private final ChunkCacheKey key;
+		private final int chunkX;
+		private final int chunkZ;
 
-		private final CompletableFuture<ReadOnlyChunk[]> future = new CompletableFuture<>();
+		private final CompletableFuture<ChunkAccessor[]> future = new CompletableFuture<>();
 
-		public Request(World world, ChunkCacheKey key) {
+		public Request(World world, int chunkX, int chunkZ) {
 			this.world = world;
-			this.key = key;
+			this.chunkX = chunkX;
+			this.chunkZ = chunkZ;
 		}
 
 		@Override
 		public void run() {
-			final ReadOnlyChunk[] neighboringChunks = new ReadOnlyChunk[4];
+			final ChunkAccessor[] neighboringChunks = new ChunkAccessor[4];
 
 			for (ChunkDirection direction : ChunkDirection.values()) {
-				int chunkX = key.x() + direction.getOffsetX();
-				int chunkZ = key.z() + direction.getOffsetZ();
+				int chunkX = this.chunkX + direction.getOffsetX();
+				int chunkZ = this.chunkZ + direction.getOffsetZ();
 
 				neighboringChunks[direction.ordinal()] = OrebfuscatorNms.getReadOnlyChunk(world, chunkX, chunkZ);
 			}

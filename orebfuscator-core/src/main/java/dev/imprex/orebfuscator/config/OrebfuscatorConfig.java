@@ -120,7 +120,7 @@ public class OrebfuscatorConfig implements Config {
 
   private byte[] calculateSystemHash(YamlConfiguration configuration) throws IOException {
     return Hashing.murmur3_128().newHasher()
-        .putBytes(this.server.getOrebfuscatorVersion().getBytes(StandardCharsets.UTF_8))
+        .putBytes(this.server.getOrebfuscatorVersion().toString().getBytes(StandardCharsets.UTF_8))
         .putBytes(this.server.getMinecraftVersion().toString().getBytes(StandardCharsets.UTF_8))
         .putBytes(configuration.withoutComments().getBytes(StandardCharsets.UTF_8))
         .hash().asBytes();
