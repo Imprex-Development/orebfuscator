@@ -1,35 +1,35 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>net.imprex</groupId>
-		<artifactId>orebfuscator-nms</artifactId>
-		<version>${revision}</version>
-	</parent>
+  <parent>
+    <groupId>net.imprex</groupId>
+    <artifactId>orebfuscator-nms</artifactId>
+    <version>${revision}</version>
+  </parent>
 
-	<artifactId>orebfuscator-nms-v1_16_R1</artifactId>
-	<packaging>jar</packaging>
+  <artifactId>orebfuscator-nms-v1_16_R1</artifactId>
+  <packaging>jar</packaging>
 
-	<dependencies>
-		<dependency>
-			<groupId>net.imprex</groupId>
-			<artifactId>orebfuscator-nms-api</artifactId>
-			<version>${revision}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>net.dmulloy2</groupId>
-			<artifactId>ProtocolLib</artifactId>
-			<version>${dependency.protocollib.version}</version>
-			<scope>provided</scope>
-		</dependency>
-		<dependency>
-			<groupId>org.spigotmc</groupId>
-			<artifactId>spigot</artifactId>
-			<version>1.16.1-R0.1-SNAPSHOT</version>
-			<scope>provided</scope>
-		</dependency>
-	</dependencies>
+  <dependencies>
+    <dependency>
+      <groupId>net.imprex</groupId>
+      <artifactId>orebfuscator-nms-api</artifactId>
+      <version>${revision}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.dmulloy2</groupId>
+      <artifactId>ProtocolLib</artifactId>
+      <version>${dependency.protocollib.version}</version>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.spigotmc</groupId>
+      <artifactId>spigot</artifactId>
+      <version>1.16.1-R0.1-SNAPSHOT</version>
+      <scope>provided</scope>
+    </dependency>
+  </dependencies>
 </project>

@@ -9,9 +9,9 @@ import net.imprex.orebfuscator.util.ChunkPosition;
 
 public interface CompatibilityLayer {
 
-	boolean isGameThread();
+  boolean isGameThread();
 
-	CompatibilityScheduler getScheduler();
+  CompatibilityScheduler getScheduler();
 
-	CompletableFuture<ReadOnlyChunk[]> getNeighboringChunks(World world, ChunkPosition position);
+  CompletableFuture<ReadOnlyChunk[]> getNeighboringChunks(World world, ChunkPosition position);
 }

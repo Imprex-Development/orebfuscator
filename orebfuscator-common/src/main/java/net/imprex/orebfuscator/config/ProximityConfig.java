@@ -8,17 +8,17 @@ import net.imprex.orebfuscator.util.BlockProperties;
 
 public interface ProximityConfig extends WorldConfig {
 
-	int distance();
+  int distance();
 
-	boolean frustumCullingEnabled();
+  boolean frustumCullingEnabled();
 
-	float frustumCullingMinDistanceSquared();
+  float frustumCullingMinDistanceSquared();
 
-	Matrix4f frustumCullingProjectionMatrix();
+  Matrix4f frustumCullingProjectionMatrix();
 
-	boolean rayCastCheckEnabled();
+  boolean rayCastCheckEnabled();
 
-	boolean rayCastCheckOnlyCheckCenter();
+  boolean rayCastCheckOnlyCheckCenter();
 
-	Iterable<Map.Entry<BlockProperties, Integer>> hiddenBlocks();
+  Iterable<Map.Entry<BlockProperties, Integer>> hiddenBlocks();
 }

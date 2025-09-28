@@ -13,28 +13,28 @@ import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class BukkitCompatibilityLayer implements CompatibilityLayer {
 
-	private final Thread mainThread = Thread.currentThread();
+  private final Thread mainThread = Thread.currentThread();
 
-	private final BukkitScheduler scheduler;
-	private final BukkitChunkLoader chunkLoader;
+  private final BukkitScheduler scheduler;
+  private final BukkitChunkLoader chunkLoader;
 
-	public BukkitCompatibilityLayer(Plugin plugin, Config config) {
-		this.scheduler = new BukkitScheduler(plugin);
-		this.chunkLoader = new BukkitChunkLoader(plugin, config);
-	}
+  public BukkitCompatibilityLayer(Plugin plugin, Config config) {
+    this.scheduler = new BukkitScheduler(plugin);
+    this.chunkLoader = new BukkitChunkLoader(plugin, config);
+  }
 
-	@Override
-	public boolean isGameThread() {
-		return Thread.currentThread() == this.mainThread;
-	}
+  @Override
+  public boolean isGameThread() {
+    return Thread.currentThread() == this.mainThread;
+  }
 
-	@Override
-	public CompatibilityScheduler getScheduler() {
-		return this.scheduler;
-	}
+  @Override
+  public CompatibilityScheduler getScheduler() {
+    return this.scheduler;
+  }
 
-	@Override
-	public CompletableFuture<ReadOnlyChunk[]> getNeighboringChunks(World world, ChunkPosition position) {
-		return this.chunkLoader.submitRequest(world, position);
-	}
+  @Override
+  public CompletableFuture<ReadOnlyChunk[]> getNeighboringChunks(World world, ChunkPosition position) {
+    return this.chunkLoader.submitRequest(world, position);
+  }
 }

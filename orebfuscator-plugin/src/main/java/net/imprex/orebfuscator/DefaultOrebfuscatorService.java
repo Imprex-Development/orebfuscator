@@ -11,28 +11,28 @@ import net.imprex.orebfuscator.obfuscation.ObfuscationSystem;
 
 public final class DefaultOrebfuscatorService implements OrebfuscatorService {
 
-	private final ObfuscationSystem obfuscationSystem;
+  private final ObfuscationSystem obfuscationSystem;
 
-	public DefaultOrebfuscatorService(Orebfuscator orebfuscator) {
-		this.obfuscationSystem = orebfuscator.getObfuscationSystem();
-	}
+  public DefaultOrebfuscatorService(Orebfuscator orebfuscator) {
+    this.obfuscationSystem = orebfuscator.getObfuscationSystem();
+  }
 
-	@Override
-	public final void deobfuscate(Collection<? extends Block> blocks) {
-		if (!OrebfuscatorCompatibility.isGameThread()) {
-			throw new IllegalStateException("Asynchronous deobfuscation! " + Thread.currentThread());
-		} else if (blocks == null || blocks.isEmpty()) {
-			throw new IllegalArgumentException("block list is null or empty");
-		}
+  @Override
+  public final void deobfuscate(Collection<? extends Block> blocks) {
+    if (!OrebfuscatorCompatibility.isGameThread()) {
+      throw new IllegalStateException("Asynchronous deobfuscation! " + Thread.currentThread());
+    } else if (blocks == null || blocks.isEmpty()) {
+      throw new IllegalArgumentException("block list is null or empty");
+    }
 
-		Iterator<? extends Block> blockIterator = blocks.iterator();
-		World world = blockIterator.next().getWorld();
-		while (blockIterator.hasNext()) {
-			if (blockIterator.next().getWorld() != world) {
-				throw new IllegalArgumentException("block list is located in more than one world");
-			}
-		}
+    Iterator<? extends Block> blockIterator = blocks.iterator();
+    World world = blockIterator.next().getWorld();
+    while (blockIterator.hasNext()) {
+      if (blockIterator.next().getWorld() != world) {
+        throw new IllegalArgumentException("block list is located in more than one world");
+      }
+    }
 
-		this.obfuscationSystem.deobfuscate(blocks);
-	}
+    this.obfuscationSystem.deobfuscate(blocks);
+  }
 }

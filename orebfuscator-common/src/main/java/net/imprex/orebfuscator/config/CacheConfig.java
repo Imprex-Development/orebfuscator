@@ -6,21 +6,21 @@ import net.imprex.orebfuscator.util.ChunkPosition;
 
 public interface CacheConfig {
 
-	boolean enabled();
+  boolean enabled();
 
-	int maximumSize();
+  int maximumSize();
 
-	long expireAfterAccess();
-	
-	boolean enableDiskCache();
+  long expireAfterAccess();
 
-	Path baseDirectory();
+  boolean enableDiskCache();
 
-	Path regionFile(ChunkPosition chunkPosition);
+  Path baseDirectory();
 
-	int maximumOpenRegionFiles();
+  Path regionFile(ChunkPosition chunkPosition);
 
-	long deleteRegionFilesAfterAccess();
+  int maximumOpenRegionFiles();
 
-	int maximumTaskQueueSize();
+  long deleteRegionFilesAfterAccess();
+
+  int maximumTaskQueueSize();
 }

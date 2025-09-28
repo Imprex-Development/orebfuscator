@@ -7,83 +7,83 @@ import java.util.logging.Logger;
 
 public final class OFCLogger {
 
-	public static Logger LOGGER = Logger.getLogger("Orebfuscator");
+  public static Logger LOGGER = Logger.getLogger("Orebfuscator");
 
-	private static final Queue<String> VERBOSE_LOG = new LinkedList<String>();
-	private static boolean verbose = false;
+  private static final Queue<String> VERBOSE_LOG = new LinkedList<String>();
+  private static boolean verbose = false;
 
-	public static void setVerboseLogging(boolean verbose) {
-		OFCLogger.verbose = verbose;
-		if (OFCLogger.verbose) {
-			debug("Verbose logging has been enabled");
-		}
-	}
+  public static void setVerboseLogging(boolean verbose) {
+    OFCLogger.verbose = verbose;
+    if (OFCLogger.verbose) {
+      debug("Verbose logging has been enabled");
+    }
+  }
 
-	public static void debug(String message) {
-		if (OFCLogger.verbose) {
-			OFCLogger.LOGGER.log(Level.INFO, "[Debug] " + message);
-		}
+  public static void debug(String message) {
+    if (OFCLogger.verbose) {
+      OFCLogger.LOGGER.log(Level.INFO, "[Debug] " + message);
+    }
 
-		synchronized (VERBOSE_LOG) {
-			while (VERBOSE_LOG.size() >= 1000) {
-				VERBOSE_LOG.poll();
-			}
-			VERBOSE_LOG.offer(message);
-		}
-	}
+    synchronized (VERBOSE_LOG) {
+      while (VERBOSE_LOG.size() >= 1000) {
+        VERBOSE_LOG.poll();
+      }
+      VERBOSE_LOG.offer(message);
+    }
+  }
 
-	public static String getLatestVerboseLog() {
-		synchronized (VERBOSE_LOG) {
-			int length = 0;
-			for (String message : VERBOSE_LOG) {
-				length += message.length() + 1;
-			}
+  public static String getLatestVerboseLog() {
+    synchronized (VERBOSE_LOG) {
+      int length = 0;
+      for (String message : VERBOSE_LOG) {
+        length += message.length() + 1;
+      }
 
-			StringBuilder builder = new StringBuilder(length);
-			for (String message : VERBOSE_LOG) {
-				builder.append(message).append("\n");
-			}
-			builder.deleteCharAt(builder.length() - 1);
-			return builder.toString();
-		}
-	}
+      StringBuilder builder = new StringBuilder(length);
+      for (String message : VERBOSE_LOG) {
+        builder.append(message).append("\n");
+      }
+      builder.deleteCharAt(builder.length() - 1);
+      return builder.toString();
+    }
+  }
 
-	public static void warn(String message) {
-		log(Level.WARNING, message);
-	}
+  public static void warn(String message) {
+    log(Level.WARNING, message);
+  }
 
-	/**
-	 * Log an information
-	 */
-	public static void info(String message) {
-		log(Level.INFO, message);
-	}
+  /**
+   * Log an information
+   */
+  public static void info(String message) {
+    log(Level.INFO, message);
+  }
 
-	/**
-	 * Log with a specified level
-	 */
-	public static void log(Level level, String message) {
-		OFCLogger.LOGGER.log(level, message);
-	}
+  /**
+   * Log with a specified level
+   */
+  public static void log(Level level, String message) {
+    OFCLogger.LOGGER.log(level, message);
+  }
 
-	/**
-	 * Log an error
-	 */
-	public static void error(Throwable e) {
-		log(Level.SEVERE, e.getMessage(), e);
-	}
+  /**
+   * Log an error
+   */
+  public static void error(Throwable e) {
+    log(Level.SEVERE, e.getMessage(), e);
+  }
 
-	/**
-	 * Log an error
-	 */
-	public static void error(String message, Throwable e) {
-		log(Level.SEVERE, message, e);
-	}
+  /**
+   * Log an error
+   */
+  public static void error(String message, Throwable e) {
+    log(Level.SEVERE, message, e);
+  }
 
-	/**
-	 * Log with a specified level and throwable
-	 */
-	public static void log(Level level, String message, Throwable throwable) {
-		OFCLogger.LOGGER.log(level, message, throwable);
-	}
+  /**
+   * Log with a specified level and throwable
+   */
+  public static void log(Level level, String message, Throwable throwable) {
+    OFCLogger.LOGGER.log(level, message, throwable);
+  }
 }

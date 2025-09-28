@@ -20,34 +20,34 @@ import net.imprex.orebfuscator.Orebfuscator;
 
 public abstract class AbstractHttpService {
 
-	public static final Gson GSON = new GsonBuilder().setPrettyPrinting()
-			.registerTypeAdapter(Version.class, new Version.Json())
-			.create();
+  public static final Gson GSON = new GsonBuilder().setPrettyPrinting()
+      .registerTypeAdapter(Version.class, new Version.Json())
+      .create();
 
-	public static final HttpClient HTTP = HttpClient.newHttpClient();
+  public static final HttpClient HTTP = HttpClient.newHttpClient();
 
-	protected final String userAgent;
+  protected final String userAgent;
 
-	public AbstractHttpService(Orebfuscator orebfuscator) {
-		PluginDescriptionFile plugin = orebfuscator.getDescription();
-		this.userAgent = String.format("Imprex-Development/%s/%s", plugin.getName(), plugin.getVersion());
-	}
+  public AbstractHttpService(Orebfuscator orebfuscator) {
+    PluginDescriptionFile plugin = orebfuscator.getDescription();
+    this.userAgent = String.format("Imprex-Development/%s/%s", plugin.getName(), plugin.getVersion());
+  }
 
-	protected HttpRequest.Builder request(String url) {
-		return HttpRequest.newBuilder(URI.create(url))
-				.header("User-Agent", userAgent)
-				.header("Accept", "application/json");
-	}
+  protected HttpRequest.Builder request(String url) {
+    return HttpRequest.newBuilder(URI.create(url))
+        .header("User-Agent", userAgent)
+        .header("Accept", "application/json");
+  }
 
-	protected static <T> BodyHandler<Optional<T>> optionalJson(Class<T> target) {
-		return (responseInfo) -> responseInfo.statusCode() == 200
-				? BodySubscribers.mapping(BodySubscribers.ofInputStream(), inputStream -> {
-					try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
-						return Optional.ofNullable(GSON.fromJson(reader, target));
-					} catch (IOException e) {
-						throw new UncheckedIOException("I/O while reading JSON", e);
-					}
-				})
-				: BodySubscribers.replacing(Optional.empty());
-	}
+  protected static <T> BodyHandler<Optional<T>> optionalJson(Class<T> target) {
+    return (responseInfo) -> responseInfo.statusCode() == 200
+        ? BodySubscribers.mapping(BodySubscribers.ofInputStream(), inputStream -> {
+      try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8)) {
+        return Optional.ofNullable(GSON.fromJson(reader, target));
+      } catch (IOException e) {
+        throw new UncheckedIOException("I/O while reading JSON", e);
+      }
+    })
+        : BodySubscribers.replacing(Optional.empty());
+  }
 }

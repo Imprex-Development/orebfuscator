@@ -1,36 +1,36 @@
 <project xmlns="http://maven.apache.org/POM/4.0.0"
-	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-	<modelVersion>4.0.0</modelVersion>
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
 
-	<parent>
-		<groupId>net.imprex</groupId>
-		<artifactId>orebfuscator</artifactId>
-		<version>${revision}</version>
-	</parent>
+  <parent>
+    <groupId>net.imprex</groupId>
+    <artifactId>orebfuscator</artifactId>
+    <version>${revision}</version>
+  </parent>
 
-	<artifactId>orebfuscator-nms</artifactId>
-	<packaging>pom</packaging>
+  <artifactId>orebfuscator-nms</artifactId>
+  <packaging>pom</packaging>
 
-	<modules>
-		<module>orebfuscator-nms-api</module>
-		<module>orebfuscator-nms-v1_16_R1</module>
-		<module>orebfuscator-nms-v1_16_R2</module>
-		<module>orebfuscator-nms-v1_16_R3</module>
-		<module>orebfuscator-nms-v1_17_R1</module>
-		<module>orebfuscator-nms-v1_18_R1</module>
-		<module>orebfuscator-nms-v1_18_R2</module>
-		<module>orebfuscator-nms-v1_19_R1</module>
-		<module>orebfuscator-nms-v1_19_R2</module>
-		<module>orebfuscator-nms-v1_19_R3</module>
-		<module>orebfuscator-nms-v1_20_R1</module>
-		<module>orebfuscator-nms-v1_20_R2</module>
-		<module>orebfuscator-nms-v1_20_R3</module>
-		<module>orebfuscator-nms-v1_20_R4</module>
-		<module>orebfuscator-nms-v1_21_R1</module>
-		<module>orebfuscator-nms-v1_21_R2</module>
-		<module>orebfuscator-nms-v1_21_R3</module>
-		<module>orebfuscator-nms-v1_21_R4</module>
-		<module>orebfuscator-nms-v1_21_R5</module>
-	</modules>
+  <modules>
+    <module>orebfuscator-nms-api</module>
+    <module>orebfuscator-nms-v1_16_R1</module>
+    <module>orebfuscator-nms-v1_16_R2</module>
+    <module>orebfuscator-nms-v1_16_R3</module>
+    <module>orebfuscator-nms-v1_17_R1</module>
+    <module>orebfuscator-nms-v1_18_R1</module>
+    <module>orebfuscator-nms-v1_18_R2</module>
+    <module>orebfuscator-nms-v1_19_R1</module>
+    <module>orebfuscator-nms-v1_19_R2</module>
+    <module>orebfuscator-nms-v1_19_R3</module>
+    <module>orebfuscator-nms-v1_20_R1</module>
+    <module>orebfuscator-nms-v1_20_R2</module>
+    <module>orebfuscator-nms-v1_20_R3</module>
+    <module>orebfuscator-nms-v1_20_R4</module>
+    <module>orebfuscator-nms-v1_21_R1</module>
+    <module>orebfuscator-nms-v1_21_R2</module>
+    <module>orebfuscator-nms-v1_21_R3</module>
+    <module>orebfuscator-nms-v1_21_R4</module>
+    <module>orebfuscator-nms-v1_21_R5</module>
+  </modules>
 </project>

@@ -15,47 +15,47 @@ import net.imprex.orebfuscator.util.OFCLogger;
 
 public class CacheFileCleanupTask implements Runnable {
 
-	private final CacheConfig cacheConfig;
+  private final CacheConfig cacheConfig;
 
-	private int deleteCount = 0;
+  private int deleteCount = 0;
 
-	public CacheFileCleanupTask(Orebfuscator orebfuscator) {
-		this.cacheConfig = orebfuscator.getOrebfuscatorConfig().cache();
-	}
+  public CacheFileCleanupTask(Orebfuscator orebfuscator) {
+    this.cacheConfig = orebfuscator.getOrebfuscatorConfig().cache();
+  }
 
-	@Override
-	public void run() {
-		if (Files.notExists(this.cacheConfig.baseDirectory())) {
-			OFCLogger.debug("Skipping CacheFileCleanupTask as the cache directory doesn't exist.");
-			return;
-		}
+  @Override
+  public void run() {
+    if (Files.notExists(this.cacheConfig.baseDirectory())) {
+      OFCLogger.debug("Skipping CacheFileCleanupTask as the cache directory doesn't exist.");
+      return;
+    }
 
-		long deleteAfterMillis = this.cacheConfig.deleteRegionFilesAfterAccess();
-		AbstractRegionFileCache<?> regionFileCache = OrebfuscatorNms.getRegionFileCache();
+    long deleteAfterMillis = this.cacheConfig.deleteRegionFilesAfterAccess();
+    AbstractRegionFileCache<?> regionFileCache = OrebfuscatorNms.getRegionFileCache();
 
-		this.deleteCount = 0;
+    this.deleteCount = 0;
 
-		try {
-			Files.walkFileTree(this.cacheConfig.baseDirectory(), new SimpleFileVisitor<Path>() {
+    try {
+      Files.walkFileTree(this.cacheConfig.baseDirectory(), new SimpleFileVisitor<Path>() {
 
-				@Override
-				public FileVisitResult visitFile(Path path, BasicFileAttributes attributes) throws IOException {
-					if (System.currentTimeMillis() - attributes.lastAccessTime().toMillis() > deleteAfterMillis) {
-						regionFileCache.close(path);
-						Files.delete(path);
-						
-						CacheFileCleanupTask.this.deleteCount++;
-						OFCLogger.debug("deleted cache file: " + path);
-					}
-					return FileVisitResult.CONTINUE;
-				}
-			});
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
+        @Override
+        public FileVisitResult visitFile(Path path, BasicFileAttributes attributes) throws IOException {
+          if (System.currentTimeMillis() - attributes.lastAccessTime().toMillis() > deleteAfterMillis) {
+            regionFileCache.close(path);
+            Files.delete(path);
 
-		if (this.deleteCount > 0) {
-			OFCLogger.info(String.format("CacheFileCleanupTask successfully deleted %d cache file(s)", this.deleteCount));
-		}
-	}
+            CacheFileCleanupTask.this.deleteCount++;
+            OFCLogger.debug("deleted cache file: " + path);
+          }
+          return FileVisitResult.CONTINUE;
+        }
+      });
+    } catch (IOException e) {
+      e.printStackTrace();
+    }
+
+    if (this.deleteCount > 0) {
+      OFCLogger.info(String.format("CacheFileCleanupTask successfully deleted %d cache file(s)", this.deleteCount));
+    }
+  }
 }

@@ -2,13 +2,13 @@ package net.imprex.orebfuscator.config;
 
 public interface GeneralConfig {
 
-	boolean checkForUpdates();
+  boolean checkForUpdates();
 
-	boolean updateOnBlockDamage();
+  boolean updateOnBlockDamage();
 
-	boolean bypassNotification();
-	
-	boolean ignoreSpectator();
+  boolean bypassNotification();
 
-	int updateRadius();
+  boolean ignoreSpectator();
+
+  int updateRadius();
 }

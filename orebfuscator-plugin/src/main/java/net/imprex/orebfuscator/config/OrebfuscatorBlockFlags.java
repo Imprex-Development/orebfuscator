@@ -8,57 +8,59 @@ import net.imprex.orebfuscator.util.BlockStateProperties;
 
 public class OrebfuscatorBlockFlags implements BlockFlags {
 
-	private static final OrebfuscatorBlockFlags EMPTY_FLAGS = new OrebfuscatorBlockFlags(null, null);
+  private static final OrebfuscatorBlockFlags EMPTY_FLAGS = new OrebfuscatorBlockFlags(null, null);
 
-	static OrebfuscatorBlockFlags create(OrebfuscatorObfuscationConfig worldConfig, OrebfuscatorProximityConfig proximityConfig) {
-		if ((worldConfig != null && worldConfig.isEnabled()) || (proximityConfig != null && proximityConfig.isEnabled())) {
-			return new OrebfuscatorBlockFlags(worldConfig, proximityConfig);
-		}
-		return EMPTY_FLAGS;
-	}
+  static OrebfuscatorBlockFlags create(OrebfuscatorObfuscationConfig worldConfig,
+      OrebfuscatorProximityConfig proximityConfig) {
+    if ((worldConfig != null && worldConfig.isEnabled()) || (proximityConfig != null && proximityConfig.isEnabled())) {
+      return new OrebfuscatorBlockFlags(worldConfig, proximityConfig);
+    }
+    return EMPTY_FLAGS;
+  }
 
-	private final int[] blockFlags = new int[OrebfuscatorNms.getUniqueBlockStateCount()];
+  private final int[] blockFlags = new int[OrebfuscatorNms.getUniqueBlockStateCount()];
 
-	private OrebfuscatorBlockFlags(OrebfuscatorObfuscationConfig worldConfig, OrebfuscatorProximityConfig proximityConfig) {
-		if (worldConfig != null && worldConfig.isEnabled()) {
-			for (BlockProperties block : worldConfig.hiddenBlocks()) {
-				this.setBlockBits(block, FLAG_OBFUSCATE);
-			}
-		}
+  private OrebfuscatorBlockFlags(OrebfuscatorObfuscationConfig worldConfig,
+      OrebfuscatorProximityConfig proximityConfig) {
+    if (worldConfig != null && worldConfig.isEnabled()) {
+      for (BlockProperties block : worldConfig.hiddenBlocks()) {
+        this.setBlockBits(block, FLAG_OBFUSCATE);
+      }
+    }
 
-		if (proximityConfig != null && proximityConfig.isEnabled()) {
-			for (Entry<BlockProperties, Integer> entry : proximityConfig.hiddenBlocks()) {
-				this.setBlockBits(entry.getKey(), entry.getValue());
-			}
-			for (BlockProperties block : proximityConfig.allowForUseBlockBelow()) {
-				this.setBlockBits(block, FLAG_ALLOW_FOR_USE_BLOCK_BELOW);
-			}
-		}
-	}
+    if (proximityConfig != null && proximityConfig.isEnabled()) {
+      for (Entry<BlockProperties, Integer> entry : proximityConfig.hiddenBlocks()) {
+        this.setBlockBits(entry.getKey(), entry.getValue());
+      }
+      for (BlockProperties block : proximityConfig.allowForUseBlockBelow()) {
+        this.setBlockBits(block, FLAG_ALLOW_FOR_USE_BLOCK_BELOW);
+      }
+    }
+  }
 
-	private void setBlockBits(BlockProperties block, int bits) {
-		for (BlockStateProperties blockState : block.getBlockStates()) {
-			int blockMask = this.blockFlags[blockState.getId()] | bits;
+  private void setBlockBits(BlockProperties block, int bits) {
+    for (BlockStateProperties blockState : block.getBlockStates()) {
+      int blockMask = this.blockFlags[blockState.getId()] | bits;
 
-			if (blockState.isBlockEntity()) {
-				blockMask |= FLAG_BLOCK_ENTITY;
-			}
+      if (blockState.isBlockEntity()) {
+        blockMask |= FLAG_BLOCK_ENTITY;
+      }
 
-			this.blockFlags[blockState.getId()] = blockMask;
-		}
-	}
+      this.blockFlags[blockState.getId()] = blockMask;
+    }
+  }
 
-	@Override
-	public int flags(int blockState) {
-		return this.blockFlags[blockState];
-	}
+  @Override
+  public int flags(int blockState) {
+    return this.blockFlags[blockState];
+  }
 
-	@Override
-	public int flags(int blockState, int y) {
-		int flags = this.blockFlags[blockState];
-		if (ProximityHeightCondition.match(flags, y)) {
-			flags |= FLAG_PROXIMITY;
-		}
-		return flags;
-	}
+  @Override
+  public int flags(int blockState, int y) {
+    int flags = this.blockFlags[blockState];
+    if (ProximityHeightCondition.match(flags, y)) {
+      flags |= FLAG_PROXIMITY;
+    }
+    return flags;
+  }
 }

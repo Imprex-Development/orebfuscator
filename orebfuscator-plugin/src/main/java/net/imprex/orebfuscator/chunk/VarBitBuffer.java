@@ -2,11 +2,11 @@ package net.imprex.orebfuscator.chunk;
 
 public interface VarBitBuffer {
 
-	int get(int index);
+  int get(int index);
 
-	void set(int index, int value);
+  void set(int index, int value);
 
-	long[] toArray();
+  long[] toArray();
 
-	int size();
+  int size();
 }
