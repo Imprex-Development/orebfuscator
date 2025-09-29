@@ -1,5 +1,8 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
+
   <parent>
     <groupId>net.imprex</groupId>
     <artifactId>orebfuscator</artifactId>
@@ -25,17 +28,57 @@
       <scope>provided</scope>
     </dependency>
 
+    <!-- Third-Party -->
     <dependency>
-      <groupId>org.spigotmc</groupId>
-      <artifactId>spigot-api</artifactId>
-      <version>${dependency.bukkit.version}</version>
+      <groupId>com.google.guava</groupId>
+      <artifactId>guava</artifactId>
+      <version>${dependency.guava.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>com.google.code.gson</groupId>
+      <artifactId>gson</artifactId>
+      <version>${dependency.gson.version}</version>
       <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.yaml</groupId>
+      <artifactId>snakeyaml</artifactId>
+      <version>${dependency.snakeyaml.version}</version>
+      <scope>compile</scope>
     </dependency>
     <dependency>
       <groupId>org.joml</groupId>
       <artifactId>joml</artifactId>
       <version>${dependency.joml.version}</version>
-      <scope>compile</scope>
+      <scope>provided</scope>
     </dependency>
+    <!--<dependency>
+      <groupId>org.lz4</groupId>
+      <artifactId>lz4-java</artifactId>
+      <version>${dependency.lz4.version}</version>
+      <scope>compile</scope>
+    </dependency>-->
   </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-shade-plugin</artifactId>
+        <configuration>
+          <relocations>
+            <relocation>
+              <pattern>com.google.common</pattern>
+              <shadedPattern>dev.imprex.shaded.com.google.common</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.yaml.snakeyaml</pattern>
+              <shadedPattern>dev.imprex.shaded.org.yaml.snakeyaml</shadedPattern>
+            </relocation>
+          </relocations>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

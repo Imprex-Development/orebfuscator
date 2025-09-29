@@ -1,5 +1,8 @@
 package net.imprex.orebfuscator;
 
+import java.nio.file.Path;
+import java.util.List;
+
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
@@ -10,18 +13,24 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import dev.imprex.orebfuscator.chunk.ChunkFactory;
 import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
+import dev.imprex.orebfuscator.interop.RegistryAccessor;
+import dev.imprex.orebfuscator.interop.ServerAccessor;
+import dev.imprex.orebfuscator.interop.WorldAccessor;
 import dev.imprex.orebfuscator.logging.OfcLogger;
-import dev.imprex.orebfuscator.util.MinecraftVersion;
+import dev.imprex.orebfuscator.util.Version;
 import net.imprex.orebfuscator.api.OrebfuscatorService;
 import net.imprex.orebfuscator.cache.ObfuscationCache;
+import net.imprex.orebfuscator.iterop.BukkitLoggerAccessor;
+import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 import net.imprex.orebfuscator.obfuscation.ObfuscationSystem;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayerMap;
 import net.imprex.orebfuscator.proximity.ProximityDirectorThread;
 import net.imprex.orebfuscator.proximity.ProximityPacketListener;
-import net.imprex.orebfuscator.util.HeightAccessor;
+import net.imprex.orebfuscator.util.MinecraftVersion;
 
-public class Orebfuscator extends JavaPlugin implements Listener {
+public class Orebfuscator extends JavaPlugin implements Listener, ServerAccessor {
 
   public static final ThreadGroup THREAD_GROUP = new ThreadGroup("orebfuscator");
 
@@ -33,10 +42,11 @@ public class Orebfuscator extends JavaPlugin implements Listener {
   private ObfuscationSystem obfuscationSystem;
   private ProximityDirectorThread proximityThread;
   private ProximityPacketListener proximityPacketListener;
+  private ChunkFactory chunkFactory;
 
   @Override
   public void onLoad() {
-    OfcLogger.LOGGER = getLogger();
+    OfcLogger.setLogger(new BukkitLoggerAccessor(getLogger()));
   }
 
   @Override
@@ -53,15 +63,16 @@ public class Orebfuscator extends JavaPlugin implements Listener {
         throw new RuntimeException("ProtocolLib can't be found or is disabled! Orebfuscator can't be enabled.");
       }
 
+      BukkitWorldAccessor.registerListener(this);
+
       this.statistics = new OrebfuscatorStatistics();
 
       // Load configurations
+      OrebfuscatorNms.initialize();
       this.config = new OrebfuscatorConfig(this);
+      OrebfuscatorCompatibility.initialize(this, config);
 
       this.playerMap = new OrebfuscatorPlayerMap(this);
-
-      // register cleanup listener
-      HeightAccessor.registerListener(this);
 
       // Initialize metrics
       new MetricsSystem(this);
@@ -73,6 +84,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
       this.obfuscationCache = new ObfuscationCache(this);
 
       // Load obfuscater
+      this.chunkFactory = new ChunkFactory(this);
       this.obfuscationSystem = new ObfuscationSystem(this);
 
       // Load proximity hider
@@ -122,7 +134,6 @@ public class Orebfuscator extends JavaPlugin implements Listener {
     }
 
     OrebfuscatorCompatibility.close();
-    OrebfuscatorNms.close();
 
     this.config = null;
   }
@@ -162,5 +173,41 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 
   public ProximityPacketListener getProximityPacketListener() {
     return this.proximityPacketListener;
+  }
+
+  public ChunkFactory getChunkFactory() {
+    return chunkFactory;
+  }
+
+  @Override
+  public Path getConfigDirectory() {
+    return getDataFolder().toPath();
+  }
+
+  @Override
+  public Path getWorldDirectory() {
+    return Bukkit.getWorldContainer().toPath();
+  }
+
+  @Override
+  public String getOrebfuscatorVersion() {
+    return getDescription().getVersion();
+  }
+
+  @Override
+  public Version getMinecraftVersion() {
+    return MinecraftVersion.current();
+  }
+
+  @Override
+  public RegistryAccessor getRegistry() {
+    return OrebfuscatorNms.registry();
+  }
+
+  @Override
+  public List<WorldAccessor> getWorlds() {
+    return BukkitWorldAccessor.getWorlds().stream()
+        .map(WorldAccessor.class::cast)
+        .toList();
   }
 }

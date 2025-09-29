@@ -3,7 +3,6 @@ package dev.imprex.orebfuscator.util;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-
 import com.google.common.collect.ImmutableList;
 
 public class BlockProperties {
@@ -44,17 +43,16 @@ public class BlockProperties {
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof BlockProperties)) {
+    if (!(obj instanceof BlockProperties other)) {
       return false;
     }
-    BlockProperties other = (BlockProperties) obj;
     return Objects.equals(key, other.key);
   }
 
   @Override
   public String toString() {
-    return "BlockProperties [key=" + key + ", defaultBlockState=" + defaultBlockState + ", blockStates="
-        + blockStates + "]";
+    return "BlockProperties [key=" + key + ", defaultBlockState=" + defaultBlockState + ", blockStates=" + blockStates
+        + "]";
   }
 
   public static class Builder {

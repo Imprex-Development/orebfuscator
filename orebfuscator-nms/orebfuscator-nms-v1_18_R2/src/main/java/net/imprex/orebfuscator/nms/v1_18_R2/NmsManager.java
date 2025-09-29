@@ -5,20 +5,24 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
-import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_18_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_18_R2.block.data.CraftBlockData;
 import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 
 import com.comphenix.protocol.events.PacketContainer;
 import com.google.common.collect.ImmutableList;
+import com.mojang.datafixers.util.Pair;
 
+import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.config.api.Config;
 import dev.imprex.orebfuscator.util.BlockProperties;
 import dev.imprex.orebfuscator.util.BlockStateProperties;
+import dev.imprex.orebfuscator.util.BlockTag;
 import dev.imprex.orebfuscator.util.NamespacedKey;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
@@ -35,6 +39,7 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -68,8 +73,8 @@ public class NmsManager extends AbstractNmsManager {
     return ((CraftPlayer) player).getHandle();
   }
 
-  public NmsManager(Config config) {
-    super(Block.BLOCK_STATE_REGISTRY.size(), new RegionFileCache(config.cache()));
+  public NmsManager() {
+    super(Block.BLOCK_STATE_REGISTRY.size());
 
     for (Map.Entry<ResourceKey<Block>, Block> entry : Registry.BLOCK.entrySet()) {
       NamespacedKey namespacedKey = NamespacedKey.fromString(entry.getKey().location().toString());
@@ -79,12 +84,9 @@ public class NmsManager extends AbstractNmsManager {
       BlockProperties.Builder builder = BlockProperties.builder(namespacedKey);
 
       for (BlockState blockState : possibleBlockStates) {
-        Material material = CraftBlockData.fromData(blockState).getMaterial();
-
         BlockStateProperties properties = BlockStateProperties.builder(Block.getId(blockState))
             .withIsAir(blockState.isAir())
-            // check if material is occluding and use blockData check for rare edge cases like barrier, spawner, slime_block, ...
-            .withIsOccluding(material.isOccluding() && blockState.canOcclude())
+            .withIsOccluding(blockState.isSolidRender(EmptyBlockGetter.INSTANCE, BlockPos.ZERO))
             .withIsBlockEntity(blockState.hasBlockEntity())
             .withIsDefaultState(Objects.equals(block.defaultBlockState(), blockState))
             .build();
@@ -94,6 +96,23 @@ public class NmsManager extends AbstractNmsManager {
 
       this.registerBlockProperties(builder.build());
     }
+
+    Registry.BLOCK.getTags().map(Pair::getSecond).forEach(tag -> {
+      NamespacedKey namespacedKey = NamespacedKey.fromString(tag.key().location().toString());
+
+      Set<BlockProperties> blocks = tag.stream()
+          .map(holder -> holder.unwrapKey().map(key -> getBlockByName(key.location().toString())))
+          .filter(Optional::isPresent)
+          .map(Optional::get)
+          .collect(Collectors.toUnmodifiableSet());
+
+      registerBlockTag(new BlockTag(namespacedKey, blocks));
+    });
+  }
+
+  @Override
+  public AbstractRegionFileCache<?> createRegionFileCache(Config config) {
+    return new RegionFileCache(config.cache());
   }
 
   @Override
@@ -124,7 +143,7 @@ public class NmsManager extends AbstractNmsManager {
     BlockPos.MutableBlockPos position = new BlockPos.MutableBlockPos();
 
     for (dev.imprex.orebfuscator.util.BlockPos pos : iterable) {
-      position.set(pos.x, pos.y, pos.z);
+      position.set(pos.x(), pos.y(), pos.z());
       serverChunkCache.blockChanged(position);
     }
   }
@@ -140,11 +159,11 @@ public class NmsManager extends AbstractNmsManager {
     List<Packet<ClientGamePacketListener>> blockEntityPackets = new ArrayList<>();
 
     for (dev.imprex.orebfuscator.util.BlockPos pos : iterable) {
-      if (!serverChunkCache.isChunkLoaded(pos.x >> 4, pos.z >> 4)) {
+      if (!serverChunkCache.isChunkLoaded(pos.x() >> 4, pos.z() >> 4)) {
         continue;
       }
 
-      position.set(pos.x, pos.y, pos.z);
+      position.set(pos.x(), pos.y(), pos.z());
       BlockState blockState = level.getBlockState(position);
 
       sectionPackets.computeIfAbsent(SectionPos.of(position), key -> new Short2ObjectOpenHashMap<>())

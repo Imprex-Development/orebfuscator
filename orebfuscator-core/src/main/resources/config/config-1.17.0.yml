@@ -1,0 +1,327 @@
+version: 5
+general:
+  checkForUpdates: true
+  updateOnBlockDamage: true
+  bypassNotification: true
+  ignoreSpectator: false
+  updateRadius: 2
+advanced:
+  verbose: false
+  obfuscation:
+    threads: -1
+    timeout: 10000
+    maxMillisecondsPerTick: 10
+  proximity:
+    threads: -1
+    defaultBucketSize: 50
+    threadCheckInterval: 50
+    playerCheckInterval: 5000
+cache:
+  enabled: true
+  memoryCache:
+    maximumSize: 32768
+    expireAfterAccess: 60000
+  diskCache:
+    enabled: true
+    directory: orebfuscator_cache
+    maximumOpenFiles: 256
+    deleteFilesAfterAccess: 172800000
+    maximumTaskQueueSize: 32768
+obfuscation:
+  obfuscation-overworld:
+    enabled: true
+    minY: -2032
+    maxY: 2031
+    worlds:
+    - world
+    layerObfuscation: false
+    hiddenBlocks:
+    - tag(minecraft:base_stone_overworld)
+    - tag(minecraft:coal_ores)
+    - tag(minecraft:copper_ores)
+    - tag(minecraft:diamond_ores)
+    - tag(minecraft:emerald_ores)
+    - tag(minecraft:gold_ores)
+    - tag(minecraft:iron_ores)
+    - tag(minecraft:lapis_ores)
+    - tag(minecraft:redstone_ores)
+    - minecraft:bedrock
+    - minecraft:raw_copper_block
+    - minecraft:raw_gold_block
+    - minecraft:raw_iron_block
+    - tag(minecraft:shulker_boxes)
+    - minecraft:barrel
+    - minecraft:chest
+    - minecraft:dispenser
+    - minecraft:dropper
+    - minecraft:ender_chest
+    - minecraft:hopper
+    - minecraft:trapped_chest
+    randomBlocks:
+      section-global:
+        minY: -2032
+        maxY: 2031
+        blocks:
+          minecraft:cave_air: 5
+          minecraft:cobblestone: 1
+          minecraft:mossy_cobblestone: 1
+          minecraft:obsidian: 1
+      section-stone:
+        minY: -5
+        maxY: 2031
+        blocks:
+          minecraft:stone: 15
+          minecraft:diamond_ore: 10
+          minecraft:emerald_ore: 5
+          minecraft:gold_ore: 5
+          minecraft:iron_ore: 5
+          minecraft:copper_ore: 5
+          minecraft:coal_ore: 5
+          minecraft:lapis_ore: 5
+          minecraft:redstone_ore: 5
+      section-deepslate:
+        minY: -2032
+        maxY: 5
+        blocks:
+          minecraft:deepslate: 15
+          minecraft:deepslate_diamond_ore: 10
+          minecraft:deepslate_emerald_ore: 5
+          minecraft:deepslate_gold_ore: 5
+          minecraft:deepslate_iron_ore: 5
+          minecraft:deepslate_copper_ore: 5
+          minecraft:deepslate_coal_ore: 5
+          minecraft:deepslate_lapis_ore: 5
+          minecraft:deepslate_redstone_ore: 5
+      section-bedrock:
+        minY: 0
+        maxY: 5
+        blocks:
+          minecraft:bedrock: 20
+  obfuscation-nether:
+    enabled: true
+    minY: -2032
+    maxY: 2031
+    worlds:
+    - world_nether
+    layerObfuscation: false
+    hiddenBlocks:
+    - tag(minecraft:base_stone_nether)
+    - tag(minecraft:soul_fire_base_blocks)
+    - minecraft:ancient_debris
+    - minecraft:bedrock
+    - minecraft:nether_gold_ore
+    - minecraft:nether_quartz_ore
+    - tag(minecraft:shulker_boxes)
+    - minecraft:barrel
+    - minecraft:chest
+    - minecraft:dispenser
+    - minecraft:dropper
+    - minecraft:ender_chest
+    - minecraft:hopper
+    - minecraft:trapped_chest
+    randomBlocks:
+      section-global:
+        minY: -2032
+        maxY: 2031
+        blocks:
+          minecraft:netherrack: 4
+          minecraft:nether_quartz_ore: 1
+          minecraft:nether_gold_ore: 1
+          minecraft:ancient_debris: 1
+      section-bedrock-top:
+        minY: 123
+        maxY: 127
+        blocks:
+          minecraft:bedrock: 20
+      section-bedrock-bottom:
+        minY: 0
+        maxY: 4
+        blocks:
+          minecraft:bedrock: 20
+  obfuscation-end:
+    enabled: true
+    minY: -2032
+    maxY: 2031
+    worlds:
+    - world_the_end
+    layerObfuscation: false
+    hiddenBlocks:
+    - minecraft:end_stone
+    - tag(minecraft:shulker_boxes)
+    - minecraft:barrel
+    - minecraft:chest
+    - minecraft:dispenser
+    - minecraft:dropper
+    - minecraft:ender_chest
+    - minecraft:hopper
+    - minecraft:trapped_chest
+    randomBlocks:
+      section-global:
+        minY: -2032
+        maxY: 2031
+        blocks:
+          minecraft:end_stone: 1
+          minecraft:end_stone_bricks: 1
+          minecraft:bedrock: 1
+          minecraft:obsidian: 1
+          minecraft:purpur_block: 1
+proximity:
+  proximity-overworld:
+    enabled: true
+    minY: -2032
+    maxY: 2031
+    worlds:
+    - world
+    distance: 24
+    frustumCulling:
+      enabled: true
+      minDistance: 3
+      fov: 80
+    rayCastCheck:
+      enabled: false
+      onlyCheckCenter: false
+    useBlockBelow: true
+    hiddenBlocks:
+      tag(minecraft:diamond_ores): {}
+      tag(minecraft:emerald_ores): {}
+      minecraft:mossy_cobblestone: {}
+      tag(minecraft:anvil): {}
+      tag(minecraft:beehives): {}
+      tag(minecraft:beds): {}
+      tag(minecraft:cauldrons): {}
+      minecraft:blast_furnace: {}
+      minecraft:brewing_stand: {}
+      minecraft:cartography_table: {}
+      minecraft:composter: {}
+      minecraft:crafting_table: {}
+      minecraft:enchanting_table: {}
+      minecraft:fletching_table: {}
+      minecraft:furnace: {}
+      minecraft:grindstone: {}
+      minecraft:lectern: {}
+      minecraft:loom: {}
+      minecraft:smithing_table: {}
+      minecraft:smoker: {}
+      minecraft:stonecutter: {}
+      minecraft:spawner: {}
+      tag(minecraft:shulker_boxes): {}
+      minecraft:barrel: {}
+      minecraft:chest: {}
+      minecraft:dispenser: {}
+      minecraft:dropper: {}
+      minecraft:ender_chest: {}
+      minecraft:hopper: {}
+      minecraft:trapped_chest: {}
+    randomBlocks:
+      section-stone:
+        minY: -5
+        maxY: 2031
+        blocks:
+          minecraft:stone: 1
+      section-deepslate:
+        minY: -2032
+        maxY: 5
+        blocks:
+          minecraft:deepslate: 1
+  proximity-nether:
+    enabled: true
+    minY: -2032
+    maxY: 2031
+    worlds:
+    - world_nether
+    distance: 24
+    frustumCulling:
+      enabled: true
+      minDistance: 3
+      fov: 80
+    rayCastCheck:
+      enabled: false
+      onlyCheckCenter: false
+    useBlockBelow: true
+    hiddenBlocks:
+      minecraft:ancient_debris: {}
+      minecraft:lodestone: {}
+      minecraft:nether_gold_ore: {}
+      minecraft:respawn_anchor: {}
+      tag(minecraft:anvil): {}
+      tag(minecraft:beehives): {}
+      tag(minecraft:beds): {}
+      tag(minecraft:cauldrons): {}
+      minecraft:blast_furnace: {}
+      minecraft:brewing_stand: {}
+      minecraft:cartography_table: {}
+      minecraft:composter: {}
+      minecraft:crafting_table: {}
+      minecraft:enchanting_table: {}
+      minecraft:fletching_table: {}
+      minecraft:furnace: {}
+      minecraft:grindstone: {}
+      minecraft:lectern: {}
+      minecraft:loom: {}
+      minecraft:smithing_table: {}
+      minecraft:smoker: {}
+      minecraft:stonecutter: {}
+      minecraft:spawner: {}
+      tag(minecraft:shulker_boxes): {}
+      minecraft:barrel: {}
+      minecraft:chest: {}
+      minecraft:dispenser: {}
+      minecraft:dropper: {}
+      minecraft:ender_chest: {}
+      minecraft:hopper: {}
+      minecraft:trapped_chest: {}
+    randomBlocks:
+      section-global:
+        minY: -2032
+        maxY: 2031
+        blocks:
+          minecraft:netherrack: 1
+  proximity-end:
+    enabled: true
+    minY: -2032
+    maxY: 2031
+    worlds:
+    - world_the_end
+    distance: 24
+    frustumCulling:
+      enabled: true
+      minDistance: 3
+      fov: 80
+    rayCastCheck:
+      enabled: false
+      onlyCheckCenter: false
+    useBlockBelow: true
+    hiddenBlocks:
+      tag(minecraft:anvil): {}
+      tag(minecraft:beehives): {}
+      tag(minecraft:beds): {}
+      tag(minecraft:cauldrons): {}
+      minecraft:blast_furnace: {}
+      minecraft:brewing_stand: {}
+      minecraft:cartography_table: {}
+      minecraft:composter: {}
+      minecraft:crafting_table: {}
+      minecraft:enchanting_table: {}
+      minecraft:fletching_table: {}
+      minecraft:furnace: {}
+      minecraft:grindstone: {}
+      minecraft:lectern: {}
+      minecraft:loom: {}
+      minecraft:smithing_table: {}
+      minecraft:smoker: {}
+      minecraft:stonecutter: {}
+      minecraft:spawner: {}
+      tag(minecraft:shulker_boxes): {}
+      minecraft:barrel: {}
+      minecraft:chest: {}
+      minecraft:dispenser: {}
+      minecraft:dropper: {}
+      minecraft:ender_chest: {}
+      minecraft:hopper: {}
+      minecraft:trapped_chest: {}
+    randomBlocks:
+      section-global:
+        minY: -2032
+        maxY: 2031
+        blocks:
+          minecraft:end_stone: 1

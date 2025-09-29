@@ -4,10 +4,10 @@ public enum ChunkDirection {
 
   NORTH(1, 0), EAST(0, 1), SOUTH(-1, 0), WEST(0, -1);
 
-  private int offsetX;
-  private int offsetZ;
+  private final int offsetX;
+  private final int offsetZ;
 
-  private ChunkDirection(int offsetX, int offsetZ) {
+  ChunkDirection(int offsetX, int offsetZ) {
     this.offsetX = offsetX;
     this.offsetZ = offsetZ;
   }
@@ -20,9 +20,9 @@ public enum ChunkDirection {
     return offsetZ;
   }
 
-  public static ChunkDirection fromPosition(ChunkPosition position, int targetX, int targetZ) {
-    int offsetX = (targetX >> 4) - position.x;
-    int offsetZ = (targetZ >> 4) - position.z;
+  public static ChunkDirection fromPosition(ChunkCacheKey key, int targetX, int targetZ) {
+    int offsetX = (targetX >> 4) - key.x();
+    int offsetZ = (targetZ >> 4) - key.z();
 
     if (offsetX == 1 && offsetZ == 0) {
       return NORTH;
@@ -35,6 +35,6 @@ public enum ChunkDirection {
     }
 
     throw new IllegalArgumentException(
-        String.format("invalid offset (origin: %s, x: %d, z: %d)", position, targetX, targetZ));
+        String.format("invalid offset (origin: %s, x: %d, z: %d)", key, targetX, targetZ));
   }
 }

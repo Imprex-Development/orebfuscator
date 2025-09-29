@@ -11,16 +11,17 @@ import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.config.api.CacheConfig;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import net.imprex.orebfuscator.Orebfuscator;
-import net.imprex.orebfuscator.OrebfuscatorNms;
 
 public class CacheFileCleanupTask implements Runnable {
 
   private final CacheConfig cacheConfig;
+  private final AbstractRegionFileCache<?> regionFileCache;
 
   private int deleteCount = 0;
 
-  public CacheFileCleanupTask(Orebfuscator orebfuscator) {
+  public CacheFileCleanupTask(Orebfuscator orebfuscator, AbstractRegionFileCache<?> regionFileCache) {
     this.cacheConfig = orebfuscator.getOrebfuscatorConfig().cache();
+    this.regionFileCache = regionFileCache;
   }
 
   @Override
@@ -31,7 +32,6 @@ public class CacheFileCleanupTask implements Runnable {
     }
 
     long deleteAfterMillis = this.cacheConfig.deleteRegionFilesAfterAccess();
-    AbstractRegionFileCache<?> regionFileCache = OrebfuscatorNms.getRegionFileCache();
 
     this.deleteCount = 0;
 

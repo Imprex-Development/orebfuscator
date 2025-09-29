@@ -25,10 +25,12 @@ import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
-import net.imprex.orebfuscator.chunk.ChunkStruct;
+import net.imprex.orebfuscator.iterop.BukkitChunkPacketAccessor;
+import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayer;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayerMap;
 import net.imprex.orebfuscator.util.PermissionUtil;
+import net.imprex.orebfuscator.util.RollingAverage;
 import net.imprex.orebfuscator.util.ServerVersion;
 
 public class ObfuscationListener extends PacketAdapter {
@@ -55,6 +57,9 @@ public class ObfuscationListener extends PacketAdapter {
   private final AsynchronousManager asynchronousManager;
   private final AsyncListenerHandler asyncListenerHandler;
 
+  private final RollingAverage originalSize = new RollingAverage(2048);
+  private final RollingAverage obfuscatedSize = new RollingAverage(2048);
+
   public ObfuscationListener(Orebfuscator orebfuscator) {
     super(orebfuscator, PACKET_TYPES.stream()
         .filter(Objects::nonNull)
@@ -73,6 +78,10 @@ public class ObfuscationListener extends PacketAdapter {
     } else {
       this.asyncListenerHandler.start();
     }
+
+    var statistics = orebfuscator.getStatistics();
+    statistics.setOriginalChunkSize(() -> (long) originalSize.average());
+    statistics.setObfuscatedChunkSize(() -> (long) obfuscatedSize.average());
   }
 
   public void unregister() {
@@ -91,19 +100,20 @@ public class ObfuscationListener extends PacketAdapter {
     }
 
     Player player = event.getPlayer();
-    if (this.shouldNotObfuscate(player)) {
+    BukkitWorldAccessor worldAccessor = BukkitWorldAccessor.get(player.getWorld());
+    if (this.shouldNotObfuscate(player, worldAccessor)) {
       return;
     }
 
-    ChunkStruct struct = new ChunkStruct(event.getPacket(), player.getWorld());
-    if (struct.isEmpty()) {
+    var packet = new BukkitChunkPacketAccessor(event.getPacket(), worldAccessor);
+    if (packet.isEmpty()) {
       return;
     }
 
     // delay packet
     event.getAsyncMarker().incrementProcessingDelay();
 
-    CompletableFuture<ObfuscationResult> future = this.obfuscationSystem.obfuscate(struct);
+    CompletableFuture<ObfuscationResult> future = this.obfuscationSystem.obfuscate(packet);
 
     AdvancedConfig advancedConfig = this.config.advanced();
     if (advancedConfig.hasObfuscationTimeout()) {
@@ -112,44 +122,47 @@ public class ObfuscationListener extends PacketAdapter {
 
     future.whenComplete((chunk, throwable) -> {
       if (throwable != null) {
-        this.completeExceptionally(event, struct, throwable);
+        this.completeExceptionally(event, packet, throwable);
       } else if (chunk != null) {
-        this.complete(event, struct, chunk);
+        this.complete(event, packet, chunk);
       } else {
         OfcLogger.warn(String.format("skipping chunk[world=%s, x=%d, z=%d] because obfuscation result is missing",
-            struct.world.getName(), struct.chunkX, struct.chunkZ));
+            packet.worldAccessor.getName(), packet.chunkX(), packet.chunkZ()));
         this.asynchronousManager.signalPacketTransmission(event);
       }
     });
   }
 
-  private boolean shouldNotObfuscate(Player player) {
-    return PermissionUtil.canBypassObfuscate(player) || !config.world(player.getWorld()).needsObfuscation();
+  private boolean shouldNotObfuscate(Player player, BukkitWorldAccessor worldAccessor) {
+    return PermissionUtil.canBypassObfuscate(player) || !config.world(worldAccessor).needsObfuscation();
   }
 
-  private void completeExceptionally(PacketEvent event, ChunkStruct struct, Throwable throwable) {
+  private void completeExceptionally(PacketEvent event, BukkitChunkPacketAccessor packet, Throwable throwable) {
     if (throwable instanceof TimeoutException) {
       OfcLogger.warn(String.format("Obfuscation for chunk[world=%s, x=%d, z=%d] timed out",
-          struct.world.getName(), struct.chunkX, struct.chunkZ));
+          packet.worldAccessor.getName(), packet.chunkX(), packet.chunkZ()));
     } else {
       OfcLogger.error(String.format("An error occurred while obfuscating chunk[world=%s, x=%d, z=%d]",
-          struct.world.getName(), struct.chunkX, struct.chunkZ), throwable);
+          packet.worldAccessor.getName(), packet.chunkX(), packet.chunkZ()), throwable);
     }
 
     this.asynchronousManager.signalPacketTransmission(event);
   }
 
-  private void complete(PacketEvent event, ChunkStruct struct, ObfuscationResult chunk) {
-    struct.setDataBuffer(chunk.getData());
+  private void complete(PacketEvent event, BukkitChunkPacketAccessor packet, ObfuscationResult chunk) {
+    originalSize.add(packet.data().length);
+    obfuscatedSize.add(chunk.getData().length);
+
+    packet.setData(chunk.getData());
 
     Set<BlockPos> blockEntities = chunk.getBlockEntities();
     if (!blockEntities.isEmpty()) {
-      struct.removeBlockEntityIf(blockEntities::contains);
+      packet.filterBlockEntities(blockEntities::contains);
     }
 
     final OrebfuscatorPlayer player = this.playerMap.get(event.getPlayer());
     if (player != null) {
-      player.addChunk(struct.chunkX, struct.chunkZ, chunk.getProximityBlocks());
+      player.addChunk(packet.chunkX(), packet.chunkZ(), chunk.getProximityBlocks());
     }
 
     this.asynchronousManager.signalPacketTransmission(event);

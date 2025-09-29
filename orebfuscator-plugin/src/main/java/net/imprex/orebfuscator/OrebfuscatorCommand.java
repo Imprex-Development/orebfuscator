@@ -31,8 +31,8 @@ import com.google.gson.stream.JsonWriter;
 
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.JavaVersion;
-import dev.imprex.orebfuscator.util.MinecraftVersion;
-import net.imprex.orebfuscator.util.HeightAccessor;
+import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
+import net.imprex.orebfuscator.util.MinecraftVersion;
 import net.imprex.orebfuscator.util.PermissionUtil;
 
 public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {
@@ -94,7 +94,7 @@ public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {
       for (World bukkitWorld : Bukkit.getWorlds()) {
         JsonObject world = new JsonObject();
         world.addProperty("uuid", bukkitWorld.getUID().toString());
-        world.addProperty("heightAccessor", HeightAccessor.get(bukkitWorld).toString());
+        world.addProperty("heightAccessor", BukkitWorldAccessor.get(bukkitWorld).toString());
         worlds.add(bukkitWorld.getName(), world);
       }
       root.add("worlds", worlds);
@@ -109,6 +109,8 @@ public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {
         listeners.add(key, listener);
       }
       root.add("listeners", listeners);
+
+      root.add("blocks", orebfuscator.getOrebfuscatorConfig().toJson());
 
       Base64.Encoder encoder = Base64.getUrlEncoder();
 

@@ -1,6 +1,6 @@
 package dev.imprex.orebfuscator.config.api;
 
-import org.bukkit.World;
+import dev.imprex.orebfuscator.interop.WorldAccessor;
 
 public interface Config {
 
@@ -14,7 +14,7 @@ public interface Config {
 
   CacheConfig cache();
 
-  WorldConfigBundle world(World world);
+  WorldConfigBundle world(WorldAccessor world);
 
   boolean proximityEnabled();
 }

@@ -1,0 +1,13 @@
+# boolean start
+boolean: true # boolean inline
+# section start
+section: # section inline
+  # string start
+  string: abc # string inline
+  # list start
+  list:
+  - a # inline a 1
+      # inline a 2
+  - b # inline b
+  - c # inline c
+# config end
