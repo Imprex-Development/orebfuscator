@@ -21,57 +21,57 @@ import net.imprex.orebfuscator.api.OrebfuscatorService;
 
 public class Example extends JavaPlugin implements Listener {
 
-	private static final Logger LOGGER = Logger.getLogger("bukkit.orebfuscator-api-example");
+  private static final Logger LOGGER = Logger.getLogger("bukkit.orebfuscator-api-example");
 
-	private OrebfuscatorService orebfuscatorService;
+  private OrebfuscatorService orebfuscatorService;
 
-	@Override
-	public void onEnable() {
-		ServicesManager serviceManager = getServer().getServicesManager();
-		if (!serviceManager.isProvidedFor(OrebfuscatorService.class)) {
-			LOGGER.severe("OrebfuscatorService not found! Plugin cannot be enabled.");
-			return;
-		}
+  @Override
+  public void onEnable() {
+    ServicesManager serviceManager = getServer().getServicesManager();
+    if (!serviceManager.isProvidedFor(OrebfuscatorService.class)) {
+      LOGGER.severe("OrebfuscatorService not found! Plugin cannot be enabled.");
+      return;
+    }
 
-		this.orebfuscatorService = serviceManager.load(OrebfuscatorService.class);
-		Bukkit.getPluginManager().registerEvents(this, this);
-	}
+    this.orebfuscatorService = serviceManager.load(OrebfuscatorService.class);
+    Bukkit.getPluginManager().registerEvents(this, this);
+  }
 
-	@EventHandler
-	public void onPlayerInteract(PlayerInteractEvent event) {
-		ItemStack item = event.getItem();
-		if (event.getAction() == Action.RIGHT_CLICK_BLOCK && item != null && event.getHand() == EquipmentSlot.HAND) {
-			Block block = event.getClickedBlock();
+  @EventHandler
+  public void onPlayerInteract(PlayerInteractEvent event) {
+    ItemStack item = event.getItem();
+    if (event.getAction() == Action.RIGHT_CLICK_BLOCK && item != null && event.getHand() == EquipmentSlot.HAND) {
+      Block block = event.getClickedBlock();
 
-			if (item.getType() == Material.DIAMOND_PICKAXE) {
-				List<Block> blocks = this.getBlocks(block, 2);
-				blocks.forEach(b -> b.setType(Material.AIR));
-				this.orebfuscatorService.deobfuscate(blocks);
-				event.setCancelled(true);
-			} else if (item.getType() == Material.WOODEN_PICKAXE) {
-				block.setType(Material.AIR);
-				this.orebfuscatorService.deobfuscate(Arrays.asList(block));
-				event.setCancelled(true);
-			}
-		}
-	}
+      if (item.getType() == Material.DIAMOND_PICKAXE) {
+        List<Block> blocks = this.getBlocks(block, 2);
+        blocks.forEach(b -> b.setType(Material.AIR));
+        this.orebfuscatorService.deobfuscate(blocks);
+        event.setCancelled(true);
+      } else if (item.getType() == Material.WOODEN_PICKAXE) {
+        block.setType(Material.AIR);
+        this.orebfuscatorService.deobfuscate(Arrays.asList(block));
+        event.setCancelled(true);
+      }
+    }
+  }
 
-	private List<Block> getBlocks(Block origin, int size) {
-		List<Block> blocks = new ArrayList<Block>();
+  private List<Block> getBlocks(Block origin, int size) {
+    List<Block> blocks = new ArrayList<Block>();
 
-		blocks.add(origin);
+    blocks.add(origin);
 
-		for (int x = -size; x <= size; x++) {
-			for (int y = -size; y <= size; y++) {
-				for (int z = -size; z <= size; z++) {
-					Block relative = origin.getRelative(x, y, z);
-					if (!relative.getType().isAir()) {
-						blocks.add(relative);
-					}
-				}
-			}
-		}
+    for (int x = -size; x <= size; x++) {
+      for (int y = -size; y <= size; y++) {
+        for (int z = -size; z <= size; z++) {
+          Block relative = origin.getRelative(x, y, z);
+          if (!relative.getType().isAir()) {
+            blocks.add(relative);
+          }
+        }
+      }
+    }
 
-		return blocks;
-	}
+    return blocks;
+  }
 }

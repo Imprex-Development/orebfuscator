@@ -4,7 +4,7 @@ import net.imprex.orebfuscator.util.BlockProperties;
 
 public interface ObfuscationConfig extends WorldConfig {
 
-	boolean layerObfuscation();
+  boolean layerObfuscation();
 
-	Iterable<BlockProperties> hiddenBlocks();
+  Iterable<BlockProperties> hiddenBlocks();
 }

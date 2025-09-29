@@ -22,48 +22,48 @@ import net.imprex.orebfuscator.util.PermissionUtil;
 
 public class ProximityPacketListener extends PacketAdapter {
 
-	private final ProtocolManager protocolManager;
+  private final ProtocolManager protocolManager;
 
-	private final OrebfuscatorConfig config;
-	private final OrebfuscatorPlayerMap playerMap;
+  private final OrebfuscatorConfig config;
+  private final OrebfuscatorPlayerMap playerMap;
 
-	public ProximityPacketListener(Orebfuscator orebfuscator) {
-		super(orebfuscator, PacketType.Play.Server.UNLOAD_CHUNK);
+  public ProximityPacketListener(Orebfuscator orebfuscator) {
+    super(orebfuscator, PacketType.Play.Server.UNLOAD_CHUNK);
 
-		this.protocolManager = ProtocolLibrary.getProtocolManager();
-		this.protocolManager.addPacketListener(this);
+    this.protocolManager = ProtocolLibrary.getProtocolManager();
+    this.protocolManager.addPacketListener(this);
 
-		this.config = orebfuscator.getOrebfuscatorConfig();
-		this.playerMap = orebfuscator.getPlayerMap();
-	}
+    this.config = orebfuscator.getOrebfuscatorConfig();
+    this.playerMap = orebfuscator.getPlayerMap();
+  }
 
-	public void unregister() {
-		this.protocolManager.removePacketListener(this);
-	}
+  public void unregister() {
+    this.protocolManager.removePacketListener(this);
+  }
 
-	@Override
-	public void onPacketSending(PacketEvent event) {
-		Player player = event.getPlayer();
-		if (PermissionUtil.canBypassObfuscate(player)) {
-			return;
-		}
+  @Override
+  public void onPacketSending(PacketEvent event) {
+    Player player = event.getPlayer();
+    if (PermissionUtil.canBypassObfuscate(player)) {
+      return;
+    }
 
-		World world = player.getWorld();
-		ProximityConfig proximityConfig = config.world(world).proximity();
-		if (proximityConfig == null || !proximityConfig.isEnabled()) {
-			return;
-		}
+    World world = player.getWorld();
+    ProximityConfig proximityConfig = config.world(world).proximity();
+    if (proximityConfig == null || !proximityConfig.isEnabled()) {
+      return;
+    }
 
-		OrebfuscatorPlayer orebfuscatorPlayer = this.playerMap.get(player);
-		if (orebfuscatorPlayer != null) {
-			PacketContainer packet = event.getPacket();
-			if (ChunkCapabilities.hasChunkPosFieldUnloadPacket()) {
-				ChunkCoordIntPair chunkPos = packet.getChunkCoordIntPairs().read(0);
-				orebfuscatorPlayer.removeChunk(chunkPos.getChunkX(), chunkPos.getChunkZ());
-			} else {
-				StructureModifier<Integer> ints = packet.getIntegers();
-				orebfuscatorPlayer.removeChunk(ints.read(0), ints.read(1));
-			}
-		}
-	}
+    OrebfuscatorPlayer orebfuscatorPlayer = this.playerMap.get(player);
+    if (orebfuscatorPlayer != null) {
+      PacketContainer packet = event.getPacket();
+      if (ChunkCapabilities.hasChunkPosFieldUnloadPacket()) {
+        ChunkCoordIntPair chunkPos = packet.getChunkCoordIntPairs().read(0);
+        orebfuscatorPlayer.removeChunk(chunkPos.getChunkX(), chunkPos.getChunkZ());
+      } else {
+        StructureModifier<Integer> ints = packet.getIntegers();
+        orebfuscatorPlayer.removeChunk(ints.read(0), ints.read(1));
+      }
+    }
+  }
 }

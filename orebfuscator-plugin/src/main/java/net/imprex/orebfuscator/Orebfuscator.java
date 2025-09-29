@@ -23,143 +23,144 @@ import net.imprex.orebfuscator.util.OFCLogger;
 
 public class Orebfuscator extends JavaPlugin implements Listener {
 
-	public static final ThreadGroup THREAD_GROUP = new ThreadGroup("orebfuscator");
+  public static final ThreadGroup THREAD_GROUP = new ThreadGroup("orebfuscator");
 
-	private OrebfuscatorStatistics statistics;
-	private OrebfuscatorConfig config;
-	private OrebfuscatorPlayerMap playerMap;
-	private UpdateSystem updateSystem;
-	private ObfuscationCache obfuscationCache;
-	private ObfuscationSystem obfuscationSystem;
-	private ProximityDirectorThread proximityThread;
-	private ProximityPacketListener proximityPacketListener;
+  private OrebfuscatorStatistics statistics;
+  private OrebfuscatorConfig config;
+  private OrebfuscatorPlayerMap playerMap;
+  private UpdateSystem updateSystem;
+  private ObfuscationCache obfuscationCache;
+  private ObfuscationSystem obfuscationSystem;
+  private ProximityDirectorThread proximityThread;
+  private ProximityPacketListener proximityPacketListener;
 
-	@Override
-	public void onLoad() {
-		OFCLogger.LOGGER = getLogger();
-	}
+  @Override
+  public void onLoad() {
+    OFCLogger.LOGGER = getLogger();
+  }
 
-	@Override
-	public void onEnable() {
-		try {
-			// Check for valid minecraft version
-			if (MinecraftVersion.isBelow("1.16")) {
-				throw new RuntimeException("Orebfuscator only supports minecraft 1.16 and above");
-			}
-			
-			// Check if protocolLib is enabled
-			Plugin protocolLib = getServer().getPluginManager().getPlugin("ProtocolLib");
-			if (protocolLib == null || !protocolLib.isEnabled()) {
-				throw new RuntimeException("ProtocolLib can't be found or is disabled! Orebfuscator can't be enabled.");
-			}
+  @Override
+  public void onEnable() {
+    try {
+      // Check for valid minecraft version
+      if (MinecraftVersion.isBelow("1.16")) {
+        throw new RuntimeException("Orebfuscator only supports minecraft 1.16 and above");
+      }
 
-			this.statistics = new OrebfuscatorStatistics();
+      // Check if protocolLib is enabled
+      Plugin protocolLib = getServer().getPluginManager().getPlugin("ProtocolLib");
+      if (protocolLib == null || !protocolLib.isEnabled()) {
+        throw new RuntimeException("ProtocolLib can't be found or is disabled! Orebfuscator can't be enabled.");
+      }
 
-			// Load configurations
-			this.config = new OrebfuscatorConfig(this);
+      this.statistics = new OrebfuscatorStatistics();
 
-			this.playerMap = new OrebfuscatorPlayerMap(this);
+      // Load configurations
+      this.config = new OrebfuscatorConfig(this);
 
-			// register cleanup listener
-			HeightAccessor.registerListener(this);
+      this.playerMap = new OrebfuscatorPlayerMap(this);
 
-			// Initialize metrics
-			new MetricsSystem(this);
+      // register cleanup listener
+      HeightAccessor.registerListener(this);
 
-			// initialize update system and check for updates
-			this.updateSystem = new UpdateSystem(this);
+      // Initialize metrics
+      new MetricsSystem(this);
 
-			// Load chunk cache
-			this.obfuscationCache = new ObfuscationCache(this);
+      // initialize update system and check for updates
+      this.updateSystem = new UpdateSystem(this);
 
-			// Load obfuscater
-			this.obfuscationSystem = new ObfuscationSystem(this);
+      // Load chunk cache
+      this.obfuscationCache = new ObfuscationCache(this);
 
-			// Load proximity hider
-			this.proximityThread = new ProximityDirectorThread(this);
-			if (this.config.proximityEnabled()) {
-				this.proximityThread.start();
+      // Load obfuscater
+      this.obfuscationSystem = new ObfuscationSystem(this);
 
-				this.proximityPacketListener = new ProximityPacketListener(this);
-			}
+      // Load proximity hider
+      this.proximityThread = new ProximityDirectorThread(this);
+      if (this.config.proximityEnabled()) {
+        this.proximityThread.start();
 
-			// Load packet listener
-			this.obfuscationSystem.registerChunkListener();
+        this.proximityPacketListener = new ProximityPacketListener(this);
+      }
 
-			// Store formatted config
-			this.config.store();
-			
-			// initialize service
-			Bukkit.getServicesManager().register(
-					OrebfuscatorService.class,
-					new DefaultOrebfuscatorService(this),
-					this, ServicePriority.Normal);
+      // Load packet listener
+      this.obfuscationSystem.registerChunkListener();
 
-			// add commands
-			getCommand("orebfuscator").setExecutor(new OrebfuscatorCommand(this));
-		} catch (Exception e) {
-			OFCLogger.error("An error occurred while enabling plugin", e);
+      // Store formatted config
+      this.config.store();
 
-			this.getServer().getPluginManager().registerEvent(PluginEnableEvent.class, this, EventPriority.NORMAL,
-					this::onEnableFailed, this);
-		}
-	}
+      // initialize service
+      Bukkit.getServicesManager().register(
+          OrebfuscatorService.class,
+          new DefaultOrebfuscatorService(this),
+          this, ServicePriority.Normal);
 
-	@Override
-	public void onDisable() {
-		if (this.obfuscationCache != null) {
-			this.obfuscationCache.close();
-		}
+      // add commands
+      getCommand("orebfuscator").setExecutor(new OrebfuscatorCommand(this));
+    } catch (Exception e) {
+      OFCLogger.error("An error occurred while enabling plugin", e);
 
-		if (this.obfuscationSystem != null) {
-			this.obfuscationSystem.shutdown();
-		}
+      this.getServer().getPluginManager().registerEvent(PluginEnableEvent.class, this, EventPriority.NORMAL,
+          this::onEnableFailed, this);
+    }
+  }
 
-		if (this.config != null && this.config.proximityEnabled() && this.proximityPacketListener != null && this.proximityThread != null) {
-			this.proximityPacketListener.unregister();
-			this.proximityThread.close();
-		}
+  @Override
+  public void onDisable() {
+    if (this.obfuscationCache != null) {
+      this.obfuscationCache.close();
+    }
 
-		OrebfuscatorCompatibility.close();
-		OrebfuscatorNms.close();
-		
-		this.config = null;
-	}
+    if (this.obfuscationSystem != null) {
+      this.obfuscationSystem.shutdown();
+    }
 
-	public void onEnableFailed(Listener listener, Event event) {
-		PluginEnableEvent enableEvent = (PluginEnableEvent) event;
+    if (this.config != null && this.config.proximityEnabled() && this.proximityPacketListener != null
+        && this.proximityThread != null) {
+      this.proximityPacketListener.unregister();
+      this.proximityThread.close();
+    }
 
-		if (enableEvent.getPlugin() == this) {
-			HandlerList.unregisterAll(listener);
-			Bukkit.getPluginManager().disablePlugin(this);
-		}
-	}
+    OrebfuscatorCompatibility.close();
+    OrebfuscatorNms.close();
 
-	public OrebfuscatorStatistics getStatistics() {
-		return statistics;
-	}
+    this.config = null;
+  }
 
-	public OrebfuscatorConfig getOrebfuscatorConfig() {
-		return this.config;
-	}
+  public void onEnableFailed(Listener listener, Event event) {
+    PluginEnableEvent enableEvent = (PluginEnableEvent) event;
 
-	public OrebfuscatorPlayerMap getPlayerMap() {
-		return playerMap;
-	}
+    if (enableEvent.getPlugin() == this) {
+      HandlerList.unregisterAll(listener);
+      Bukkit.getPluginManager().disablePlugin(this);
+    }
+  }
 
-	public UpdateSystem getUpdateSystem() {
-		return updateSystem;
-	}
+  public OrebfuscatorStatistics getStatistics() {
+    return statistics;
+  }
 
-	public ObfuscationCache getObfuscationCache() {
-		return this.obfuscationCache;
-	}
+  public OrebfuscatorConfig getOrebfuscatorConfig() {
+    return this.config;
+  }
 
-	public ObfuscationSystem getObfuscationSystem() {
-		return obfuscationSystem;
-	}
+  public OrebfuscatorPlayerMap getPlayerMap() {
+    return playerMap;
+  }
 
-	public ProximityPacketListener getProximityPacketListener() {
-		return this.proximityPacketListener;
-	}
+  public UpdateSystem getUpdateSystem() {
+    return updateSystem;
+  }
+
+  public ObfuscationCache getObfuscationCache() {
+    return this.obfuscationCache;
+  }
+
+  public ObfuscationSystem getObfuscationSystem() {
+    return obfuscationSystem;
+  }
+
+  public ProximityPacketListener getProximityPacketListener() {
+    return this.proximityPacketListener;
+  }
 }

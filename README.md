@@ -55,7 +55,7 @@ To include the API in your Maven project, add the following configuration to you
 ## License:
 
 Completely rewritten by Imprex-Development to support v1.14 and higher Minecraft version's; these portions as permissible:
-Copyright (C) 2020-2024 by Imprex-Development. All rights reserved.
+Copyright (C) 2020-2025 by Imprex-Development. All rights reserved.
 
 Released under the same license as original.
 

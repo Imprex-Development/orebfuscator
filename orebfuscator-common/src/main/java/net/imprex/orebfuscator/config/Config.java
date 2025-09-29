@@ -4,17 +4,17 @@ import org.bukkit.World;
 
 public interface Config {
 
-	byte[] systemHash();
+  byte[] systemHash();
 
-	String report();
+  String report();
 
-	GeneralConfig general();
+  GeneralConfig general();
 
-	AdvancedConfig advanced();
+  AdvancedConfig advanced();
 
-	CacheConfig cache();
+  CacheConfig cache();
 
-	WorldConfigBundle world(World world);
+  WorldConfigBundle world(World world);
 
-	boolean proximityEnabled();
+  boolean proximityEnabled();
 }

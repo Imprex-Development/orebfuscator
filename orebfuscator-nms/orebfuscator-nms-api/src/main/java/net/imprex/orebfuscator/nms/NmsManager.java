@@ -9,27 +9,27 @@ import net.imprex.orebfuscator.util.NamespacedKey;
 
 public interface NmsManager {
 
-	AbstractRegionFileCache<?> getRegionFileCache();
+  AbstractRegionFileCache<?> getRegionFileCache();
 
-	int getUniqueBlockStateCount();
+  int getUniqueBlockStateCount();
 
-	int getMaxBitsPerBlockState();
+  int getMaxBitsPerBlockState();
 
-	BlockProperties getBlockByName(NamespacedKey key);
+  BlockProperties getBlockByName(NamespacedKey key);
 
-	boolean isAir(int blockId);
+  boolean isAir(int blockId);
 
-	boolean isOccluding(int blockId);
+  boolean isOccluding(int blockId);
 
-	boolean isBlockEntity(int blockId);
+  boolean isBlockEntity(int blockId);
 
-	ReadOnlyChunk getReadOnlyChunk(World world, int chunkX, int chunkZ);
+  ReadOnlyChunk getReadOnlyChunk(World world, int chunkX, int chunkZ);
 
-	int getBlockState(World world, int x, int y, int z);
+  int getBlockState(World world, int x, int y, int z);
 
-	void sendBlockUpdates(World world, Iterable<BlockPos> iterable);
+  void sendBlockUpdates(World world, Iterable<BlockPos> iterable);
 
-	void sendBlockUpdates(Player player, Iterable<BlockPos> iterable);
+  void sendBlockUpdates(Player player, Iterable<BlockPos> iterable);
 
-	void close();
+  void close();
 }

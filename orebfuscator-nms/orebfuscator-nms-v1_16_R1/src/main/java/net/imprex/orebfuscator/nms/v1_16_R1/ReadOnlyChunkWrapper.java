@@ -5,14 +5,14 @@ import net.minecraft.server.v1_16_R1.Chunk;
 
 public class ReadOnlyChunkWrapper implements ReadOnlyChunk {
 
-	private final Chunk chunk;
+  private final Chunk chunk;
 
-	ReadOnlyChunkWrapper(Chunk chunk) {
-		this.chunk = chunk;
-	}
+  ReadOnlyChunkWrapper(Chunk chunk) {
+    this.chunk = chunk;
+  }
 
-	@Override
-	public int getBlockState(int x, int y, int z) {
-		return NmsManager.getBlockState(chunk, x, y, z);
-	}
+  @Override
+  public int getBlockState(int x, int y, int z) {
+    return NmsManager.getBlockState(chunk, x, y, z);
+  }
 }

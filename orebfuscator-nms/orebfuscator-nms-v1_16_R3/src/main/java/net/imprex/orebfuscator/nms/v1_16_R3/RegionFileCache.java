@@ -17,28 +17,28 @@ import net.minecraft.server.v1_16_R3.RegionFileCompression;
 
 public class RegionFileCache extends AbstractRegionFileCache<RegionFile> {
 
-	RegionFileCache(CacheConfig cacheConfig) {
-		super(cacheConfig);
-	}
+  RegionFileCache(CacheConfig cacheConfig) {
+    super(cacheConfig);
+  }
 
-	@Override
-	protected RegionFile createRegionFile(Path path) throws IOException {
-		boolean isSyncChunkWrites = ((CraftServer) Bukkit.getServer()).getServer().isSyncChunkWrites();
-		return new RegionFile(path, path.getParent(), RegionFileCompression.c, isSyncChunkWrites);
-	}
+  @Override
+  protected RegionFile createRegionFile(Path path) throws IOException {
+    boolean isSyncChunkWrites = ((CraftServer) Bukkit.getServer()).getServer().isSyncChunkWrites();
+    return new RegionFile(path, path.getParent(), RegionFileCompression.c, isSyncChunkWrites);
+  }
 
-	@Override
-	protected void closeRegionFile(RegionFile t) throws IOException {
-		t.close();
-	}
+  @Override
+  protected void closeRegionFile(RegionFile t) throws IOException {
+    t.close();
+  }
 
-	@Override
-	protected DataInputStream createInputStream(RegionFile t, ChunkPosition key) throws IOException {
-		return t.a(new ChunkCoordIntPair(key.x, key.z));
-	}
+  @Override
+  protected DataInputStream createInputStream(RegionFile t, ChunkPosition key) throws IOException {
+    return t.a(new ChunkCoordIntPair(key.x, key.z));
+  }
 
-	@Override
-	protected DataOutputStream createOutputStream(RegionFile t, ChunkPosition key) throws IOException {
-		return t.c(new ChunkCoordIntPair(key.x, key.z));
-	}
+  @Override
+  protected DataOutputStream createOutputStream(RegionFile t, ChunkPosition key) throws IOException {
+    return t.c(new ChunkCoordIntPair(key.x, key.z));
+  }
 }

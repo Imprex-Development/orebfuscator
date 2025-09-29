@@ -12,21 +12,21 @@ import net.imprex.orebfuscator.util.ChunkPosition;
 
 public abstract class AbstractPaperCompatibilityLayer implements CompatibilityLayer {
 
-	@Override
-	public CompletableFuture<ReadOnlyChunk[]> getNeighboringChunks(World world, ChunkPosition position) {
-		CompletableFuture<?>[] futures = new CompletableFuture<?>[4];
-		ReadOnlyChunk[] neighboringChunks = new ReadOnlyChunk[4];
+  @Override
+  public CompletableFuture<ReadOnlyChunk[]> getNeighboringChunks(World world, ChunkPosition position) {
+    CompletableFuture<?>[] futures = new CompletableFuture<?>[4];
+    ReadOnlyChunk[] neighboringChunks = new ReadOnlyChunk[4];
 
-		for (ChunkDirection direction : ChunkDirection.values()) {
-			int chunkX = position.x + direction.getOffsetX();
-			int chunkZ = position.z + direction.getOffsetZ();
-			int index = direction.ordinal();
+    for (ChunkDirection direction : ChunkDirection.values()) {
+      int chunkX = position.x + direction.getOffsetX();
+      int chunkZ = position.z + direction.getOffsetZ();
+      int index = direction.ordinal();
 
-			futures[index] = world.getChunkAtAsync(chunkX, chunkZ).thenAccept(chunk -> {
-				neighboringChunks[index] = OrebfuscatorNms.getReadOnlyChunk(world, chunkX, chunkZ);
-			});
-		}
+      futures[index] = world.getChunkAtAsync(chunkX, chunkZ).thenAccept(chunk -> {
+        neighboringChunks[index] = OrebfuscatorNms.getReadOnlyChunk(world, chunkX, chunkZ);
+      });
+    }
 
-		return CompletableFuture.allOf(futures).thenApply(v -> neighboringChunks);
-	}
+    return CompletableFuture.allOf(futures).thenApply(v -> neighboringChunks);
+  }
 }

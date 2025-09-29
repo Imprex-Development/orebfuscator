@@ -25,132 +25,134 @@ import net.imprex.orebfuscator.util.PermissionUtil;
 
 public class ProximityWorker {
 
-	private final OrebfuscatorConfig config;
-	private final OrebfuscatorPlayerMap playerMap;
+  private final OrebfuscatorConfig config;
+  private final OrebfuscatorPlayerMap playerMap;
 
-	public ProximityWorker(Orebfuscator orebfuscator) {
-		this.config = orebfuscator.getOrebfuscatorConfig();
-		this.playerMap = orebfuscator.getPlayerMap();
-	}
+  public ProximityWorker(Orebfuscator orebfuscator) {
+    this.config = orebfuscator.getOrebfuscatorConfig();
+    this.playerMap = orebfuscator.getPlayerMap();
+  }
 
-	private boolean shouldIgnorePlayer(Player player) {
-		if (PermissionUtil.canBypassObfuscate(player)) {
-			return true;
-		}
+  private boolean shouldIgnorePlayer(Player player) {
+    if (PermissionUtil.canBypassObfuscate(player)) {
+      return true;
+    }
 
-		return player.getGameMode() == GameMode.SPECTATOR && this.config.general().ignoreSpectator();
-	}
+    return player.getGameMode() == GameMode.SPECTATOR && this.config.general().ignoreSpectator();
+  }
 
-	protected void process(List<Player> players) {
-		for (Player player : players) {
-			try {
-				this.process(player);
-			} catch (Exception e) {
-				e.printStackTrace();
-			}
-		}
-	}
+  protected void process(List<Player> players) {
+    for (Player player : players) {
+      try {
+        this.process(player);
+      } catch (Exception e) {
+        e.printStackTrace();
+      }
+    }
+  }
 
-	private void process(Player player) {
-		if (this.shouldIgnorePlayer(player)) {
-			return;
-		}
+  private void process(Player player) {
+    if (this.shouldIgnorePlayer(player)) {
+      return;
+    }
 
-		World world = player.getWorld();
+    World world = player.getWorld();
 
-		// check if world has enabled proximity config
-		ProximityConfig proximityConfig = this.config.world(world).proximity();
-		if (proximityConfig == null || !proximityConfig.isEnabled()) {
-			return;
-		}
+    // check if world has enabled proximity config
+    ProximityConfig proximityConfig = this.config.world(world).proximity();
+    if (proximityConfig == null || !proximityConfig.isEnabled()) {
+      return;
+    }
 
-		// frustum culling and ray casting both need rotation changes
-		boolean needsRotation = proximityConfig.frustumCullingEnabled() || proximityConfig.rayCastCheckEnabled();
+    // frustum culling and ray casting both need rotation changes
+    boolean needsRotation = proximityConfig.frustumCullingEnabled() || proximityConfig.rayCastCheckEnabled();
 
-		// check if player changed location since last time
-		OrebfuscatorPlayer orebfuscatorPlayer = this.playerMap.get(player);
-		if (orebfuscatorPlayer == null || !orebfuscatorPlayer.needsProximityUpdate(needsRotation)) {
-			return;
-		}
+    // check if player changed location since last time
+    OrebfuscatorPlayer orebfuscatorPlayer = this.playerMap.get(player);
+    if (orebfuscatorPlayer == null || !orebfuscatorPlayer.needsProximityUpdate(needsRotation)) {
+      return;
+    }
 
-		int distance = proximityConfig.distance();
-		int distanceSquared = distance * distance;
+    int distance = proximityConfig.distance();
+    int distanceSquared = distance * distance;
 
-		List<BlockPos> updateBlocks = new ArrayList<>();
-		Location eyeLocation = needsRotation
-				? player.getEyeLocation()
-				: null;
+    List<BlockPos> updateBlocks = new ArrayList<>();
+    Location eyeLocation = needsRotation
+        ? player.getEyeLocation()
+        : null;
 
-		// create frustum planes if culling is enabled
-		FrustumIntersection frustum = proximityConfig.frustumCullingEnabled()
-				? new FrustumIntersection(proximityConfig.frustumCullingProjectionMatrix()
-						.rotate(new Quaternionf()
-								.rotateX((float) Math.toRadians(eyeLocation.getPitch()))
-								.rotateY((float) Math.toRadians(eyeLocation.getYaw() + 180)))
-						.translate(
-								(float) -eyeLocation.getX(),
-								(float) -eyeLocation.getY(),
-								(float) -eyeLocation.getZ()
-						), false)
-				: null;
+    // create frustum planes if culling is enabled
+    FrustumIntersection frustum = proximityConfig.frustumCullingEnabled()
+        ? new FrustumIntersection(proximityConfig.frustumCullingProjectionMatrix()
+        .rotate(new Quaternionf()
+            .rotateX((float) Math.toRadians(eyeLocation.getPitch()))
+            .rotateY((float) Math.toRadians(eyeLocation.getYaw() + 180)))
+        .translate(
+            (float) -eyeLocation.getX(),
+            (float) -eyeLocation.getY(),
+            (float) -eyeLocation.getZ()
+        ), false)
+        : null;
 
-		Location location = player.getLocation();
-		int minChunkX = (location.getBlockX() - distance) >> 4;
-		int maxChunkX = (location.getBlockX() + distance) >> 4;
-		int minChunkZ = (location.getBlockZ() - distance) >> 4;
-		int maxChunkZ = (location.getBlockZ() + distance) >> 4;
+    Location location = player.getLocation();
+    int minChunkX = (location.getBlockX() - distance) >> 4;
+    int maxChunkX = (location.getBlockX() + distance) >> 4;
+    int minChunkZ = (location.getBlockZ() - distance) >> 4;
+    int maxChunkZ = (location.getBlockZ() + distance) >> 4;
 
-		for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
-			for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
+    for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
+      for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
 
-				OrebfuscatorPlayerChunk chunk = orebfuscatorPlayer.getChunk(chunkX, chunkZ);
-				if (chunk == null) {
-					continue;
-				}
+        OrebfuscatorPlayerChunk chunk = orebfuscatorPlayer.getChunk(chunkX, chunkZ);
+        if (chunk == null) {
+          continue;
+        }
 
-				for (Iterator<BlockPos> iterator = chunk.proximityIterator(); iterator.hasNext(); ) {
-					BlockPos blockPos = iterator.next();
+        for (Iterator<BlockPos> iterator = chunk.proximityIterator(); iterator.hasNext(); ) {
+          BlockPos blockPos = iterator.next();
 
-					// check if block is in range
-					double blockDistanceSquared = blockPos.distanceSquared(location.getX(), location.getY(), location.getZ());
-					if (blockDistanceSquared > distanceSquared) {
-						continue;
-					}
+          // check if block is in range
+          double blockDistanceSquared = blockPos.distanceSquared(location.getX(), location.getY(), location.getZ());
+          if (blockDistanceSquared > distanceSquared) {
+            continue;
+          }
 
-					// do frustum culling check
-					if (proximityConfig.frustumCullingEnabled() && blockDistanceSquared > proximityConfig.frustumCullingMinDistanceSquared()) {
+          // do frustum culling check
+          if (proximityConfig.frustumCullingEnabled()
+              && blockDistanceSquared > proximityConfig.frustumCullingMinDistanceSquared()) {
 
-						// check if block AABB is inside frustum
-						int result = frustum.intersectAab(
-								blockPos.x, blockPos.y, blockPos.z,
-								blockPos.x + 1, blockPos.y + 1, blockPos.z + 1);
+            // check if block AABB is inside frustum
+            int result = frustum.intersectAab(
+                blockPos.x, blockPos.y, blockPos.z,
+                blockPos.x + 1, blockPos.y + 1, blockPos.z + 1);
 
-						// block is outside
-						if (result != FrustumIntersection.INSIDE && result != FrustumIntersection.INTERSECT) {
-							continue;
-						}
-					}
+            // block is outside
+            if (result != FrustumIntersection.INSIDE && result != FrustumIntersection.INTERSECT) {
+              continue;
+            }
+          }
 
-					// do ray cast check
-					if (proximityConfig.rayCastCheckEnabled() && !FastGazeUtil.doFastCheck(blockPos, eyeLocation, world, proximityConfig.rayCastCheckOnlyCheckCenter())) {
-						continue;
-					}
+          // do ray cast check
+          if (proximityConfig.rayCastCheckEnabled() && !FastGazeUtil.doFastCheck(blockPos, eyeLocation, world,
+              proximityConfig.rayCastCheckOnlyCheckCenter())) {
+            continue;
+          }
 
-					// block is visible and needs update
-					iterator.remove();
-					updateBlocks.add(blockPos);
-				}
+          // block is visible and needs update
+          iterator.remove();
+          updateBlocks.add(blockPos);
+        }
 
-				if (chunk.isEmpty()) {
-					orebfuscatorPlayer.removeChunk(chunkX, chunkZ);
-				}
-			}
-		}
+        if (chunk.isEmpty()) {
+          orebfuscatorPlayer.removeChunk(chunkX, chunkZ);
+        }
+      }
+    }
 
-		OrebfuscatorCompatibility.runForPlayer(player, () -> {
-			if (player.isOnline() && player.getWorld().equals(world)) {
-				OrebfuscatorNms.sendBlockUpdates(player, updateBlocks);
-			}
-		});
-	}
+    OrebfuscatorCompatibility.runForPlayer(player, () -> {
+      if (player.isOnline() && player.getWorld().equals(world)) {
+        OrebfuscatorNms.sendBlockUpdates(player, updateBlocks);
+      }
+    });
+  }
 }

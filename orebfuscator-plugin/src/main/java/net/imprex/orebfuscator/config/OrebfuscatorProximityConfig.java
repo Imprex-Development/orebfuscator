@@ -15,185 +15,185 @@ import net.imprex.orebfuscator.util.BlockProperties;
 
 public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements ProximityConfig {
 
-	private int distance = 24;
+  private int distance = 24;
 
-	private boolean frustumCullingEnabled = true;
-	private float frustumCullingMinDistance = 3;
-	private float frustumCullingFov = 80f;
+  private boolean frustumCullingEnabled = true;
+  private float frustumCullingMinDistance = 3;
+  private float frustumCullingFov = 80f;
 
-	private float frustumCullingMinDistanceSquared = 9;
-	private Matrix4f frustumCullingProjectionMatrix;
+  private float frustumCullingMinDistanceSquared = 9;
+  private Matrix4f frustumCullingProjectionMatrix;
 
-	private boolean rayCastCheckEnabled = false;
-	private boolean rayCastCheckOnlyCheckCenter = false;
-	private int defaultBlockFlags = (ProximityHeightCondition.MATCH_ALL | BlockFlags.FLAG_USE_BLOCK_BELOW);
-	
-	private boolean usesBlockSpecificConfigs = false;
-	private Map<BlockProperties, Integer> hiddenBlocks = new LinkedHashMap<>();
-	private Set<BlockProperties> allowForUseBlockBelow = new HashSet<>();
+  private boolean rayCastCheckEnabled = false;
+  private boolean rayCastCheckOnlyCheckCenter = false;
+  private int defaultBlockFlags = (ProximityHeightCondition.MATCH_ALL | BlockFlags.FLAG_USE_BLOCK_BELOW);
 
-	OrebfuscatorProximityConfig(ConfigurationSection section, ConfigParsingContext context) {
-		super(section.getName());
-		this.deserializeBase(section);
-		this.deserializeWorlds(section, context, "worlds");
+  private boolean usesBlockSpecificConfigs = false;
+  private Map<BlockProperties, Integer> hiddenBlocks = new LinkedHashMap<>();
+  private Set<BlockProperties> allowForUseBlockBelow = new HashSet<>();
 
-		this.distance = section.getInt("distance", 24);
-		context.errorMinValue("distance", 1, this.distance);
+  OrebfuscatorProximityConfig(ConfigurationSection section, ConfigParsingContext context) {
+    super(section.getName());
+    this.deserializeBase(section);
+    this.deserializeWorlds(section, context, "worlds");
 
-		this.frustumCullingEnabled = section.getBoolean("frustumCulling.enabled", false);
-		this.frustumCullingMinDistance = (float) section.getDouble("frustumCulling.minDistance", 3);
-		this.frustumCullingFov = (float) section.getDouble("frustumCulling.fov", 80d);
+    this.distance = section.getInt("distance", 24);
+    context.errorMinValue("distance", 1, this.distance);
 
-		if (this.frustumCullingEnabled && (this.frustumCullingFov < 10 || this.frustumCullingFov > 170)) {
-			context.errorMinMaxValue("frustumCulling.fov", 10, 170, (int) this.frustumCullingFov);
-		}
+    this.frustumCullingEnabled = section.getBoolean("frustumCulling.enabled", false);
+    this.frustumCullingMinDistance = (float) section.getDouble("frustumCulling.minDistance", 3);
+    this.frustumCullingFov = (float) section.getDouble("frustumCulling.fov", 80d);
 
-		this.frustumCullingMinDistanceSquared = frustumCullingMinDistance * frustumCullingMinDistance;
-		this.frustumCullingProjectionMatrix = new Matrix4f() // create projection matrix with aspect 16:9
-				.perspective(frustumCullingFov, 16f / 9f, 0.01f, 2 * distance);
+    if (this.frustumCullingEnabled && (this.frustumCullingFov < 10 || this.frustumCullingFov > 170)) {
+      context.errorMinMaxValue("frustumCulling.fov", 10, 170, (int) this.frustumCullingFov);
+    }
 
-		this.rayCastCheckEnabled = section.getBoolean("rayCastCheck.enabled", false);
-		this.rayCastCheckOnlyCheckCenter = section.getBoolean("rayCastCheck.onlyCheckCenter", false);
+    this.frustumCullingMinDistanceSquared = frustumCullingMinDistance * frustumCullingMinDistance;
+    this.frustumCullingProjectionMatrix = new Matrix4f() // create projection matrix with aspect 16:9
+        .perspective(frustumCullingFov, 16f / 9f, 0.01f, 2 * distance);
 
-		this.defaultBlockFlags = ProximityHeightCondition.create(minY, maxY);
-		if (section.getBoolean("useBlockBelow", true)) {
-			this.defaultBlockFlags |= BlockFlags.FLAG_USE_BLOCK_BELOW;
-		}
+    this.rayCastCheckEnabled = section.getBoolean("rayCastCheck.enabled", false);
+    this.rayCastCheckOnlyCheckCenter = section.getBoolean("rayCastCheck.onlyCheckCenter", false);
 
-		this.deserializeHiddenBlocks(section, context, "hiddenBlocks");
-		this.deserializeRandomBlocks(section, context, "randomBlocks");
+    this.defaultBlockFlags = ProximityHeightCondition.create(minY, maxY);
+    if (section.getBoolean("useBlockBelow", true)) {
+      this.defaultBlockFlags |= BlockFlags.FLAG_USE_BLOCK_BELOW;
+    }
 
-		for (WeightedBlockList blockList : this.weightedBlockLists) {
-			this.allowForUseBlockBelow.addAll(blockList.getBlocks());
-		}
+    this.deserializeHiddenBlocks(section, context, "hiddenBlocks");
+    this.deserializeRandomBlocks(section, context, "randomBlocks");
 
-		this.disableOnError(context);
-	}
+    for (WeightedBlockList blockList : this.weightedBlockLists) {
+      this.allowForUseBlockBelow.addAll(blockList.getBlocks());
+    }
 
-	protected void serialize(ConfigurationSection section) {
-		this.serializeBase(section);
-		this.serializeWorlds(section, "worlds");
+    this.disableOnError(context);
+  }
 
-		section.set("distance", this.distance);
+  protected void serialize(ConfigurationSection section) {
+    this.serializeBase(section);
+    this.serializeWorlds(section, "worlds");
 
-		section.set("frustumCulling.enabled", frustumCullingEnabled);
-		section.set("frustumCulling.minDistance", frustumCullingMinDistance);
-		section.set("frustumCulling.fov", frustumCullingFov);
+    section.set("distance", this.distance);
 
-		section.set("rayCastCheck.enabled", this.rayCastCheckEnabled);
-		section.set("rayCastCheck.onlyCheckCenter", this.rayCastCheckOnlyCheckCenter);
-		section.set("useBlockBelow", BlockFlags.isUseBlockBelowBitSet(this.defaultBlockFlags));
+    section.set("frustumCulling.enabled", frustumCullingEnabled);
+    section.set("frustumCulling.minDistance", frustumCullingMinDistance);
+    section.set("frustumCulling.fov", frustumCullingFov);
 
-		this.serializeHiddenBlocks(section, "hiddenBlocks");
-		this.serializeRandomBlocks(section, "randomBlocks");
-	}
+    section.set("rayCastCheck.enabled", this.rayCastCheckEnabled);
+    section.set("rayCastCheck.onlyCheckCenter", this.rayCastCheckOnlyCheckCenter);
+    section.set("useBlockBelow", BlockFlags.isUseBlockBelowBitSet(this.defaultBlockFlags));
 
-	private void deserializeHiddenBlocks(ConfigurationSection section, ConfigParsingContext context, String path) {
-		context = context.section(path);
+    this.serializeHiddenBlocks(section, "hiddenBlocks");
+    this.serializeRandomBlocks(section, "randomBlocks");
+  }
 
-		ConfigurationSection blockSection = section.getConfigurationSection(path);
-		if (blockSection == null) {
-			return;
-		}
+  private void deserializeHiddenBlocks(ConfigurationSection section, ConfigParsingContext context, String path) {
+    context = context.section(path);
 
-		for (String blockName : blockSection.getKeys(false)) {
-			BlockProperties blockProperties = OrebfuscatorNms.getBlockByName(blockName);
-			if (blockProperties == null) {
-				context.warnUnknownBlock(blockName);
-			} else if (blockProperties.getDefaultBlockState().isAir()) {
-				context.warnAirBlock(blockName);
-			} else {
-				int blockFlags = this.defaultBlockFlags;
+    ConfigurationSection blockSection = section.getConfigurationSection(path);
+    if (blockSection == null) {
+      return;
+    }
 
-				// parse block specific height condition
-				if (blockSection.isInt(blockName + ".minY") && blockSection.isInt(blockName + ".maxY")) {
-					int minY = blockSection.getInt(blockName + ".minY");
-					int maxY = blockSection.getInt(blockName + ".maxY");
+    for (String blockName : blockSection.getKeys(false)) {
+      BlockProperties blockProperties = OrebfuscatorNms.getBlockByName(blockName);
+      if (blockProperties == null) {
+        context.warnUnknownBlock(blockName);
+      } else if (blockProperties.getDefaultBlockState().isAir()) {
+        context.warnAirBlock(blockName);
+      } else {
+        int blockFlags = this.defaultBlockFlags;
 
-					blockFlags = ProximityHeightCondition.remove(blockFlags);
-					blockFlags |= ProximityHeightCondition.create(
-							Math.min(minY, maxY),
-							Math.max(minY, maxY));
-					usesBlockSpecificConfigs = true;
-				}
+        // parse block specific height condition
+        if (blockSection.isInt(blockName + ".minY") && blockSection.isInt(blockName + ".maxY")) {
+          int minY = blockSection.getInt(blockName + ".minY");
+          int maxY = blockSection.getInt(blockName + ".maxY");
 
-				// parse block specific flags
-				if (blockSection.isBoolean(blockName + ".useBlockBelow")) {
-					if (blockSection.getBoolean(blockName + ".useBlockBelow")) {
-						blockFlags |= BlockFlags.FLAG_USE_BLOCK_BELOW;
-					} else {
-						blockFlags &= ~BlockFlags.FLAG_USE_BLOCK_BELOW;
-					}
-					usesBlockSpecificConfigs = true;
-				}
+          blockFlags = ProximityHeightCondition.remove(blockFlags);
+          blockFlags |= ProximityHeightCondition.create(
+              Math.min(minY, maxY),
+              Math.max(minY, maxY));
+          usesBlockSpecificConfigs = true;
+        }
 
-				this.hiddenBlocks.put(blockProperties, blockFlags);
-			}
-		}
+        // parse block specific flags
+        if (blockSection.isBoolean(blockName + ".useBlockBelow")) {
+          if (blockSection.getBoolean(blockName + ".useBlockBelow")) {
+            blockFlags |= BlockFlags.FLAG_USE_BLOCK_BELOW;
+          } else {
+            blockFlags &= ~BlockFlags.FLAG_USE_BLOCK_BELOW;
+          }
+          usesBlockSpecificConfigs = true;
+        }
 
-		if (this.hiddenBlocks.isEmpty()) {
-			context.errorMissingOrEmpty();
-		}
-	}
+        this.hiddenBlocks.put(blockProperties, blockFlags);
+      }
+    }
 
-	private void serializeHiddenBlocks(ConfigurationSection section, String path) {
-		ConfigurationSection parentSection = section.createSection(path);
+    if (this.hiddenBlocks.isEmpty()) {
+      context.errorMissingOrEmpty();
+    }
+  }
 
-		for (Map.Entry<BlockProperties, Integer> entry : this.hiddenBlocks.entrySet()) {
-			ConfigurationSection childSection = parentSection.createSection(entry.getKey().getKey().toString());
+  private void serializeHiddenBlocks(ConfigurationSection section, String path) {
+    ConfigurationSection parentSection = section.createSection(path);
 
-			int blockFlags = entry.getValue();
-			if (!ProximityHeightCondition.equals(blockFlags, this.defaultBlockFlags)) {
-				childSection.set("minY", ProximityHeightCondition.getMinY(blockFlags));
-				childSection.set("maxY", ProximityHeightCondition.getMaxY(blockFlags));
-			}
+    for (Map.Entry<BlockProperties, Integer> entry : this.hiddenBlocks.entrySet()) {
+      ConfigurationSection childSection = parentSection.createSection(entry.getKey().getKey().toString());
 
-			if (BlockFlags.isUseBlockBelowBitSet(blockFlags) != BlockFlags.isUseBlockBelowBitSet(this.defaultBlockFlags)) {
-				childSection.set("useBlockBelow", BlockFlags.isUseBlockBelowBitSet(blockFlags));
-			}
-		}
-	}
+      int blockFlags = entry.getValue();
+      if (!ProximityHeightCondition.equals(blockFlags, this.defaultBlockFlags)) {
+        childSection.set("minY", ProximityHeightCondition.getMinY(blockFlags));
+        childSection.set("maxY", ProximityHeightCondition.getMaxY(blockFlags));
+      }
 
-	@Override
-	public int distance() {
-		return this.distance;
-	}
+      if (BlockFlags.isUseBlockBelowBitSet(blockFlags) != BlockFlags.isUseBlockBelowBitSet(this.defaultBlockFlags)) {
+        childSection.set("useBlockBelow", BlockFlags.isUseBlockBelowBitSet(blockFlags));
+      }
+    }
+  }
 
-	@Override
-	public boolean frustumCullingEnabled() {
-		return this.frustumCullingEnabled;
-	}
+  @Override
+  public int distance() {
+    return this.distance;
+  }
 
-	@Override
-	public float frustumCullingMinDistanceSquared() {
-		return this.frustumCullingMinDistanceSquared;
-	}
+  @Override
+  public boolean frustumCullingEnabled() {
+    return this.frustumCullingEnabled;
+  }
 
-	@Override
-	public Matrix4f frustumCullingProjectionMatrix() {
-		return new Matrix4f(frustumCullingProjectionMatrix);
-	}
+  @Override
+  public float frustumCullingMinDistanceSquared() {
+    return this.frustumCullingMinDistanceSquared;
+  }
 
-	@Override
-	public boolean rayCastCheckEnabled() {
-		return this.rayCastCheckEnabled;
-	}
+  @Override
+  public Matrix4f frustumCullingProjectionMatrix() {
+    return new Matrix4f(frustumCullingProjectionMatrix);
+  }
 
-	@Override
-	public boolean rayCastCheckOnlyCheckCenter() {
-		return this.rayCastCheckOnlyCheckCenter;
-	}
+  @Override
+  public boolean rayCastCheckEnabled() {
+    return this.rayCastCheckEnabled;
+  }
 
-	@Override
-	public Iterable<Map.Entry<BlockProperties, Integer>> hiddenBlocks() {
-		return this.hiddenBlocks.entrySet();
-	}
+  @Override
+  public boolean rayCastCheckOnlyCheckCenter() {
+    return this.rayCastCheckOnlyCheckCenter;
+  }
 
-	public Iterable<BlockProperties> allowForUseBlockBelow() {
-		return this.allowForUseBlockBelow;
-	}
+  @Override
+  public Iterable<Map.Entry<BlockProperties, Integer>> hiddenBlocks() {
+    return this.hiddenBlocks.entrySet();
+  }
 
-	boolean usesBlockSpecificConfigs() {
-		return usesBlockSpecificConfigs;
-	}
+  public Iterable<BlockProperties> allowForUseBlockBelow() {
+    return this.allowForUseBlockBelow;
+  }
+
+  boolean usesBlockSpecificConfigs() {
+    return usesBlockSpecificConfigs;
+  }
 }

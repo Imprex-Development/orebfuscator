@@ -37,114 +37,114 @@ import net.imprex.orebfuscator.util.PermissionUtil;
 
 public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {
 
-	private static final List<String> TAB_COMPLETE = Arrays.asList("dump");
+  private static final List<String> TAB_COMPLETE = Arrays.asList("dump");
 
-	private final DateTimeFormatter fileFormat = DateTimeFormatter.ofPattern("uuuu-MM-dd_HH.mm.ss");
-	private final DateTimeFormatter timeFormat = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
+  private final DateTimeFormatter fileFormat = DateTimeFormatter.ofPattern("uuuu-MM-dd_HH.mm.ss");
+  private final DateTimeFormatter timeFormat = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
-	private final Orebfuscator orebfuscator;
+  private final Orebfuscator orebfuscator;
 
-	public OrebfuscatorCommand(Orebfuscator orebfuscator) {
-		this.orebfuscator = orebfuscator;
-	}
+  public OrebfuscatorCommand(Orebfuscator orebfuscator) {
+    this.orebfuscator = orebfuscator;
+  }
 
-	@Override
-	public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
-		if (!command.getName().equalsIgnoreCase("orebfuscator")) {
-			sender.sendMessage("Incorrect command registered!");
-			return false;
-		}
+  @Override
+  public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    if (!command.getName().equalsIgnoreCase("orebfuscator")) {
+      sender.sendMessage("Incorrect command registered!");
+      return false;
+    }
 
-		if (!PermissionUtil.canAccessAdminTools(sender)) {
-			sender.sendMessage("You don't have the 'orebfuscator.admin' permission.");
-			return false;
-		}
+    if (!PermissionUtil.canAccessAdminTools(sender)) {
+      sender.sendMessage("You don't have the 'orebfuscator.admin' permission.");
+      return false;
+    }
 
-		if (args.length == 0) {
-			sender.sendMessage("You are using " + this.orebfuscator.toString());
-			sender.sendMessage(this.orebfuscator.getStatistics().toString());
-		} else if (args[0].equalsIgnoreCase("dump")) {
-			TemporalAccessor now = OffsetDateTime.now(ZoneOffset.UTC);
+    if (args.length == 0) {
+      sender.sendMessage("You are using " + this.orebfuscator.toString());
+      sender.sendMessage(this.orebfuscator.getStatistics().toString());
+    } else if (args[0].equalsIgnoreCase("dump")) {
+      TemporalAccessor now = OffsetDateTime.now(ZoneOffset.UTC);
 
-			JsonObject root = new JsonObject();
-			root.addProperty("timestamp", timeFormat.format(now));
-			
-			JsonObject versions = new JsonObject();
-			versions.addProperty("java", Integer.toString(JavaVersion.get()));
-			versions.addProperty("nms", MinecraftVersion.nmsVersion());
-			versions.addProperty("server", Bukkit.getVersion());
-			versions.addProperty("bukkit", Bukkit.getBukkitVersion());
-			versions.addProperty("protocolLib", ProtocolLibrary.getPlugin().toString());
-			versions.addProperty("orebfuscator", orebfuscator.toString());
-			root.add("versions", versions);
+      JsonObject root = new JsonObject();
+      root.addProperty("timestamp", timeFormat.format(now));
 
-			root.add("statistics", orebfuscator.getStatistics().toJson());
+      JsonObject versions = new JsonObject();
+      versions.addProperty("java", Integer.toString(JavaVersion.get()));
+      versions.addProperty("nms", MinecraftVersion.nmsVersion());
+      versions.addProperty("server", Bukkit.getVersion());
+      versions.addProperty("bukkit", Bukkit.getBukkitVersion());
+      versions.addProperty("protocolLib", ProtocolLibrary.getPlugin().toString());
+      versions.addProperty("orebfuscator", orebfuscator.toString());
+      root.add("versions", versions);
 
-			JsonObject plugins = new JsonObject();
-			for (Plugin bukkitPlugin : Bukkit.getPluginManager().getPlugins()) {
-				PluginDescriptionFile description = bukkitPlugin.getDescription();
-				JsonObject plugin = new JsonObject();
-				plugin.addProperty("version", description.getVersion());
-				plugin.addProperty("author", description.getAuthors().toString());
-				plugins.add(bukkitPlugin.getName(), plugin);
-			}
-			root.add("plugins", plugins);
+      root.add("statistics", orebfuscator.getStatistics().toJson());
 
-			JsonObject worlds = new JsonObject();
-			for (World bukkitWorld : Bukkit.getWorlds()) {
-				JsonObject world = new JsonObject();
-				world.addProperty("uuid", bukkitWorld.getUID().toString());
-				world.addProperty("heightAccessor", HeightAccessor.get(bukkitWorld).toString());
-				worlds.add(bukkitWorld.getName(), world);
-			}
-			root.add("worlds", worlds);
+      JsonObject plugins = new JsonObject();
+      for (Plugin bukkitPlugin : Bukkit.getPluginManager().getPlugins()) {
+        PluginDescriptionFile description = bukkitPlugin.getDescription();
+        JsonObject plugin = new JsonObject();
+        plugin.addProperty("version", description.getVersion());
+        plugin.addProperty("author", description.getAuthors().toString());
+        plugins.add(bukkitPlugin.getName(), plugin);
+      }
+      root.add("plugins", plugins);
 
-			JsonObject listeners = new JsonObject();
-			for (PacketListener packetListener : ProtocolLibrary.getProtocolManager().getPacketListeners()) {
-				JsonObject listener = new JsonObject();
-				listener.addProperty("plugin", packetListener.getPlugin().toString());
-				listener.addProperty("receivingWhitelist", packetListener.getSendingWhitelist().toString());
-				listener.addProperty("sendingWhitelist", packetListener.getSendingWhitelist().toString());
-				String key = packetListener.getClass().toGenericString() + "@" + System.identityHashCode(packetListener);
-				listeners.add(key, listener);
-			}
-			root.add("listeners", listeners);
+      JsonObject worlds = new JsonObject();
+      for (World bukkitWorld : Bukkit.getWorlds()) {
+        JsonObject world = new JsonObject();
+        world.addProperty("uuid", bukkitWorld.getUID().toString());
+        world.addProperty("heightAccessor", HeightAccessor.get(bukkitWorld).toString());
+        worlds.add(bukkitWorld.getName(), world);
+      }
+      root.add("worlds", worlds);
 
-			Base64.Encoder encoder = Base64.getUrlEncoder();
+      JsonObject listeners = new JsonObject();
+      for (PacketListener packetListener : ProtocolLibrary.getProtocolManager().getPacketListeners()) {
+        JsonObject listener = new JsonObject();
+        listener.addProperty("plugin", packetListener.getPlugin().toString());
+        listener.addProperty("receivingWhitelist", packetListener.getSendingWhitelist().toString());
+        listener.addProperty("sendingWhitelist", packetListener.getSendingWhitelist().toString());
+        String key = packetListener.getClass().toGenericString() + "@" + System.identityHashCode(packetListener);
+        listeners.add(key, listener);
+      }
+      root.add("listeners", listeners);
 
-			String latestLog = OFCLogger.getLatestVerboseLog();
-			root.addProperty("verboseLog", encoder.encodeToString(latestLog.getBytes(StandardCharsets.UTF_8)));
+      Base64.Encoder encoder = Base64.getUrlEncoder();
 
-			try {
-				Path configPath = orebfuscator.getDataFolder().toPath().resolve("config.yml");
-				String config = Files.readAllLines(configPath).stream().collect(Collectors.joining("\n"));
-				root.addProperty("config", encoder.encodeToString(config.getBytes(StandardCharsets.UTF_8)));
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+      String latestLog = OFCLogger.getLatestVerboseLog();
+      root.addProperty("verboseLog", encoder.encodeToString(latestLog.getBytes(StandardCharsets.UTF_8)));
 
-			String configReport = orebfuscator.getOrebfuscatorConfig().report();
-			configReport = configReport != null ? configReport : "";
-			root.addProperty("configReport", encoder.encodeToString(configReport.getBytes(StandardCharsets.UTF_8)));
+      try {
+        Path configPath = orebfuscator.getDataFolder().toPath().resolve("config.yml");
+        String config = Files.readAllLines(configPath).stream().collect(Collectors.joining("\n"));
+        root.addProperty("config", encoder.encodeToString(config.getBytes(StandardCharsets.UTF_8)));
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
 
-			Path path = orebfuscator.getDataFolder().toPath().resolve("dump-" + fileFormat.format(now) + ".json");
-			try (JsonWriter writer = new JsonWriter(Files.newBufferedWriter(path))) {
-				writer.setIndent("  ");
-				Streams.write(root, writer);
-			} catch (IOException e) {
-				e.printStackTrace();
-			}
+      String configReport = orebfuscator.getOrebfuscatorConfig().report();
+      configReport = configReport != null ? configReport : "";
+      root.addProperty("configReport", encoder.encodeToString(configReport.getBytes(StandardCharsets.UTF_8)));
 
-			sender.sendMessage("Dump file created at: " + path);
-		} else {
-			return false;
-		}
+      Path path = orebfuscator.getDataFolder().toPath().resolve("dump-" + fileFormat.format(now) + ".json");
+      try (JsonWriter writer = new JsonWriter(Files.newBufferedWriter(path))) {
+        writer.setIndent("  ");
+        Streams.write(root, writer);
+      } catch (IOException e) {
+        e.printStackTrace();
+      }
 
-		return true;
-	}
+      sender.sendMessage("Dump file created at: " + path);
+    } else {
+      return false;
+    }
 
-	@Override
-	public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
-		return args.length == 1 ? TAB_COMPLETE : Collections.emptyList();
-	}
+    return true;
+  }
+
+  @Override
+  public List<String> onTabComplete(CommandSender sender, Command command, String alias, String[] args) {
+    return args.length == 1 ? TAB_COMPLETE : Collections.emptyList();
+  }
 }
