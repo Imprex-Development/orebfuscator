@@ -2,9 +2,9 @@ package net.imprex.orebfuscator.compatibility.folia;
 
 import org.bukkit.plugin.Plugin;
 
+import dev.imprex.orebfuscator.config.api.Config;
 import net.imprex.orebfuscator.compatibility.CompatibilityScheduler;
 import net.imprex.orebfuscator.compatibility.paper.AbstractPaperCompatibilityLayer;
-import net.imprex.orebfuscator.config.Config;
 
 public class FoliaCompatibilityLayer extends AbstractPaperCompatibilityLayer {
 

@@ -4,11 +4,11 @@ import java.util.concurrent.CompletableFuture;
 
 import org.bukkit.World;
 
+import dev.imprex.orebfuscator.util.ChunkDirection;
+import dev.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.compatibility.CompatibilityLayer;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
-import net.imprex.orebfuscator.util.ChunkDirection;
-import net.imprex.orebfuscator.util.ChunkPosition;
 
 public abstract class AbstractPaperCompatibilityLayer implements CompatibilityLayer {
 

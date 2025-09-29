@@ -11,10 +11,10 @@ import org.bukkit.entity.Player;
 
 import com.google.common.base.Objects;
 
+import dev.imprex.orebfuscator.config.api.AdvancedConfig;
+import dev.imprex.orebfuscator.util.BlockPos;
+import dev.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.Orebfuscator;
-import net.imprex.orebfuscator.config.AdvancedConfig;
-import net.imprex.orebfuscator.util.BlockPos;
-import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class OrebfuscatorPlayer {
 

@@ -20,8 +20,8 @@
       <scope>provided</scope>
     </dependency>
     <dependency>
-      <groupId>net.imprex</groupId>
-      <artifactId>orebfuscator-common</artifactId>
+      <groupId>dev.imprex.orebfuscator</groupId>
+      <artifactId>orebfuscator-core</artifactId>
       <version>${revision}</version>
       <scope>compile</scope>
     </dependency>

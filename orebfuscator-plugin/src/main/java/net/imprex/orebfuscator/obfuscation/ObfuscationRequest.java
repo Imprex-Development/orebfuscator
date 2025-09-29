@@ -7,10 +7,10 @@ import java.util.concurrent.CompletableFuture;
 import com.google.common.hash.HashFunction;
 import com.google.common.hash.Hashing;
 
+import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
+import dev.imprex.orebfuscator.util.BlockPos;
+import dev.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.chunk.ChunkStruct;
-import net.imprex.orebfuscator.config.OrebfuscatorConfig;
-import net.imprex.orebfuscator.util.BlockPos;
-import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class ObfuscationRequest {
 

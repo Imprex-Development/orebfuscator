@@ -9,11 +9,11 @@ import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 
+import dev.imprex.orebfuscator.config.api.Config;
+import dev.imprex.orebfuscator.util.ChunkDirection;
+import dev.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.OrebfuscatorNms;
-import net.imprex.orebfuscator.config.Config;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
-import net.imprex.orebfuscator.util.ChunkDirection;
-import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class BukkitChunkLoader implements Runnable {
 

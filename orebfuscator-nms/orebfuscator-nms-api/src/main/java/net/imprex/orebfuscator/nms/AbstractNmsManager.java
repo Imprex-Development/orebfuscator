@@ -3,10 +3,11 @@ package net.imprex.orebfuscator.nms;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.imprex.orebfuscator.util.BlockProperties;
-import net.imprex.orebfuscator.util.BlockStateProperties;
-import net.imprex.orebfuscator.util.MathUtil;
-import net.imprex.orebfuscator.util.NamespacedKey;
+import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
+import dev.imprex.orebfuscator.util.BlockProperties;
+import dev.imprex.orebfuscator.util.BlockStateProperties;
+import dev.imprex.orebfuscator.util.MathUtil;
+import dev.imprex.orebfuscator.util.NamespacedKey;
 
 public abstract class AbstractNmsManager implements NmsManager {
 

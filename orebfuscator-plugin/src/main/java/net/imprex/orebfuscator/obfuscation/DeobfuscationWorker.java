@@ -10,15 +10,15 @@ import org.bukkit.block.Block;
 
 import com.google.common.collect.Iterables;
 
+import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
+import dev.imprex.orebfuscator.config.api.BlockFlags;
+import dev.imprex.orebfuscator.config.api.ObfuscationConfig;
+import dev.imprex.orebfuscator.config.api.WorldConfigBundle;
+import dev.imprex.orebfuscator.util.BlockPos;
+import dev.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.cache.ObfuscationCache;
-import net.imprex.orebfuscator.config.BlockFlags;
-import net.imprex.orebfuscator.config.ObfuscationConfig;
-import net.imprex.orebfuscator.config.OrebfuscatorConfig;
-import net.imprex.orebfuscator.config.WorldConfigBundle;
-import net.imprex.orebfuscator.util.BlockPos;
-import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class DeobfuscationWorker {
 

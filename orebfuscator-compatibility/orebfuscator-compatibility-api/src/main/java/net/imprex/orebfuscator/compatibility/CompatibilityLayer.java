@@ -4,8 +4,8 @@ import java.util.concurrent.CompletableFuture;
 
 import org.bukkit.World;
 
+import dev.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
-import net.imprex.orebfuscator.util.ChunkPosition;
 
 public interface CompatibilityLayer {
 

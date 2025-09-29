@@ -7,18 +7,18 @@ import java.util.Set;
 
 import org.bukkit.World;
 
+import dev.imprex.orebfuscator.chunk.Chunk;
+import dev.imprex.orebfuscator.chunk.ChunkSection;
+import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
+import dev.imprex.orebfuscator.config.ProximityHeightCondition;
+import dev.imprex.orebfuscator.config.api.BlockFlags;
+import dev.imprex.orebfuscator.config.api.ObfuscationConfig;
+import dev.imprex.orebfuscator.config.api.ProximityConfig;
+import dev.imprex.orebfuscator.config.api.WorldConfigBundle;
+import dev.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorNms;
-import net.imprex.orebfuscator.chunk.Chunk;
-import net.imprex.orebfuscator.chunk.ChunkSection;
 import net.imprex.orebfuscator.chunk.ChunkStruct;
-import net.imprex.orebfuscator.config.BlockFlags;
-import net.imprex.orebfuscator.config.ObfuscationConfig;
-import net.imprex.orebfuscator.config.OrebfuscatorConfig;
-import net.imprex.orebfuscator.config.ProximityConfig;
-import net.imprex.orebfuscator.config.ProximityHeightCondition;
-import net.imprex.orebfuscator.config.WorldConfigBundle;
-import net.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.HeightAccessor;
 
 public class ObfuscationProcessor {

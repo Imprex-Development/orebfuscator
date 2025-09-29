@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import org.junit.jupiter.api.Test;
 
+import dev.imprex.orebfuscator.config.ProximityHeightCondition;
+
 public class ProximityHeightConditionTest {
 
   private static final int TEST_MIN = ProximityHeightCondition.clampY(-0xFFF);

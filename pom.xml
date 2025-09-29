@@ -54,10 +54,10 @@
   <modules>
     <module>orebfuscator-api</module>
     <module>orebfuscator-api-example</module>
-    <module>orebfuscator-common</module>
     <module>orebfuscator-compatibility</module>
     <module>orebfuscator-nms</module>
     <module>orebfuscator-plugin</module>
+    <module>orebfuscator-core</module>
   </modules>
 
   <profiles>

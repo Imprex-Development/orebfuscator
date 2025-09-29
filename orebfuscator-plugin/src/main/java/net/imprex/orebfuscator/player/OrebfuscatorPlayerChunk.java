@@ -4,7 +4,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
 
-import net.imprex.orebfuscator.util.BlockPos;
+import dev.imprex.orebfuscator.util.BlockPos;
 
 public class OrebfuscatorPlayerChunk {
 

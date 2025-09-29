@@ -10,16 +10,16 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
+import dev.imprex.orebfuscator.logging.OfcLogger;
+import dev.imprex.orebfuscator.util.MinecraftVersion;
 import net.imprex.orebfuscator.api.OrebfuscatorService;
 import net.imprex.orebfuscator.cache.ObfuscationCache;
-import net.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.obfuscation.ObfuscationSystem;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayerMap;
 import net.imprex.orebfuscator.proximity.ProximityDirectorThread;
 import net.imprex.orebfuscator.proximity.ProximityPacketListener;
 import net.imprex.orebfuscator.util.HeightAccessor;
-import net.imprex.orebfuscator.util.MinecraftVersion;
-import net.imprex.orebfuscator.util.OFCLogger;
 
 public class Orebfuscator extends JavaPlugin implements Listener {
 
@@ -36,7 +36,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
 
   @Override
   public void onLoad() {
-    OFCLogger.LOGGER = getLogger();
+    OfcLogger.LOGGER = getLogger();
   }
 
   @Override
@@ -98,7 +98,7 @@ public class Orebfuscator extends JavaPlugin implements Listener {
       // add commands
       getCommand("orebfuscator").setExecutor(new OrebfuscatorCommand(this));
     } catch (Exception e) {
-      OFCLogger.error("An error occurred while enabling plugin", e);
+      OfcLogger.error("An error occurred while enabling plugin", e);
 
       this.getServer().getPluginManager().registerEvent(PluginEnableEvent.class, this, EventPriority.NORMAL,
           this::onEnableFailed, this);
