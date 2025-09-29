@@ -7,6 +7,8 @@ import java.util.logging.Level;
 
 import org.bukkit.ChatColor;
 
+import dev.imprex.orebfuscator.logging.OfcLogger;
+
 public final class ConsoleUtil {
 
   private static final int BOX_PADDING = 3;
@@ -24,7 +26,7 @@ public final class ConsoleUtil {
 
   public static void printBox(Level level, String... lines) {
     for (String line : createBox(lines)) {
-      OFCLogger.log(level, line);
+      OfcLogger.log(level, line);
     }
   }
 

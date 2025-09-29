@@ -4,8 +4,8 @@ import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
 
+import dev.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.OrebfuscatorNms;
-import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class ChunkSerializer {
 

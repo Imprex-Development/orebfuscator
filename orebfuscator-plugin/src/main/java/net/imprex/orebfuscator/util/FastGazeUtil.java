@@ -3,6 +3,7 @@ package net.imprex.orebfuscator.util;
 import org.bukkit.Location;
 import org.bukkit.World;
 
+import dev.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.OrebfuscatorNms;
 
 public class FastGazeUtil {

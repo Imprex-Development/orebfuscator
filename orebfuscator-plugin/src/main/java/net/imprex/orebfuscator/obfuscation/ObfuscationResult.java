@@ -5,8 +5,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.imprex.orebfuscator.util.BlockPos;
-import net.imprex.orebfuscator.util.ChunkPosition;
+import dev.imprex.orebfuscator.util.BlockPos;
+import dev.imprex.orebfuscator.util.ChunkPosition;
 
 public class ObfuscationResult {
 

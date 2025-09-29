@@ -9,10 +9,10 @@ import java.util.Arrays;
 import java.util.Collection;
 import java.util.Optional;
 
+import dev.imprex.orebfuscator.util.BlockPos;
+import dev.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.obfuscation.ObfuscationRequest;
 import net.imprex.orebfuscator.obfuscation.ObfuscationResult;
-import net.imprex.orebfuscator.util.BlockPos;
-import net.imprex.orebfuscator.util.ChunkPosition;
 import net.jpountz.lz4.LZ4BlockInputStream;
 import net.jpountz.lz4.LZ4BlockOutputStream;
 

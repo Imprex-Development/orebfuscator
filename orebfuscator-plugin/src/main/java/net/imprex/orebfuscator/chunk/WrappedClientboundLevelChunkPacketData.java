@@ -9,7 +9,7 @@ import com.comphenix.protocol.reflect.accessors.Accessors;
 import com.comphenix.protocol.reflect.accessors.FieldAccessor;
 import com.comphenix.protocol.utility.MinecraftReflection;
 
-import net.imprex.orebfuscator.util.BlockPos;
+import dev.imprex.orebfuscator.util.BlockPos;
 
 public class WrappedClientboundLevelChunkPacketData {
 

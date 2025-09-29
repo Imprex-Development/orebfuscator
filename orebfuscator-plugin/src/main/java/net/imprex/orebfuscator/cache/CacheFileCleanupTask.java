@@ -7,11 +7,11 @@ import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 
+import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
+import dev.imprex.orebfuscator.config.api.CacheConfig;
+import dev.imprex.orebfuscator.logging.OfcLogger;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorNms;
-import net.imprex.orebfuscator.config.CacheConfig;
-import net.imprex.orebfuscator.nms.AbstractRegionFileCache;
-import net.imprex.orebfuscator.util.OFCLogger;
 
 public class CacheFileCleanupTask implements Runnable {
 
@@ -26,7 +26,7 @@ public class CacheFileCleanupTask implements Runnable {
   @Override
   public void run() {
     if (Files.notExists(this.cacheConfig.baseDirectory())) {
-      OFCLogger.debug("Skipping CacheFileCleanupTask as the cache directory doesn't exist.");
+      OfcLogger.debug("Skipping CacheFileCleanupTask as the cache directory doesn't exist.");
       return;
     }
 
@@ -45,7 +45,7 @@ public class CacheFileCleanupTask implements Runnable {
             Files.delete(path);
 
             CacheFileCleanupTask.this.deleteCount++;
-            OFCLogger.debug("deleted cache file: " + path);
+            OfcLogger.debug("deleted cache file: " + path);
           }
           return FileVisitResult.CONTINUE;
         }
@@ -55,7 +55,7 @@ public class CacheFileCleanupTask implements Runnable {
     }
 
     if (this.deleteCount > 0) {
-      OFCLogger.info(String.format("CacheFileCleanupTask successfully deleted %d cache file(s)", this.deleteCount));
+      OfcLogger.info(String.format("CacheFileCleanupTask successfully deleted %d cache file(s)", this.deleteCount));
     }
   }
 }

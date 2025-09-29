@@ -6,12 +6,12 @@ import java.util.concurrent.CompletableFuture;
 
 import org.bukkit.World;
 
+import dev.imprex.orebfuscator.util.BlockPos;
+import dev.imprex.orebfuscator.util.ChunkDirection;
+import dev.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.chunk.ChunkStruct;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
-import net.imprex.orebfuscator.util.BlockPos;
-import net.imprex.orebfuscator.util.ChunkDirection;
-import net.imprex.orebfuscator.util.ChunkPosition;
 
 public class ObfuscationTask {
 
