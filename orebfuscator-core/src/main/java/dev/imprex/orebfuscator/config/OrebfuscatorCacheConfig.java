@@ -81,7 +81,7 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
           Files.createDirectories(this.baseDirectory);
         }
       } catch (IOException e) {
-        diskContext.error(ConfigMessage.CACHE_CANT_CREATE, e);
+        diskContext.error(ConfigMessage.CACHE_CAN_NOT_CREATE, e);
       }
     }
 

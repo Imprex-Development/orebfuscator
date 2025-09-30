@@ -2,23 +2,26 @@ package dev.imprex.orebfuscator.config.components;
 
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Comparator;
 import java.util.Objects;
 import java.util.Set;
 import org.jetbrains.annotations.NotNull;
 import com.google.gson.JsonArray;
-import com.google.gson.JsonNull;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+import com.google.gson.JsonPrimitive;
 import dev.imprex.orebfuscator.util.BlockProperties;
 import dev.imprex.orebfuscator.util.BlockTag;
 
 public record ConfigBlockValue(@NotNull String value, @NotNull Set<BlockProperties> blocks) implements
     Comparable<ConfigBlockValue> {
 
+  private static final JsonElement INVALID = new JsonPrimitive("invalid");
+  private static final JsonElement VALID = new JsonPrimitive("valid");
+  
   public static JsonObject toJson(Collection<? extends ConfigBlockValue> values) {
     JsonObject object = new JsonObject();
 
-    var list = values.stream().sorted(Comparator.comparing((ConfigBlockValue a) -> a.value())).toList();
+    var list = values.stream().sorted().toList();
 
     for (var entry : list) {
       if (entry.blocks().size() > 1) {
@@ -27,8 +30,10 @@ public record ConfigBlockValue(@NotNull String value, @NotNull Set<BlockProperti
           array.add(block.getKey().toString());
         }
         object.add(entry.value(), array);
+      } else if (entry.blocks().size() > 0) {
+        object.add(entry.value(), VALID);
       } else {
-        object.add(entry.value(), JsonNull.INSTANCE);
+        object.add(entry.value(), INVALID);
       }
     }
 

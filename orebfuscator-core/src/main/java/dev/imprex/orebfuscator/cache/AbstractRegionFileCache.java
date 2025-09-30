@@ -76,11 +76,15 @@ public abstract class AbstractRegionFileCache<T> {
 
     this.lock.writeLock().lock();
     try {
-      if (this.regionFiles.putIfAbsent(path, t) != null) {
+      T previous = this.regionFiles.putIfAbsent(path, t);
+
+      if (previous != null) {
         // some other thread was faster, close fd
         closeRegionFile(t);
+        return previous;
       }
-      return this.regionFiles.get(path);
+
+      return t;
     } finally {
       this.lock.writeLock().unlock();
     }

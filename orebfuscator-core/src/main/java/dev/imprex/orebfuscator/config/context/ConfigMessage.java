@@ -19,7 +19,7 @@ public class ConfigMessage {
 
   public static final ConfigMessage CACHE_INVALID_PATH = dynamic(
       "contains malformed path '%s', using default path '%s'");
-  public static final ConfigMessage CACHE_CANT_CREATE = dynamic("can't create cache directory '%s'");
+  public static final ConfigMessage CACHE_CAN_NOT_CREATE = dynamic("can't create cache directory '%s'");
 
   public static final ConfigMessage BLOCK_TAG_UNKNOWN = dynamic("skipping unknown block tag '%s'");
   public static final ConfigMessage BLOCK_TAG_EMPTY = dynamic("skipping empty block tag '%s'");
