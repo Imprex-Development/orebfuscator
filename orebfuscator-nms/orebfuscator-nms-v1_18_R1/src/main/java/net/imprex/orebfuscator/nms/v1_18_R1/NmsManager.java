@@ -2,23 +2,20 @@ package net.imprex.orebfuscator.nms.v1_18_R1;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
-import org.bukkit.Material;
+import java.util.Set;
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_18_R1.CraftWorld;
-import org.bukkit.craftbukkit.v1_18_R1.block.data.CraftBlockData;
-import org.bukkit.craftbukkit.v1_18_R1.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-
 import com.comphenix.protocol.events.PacketContainer;
 import com.google.common.collect.ImmutableList;
-
+import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.config.api.Config;
 import dev.imprex.orebfuscator.util.BlockProperties;
 import dev.imprex.orebfuscator.util.BlockStateProperties;
+import dev.imprex.orebfuscator.util.BlockTag;
 import dev.imprex.orebfuscator.util.NamespacedKey;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectOpenHashMap;
@@ -32,9 +29,13 @@ import net.minecraft.network.protocol.game.ClientGamePacketListener;
 import net.minecraft.network.protocol.game.ClientboundBlockUpdatePacket;
 import net.minecraft.network.protocol.game.ClientboundSectionBlocksUpdatePacket;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.BlockTags;
+import net.minecraft.tags.Tag;
+import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
@@ -61,15 +62,15 @@ public class NmsManager extends AbstractNmsManager {
   }
 
   private static ServerLevel level(World world) {
-    return ((CraftWorld) world).getHandle();
+    return worldHandle(world, ServerLevel.class);
   }
 
   private static ServerPlayer player(Player player) {
-    return ((CraftPlayer) player).getHandle();
+    return playerHandle(player, ServerPlayer.class);
   }
 
-  public NmsManager(Config config) {
-    super(Block.BLOCK_STATE_REGISTRY.size(), new RegionFileCache(config.cache()));
+  public NmsManager() {
+    super(Block.BLOCK_STATE_REGISTRY.size());
 
     for (Map.Entry<ResourceKey<Block>, Block> entry : Registry.BLOCK.entrySet()) {
       NamespacedKey namespacedKey = NamespacedKey.fromString(entry.getKey().location().toString());
@@ -79,12 +80,9 @@ public class NmsManager extends AbstractNmsManager {
       BlockProperties.Builder builder = BlockProperties.builder(namespacedKey);
 
       for (BlockState blockState : possibleBlockStates) {
-        Material material = CraftBlockData.fromData(blockState).getMaterial();
-
         BlockStateProperties properties = BlockStateProperties.builder(Block.getId(blockState))
             .withIsAir(blockState.isAir())
-            // check if material is occluding and use blockData check for rare edge cases like barrier, spawner, slime_block, ...
-            .withIsOccluding(material.isOccluding() && blockState.canOcclude())
+            .withIsOccluding(blockState.isSolidRender(EmptyBlockGetter.INSTANCE, BlockPos.ZERO))
             .withIsBlockEntity(blockState.hasBlockEntity())
             .withIsDefaultState(Objects.equals(block.defaultBlockState(), blockState))
             .build();
@@ -92,8 +90,27 @@ public class NmsManager extends AbstractNmsManager {
         builder.withBlockState(properties);
       }
 
-      this.registerBlockProperties(builder.build());
+      registerBlockProperties(builder.build());
     }
+
+    for (Map.Entry<ResourceLocation, Tag<Block>> entry : BlockTags.getAllTags().getAllTags().entrySet()) {
+      NamespacedKey namespacedKey = NamespacedKey.fromString(entry.getKey().toString());
+
+      Set<BlockProperties> blocks = new HashSet<>();
+      for (Block block : entry.getValue().getValues()) {
+        BlockProperties properties = getBlockByName(Registry.BLOCK.getKey(block).toString());
+        if (properties != null) {
+          blocks.add(properties);
+        }
+      }
+
+      registerBlockTag(new BlockTag(namespacedKey, blocks));
+    }
+  }
+
+  @Override
+  public AbstractRegionFileCache<?> createRegionFileCache(Config config) {
+    return new RegionFileCache(config.cache());
   }
 
   @Override
@@ -124,7 +141,7 @@ public class NmsManager extends AbstractNmsManager {
     BlockPos.MutableBlockPos position = new BlockPos.MutableBlockPos();
 
     for (dev.imprex.orebfuscator.util.BlockPos pos : iterable) {
-      position.set(pos.x, pos.y, pos.z);
+      position.set(pos.x(), pos.y(), pos.z());
       serverChunkCache.blockChanged(position);
     }
   }
@@ -140,11 +157,11 @@ public class NmsManager extends AbstractNmsManager {
     List<Packet<ClientGamePacketListener>> blockEntityPackets = new ArrayList<>();
 
     for (dev.imprex.orebfuscator.util.BlockPos pos : iterable) {
-      if (!serverChunkCache.isChunkLoaded(pos.x >> 4, pos.z >> 4)) {
+      if (!serverChunkCache.isChunkLoaded(pos.x() >> 4, pos.z() >> 4)) {
         continue;
       }
 
-      position.set(pos.x, pos.y, pos.z);
+      position.set(pos.x(), pos.y(), pos.z());
       BlockState blockState = level.getBlockState(position);
 
       sectionPackets.computeIfAbsent(SectionPos.of(position), key -> new Short2ObjectOpenHashMap<>())

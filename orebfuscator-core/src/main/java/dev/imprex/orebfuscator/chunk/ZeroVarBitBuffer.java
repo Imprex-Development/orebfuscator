@@ -1,14 +1,8 @@
 package dev.imprex.orebfuscator.chunk;
 
-public class ZeroVarBitBuffer implements VarBitBuffer {
+public record ZeroVarBitBuffer(int size) implements VarBitBuffer {
 
   public static final long[] EMPTY = new long[0];
-
-  private final int size;
-
-  public ZeroVarBitBuffer(int size) {
-    this.size = size;
-  }
 
   @Override
   public int get(int index) {
@@ -25,10 +19,5 @@ public class ZeroVarBitBuffer implements VarBitBuffer {
   @Override
   public long[] toArray() {
     return EMPTY;
-  }
-
-  @Override
-  public int size() {
-    return this.size;
   }
 }

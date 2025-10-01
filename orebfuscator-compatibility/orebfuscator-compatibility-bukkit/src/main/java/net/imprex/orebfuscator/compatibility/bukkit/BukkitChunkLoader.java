@@ -10,8 +10,8 @@ import org.bukkit.World;
 import org.bukkit.plugin.Plugin;
 
 import dev.imprex.orebfuscator.config.api.Config;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import dev.imprex.orebfuscator.util.ChunkDirection;
-import dev.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 
@@ -27,8 +27,8 @@ public class BukkitChunkLoader implements Runnable {
     Bukkit.getScheduler().runTaskTimer(plugin, this, 0, 1);
   }
 
-  public CompletableFuture<ReadOnlyChunk[]> submitRequest(World world, ChunkPosition chunkPosition) {
-    Request request = new Request(world, chunkPosition);
+  public CompletableFuture<ReadOnlyChunk[]> submitRequest(World world, ChunkCacheKey key) {
+    Request request = new Request(world, key);
     this.requests.offer(request);
     return request.future;
   }
@@ -46,13 +46,13 @@ public class BukkitChunkLoader implements Runnable {
   private class Request implements Runnable {
 
     private final World world;
-    private final ChunkPosition position;
+    private final ChunkCacheKey key;
 
     private final CompletableFuture<ReadOnlyChunk[]> future = new CompletableFuture<>();
 
-    public Request(World world, ChunkPosition position) {
+    public Request(World world, ChunkCacheKey key) {
       this.world = world;
-      this.position = position;
+      this.key = key;
     }
 
     @Override
@@ -60,8 +60,8 @@ public class BukkitChunkLoader implements Runnable {
       final ReadOnlyChunk[] neighboringChunks = new ReadOnlyChunk[4];
 
       for (ChunkDirection direction : ChunkDirection.values()) {
-        int chunkX = position.x + direction.getOffsetX();
-        int chunkZ = position.z + direction.getOffsetZ();
+        int chunkX = key.x() + direction.getOffsetX();
+        int chunkZ = key.z() + direction.getOffsetZ();
 
         neighboringChunks[direction.ordinal()] = OrebfuscatorNms.getReadOnlyChunk(world, chunkX, chunkZ);
       }

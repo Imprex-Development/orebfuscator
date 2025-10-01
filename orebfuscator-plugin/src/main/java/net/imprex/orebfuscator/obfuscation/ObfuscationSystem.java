@@ -8,7 +8,7 @@ import org.bukkit.block.Block;
 import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.cache.ObfuscationCache;
-import net.imprex.orebfuscator.chunk.ChunkStruct;
+import net.imprex.orebfuscator.iterop.BukkitChunkPacketAccessor;
 
 public class ObfuscationSystem {
 
@@ -38,8 +38,8 @@ public class ObfuscationSystem {
     this.listener = new ObfuscationListener(orebfuscator);
   }
 
-  public CompletableFuture<ObfuscationResult> obfuscate(ChunkStruct chunkStruct) {
-    ObfuscationRequest request = ObfuscationRequest.fromChunk(chunkStruct, this.config, this.dispatcher);
+  public CompletableFuture<ObfuscationResult> obfuscate(BukkitChunkPacketAccessor packet) {
+    ObfuscationRequest request = ObfuscationRequest.fromChunk(packet, this.config, this.dispatcher);
     if (this.config.cache().enabled()) {
       return this.cache.get(request);
     } else {

@@ -3,14 +3,18 @@ package net.imprex.orebfuscator.cache;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
+import org.jetbrains.annotations.NotNull;
+
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalNotification;
 
+import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.config.api.CacheConfig;
-import dev.imprex.orebfuscator.util.ChunkPosition;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
+import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.OrebfuscatorStatistics;
 import net.imprex.orebfuscator.obfuscation.ObfuscationRequest;
 import net.imprex.orebfuscator.obfuscation.ObfuscationResult;
@@ -20,7 +24,8 @@ public class ObfuscationCache {
   private final CacheConfig cacheConfig;
   private final OrebfuscatorStatistics statistics;
 
-  private final Cache<ChunkPosition, CompressedObfuscationResult> cache;
+  private final AbstractRegionFileCache<?> regionFileCache;
+  private final Cache<ChunkCacheKey, CacheChunkEntry> cache;
   private final AsyncChunkSerializer serializer;
 
   public ObfuscationCache(Orebfuscator orebfuscator) {
@@ -34,18 +39,20 @@ public class ObfuscationCache {
         .build();
     this.statistics.setMemoryCacheSizeSupplier(() -> this.cache.size());
 
+    this.regionFileCache = OrebfuscatorNms.createRegionFileCache(orebfuscator.getOrebfuscatorConfig());
+
     if (this.cacheConfig.enableDiskCache()) {
-      this.serializer = new AsyncChunkSerializer(orebfuscator);
+      this.serializer = new AsyncChunkSerializer(orebfuscator, regionFileCache);
     } else {
       this.serializer = null;
     }
 
     if (this.cacheConfig.enabled() && this.cacheConfig.deleteRegionFilesAfterAccess() > 0) {
-      OrebfuscatorCompatibility.runAsyncAtFixedRate(new CacheFileCleanupTask(orebfuscator), 0, 72000L);
+      OrebfuscatorCompatibility.runAsyncAtFixedRate(new CacheFileCleanupTask(orebfuscator, regionFileCache), 0, 72000L);
     }
   }
 
-  private void onRemoval(RemovalNotification<ChunkPosition, CompressedObfuscationResult> notification) {
+  private void onRemoval(@NotNull RemovalNotification<ChunkCacheKey, CacheChunkEntry> notification) {
     this.statistics.onCacheSizeChange(-notification.getValue().estimatedSize());
 
     // don't serialize invalidated chunks since this would require locking the main
@@ -55,20 +62,21 @@ public class ObfuscationCache {
     }
   }
 
-  private void requestObfuscation(ObfuscationRequest request) {
+  private void requestObfuscation(@NotNull ObfuscationRequest request) {
     request.submitForObfuscation().thenAccept(chunk -> {
-      var compressedChunk = CompressedObfuscationResult.create(chunk);
+      var compressedChunk = CacheChunkEntry.create(chunk);
       if (compressedChunk != null) {
-        this.cache.put(request.getPosition(), compressedChunk);
+        this.cache.put(request.getCacheKey(), compressedChunk);
         this.statistics.onCacheSizeChange(compressedChunk.estimatedSize());
       }
     });
   }
 
-  public CompletableFuture<ObfuscationResult> get(ObfuscationRequest request) {
-    ChunkPosition key = request.getPosition();
+  @NotNull
+  public CompletableFuture<ObfuscationResult> get(@NotNull ObfuscationRequest request) {
+    ChunkCacheKey key = request.getCacheKey();
 
-    CompressedObfuscationResult cacheChunk = this.cache.getIfPresent(key);
+    CacheChunkEntry cacheChunk = this.cache.getIfPresent(key);
     if (cacheChunk != null && cacheChunk.isValid(request)) {
       this.statistics.onCacheHitMemory();
 
@@ -114,12 +122,12 @@ public class ObfuscationCache {
     return request.getFuture();
   }
 
-  public void invalidate(ChunkPosition key) {
+  public void invalidate(ChunkCacheKey key) {
     this.cache.invalidate(key);
   }
 
   public void close() {
-    if (this.cacheConfig.enableDiskCache()) {
+    if (this.serializer != null) {
       // flush memory cache to disk on shutdown
       this.cache.asMap().entrySet().removeIf(entry -> {
         this.serializer.write(entry.getKey(), entry.getValue());
@@ -128,5 +136,7 @@ public class ObfuscationCache {
 
       this.serializer.close();
     }
+
+    this.regionFileCache.clear();
   }
 }

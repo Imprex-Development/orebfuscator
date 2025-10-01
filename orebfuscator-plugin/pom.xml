@@ -53,6 +53,10 @@
               <pattern>net.jpountz</pattern>
               <shadedPattern>net.imprex.shaded.net.jpountz</shadedPattern>
             </relocation>
+            <relocation>
+              <pattern>org.jetbrains</pattern>
+              <shadedPattern>net.imprex.shaded.org.jetbrains</shadedPattern>
+            </relocation>
           </relocations>
         </configuration>
       </plugin>
@@ -88,9 +92,21 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
+      <groupId>org.joml</groupId>
+      <artifactId>joml</artifactId>
+      <version>${dependency.joml.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
       <groupId>org.lz4</groupId>
       <artifactId>lz4-java</artifactId>
       <version>${dependency.lz4.version}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.jetbrains</groupId>
+      <artifactId>annotations</artifactId>
+      <version>${dependency.jetannotations.version}</version>
       <scope>compile</scope>
     </dependency>
 
@@ -105,7 +121,25 @@
       <groupId>dev.imprex.orebfuscator</groupId>
       <artifactId>orebfuscator-core</artifactId>
       <version>${revision}</version>
-      <scope>provided</scope>
+      <scope>compile</scope>
+      <exclusions>
+        <exclusion>
+          <groupId>com.google.guava</groupId>
+          <artifactId>guava</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.yaml</groupId>
+          <artifactId>snakeyaml</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.joml</groupId>
+          <artifactId>joml</artifactId>
+        </exclusion>
+        <exclusion>
+          <groupId>org.lz4</groupId>
+          <artifactId>lz4-java</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
     <!-- Orebfuscator compatibility -->
@@ -330,6 +364,19 @@
     <dependency>
       <groupId>net.imprex</groupId>
       <artifactId>orebfuscator-nms-v1_21_R5</artifactId>
+      <version>${revision}</version>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.imprex</groupId>
+      <artifactId>orebfuscator-nms-v1_21_R6</artifactId>
+      <version>${revision}</version>
+      <classifier>mojang-mapped</classifier>
+      <scope>compile</scope>
+    </dependency>
+    <dependency>
+      <groupId>net.imprex</groupId>
+      <artifactId>orebfuscator-nms-v1_21_R6</artifactId>
       <version>${revision}</version>
       <scope>compile</scope>
     </dependency>

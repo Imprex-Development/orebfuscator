@@ -1,6 +1,5 @@
 package net.imprex.orebfuscator.proximity;
 
-import org.bukkit.World;
 import org.bukkit.entity.Player;
 
 import com.comphenix.protocol.PacketType;
@@ -12,15 +11,19 @@ import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
 
-import dev.imprex.orebfuscator.chunk.ChunkCapabilities;
 import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
 import dev.imprex.orebfuscator.config.api.ProximityConfig;
+import dev.imprex.orebfuscator.interop.WorldAccessor;
 import net.imprex.orebfuscator.Orebfuscator;
+import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayer;
 import net.imprex.orebfuscator.player.OrebfuscatorPlayerMap;
+import net.imprex.orebfuscator.util.MinecraftVersion;
 import net.imprex.orebfuscator.util.PermissionUtil;
 
 public class ProximityPacketListener extends PacketAdapter {
+
+  private static final boolean HAS_CHUNK_POS_FIELD = MinecraftVersion.isAtOrAbove("1.20.2");
 
   private final ProtocolManager protocolManager;
 
@@ -48,8 +51,8 @@ public class ProximityPacketListener extends PacketAdapter {
       return;
     }
 
-    World world = player.getWorld();
-    ProximityConfig proximityConfig = config.world(world).proximity();
+    WorldAccessor worldAccessor = BukkitWorldAccessor.get(player.getWorld());
+    ProximityConfig proximityConfig = config.world(worldAccessor).proximity();
     if (proximityConfig == null || !proximityConfig.isEnabled()) {
       return;
     }
@@ -57,7 +60,7 @@ public class ProximityPacketListener extends PacketAdapter {
     OrebfuscatorPlayer orebfuscatorPlayer = this.playerMap.get(player);
     if (orebfuscatorPlayer != null) {
       PacketContainer packet = event.getPacket();
-      if (ChunkCapabilities.hasChunkPosFieldUnloadPacket()) {
+      if (HAS_CHUNK_POS_FIELD) {
         ChunkCoordIntPair chunkPos = packet.getChunkCoordIntPairs().read(0);
         orebfuscatorPlayer.removeChunk(chunkPos.getChunkX(), chunkPos.getChunkZ());
       } else {

@@ -7,19 +7,19 @@ import java.util.concurrent.CompletableFuture;
 import org.bukkit.World;
 
 import dev.imprex.orebfuscator.util.BlockPos;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import dev.imprex.orebfuscator.util.ChunkDirection;
-import dev.imprex.orebfuscator.util.ChunkPosition;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
-import net.imprex.orebfuscator.chunk.ChunkStruct;
+import net.imprex.orebfuscator.iterop.BukkitChunkPacketAccessor;
 import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 
 public class ObfuscationTask {
 
   public static CompletableFuture<ObfuscationTask> fromRequest(ObfuscationRequest request) {
-    World world = request.getChunkStruct().world;
-    ChunkPosition position = request.getPosition();
+    World world = request.getPacket().worldAccessor.world;
+    ChunkCacheKey key = request.getCacheKey();
 
-    return OrebfuscatorCompatibility.getNeighboringChunks(world, position)
+    return OrebfuscatorCompatibility.getNeighboringChunks(world, key)
         .thenApply(chunks -> new ObfuscationTask(request, chunks));
   }
 
@@ -35,8 +35,8 @@ public class ObfuscationTask {
     this.neighboringChunks = neighboringChunks;
   }
 
-  public ChunkStruct getChunkStruct() {
-    return this.request.getChunkStruct();
+  public BukkitChunkPacketAccessor getPacket() {
+    return this.request.getPacket();
   }
 
   public void complete(byte[] data, Set<BlockPos> blockEntities, List<BlockPos> proximityBlocks) {
@@ -48,7 +48,7 @@ public class ObfuscationTask {
   }
 
   public int getBlockState(int x, int y, int z) {
-    ChunkDirection direction = ChunkDirection.fromPosition(request.getPosition(), x, z);
+    ChunkDirection direction = ChunkDirection.fromPosition(request.getCacheKey(), x, z);
     return this.neighboringChunks[direction.ordinal()].getBlockState(x, y, z);
   }
 }

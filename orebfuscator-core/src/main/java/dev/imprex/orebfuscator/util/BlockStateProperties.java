@@ -51,10 +51,9 @@ public class BlockStateProperties {
     if (this == obj) {
       return true;
     }
-    if (!(obj instanceof BlockStateProperties)) {
+    if (!(obj instanceof BlockStateProperties other)) {
       return false;
     }
-    BlockStateProperties other = (BlockStateProperties) obj;
     return id == other.id;
   }
 

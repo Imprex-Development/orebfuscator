@@ -9,9 +9,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
-
 import dev.imprex.orebfuscator.config.api.CacheConfig;
-import dev.imprex.orebfuscator.util.ChunkPosition;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import dev.imprex.orebfuscator.util.SimpleCache;
 
 public abstract class AbstractRegionFileCache<T> {
@@ -31,16 +30,16 @@ public abstract class AbstractRegionFileCache<T> {
 
   protected abstract void closeRegionFile(T t) throws IOException;
 
-  protected abstract DataInputStream createInputStream(T t, ChunkPosition key) throws IOException;
+  protected abstract DataInputStream createInputStream(T t, ChunkCacheKey key) throws IOException;
 
-  protected abstract DataOutputStream createOutputStream(T t, ChunkPosition key) throws IOException;
+  protected abstract DataOutputStream createOutputStream(T t, ChunkCacheKey key) throws IOException;
 
-  public final DataInputStream createInputStream(ChunkPosition key) throws IOException {
+  public final DataInputStream createInputStream(ChunkCacheKey key) throws IOException {
     T t = this.get(this.cacheConfig.regionFile(key));
     return t != null ? this.createInputStream(t, key) : null;
   }
 
-  public final DataOutputStream createOutputStream(ChunkPosition key) throws IOException {
+  public final DataOutputStream createOutputStream(ChunkCacheKey key) throws IOException {
     T t = this.get(this.cacheConfig.regionFile(key));
     return t != null ? this.createOutputStream(t, key) : null;
   }
@@ -77,8 +76,15 @@ public abstract class AbstractRegionFileCache<T> {
 
     this.lock.writeLock().lock();
     try {
-      this.regionFiles.putIfAbsent(path, t);
-      return this.regionFiles.get(path);
+      T previous = this.regionFiles.putIfAbsent(path, t);
+
+      if (previous != null) {
+        // some other thread was faster, close fd
+        closeRegionFile(t);
+        return previous;
+      }
+
+      return t;
     } finally {
       this.lock.writeLock().unlock();
     }

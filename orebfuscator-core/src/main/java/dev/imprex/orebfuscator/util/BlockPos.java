@@ -1,8 +1,6 @@
 package dev.imprex.orebfuscator.util;
 
-import org.bukkit.World;
-
-public class BlockPos implements Comparable<BlockPos> {
+public record BlockPos(int x, int y, int z) implements Comparable<BlockPos> {
 
   // from net.minecraft.core.BlockPos
   private static final int BITS_PER_X = 26;
@@ -22,16 +20,6 @@ public class BlockPos implements Comparable<BlockPos> {
   public static final int MAX_Y = (Y_SIZE >> 1) - 1;
   public static final int MIN_Y = MAX_Y - Y_SIZE + 1;
 
-  public final int x;
-  public final int y;
-  public final int z;
-
-  public BlockPos(int x, int y, int z) {
-    this.x = x;
-    this.y = y;
-    this.z = z;
-  }
-
   public BlockPos add(int x, int y, int z) {
     return x == 0 && y == 0 && z == 0 ? this : new BlockPos(this.x + x, this.y + y, this.z + z);
   }
@@ -41,10 +29,6 @@ public class BlockPos implements Comparable<BlockPos> {
     double dy = this.y - y;
     double dz = this.z - z;
     return dx * dx + dy * dy + dz * dz;
-  }
-
-  public ChunkPosition toChunkPosition(World world) {
-    return new ChunkPosition(world, this.x >> 4, this.z >> 4);
   }
 
   public long toLong() {
@@ -78,36 +62,6 @@ public class BlockPos implements Comparable<BlockPos> {
       return this.z - other.z;
     }
     return this.y - other.y;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (!(obj instanceof BlockPos)) {
-      return false;
-    }
-    BlockPos other = (BlockPos) obj;
-    if (x != other.x) {
-      return false;
-    }
-    if (y != other.y) {
-      return false;
-    }
-    if (z != other.z) {
-      return false;
-    }
-    return true;
-  }
-
-  @Override
-  public int hashCode() {
-    int result = 1;
-    result = 31 * result + x;
-    result = 31 * result + y;
-    result = 31 * result + z;
-    return result;
   }
 
   @Override
