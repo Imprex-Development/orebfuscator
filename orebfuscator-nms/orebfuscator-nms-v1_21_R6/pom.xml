@@ -1,6 +1,4 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0"
-  xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-  xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
   <parent>
@@ -9,7 +7,7 @@
     <version>${revision}</version>
   </parent>
 
-  <artifactId>orebfuscator-nms-v1_21_R5</artifactId>
+  <artifactId>orebfuscator-nms-v1_21_R6</artifactId>
   <packaging>jar</packaging>
 
   <dependencies>
@@ -22,13 +20,12 @@
     <dependency>
       <groupId>org.spigotmc</groupId>
       <artifactId>spigot</artifactId>
-      <version>1.21.8-R0.1-SNAPSHOT</version>
+      <version>1.21.9-R0.1-SNAPSHOT</version>
       <classifier>remapped-mojang</classifier>
       <scope>provided</scope>
     </dependency>
   </dependencies>
-
-
+  
   <build>
     <plugins>
       <plugin>
@@ -39,8 +36,8 @@
           <shadedClassifierName>mojang-mapped</shadedClassifierName>
           <relocations>
             <relocation>
-              <pattern>net.imprex.orebfuscator.nms.v1_21_R5</pattern>
-              <shadedPattern>net.imprex.orebfuscator.nms.v1_21_R5_mojang</shadedPattern>
+              <pattern>net.imprex.orebfuscator.nms.v1_21_R6</pattern>
+              <shadedPattern>net.imprex.orebfuscator.nms.v1_21_R6_mojang</shadedPattern>
             </relocation>
           </relocations>
         </configuration>
@@ -57,9 +54,9 @@
             </goals>
             <id>remap-obf</id>
             <configuration>
-              <srgIn>org.spigotmc:minecraft-server:1.21.8-R0.1-SNAPSHOT:txt:maps-mojang</srgIn>
+              <srgIn>org.spigotmc:minecraft-server:1.21.9-R0.1-SNAPSHOT:txt:maps-mojang</srgIn>
               <reverse>true</reverse>
-              <remappedDependencies>org.spigotmc:spigot:1.21.8-R0.1-SNAPSHOT:jar:remapped-mojang
+              <remappedDependencies>org.spigotmc:spigot:1.21.9-R0.1-SNAPSHOT:jar:remapped-mojang
               </remappedDependencies>
               <remappedArtifactAttached>true</remappedArtifactAttached>
               <remappedClassifierName>remapped-obf</remappedClassifierName>
@@ -75,8 +72,8 @@
               <inputFile>
                 ${project.build.directory}/${project.artifactId}-${project.version}-remapped-obf.jar
               </inputFile>
-              <srgIn>org.spigotmc:minecraft-server:1.21.8-R0.1-SNAPSHOT:csrg:maps-spigot</srgIn>
-              <remappedDependencies>org.spigotmc:spigot:1.21.8-R0.1-SNAPSHOT:jar:remapped-obf
+              <srgIn>org.spigotmc:minecraft-server:1.21.9-R0.1-SNAPSHOT:csrg:maps-spigot</srgIn>
+              <remappedDependencies>org.spigotmc:spigot:1.21.9-R0.1-SNAPSHOT:jar:remapped-obf
               </remappedDependencies>
             </configuration>
           </execution>
@@ -84,5 +81,4 @@
       </plugin>
     </plugins>
   </build>
-
 </project>

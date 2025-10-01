@@ -1,10 +1,8 @@
 package net.imprex.orebfuscator;
 
 import java.lang.reflect.Constructor;
-
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-
 import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.config.api.Config;
 import dev.imprex.orebfuscator.interop.RegistryAccessor;
@@ -25,11 +23,11 @@ public class OrebfuscatorNms {
     }
 
     String nmsVersion = MinecraftVersion.nmsVersion();
-    if (ServerVersion.isMojangMapped() && !ServerVersion.isPaper()) {
+    if (ServerVersion.isMojangMapped()) {
       nmsVersion += "_mojang";
     }
 
-    OfcLogger.debug("Searching NMS adapter for server version \"" + nmsVersion + "\"!");
+    OfcLogger.info("Searching NMS adapter for server version \"" + nmsVersion + "\"!");
 
     try {
       String className = "net.imprex.orebfuscator.nms." + nmsVersion + ".NmsManager";
@@ -42,7 +40,7 @@ public class OrebfuscatorNms {
       throw new RuntimeException("Couldn't initialize NMS adapter", e);
     }
 
-    OfcLogger.debug("NMS adapter for server version \"" + nmsVersion + "\" found!");
+    OfcLogger.info("NMS adapter for server version \"" + nmsVersion + "\" found!");
   }
 
   public static RegistryAccessor registry() {

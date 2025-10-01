@@ -8,16 +8,11 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.bukkit.World;
-import org.bukkit.craftbukkit.v1_18_R2.CraftWorld;
-import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
-
 import com.comphenix.protocol.events.PacketContainer;
 import com.google.common.collect.ImmutableList;
 import com.mojang.datafixers.util.Pair;
-
 import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.config.api.Config;
 import dev.imprex.orebfuscator.util.BlockProperties;
@@ -66,11 +61,11 @@ public class NmsManager extends AbstractNmsManager {
   }
 
   private static ServerLevel level(World world) {
-    return ((CraftWorld) world).getHandle();
+    return worldHandle(world, ServerLevel.class);
   }
 
   private static ServerPlayer player(Player player) {
-    return ((CraftPlayer) player).getHandle();
+    return playerHandle(player, ServerPlayer.class);
   }
 
   public NmsManager() {

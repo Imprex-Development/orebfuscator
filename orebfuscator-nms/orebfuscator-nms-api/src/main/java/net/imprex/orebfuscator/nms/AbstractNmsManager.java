@@ -2,10 +2,12 @@ package net.imprex.orebfuscator.nms;
 
 import java.util.HashMap;
 import java.util.Map;
-
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-
+import dev.imprex.orebfuscator.reflect.Reflector;
+import dev.imprex.orebfuscator.reflect.accessor.MethodAccessor;
 import dev.imprex.orebfuscator.util.BlockProperties;
 import dev.imprex.orebfuscator.util.BlockStateProperties;
 import dev.imprex.orebfuscator.util.BlockTag;
@@ -13,6 +15,33 @@ import dev.imprex.orebfuscator.util.MathUtil;
 import dev.imprex.orebfuscator.util.NamespacedKey;
 
 public abstract class AbstractNmsManager implements NmsManager {
+
+  private static MethodAccessor worldGetHandle;
+  private static MethodAccessor playerGetHandle;
+
+  protected static <T> T worldHandle(World world, Class<T> targetClass) {
+    if (worldGetHandle == null) {
+      worldGetHandle = Reflector.of(world.getClass()).method()
+          .banStatic()
+          .nameIs("getHandle")
+          .returnType().is(targetClass)
+          .parameterCount(0)
+          .firstOrThrow();
+    }
+    return targetClass.cast(worldGetHandle.invoke(world));
+  }
+
+  protected static <T> T playerHandle(Player player, Class<T> targetClass) {
+    if (playerGetHandle == null) {
+      playerGetHandle = Reflector.of(player.getClass()).method()
+          .banStatic()
+          .nameIs("getHandle")
+          .returnType().is(targetClass)
+          .parameterCount(0)
+          .firstOrThrow();
+    }
+    return targetClass.cast(playerGetHandle.invoke(player));
+  }
 
   private final int uniqueBlockStateCount;
   private final int maxBitsPerBlockState;

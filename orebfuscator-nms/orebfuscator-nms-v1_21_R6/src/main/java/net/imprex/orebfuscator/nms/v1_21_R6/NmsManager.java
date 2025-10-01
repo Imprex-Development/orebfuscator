@@ -1,4 +1,4 @@
-package net.imprex.orebfuscator.nms.v1_21_R3;
+package net.imprex.orebfuscator.nms.v1_21_R6;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -143,7 +143,7 @@ public class NmsManager extends AbstractNmsManager {
   @Override
   public void sendBlockUpdates(Player player, Iterable<dev.imprex.orebfuscator.util.BlockPos> iterable) {
     ServerPlayer serverPlayer = player(player);
-    ServerLevel level = serverPlayer.serverLevel();
+    ServerLevel level = serverPlayer.level();
     ServerChunkCache serverChunkCache = level.getChunkSource();
 
     BlockPos.MutableBlockPos position = new BlockPos.MutableBlockPos();
