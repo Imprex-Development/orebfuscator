@@ -6,12 +6,12 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 import org.bukkit.Bukkit;
-import org.bukkit.craftbukkit.v1_16_R2.CraftServer;
 
 import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.config.api.CacheConfig;
 import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import net.minecraft.server.v1_16_R2.ChunkCoordIntPair;
+import net.minecraft.server.v1_16_R2.DedicatedServer;
 import net.minecraft.server.v1_16_R2.RegionFile;
 import net.minecraft.server.v1_16_R2.RegionFileCompression;
 
@@ -23,7 +23,7 @@ public class RegionFileCache extends AbstractRegionFileCache<RegionFile> {
 
   @Override
   protected RegionFile createRegionFile(Path path) throws IOException {
-    boolean isSyncChunkWrites = ((CraftServer) Bukkit.getServer()).getServer().isSyncChunkWrites();
+    boolean isSyncChunkWrites = serverHandle(Bukkit.getServer(), DedicatedServer.class).isSyncChunkWrites();
     return new RegionFile(path, path.getParent(), RegionFileCompression.c, isSyncChunkWrites);
   }
 
