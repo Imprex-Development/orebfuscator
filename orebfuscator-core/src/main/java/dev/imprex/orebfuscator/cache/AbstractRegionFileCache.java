@@ -10,10 +10,26 @@ import java.util.Objects;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 import dev.imprex.orebfuscator.config.api.CacheConfig;
+import dev.imprex.orebfuscator.reflect.Reflector;
+import dev.imprex.orebfuscator.reflect.accessor.MethodAccessor;
 import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import dev.imprex.orebfuscator.util.SimpleCache;
 
 public abstract class AbstractRegionFileCache<T> {
+
+  private static MethodAccessor serverGetServer;
+
+  protected static <T> T serverHandle(Object server, Class<T> targetClass) {
+    if (serverGetServer == null) {
+      serverGetServer = Reflector.of(server.getClass()).method()
+          .banStatic()
+          .nameIs("getServer")
+          .returnType().is(targetClass)
+          .parameterCount(0)
+          .firstOrThrow();
+    }
+    return targetClass.cast(serverGetServer.invoke(server));
+  }
 
   protected final ReadWriteLock lock = new ReentrantReadWriteLock(true);
   protected final Map<Path, T> regionFiles;
