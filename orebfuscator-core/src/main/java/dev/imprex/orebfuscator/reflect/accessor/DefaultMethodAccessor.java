@@ -2,9 +2,10 @@ package dev.imprex.orebfuscator.reflect.accessor;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.NullMarked;
 
-record DefaultMethodAccessor(@NotNull Method member, @NotNull MethodHandle methodHandle) implements
+record DefaultMethodAccessor(@NonNull Method member, @NonNull MethodHandle methodHandle) implements
     MethodAccessor {
 
   @Override
@@ -17,7 +18,7 @@ record DefaultMethodAccessor(@NotNull Method member, @NotNull MethodHandle metho
   }
 
   @Override
-  public @NotNull Method member() {
+  public @NonNull Method member() {
     return member;
   }
 }

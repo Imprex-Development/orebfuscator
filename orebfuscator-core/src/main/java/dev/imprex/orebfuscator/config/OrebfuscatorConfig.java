@@ -13,6 +13,9 @@ import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.concurrent.locks.ReadWriteLock;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
+import java.util.random.RandomGenerator;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import com.google.common.hash.Hashing;
 import com.google.gson.JsonObject;
 import dev.imprex.orebfuscator.config.api.AdvancedConfig;
@@ -38,6 +41,7 @@ import dev.imprex.orebfuscator.util.BlockPos;
 import dev.imprex.orebfuscator.util.Version;
 import dev.imprex.orebfuscator.util.WeightedRandom;
 
+@NullMarked
 public class OrebfuscatorConfig implements Config {
 
   private static final int CONFIG_VERSION = 5;
@@ -49,15 +53,15 @@ public class OrebfuscatorConfig implements Config {
   private final List<OrebfuscatorObfuscationConfig> obfuscationConfigs = new ArrayList<>();
   private final List<OrebfuscatorProximityConfig> proximityConfigs = new ArrayList<>();
 
-  private final Map<WorldAccessor, OrebfuscatorConfig.OrebfuscatorWorldConfigBundle> worldConfigBundles = new WeakHashMap<>();
+  private final Map<WorldAccessor, OrebfuscatorWorldConfigBundle> worldConfigBundles = new WeakHashMap<>();
   private final ReadWriteLock lock = new ReentrantReadWriteLock();
 
   private final ServerAccessor server;
   private final Path path;
   private final YamlConfiguration configuration;
 
-  private byte[] systemHash;
-  private String configReport;
+  private byte[] systemHash = new byte[0];
+  private @Nullable String configReport;
 
   public OrebfuscatorConfig(ServerAccessor server) {
     this.server = server;
@@ -75,6 +79,10 @@ public class OrebfuscatorConfig implements Config {
 
         Version version = this.server.getMinecraftVersion();
         Version configVersion = ConfigLookup.getConfigVersion(version);
+        if (configVersion == null) {
+          throw new InvalidConfigurationException(
+              "No config found and can't find default config for your version");
+        }
 
         OfcLogger.info(
             String.format("No config found, creating default config for version %s and above", configVersion));
@@ -91,12 +99,14 @@ public class OrebfuscatorConfig implements Config {
       this.deserialize(configuration, context);
       this.configReport = context.report();
 
-      if (context.hasErrors()) {
-        OfcLogger.error(this.configReport, null);
-        throw new IllegalArgumentException(
-            "Can't parse config due to errors, Orebfuscator will now disable itself!");
-      } else if (this.configReport != null) {
-        OfcLogger.warn(this.configReport);
+      if (this.configReport != null) {
+        if (context.hasErrors()) {
+          OfcLogger.error(this.configReport, null);
+          throw new InvalidConfigurationException(
+              "Can't parse config due to errors, Orebfuscator will now disable itself!");
+        } else {
+          OfcLogger.warn(this.configReport);
+        }
       }
 
       this.systemHash = this.calculateSystemHash(configuration);
@@ -120,7 +130,7 @@ public class OrebfuscatorConfig implements Config {
 
   private byte[] calculateSystemHash(YamlConfiguration configuration) throws IOException {
     return Hashing.murmur3_128().newHasher()
-        .putBytes(this.server.getOrebfuscatorVersion().getBytes(StandardCharsets.UTF_8))
+        .putBytes(this.server.getOrebfuscatorVersion().toString().getBytes(StandardCharsets.UTF_8))
         .putBytes(this.server.getMinecraftVersion().toString().getBytes(StandardCharsets.UTF_8))
         .putBytes(configuration.withoutComments().getBytes(StandardCharsets.UTF_8))
         .hash().asBytes();
@@ -246,7 +256,7 @@ public class OrebfuscatorConfig implements Config {
   }
 
   @Override
-  public String report() {
+  public @Nullable String report() {
     return configReport;
   }
 
@@ -330,8 +340,8 @@ public class OrebfuscatorConfig implements Config {
 
   private class OrebfuscatorWorldConfigBundle implements WorldConfigBundle {
 
-    private final OrebfuscatorObfuscationConfig obfuscationConfig;
-    private final OrebfuscatorProximityConfig proximityConfig;
+    private final @Nullable OrebfuscatorObfuscationConfig obfuscationConfig;
+    private final @Nullable OrebfuscatorProximityConfig proximityConfig;
 
     private final BlockFlags blockFlags;
     private final boolean needsObfuscation;
@@ -343,8 +353,8 @@ public class OrebfuscatorConfig implements Config {
     private final int maxSectionIndex;
 
     private final WorldAccessor world;
-    private final WeightedRandom[] obfuscationRandoms;
-    private final WeightedRandom[] proximityRandoms;
+    private final WeightedRandom @Nullable [] obfuscationRandoms;
+    private final WeightedRandom @Nullable [] proximityRandoms;
 
     public OrebfuscatorWorldConfigBundle(WorldAccessor world) {
       String worldName = world.getName();
@@ -367,13 +377,13 @@ public class OrebfuscatorConfig implements Config {
       this.minSectionIndex = world.getSectionIndex(this.minY);
       this.maxSectionIndex = world.getSectionIndex(this.maxY - 1) + 1;
 
-      this.obfuscationRandoms = this.obfuscationConfig != null
+      this.obfuscationRandoms = obfuscationConfig != null && obfuscationConfig.isEnabled()
           ? this.obfuscationConfig.createWeightedRandoms(world) : null;
-      this.proximityRandoms = this.proximityConfig != null
+      this.proximityRandoms = proximityConfig != null && proximityConfig.isEnabled()
           ? this.proximityConfig.createWeightedRandoms(world) : null;
     }
 
-    private <T extends AbstractWorldConfig> T findConfig(Collection<T> configs, String worldName,
+    private <T extends AbstractWorldConfig> @Nullable T findConfig(Collection<T> configs, String worldName,
         String configType) {
       List<T> matchingConfigs = configs.stream()
           .filter(config -> config.matchesWorldName(worldName))
@@ -398,12 +408,12 @@ public class OrebfuscatorConfig implements Config {
     }
 
     @Override
-    public ObfuscationConfig obfuscation() {
+    public @Nullable ObfuscationConfig obfuscation() {
       return this.obfuscationConfig;
     }
 
     @Override
-    public ProximityConfig proximity() {
+    public @Nullable ProximityConfig proximity() {
       return this.proximityConfig;
     }
 

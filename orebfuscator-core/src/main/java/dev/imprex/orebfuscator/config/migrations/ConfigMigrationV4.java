@@ -1,8 +1,10 @@
 package dev.imprex.orebfuscator.config.migrations;
 
-import org.jetbrains.annotations.NotNull;
 import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
+@NullMarked
 class ConfigMigrationV4 implements ConfigMigration {
 
   @Override
@@ -11,13 +13,13 @@ class ConfigMigrationV4 implements ConfigMigration {
   }
 
   @Override
-  public @NotNull ConfigurationSection migrate(@NotNull ConfigurationSection root) {
+  public ConfigurationSection migrate(ConfigurationSection root) {
     migrateWorlds(root.getSection("obfuscation"));
     migrateWorlds(root.getSection("proximity"));
     return root;
   }
 
-  private static void migrateWorlds(ConfigurationSection configContainer) {
+  private static void migrateWorlds(@Nullable ConfigurationSection configContainer) {
     if (configContainer == null) {
       return;
     }

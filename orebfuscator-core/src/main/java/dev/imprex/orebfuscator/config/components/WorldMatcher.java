@@ -2,12 +2,12 @@ package dev.imprex.orebfuscator.config.components;
 
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class WorldMatcher implements Predicate<String> {
 
-  @NotNull
-  public static WorldMatcher parseMatcher(@NotNull String value) {
+  public static WorldMatcher parseMatcher(String value) {
     var parsed = ConfigFunctionValue.parse(value);
     if (parsed != null && parsed.function().equals("regex")) {
       return new WorldMatcher(parseRegexMatcher(parsed.argument()), Type.REGEX);

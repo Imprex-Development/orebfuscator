@@ -1,9 +1,11 @@
 package dev.imprex.orebfuscator.config.migrations;
 
-import org.jetbrains.annotations.NotNull;
 import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
 import dev.imprex.orebfuscator.util.BlockPos;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
+@NullMarked
 class ConfigMigrationV2 implements ConfigMigration {
 
   @Override
@@ -12,13 +14,13 @@ class ConfigMigrationV2 implements ConfigMigration {
   }
 
   @Override
-  public @NotNull ConfigurationSection migrate(@NotNull ConfigurationSection root) {
+  public ConfigurationSection migrate(ConfigurationSection root) {
     convertRandomBlocksToSections(root.getSection("obfuscation"));
     convertRandomBlocksToSections(root.getSection("proximity"));
     return root;
   }
 
-  private static void convertRandomBlocksToSections(ConfigurationSection configContainer) {
+  private static void convertRandomBlocksToSections(@Nullable ConfigurationSection configContainer) {
     if (configContainer == null) {
       return;
     }

@@ -1,11 +1,11 @@
 package dev.imprex.orebfuscator.reflect.accessor;
 
-import org.jetbrains.annotations.NotNull;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Constructor;
+import org.jspecify.annotations.NonNull;
 
-record DefaultConstructorAccessor(@NotNull Constructor<?> member, @NotNull MethodHandle methodHandle) implements
+record DefaultConstructorAccessor(@NonNull Constructor<?> member, @NonNull MethodHandle methodHandle) implements
     ConstructorAccessor {
 
   @Override
@@ -18,7 +18,7 @@ record DefaultConstructorAccessor(@NotNull Constructor<?> member, @NotNull Metho
   }
 
   @Override
-  public @NotNull Constructor<?> member() {
+  public @NonNull Constructor<?> member() {
     return member;
   }
 }

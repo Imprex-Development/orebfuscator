@@ -11,8 +11,9 @@ import java.lang.reflect.Member;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.Objects;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public final class Accessors {
 
   private static final Lookup LOOKUP = MethodHandles.lookup();
@@ -23,7 +24,7 @@ public final class Accessors {
   private Accessors() {
   }
 
-  public static @NotNull ConstructorAccessor wrap(@NotNull Constructor<?> constructor) {
+  public static ConstructorAccessor wrap(Constructor<?> constructor) {
     return create(constructor, () -> {
       MethodHandle methodHandle = LOOKUP.unreflectConstructor(constructor);
       methodHandle = generifyExecutable(methodHandle, false, true);
@@ -32,14 +33,14 @@ public final class Accessors {
     });
   }
 
-  public static @NotNull FieldAccessor wrap(@NotNull Field field) {
+  public static FieldAccessor wrap(Field field) {
     return create(field, () -> {
       MethodHandle getter = LOOKUP.unreflectGetter(field);
       MethodHandle setter = null;
 
       try {
         setter = LOOKUP.unreflectSetter(field);
-      } catch (IllegalAccessException e) {
+      } catch (IllegalAccessException ignored) {
       }
 
       if (Modifier.isStatic(field.getModifiers())) {
@@ -54,7 +55,7 @@ public final class Accessors {
     });
   }
 
-  public static @NotNull MethodAccessor wrap(@NotNull Method method) {
+  public static MethodAccessor wrap(Method method) {
     return create(method, () -> {
       MethodHandle methodHandle = LOOKUP.unreflect(method);
       methodHandle = generifyExecutable(methodHandle, Modifier.isStatic(method.getModifiers()), false);
@@ -63,8 +64,8 @@ public final class Accessors {
     });
   }
 
-  private static <TMember extends AccessibleObject & Member, TAccessor> @NotNull TAccessor create(
-      @NotNull TMember member, @NotNull AccessorFactory<TAccessor> factory) {
+  private static <TMember extends AccessibleObject & Member, TAccessor> TAccessor create(
+      TMember member, AccessorFactory<TAccessor> factory) {
     Objects.requireNonNull(member);
 
     @SuppressWarnings("deprecation")

@@ -11,7 +11,9 @@ import dev.imprex.orebfuscator.config.components.ConfigBlockValue;
 import dev.imprex.orebfuscator.config.context.ConfigMessage;
 import dev.imprex.orebfuscator.config.context.ConfigParsingContext;
 import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implements ObfuscationConfig {
 
   private boolean layerObfuscation = false;

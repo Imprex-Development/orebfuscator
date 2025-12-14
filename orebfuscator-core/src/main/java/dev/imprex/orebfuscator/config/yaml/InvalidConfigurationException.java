@@ -6,7 +6,9 @@
  */
 package dev.imprex.orebfuscator.config.yaml;
 
-@SuppressWarnings("serial")
+import org.jspecify.annotations.NullMarked;
+
+@NullMarked
 public class InvalidConfigurationException extends Exception {
 
   public InvalidConfigurationException(String message) {

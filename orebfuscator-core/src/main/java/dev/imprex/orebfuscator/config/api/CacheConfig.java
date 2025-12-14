@@ -2,7 +2,9 @@ package dev.imprex.orebfuscator.config.api;
 
 import java.nio.file.Path;
 import dev.imprex.orebfuscator.util.ChunkCacheKey;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public interface CacheConfig {
 
   boolean enabled();

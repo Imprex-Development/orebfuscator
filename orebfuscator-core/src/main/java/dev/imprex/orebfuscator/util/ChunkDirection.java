@@ -1,5 +1,8 @@
 package dev.imprex.orebfuscator.util;
 
+import org.jspecify.annotations.NullMarked;
+
+@NullMarked
 public enum ChunkDirection {
 
   NORTH(1, 0), EAST(0, 1), SOUTH(-1, 0), WEST(0, -1);

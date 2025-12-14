@@ -15,7 +15,9 @@ import dev.imprex.orebfuscator.config.context.ConfigMessage;
 import dev.imprex.orebfuscator.config.context.ConfigParsingContext;
 import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
 import dev.imprex.orebfuscator.util.BlockProperties;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements ProximityConfig {
 
   private int distance = 24;

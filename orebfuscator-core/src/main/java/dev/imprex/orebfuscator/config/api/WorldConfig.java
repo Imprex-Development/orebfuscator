@@ -1,5 +1,8 @@
 package dev.imprex.orebfuscator.config.api;
 
+import org.jspecify.annotations.NullMarked;
+
+@NullMarked
 public interface WorldConfig {
 
   boolean isEnabled();

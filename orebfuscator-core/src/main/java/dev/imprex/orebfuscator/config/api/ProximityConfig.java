@@ -5,7 +5,9 @@ import java.util.Map;
 import org.joml.Matrix4f;
 
 import dev.imprex.orebfuscator.config.components.ConfigBlockValue;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public interface ProximityConfig extends WorldConfig {
 
   int distance();

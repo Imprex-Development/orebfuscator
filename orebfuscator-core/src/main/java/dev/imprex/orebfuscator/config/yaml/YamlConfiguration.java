@@ -18,8 +18,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.yaml.snakeyaml.DumperOptions;
 import org.yaml.snakeyaml.LoaderOptions;
 import org.yaml.snakeyaml.Yaml;
@@ -32,10 +32,10 @@ import org.yaml.snakeyaml.nodes.Tag;
 import org.yaml.snakeyaml.reader.UnicodeReader;
 import org.yaml.snakeyaml.representer.Representer;
 
+@NullMarked
 public class YamlConfiguration extends ConfigurationSection {
 
-  @NotNull
-  public static YamlConfiguration loadConfig(@NotNull Path path) throws IOException, InvalidConfigurationException {
+  public static YamlConfiguration loadConfig(Path path) throws IOException, InvalidConfigurationException {
     Objects.requireNonNull(path, "Path cannot be null");
 
     try (InputStream inputStream = Files.newInputStream(path)) {
@@ -43,8 +43,7 @@ public class YamlConfiguration extends ConfigurationSection {
     }
   }
 
-  @NotNull
-  public static YamlConfiguration loadConfig(@NotNull InputStream inputStream)
+  public static YamlConfiguration loadConfig(InputStream inputStream)
       throws IOException, InvalidConfigurationException {
     Objects.requireNonNull(inputStream, "InputStream cannot be null");
 
@@ -82,7 +81,7 @@ public class YamlConfiguration extends ConfigurationSection {
     this.map.clear();
   }
 
-  public void save(@NotNull Path path) throws IOException {
+  public void save(Path path) throws IOException {
     Objects.requireNonNull(path, "Path cannot be null");
 
     Files.createDirectories(path.getParent());
@@ -101,7 +100,7 @@ public class YamlConfiguration extends ConfigurationSection {
     }
   }
 
-  private void save(@NotNull Writer writer) throws IOException {
+  private void save(Writer writer) throws IOException {
     Objects.requireNonNull(writer, "Writer cannot be null");
 
     MappingNode node = toNodeTree(this.commentData, this);
@@ -117,7 +116,7 @@ public class YamlConfiguration extends ConfigurationSection {
     }
   }
 
-  private void load(@NotNull Reader reader) throws YAMLException, InvalidConfigurationException {
+  private void load(Reader reader) throws YAMLException, InvalidConfigurationException {
     Objects.requireNonNull(reader, "Reader cannot be null");
 
     Node rawNode = yaml.compose(reader);
@@ -134,7 +133,7 @@ public class YamlConfiguration extends ConfigurationSection {
     }
   }
 
-  private MappingNode toNodeTree(@Nullable NodeCommentData commentData, @NotNull ConfigurationSection section) {
+  private MappingNode toNodeTree(@Nullable NodeCommentData commentData, ConfigurationSection section) {
     List<NodeTuple> nodeTuples = new ArrayList<>();
 
     for (Map.Entry<String, Object> entry : section.map.entrySet()) {
@@ -163,8 +162,8 @@ public class YamlConfiguration extends ConfigurationSection {
     return new MappingNode(Tag.MAP, nodeTuples, DumperOptions.FlowStyle.BLOCK);
   }
 
-  private void fromNodeTree(@NotNull MappingNode input, @NotNull NodeCommentData commentData,
-      @NotNull ConfigurationSection section) throws InvalidConfigurationException {
+  private void fromNodeTree(MappingNode input, NodeCommentData commentData, ConfigurationSection section)
+      throws InvalidConfigurationException {
     constructor.flattenMapping(input);
 
     for (NodeTuple nodeTuple : input.getValue()) {
@@ -191,7 +190,7 @@ public class YamlConfiguration extends ConfigurationSection {
     }
   }
 
-  private boolean isNullOrEmpty(Collection<?> collection) {
+  private boolean isNullOrEmpty(@Nullable Collection<?> collection) {
     return collection == null || collection.isEmpty();
   }
 }

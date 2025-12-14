@@ -9,8 +9,6 @@ import java.util.function.Consumer;
  */
 public class SimpleCache<K, V> extends LinkedHashMap<K, V> {
 
-  private static final long serialVersionUID = -2732738355560313649L;
-
   private final int maximumSize;
   private final Consumer<Map.Entry<K, V>> remove;
 

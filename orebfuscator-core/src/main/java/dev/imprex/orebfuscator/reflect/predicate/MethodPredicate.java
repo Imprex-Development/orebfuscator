@@ -6,27 +6,28 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
+@NullMarked
 public final class MethodPredicate extends AbstractExecutablePredicate<MethodPredicate, MethodAccessor, Method> {
 
   private @Nullable ClassPredicate returnType;
 
   public MethodPredicate(
-      @NotNull Function<MethodPredicate, Stream<MethodAccessor>> producer,
-      @NotNull Supplier<String> className) {
+      Function<MethodPredicate, Stream<MethodAccessor>> producer,
+      Supplier<String> className) {
     super(producer, () -> String.format("Can't find constructor in class %s matching: ", className.get()));
   }
 
   @Override
-  public boolean test(@NotNull Method method) {
+  public boolean test(Method method) {
     return super.test(method)
         && (returnType == null || returnType.test(method.getReturnType()));
   }
 
   @Override
-  void requirements(@NotNull RequirementCollector collector) {
+  void requirements(RequirementCollector collector) {
     super.requirements(collector);
 
     if (returnType != null) {
@@ -34,17 +35,17 @@ public final class MethodPredicate extends AbstractExecutablePredicate<MethodPre
     }
   }
 
-  public @NotNull MethodPredicate returnType(@NotNull ClassPredicate matcher) {
+  public MethodPredicate returnType(ClassPredicate matcher) {
     this.returnType = Objects.requireNonNull(matcher);
     return this;
   }
 
-  public @NotNull ClassPredicate.Builder<MethodPredicate> returnType() {
+  public ClassPredicate.Builder<MethodPredicate> returnType() {
     return new ClassPredicate.Builder<>(this::returnType);
   }
 
   @Override
-  protected @NotNull MethodPredicate instance() {
+  protected MethodPredicate instance() {
     return this;
   }
 }

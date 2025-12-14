@@ -10,12 +10,13 @@ import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
-import org.jetbrains.annotations.NotNull;
 
 import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import net.imprex.orebfuscator.Orebfuscator;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * This class works similar to a bounded buffer for cache read and write requests but also functions as the only
@@ -26,6 +27,7 @@ import net.imprex.orebfuscator.Orebfuscator;
  * @see <a href="https://en.wikipedia.org/wiki/Producer–consumer_problem">Bound buffer</a>
  * @see <a href="https://en.wikipedia.org/wiki/Memory_ordering">Memory ordering</a>
  */
+@NullMarked
 public class AsyncChunkSerializer implements Runnable {
 
   private final Lock lock = new ReentrantLock(true);
@@ -52,8 +54,7 @@ public class AsyncChunkSerializer implements Runnable {
     orebfuscator.getStatistics().setDiskCacheQueueLengthSupplier(this.tasks::size);
   }
 
-  @NotNull
-  public CompletableFuture<CacheChunkEntry> read(@NotNull ChunkCacheKey key) {
+  public CompletableFuture<CacheChunkEntry> read(ChunkCacheKey key) {
     this.lock.lock();
     try {
       Runnable task = this.tasks.get(key);
@@ -71,7 +72,7 @@ public class AsyncChunkSerializer implements Runnable {
     }
   }
 
-  public void write(@NotNull ChunkCacheKey key, @NotNull CacheChunkEntry chunk) {
+  public void write(ChunkCacheKey key, CacheChunkEntry chunk) {
     this.lock.lock();
     try {
       Runnable prevTask = this.queueTask(key, new WriteTask(key, chunk));
@@ -83,8 +84,7 @@ public class AsyncChunkSerializer implements Runnable {
     }
   }
 
-  @NotNull
-  private Runnable queueTask(@NotNull ChunkCacheKey key, @NotNull Runnable nextTask) {
+  private @Nullable Runnable queueTask(ChunkCacheKey key, Runnable nextTask) {
     while (this.positions.size() >= this.maxTaskQueueSize) {
       this.notFull.awaitUninterruptibly();
     }

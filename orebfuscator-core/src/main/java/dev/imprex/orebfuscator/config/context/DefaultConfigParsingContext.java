@@ -6,11 +6,11 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
-
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class DefaultConfigParsingContext implements ConfigParsingContext {
 
   private static final String ANSI_RESET = "\u001B[m";
@@ -34,34 +34,33 @@ public class DefaultConfigParsingContext implements ConfigParsingContext {
   }
 
   @Override
-  @NotNull
-  public DefaultConfigParsingContext section(@NotNull String path, boolean isolateErrors) {
+  public DefaultConfigParsingContext section(String path, boolean isolateErrors) {
     DefaultConfigParsingContext context = getContext(path);
     context.isolateErrors = isolateErrors;
     return context;
   }
 
   @Override
-  public void warn(@NotNull ConfigMessage message, @Nullable Object... arguments) {
+  public void warn(ConfigMessage message, Object @Nullable ... arguments) {
     Objects.requireNonNull(message, "message can't be null");
 
     this.messages.add(new Message(false, message.format(arguments)));
   }
 
   @Override
-  public void warn(@NotNull String path, @NotNull ConfigMessage message, @Nullable Object... arguments) {
+  public void warn(String path, ConfigMessage message, Object @Nullable ... arguments) {
     getContext(path).warn(message, arguments);
   }
 
   @Override
-  public void error(@NotNull ConfigMessage message, @Nullable Object... arguments) {
+  public void error(ConfigMessage message, Object @Nullable ... arguments) {
     Objects.requireNonNull(message, "message can't be null");
 
     this.messages.add(new Message(true, message.format(arguments)));
   }
 
   @Override
-  public void error(@NotNull String path, @NotNull ConfigMessage message, @Nullable Object... arguments) {
+  public void error(String path, ConfigMessage message, Object @Nullable ... arguments) {
     getContext(path).error(message, arguments);
   }
 
@@ -83,7 +82,7 @@ public class DefaultConfigParsingContext implements ConfigParsingContext {
     return false;
   }
 
-  private DefaultConfigParsingContext getContext(@NotNull String path) {
+  private DefaultConfigParsingContext getContext(String path) {
     Objects.requireNonNull(path, "context path can't be null");
 
     DefaultConfigParsingContext context = this;
@@ -136,8 +135,7 @@ public class DefaultConfigParsingContext implements ConfigParsingContext {
     return builder;
   }
 
-  @Nullable
-  public String report() {
+  public @Nullable String report() {
     int messageCount = this.getMessageCount();
     if (messageCount == 0) {
       return null;
@@ -153,7 +151,7 @@ public class DefaultConfigParsingContext implements ConfigParsingContext {
         .toString();
   }
 
-  private record Message(boolean isError, @NotNull String content) implements Comparable<Message> {
+  private record Message(boolean isError, String content) implements Comparable<Message> {
 
     @Override
     public int compareTo(Message o) {

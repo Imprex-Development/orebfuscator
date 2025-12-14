@@ -6,15 +6,18 @@ import dev.imprex.orebfuscator.config.components.ConfigBlockValue;
 import dev.imprex.orebfuscator.interop.RegistryAccessor;
 import dev.imprex.orebfuscator.util.BlockProperties;
 import dev.imprex.orebfuscator.util.BlockStateProperties;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
+@NullMarked
 public class OrebfuscatorBlockFlags implements BlockFlags {
 
   private static final BlockFlags EMPTY_FLAGS = new EmptyBlockFlags();
 
-  static BlockFlags create(RegistryAccessor registry, OrebfuscatorObfuscationConfig worldConfig,
-      OrebfuscatorProximityConfig proximityConfig) {
-    if ((worldConfig != null && worldConfig.isEnabled()) || (proximityConfig != null
-        && proximityConfig.isEnabled())) {
+  static BlockFlags create(RegistryAccessor registry,
+      @Nullable OrebfuscatorObfuscationConfig worldConfig,
+      @Nullable OrebfuscatorProximityConfig proximityConfig) {
+    if ((worldConfig != null && worldConfig.isEnabled()) || (proximityConfig != null && proximityConfig.isEnabled())) {
       return new OrebfuscatorBlockFlags(registry, worldConfig, proximityConfig);
     }
     return EMPTY_FLAGS;
@@ -22,8 +25,9 @@ public class OrebfuscatorBlockFlags implements BlockFlags {
 
   private final int[] blockFlags;
 
-  private OrebfuscatorBlockFlags(RegistryAccessor registry, OrebfuscatorObfuscationConfig worldConfig,
-      OrebfuscatorProximityConfig proximityConfig) {
+  private OrebfuscatorBlockFlags(RegistryAccessor registry,
+      @Nullable OrebfuscatorObfuscationConfig worldConfig,
+      @Nullable OrebfuscatorProximityConfig proximityConfig) {
     this.blockFlags = new int[registry.getUniqueBlockStateCount()];
 
     if (worldConfig != null && worldConfig.isEnabled()) {

@@ -6,27 +6,28 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
+@NullMarked
 public final class FieldPredicate extends AbstractMemberPredicate<FieldPredicate, FieldAccessor, Field> {
 
   private @Nullable ClassPredicate type;
 
   public FieldPredicate(
-      @NotNull Function<FieldPredicate, Stream<FieldAccessor>> producer,
-      @NotNull Supplier<String> className) {
+      Function<FieldPredicate, Stream<FieldAccessor>> producer,
+      Supplier<String> className) {
     super(producer, () -> String.format("Can't find field in class %s matching: ", className.get()));
   }
 
   @Override
-  public boolean test(@NotNull Field field) {
+  public boolean test(Field field) {
     return super.test(field)
         && (type == null || type.test(field.getType()));
   }
 
   @Override
-  void requirements(@NotNull RequirementCollector collector) {
+  void requirements(RequirementCollector collector) {
     super.requirements(collector);
 
     if (type != null) {
@@ -34,17 +35,17 @@ public final class FieldPredicate extends AbstractMemberPredicate<FieldPredicate
     }
   }
 
-  public @NotNull FieldPredicate type(@NotNull ClassPredicate matcher) {
+  public FieldPredicate type(ClassPredicate matcher) {
     this.type = Objects.requireNonNull(matcher);
     return this;
   }
 
-  public @NotNull ClassPredicate.Builder<FieldPredicate> type() {
+  public ClassPredicate.Builder<FieldPredicate> type() {
     return new ClassPredicate.Builder<>(this::type);
   }
 
   @Override
-  protected @NotNull FieldPredicate instance() {
+  protected FieldPredicate instance() {
     return this;
   }
 }

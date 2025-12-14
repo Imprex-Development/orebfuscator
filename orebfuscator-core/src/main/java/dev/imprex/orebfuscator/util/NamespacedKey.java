@@ -1,6 +1,7 @@
 package dev.imprex.orebfuscator.util;
 
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a String based key which consists of two components - a namespace and a key.
@@ -12,6 +13,8 @@ import org.jetbrains.annotations.NotNull;
  * @author org.bukkit.NamespacedKey from 1.19.4
  *
  */
+
+@NullMarked
 public record NamespacedKey(String namespace, String key) {
 
   /**
@@ -27,34 +30,42 @@ public record NamespacedKey(String namespace, String key) {
     return isValidNamespaceChar(c) || c == '/';
   }
 
-  private static boolean isValidNamespace(String namespace) {
+  private static boolean isInvalidNamespace(@Nullable String namespace) {
+    if (namespace == null) {
+      return true;
+    }
+
     int len = namespace.length();
     if (len == 0) {
-      return false;
+      return true;
     }
 
     for (int i = 0; i < len; i++) {
       if (!isValidNamespaceChar(namespace.charAt(i))) {
-        return false;
+        return true;
       }
     }
 
-    return true;
+    return false;
   }
 
-  private static boolean isValidKey(String key) {
+  private static boolean isInvalidKey(@Nullable String key) {
+    if (key == null) {
+      return true;
+    }
+
     int len = key.length();
     if (len == 0) {
-      return false;
+      return true;
     }
 
     for (int i = 0; i < len; i++) {
       if (!isValidKeyChar(key.charAt(i))) {
-        return false;
+        return true;
       }
     }
 
-    return true;
+    return false;
   }
 
   /**
@@ -66,9 +77,9 @@ public record NamespacedKey(String namespace, String key) {
    */
   @Deprecated
   public NamespacedKey(String namespace, String key) {
-    if (namespace == null || !isValidNamespace(namespace)) {
+    if (isInvalidNamespace(namespace)) {
       throw new IllegalArgumentException(String.format("Invalid namespace. Must be [a-z0-9._-]: %s", namespace));
-    } else if (key == null || !isValidKey(key)) {
+    } else if (isInvalidKey(key)) {
       throw new IllegalArgumentException(String.format("Invalid key. Must be [a-z0-9/._-]: %s", key));
     }
 
@@ -116,8 +127,8 @@ public record NamespacedKey(String namespace, String key) {
    *
    * @return the created NamespacedKey. null if invalid
    */
-  public static NamespacedKey fromString(@NotNull String string) {
-    if (string == null || string.isEmpty()) {
+  public static @Nullable NamespacedKey fromString(String string) {
+    if (string.isEmpty()) {
       throw new IllegalArgumentException("Input string must not be empty or null");
     }
 
@@ -129,12 +140,12 @@ public record NamespacedKey(String namespace, String key) {
     String key = (components.length == 2) ? components[1] : "";
     if (components.length == 1) {
       String value = components[0];
-      if (value.isEmpty() || !isValidKey(value)) {
+      if (value.isEmpty() || isInvalidKey(value)) {
         return null;
       }
 
       return minecraft(value);
-    } else if (components.length == 2 && !isValidKey(key)) {
+    } else if (components.length == 2 && isInvalidKey(key)) {
       return null;
     }
 
@@ -143,7 +154,7 @@ public record NamespacedKey(String namespace, String key) {
       return minecraft(key);
     }
 
-    if (!isValidNamespace(namespace)) {
+    if (isInvalidNamespace(namespace)) {
       return null;
     }
 

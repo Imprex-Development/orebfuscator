@@ -1,8 +1,8 @@
 package dev.imprex.orebfuscator.config.context;
 
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a context used during configuration parsing to track and collect warnings and errors.
@@ -16,6 +16,7 @@ import org.jetbrains.annotations.Nullable;
  * individually without affecting the entire configuration.
  * </p>
  */
+@NullMarked
 public interface ConfigParsingContext {
 
   /**
@@ -25,8 +26,7 @@ public interface ConfigParsingContext {
    * @param isolateErrors Whether errors in this child context should be isolated from the parent.
    * @return An existing or newly created {@code ConfigParsingContext} instance for the given path.
    */
-  @NotNull
-  ConfigParsingContext section(@NotNull String path, boolean isolateErrors);
+  ConfigParsingContext section(String path, boolean isolateErrors);
 
   /**
    * Creates or retrieves an existing child context for the specified path without isolating errors.
@@ -34,8 +34,7 @@ public interface ConfigParsingContext {
    * @param path The relative path of the child context.
    * @return An existing or newly created {@code ConfigParsingContext} instance for the given path.
    */
-  @NotNull
-  default ConfigParsingContext section(@NotNull String path) {
+  default ConfigParsingContext section(String path) {
     return section(path, false);
   }
 
@@ -45,7 +44,7 @@ public interface ConfigParsingContext {
    * @param message   The warning message to be logged.
    * @param arguments Optional arguments used to format the message.
    */
-  void warn(@NotNull ConfigMessage message, @Nullable Object... arguments);
+  void warn(ConfigMessage message, Object @Nullable ... arguments);
 
   /**
    * Adds a warning message to the context of the specified path.
@@ -54,7 +53,7 @@ public interface ConfigParsingContext {
    * @param message   The warning message to be logged.
    * @param arguments Optional arguments used to format the message.
    */
-  void warn(@NotNull String path, @NotNull ConfigMessage message, @Nullable Object... arguments);
+  void warn(String path, ConfigMessage message, Object @Nullable ... arguments);
 
   /**
    * Determines whether a subsystem should remain enabled based on the presence of errors.
@@ -82,7 +81,7 @@ public interface ConfigParsingContext {
    * @param message   The error message to be logged.
    * @param arguments Optional arguments used to format the message.
    */
-  void error(@NotNull ConfigMessage message, @Nullable Object... arguments);
+  void error(ConfigMessage message, Object @Nullable ... arguments);
 
   /**
    * Adds an error message to the context of the specified path.
@@ -91,7 +90,7 @@ public interface ConfigParsingContext {
    * @param message   The error message to be logged.
    * @param arguments Optional arguments used to format the message.
    */
-  void error(@NotNull String path, @NotNull ConfigMessage message, @Nullable Object... arguments);
+  void error(String path, ConfigMessage message, Object @Nullable ... arguments);
 
   /**
    * Adds an error if the specified value is below the minimum allowed value.
@@ -100,7 +99,7 @@ public interface ConfigParsingContext {
    * @param min   The minimum allowed value.
    * @param value The actual value to be checked.
    */
-  default void errorMinValue(@NotNull String path, long min, long value) {
+  default void errorMinValue(String path, long min, long value) {
     if (value < min) {
       error(path, ConfigMessage.VALUE_MIN, value, min);
     }
@@ -114,7 +113,7 @@ public interface ConfigParsingContext {
    * @param max   The maximum allowed value.
    * @param value The actual value to be checked.
    */
-  default void errorMinMaxValue(@NotNull String path, long min, long max, long value) {
+  default void errorMinMaxValue(String path, long min, long max, long value) {
     if (value < min || value > max) {
       error(path, ConfigMessage.VALUE_MIN_MAX, value, min, max);
     }

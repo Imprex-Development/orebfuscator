@@ -1,28 +1,28 @@
 package net.imprex.orebfuscator.iterop;
 
 import java.util.Objects;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import dev.imprex.orebfuscator.logging.LogLevel;
 import dev.imprex.orebfuscator.logging.LoggerAccessor;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
-public class BukkitLoggerAccessor implements LoggerAccessor {
+@NullMarked
+public record BukkitLoggerAccessor(Logger logger) implements LoggerAccessor {
 
-  private final Logger logger;
-
-  public BukkitLoggerAccessor(@NotNull Logger logger) {
-    this.logger = Objects.requireNonNull(logger, "Plugin logger can't be null");
+  public BukkitLoggerAccessor {
+    Objects.requireNonNull(logger, "Plugin logger can't be null");
   }
 
   @Override
-  public void log(@NotNull LogLevel level, @NotNull String message, @Nullable Throwable throwable) {
+  public void log(LogLevel level, String message, @Nullable Throwable throwable) {
     var mappedLevel = switch (level) {
-      case DEBUG, INFO -> java.util.logging.Level.INFO;
-      case WARN -> java.util.logging.Level.WARNING;
-      case ERROR -> java.util.logging.Level.SEVERE;
+      case DEBUG, INFO -> Level.INFO;
+      case WARN -> Level.WARNING;
+      case ERROR -> Level.SEVERE;
     };
 
     if (level == LogLevel.DEBUG) {

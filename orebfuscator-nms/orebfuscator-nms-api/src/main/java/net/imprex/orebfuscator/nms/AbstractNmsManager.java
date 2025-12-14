@@ -4,8 +4,6 @@ import java.util.HashMap;
 import java.util.Map;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import dev.imprex.orebfuscator.reflect.Reflector;
 import dev.imprex.orebfuscator.reflect.accessor.MethodAccessor;
 import dev.imprex.orebfuscator.util.BlockProperties;
@@ -13,11 +11,14 @@ import dev.imprex.orebfuscator.util.BlockStateProperties;
 import dev.imprex.orebfuscator.util.BlockTag;
 import dev.imprex.orebfuscator.util.MathUtil;
 import dev.imprex.orebfuscator.util.NamespacedKey;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
+@NullMarked
 public abstract class AbstractNmsManager implements NmsManager {
 
-  private static MethodAccessor worldGetHandle;
-  private static MethodAccessor playerGetHandle;
+  private static @Nullable MethodAccessor worldGetHandle;
+  private static @Nullable MethodAccessor playerGetHandle;
 
   protected static <T> T worldHandle(World world, Class<T> targetClass) {
     if (worldGetHandle == null) {
@@ -80,12 +81,12 @@ public abstract class AbstractNmsManager implements NmsManager {
   }
 
   @Override
-  public final @Nullable BlockProperties getBlockByName(@NotNull String name) {
+  public final @Nullable BlockProperties getBlockByName(String name) {
     return this.blocks.get(NamespacedKey.fromString(name));
   }
 
   @Override
-  public final @Nullable BlockTag getBlockTagByName(@NotNull String name) {
+  public final @Nullable BlockTag getBlockTagByName(String name) {
     return this.tags.get(NamespacedKey.fromString(name));
   }
 

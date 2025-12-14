@@ -5,7 +5,9 @@ import dev.imprex.orebfuscator.config.context.ConfigMessage;
 import dev.imprex.orebfuscator.config.context.ConfigParsingContext;
 import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
 import dev.imprex.orebfuscator.logging.OfcLogger;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
 
   private boolean verbose = false;

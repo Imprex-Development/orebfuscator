@@ -1,5 +1,8 @@
 package dev.imprex.orebfuscator.config.api;
 
+import org.jspecify.annotations.NullMarked;
+
+@NullMarked
 public interface BlockFlags {
 
   int FLAG_OBFUSCATE = 1;

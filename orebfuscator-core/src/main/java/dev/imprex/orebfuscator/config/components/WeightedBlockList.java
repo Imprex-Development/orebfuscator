@@ -1,5 +1,6 @@
 package dev.imprex.orebfuscator.config.components;
 
+import dev.imprex.orebfuscator.util.BlockProperties;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
@@ -16,7 +17,9 @@ import dev.imprex.orebfuscator.util.BlockPos;
 import dev.imprex.orebfuscator.util.BlockStateProperties;
 import dev.imprex.orebfuscator.util.MathUtil;
 import dev.imprex.orebfuscator.util.WeightedRandom;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class WeightedBlockList {
 
   public static WeightedRandom[] create(WorldAccessor world, List<WeightedBlockList> lists) {
@@ -45,7 +48,7 @@ public class WeightedBlockList {
           for (Map.Entry<ConfigBlockValue, Integer> entry : list.blocks.entrySet()) {
             // TODO: add support for other block states in future
             var blockStates = entry.getKey().blocks().stream()
-                .map(block -> block.getDefaultBlockState())
+                .map(BlockProperties::getDefaultBlockState)
                 .collect(Collectors.toSet());
             double weight = (double) entry.getValue() / (double) blockStates.size();
 

@@ -1,9 +1,9 @@
 package net.imprex.orebfuscator.cache;
 
+import dev.imprex.orebfuscator.logging.OfcLogger;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
 
-import org.jetbrains.annotations.NotNull;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
@@ -18,51 +18,53 @@ import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.OrebfuscatorStatistics;
 import net.imprex.orebfuscator.obfuscation.ObfuscationRequest;
 import net.imprex.orebfuscator.obfuscation.ObfuscationResult;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
+@NullMarked
 public class ObfuscationCache {
 
-  private final CacheConfig cacheConfig;
   private final OrebfuscatorStatistics statistics;
 
   private final AbstractRegionFileCache<?> regionFileCache;
   private final Cache<ChunkCacheKey, CacheChunkEntry> cache;
-  private final AsyncChunkSerializer serializer;
+  private final @Nullable AsyncChunkSerializer serializer;
 
   public ObfuscationCache(Orebfuscator orebfuscator) {
-    this.cacheConfig = orebfuscator.getOrebfuscatorConfig().cache();
+    CacheConfig cacheConfig = orebfuscator.getOrebfuscatorConfig().cache();
     this.statistics = orebfuscator.getStatistics();
 
     this.cache = CacheBuilder.newBuilder()
-        .maximumSize(this.cacheConfig.maximumSize())
-        .expireAfterAccess(this.cacheConfig.expireAfterAccess(), TimeUnit.MILLISECONDS)
+        .maximumSize(cacheConfig.maximumSize())
+        .expireAfterAccess(cacheConfig.expireAfterAccess(), TimeUnit.MILLISECONDS)
         .removalListener(this::onRemoval)
         .build();
-    this.statistics.setMemoryCacheSizeSupplier(() -> this.cache.size());
+    this.statistics.setMemoryCacheSizeSupplier(this.cache::size);
 
     this.regionFileCache = OrebfuscatorNms.createRegionFileCache(orebfuscator.getOrebfuscatorConfig());
 
-    if (this.cacheConfig.enableDiskCache()) {
+    if (cacheConfig.enableDiskCache()) {
       this.serializer = new AsyncChunkSerializer(orebfuscator, regionFileCache);
     } else {
       this.serializer = null;
     }
 
-    if (this.cacheConfig.enabled() && this.cacheConfig.deleteRegionFilesAfterAccess() > 0) {
+    if (cacheConfig.enabled() && cacheConfig.deleteRegionFilesAfterAccess() > 0) {
       OrebfuscatorCompatibility.runAsyncAtFixedRate(new CacheFileCleanupTask(orebfuscator, regionFileCache), 0, 72000L);
     }
   }
 
-  private void onRemoval(@NotNull RemovalNotification<ChunkCacheKey, CacheChunkEntry> notification) {
+  private void onRemoval(RemovalNotification<ChunkCacheKey, CacheChunkEntry> notification) {
     this.statistics.onCacheSizeChange(-notification.getValue().estimatedSize());
 
     // don't serialize invalidated chunks since this would require locking the main
     // thread and wouldn't bring a huge improvement
-    if (this.cacheConfig.enableDiskCache() && notification.wasEvicted() && !OrebfuscatorCompatibility.isGameThread()) {
+    if (this.serializer != null && notification.wasEvicted() && !OrebfuscatorCompatibility.isGameThread()) {
       this.serializer.write(notification.getKey(), notification.getValue());
     }
   }
 
-  private void requestObfuscation(@NotNull ObfuscationRequest request) {
+  private void requestObfuscation(ObfuscationRequest request) {
     request.submitForObfuscation().thenAccept(chunk -> {
       var compressedChunk = CacheChunkEntry.create(chunk);
       if (compressedChunk != null) {
@@ -72,8 +74,7 @@ public class ObfuscationCache {
     });
   }
 
-  @NotNull
-  public CompletableFuture<ObfuscationResult> get(@NotNull ObfuscationRequest request) {
+  public CompletableFuture<ObfuscationResult> get(ObfuscationRequest request) {
     ChunkCacheKey key = request.getCacheKey();
 
     CacheChunkEntry cacheChunk = this.cache.getIfPresent(key);
@@ -86,7 +87,7 @@ public class ObfuscationCache {
           () -> this.requestObfuscation(request));
     }
     // only access disk cache if we couldn't find the chunk in memory cache
-    else if (cacheChunk == null && this.cacheConfig.enableDiskCache()) {
+    else if (cacheChunk == null && this.serializer != null) {
       this.serializer.read(key).whenComplete((diskChunk, throwable) -> {
         if (diskChunk != null && diskChunk.isValid(request)) {
           this.statistics.onCacheHitDisk();
@@ -106,10 +107,10 @@ public class ObfuscationCache {
           this.requestObfuscation(request);
         }
 
-        // request future doesn't care about serialzer failure because
+        // request future doesn't care about serializer failure because
         // we simply request obfuscation on failure
         if (throwable != null) {
-          throwable.printStackTrace();
+          OfcLogger.error(throwable);
         }
       });
     }

@@ -8,7 +8,9 @@ import java.util.regex.Pattern;
 import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public record Version(int major, int minor, int patch) implements Comparable<Version> {
 
   private static final Pattern VERSION_PATTERN =

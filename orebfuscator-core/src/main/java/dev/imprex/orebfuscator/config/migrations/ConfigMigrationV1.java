@@ -5,10 +5,11 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 
-import org.jetbrains.annotations.NotNull;
 
 import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 class ConfigMigrationV1 implements ConfigMigration {
 
   @Override
@@ -17,7 +18,7 @@ class ConfigMigrationV1 implements ConfigMigration {
   }
 
   @Override
-  public @NotNull ConfigurationSection migrate(@NotNull ConfigurationSection root) {
+  public ConfigurationSection migrate(ConfigurationSection root) {
     // check if config is still using old path
     String obfuscationConfigPath = root.contains("world") ? "world" : "obfuscation";
     convertSectionListToSection(root, obfuscationConfigPath);

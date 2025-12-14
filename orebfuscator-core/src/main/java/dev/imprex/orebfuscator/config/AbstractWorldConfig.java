@@ -1,8 +1,5 @@
 package dev.imprex.orebfuscator.config;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.stream.Collectors;
 import com.google.gson.JsonObject;
 import dev.imprex.orebfuscator.config.api.WorldConfig;
 import dev.imprex.orebfuscator.config.components.BlockParser;
@@ -17,7 +14,12 @@ import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.BlockPos;
 import dev.imprex.orebfuscator.util.MathUtil;
 import dev.imprex.orebfuscator.util.WeightedRandom;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public abstract class AbstractWorldConfig implements WorldConfig {
 
   private final String name;
@@ -137,7 +139,6 @@ public abstract class AbstractWorldConfig implements WorldConfig {
   public boolean shouldObfuscate(int y) {
     return y >= this.minY && y <= this.maxY;
   }
-
 
   WeightedRandom[] createWeightedRandoms(WorldAccessor world) {
     OfcLogger.debug(String.format("Creating weighted randoms for %s for world %s:", name, world));

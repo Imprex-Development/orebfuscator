@@ -1,5 +1,6 @@
 package dev.imprex.orebfuscator.cache;
 
+import dev.imprex.orebfuscator.logging.OfcLogger;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
@@ -14,10 +15,13 @@ import dev.imprex.orebfuscator.reflect.Reflector;
 import dev.imprex.orebfuscator.reflect.accessor.MethodAccessor;
 import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import dev.imprex.orebfuscator.util.SimpleCache;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
+@NullMarked
 public abstract class AbstractRegionFileCache<T> {
 
-  private static MethodAccessor serverGetServer;
+  private static @Nullable MethodAccessor serverGetServer;
 
   protected static <T> T serverHandle(Object server, Class<T> targetClass) {
     if (serverGetServer == null) {
@@ -46,25 +50,25 @@ public abstract class AbstractRegionFileCache<T> {
 
   protected abstract void closeRegionFile(T t) throws IOException;
 
-  protected abstract DataInputStream createInputStream(T t, ChunkCacheKey key) throws IOException;
+  protected abstract @Nullable DataInputStream createInputStream(T t, ChunkCacheKey key) throws IOException;
 
   protected abstract DataOutputStream createOutputStream(T t, ChunkCacheKey key) throws IOException;
 
-  public final DataInputStream createInputStream(ChunkCacheKey key) throws IOException {
+  public final @Nullable DataInputStream createInputStream(ChunkCacheKey key) throws IOException {
     T t = this.get(this.cacheConfig.regionFile(key));
-    return t != null ? this.createInputStream(t, key) : null;
+    return this.createInputStream(t, key);
   }
 
   public final DataOutputStream createOutputStream(ChunkCacheKey key) throws IOException {
     T t = this.get(this.cacheConfig.regionFile(key));
-    return t != null ? this.createOutputStream(t, key) : null;
+    return this.createOutputStream(t, key);
   }
 
-  private final void remove(Map.Entry<Path, T> entry) {
+  private void remove(Map.Entry<Path, T> entry) {
     try {
       this.closeRegionFile(entry.getValue());
     } catch (IOException e) {
-      e.printStackTrace();
+      OfcLogger.error(e);
     }
   }
 
@@ -123,11 +127,9 @@ public abstract class AbstractRegionFileCache<T> {
     try {
       for (T t : this.regionFiles.values()) {
         try {
-          if (t != null) {
-            this.closeRegionFile(t);
-          }
+          this.closeRegionFile(t);
         } catch (IOException e) {
-          e.printStackTrace();
+          OfcLogger.error(e);
         }
       }
       this.regionFiles.clear();

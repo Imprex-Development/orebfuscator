@@ -1,5 +1,8 @@
 package dev.imprex.orebfuscator.util;
 
+import org.jspecify.annotations.NullMarked;
+
+@NullMarked
 public class BlockStateProperties {
 
   public static Builder builder(int id) {

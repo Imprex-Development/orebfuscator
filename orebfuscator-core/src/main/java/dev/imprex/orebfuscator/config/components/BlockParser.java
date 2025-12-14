@@ -3,29 +3,29 @@ package dev.imprex.orebfuscator.config.components;
 import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
-import org.jetbrains.annotations.NotNull;
 import dev.imprex.orebfuscator.config.context.ConfigMessage;
 import dev.imprex.orebfuscator.config.context.ConfigParsingContext;
 import dev.imprex.orebfuscator.interop.RegistryAccessor;
 import dev.imprex.orebfuscator.util.BlockProperties;
 import dev.imprex.orebfuscator.util.BlockTag;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class BlockParser {
 
   public static BlockParser.Factory factory(RegistryAccessor registryAccessor) {
     return new Factory(registryAccessor);
   }
 
-  private final @NotNull RegistryAccessor registry;
+  private final RegistryAccessor registry;
   private final boolean excludeAir;
 
-  private BlockParser(@NotNull RegistryAccessor registry, boolean excludeAir) {
+  private BlockParser(RegistryAccessor registry, boolean excludeAir) {
     this.registry = Objects.requireNonNull(registry);
     this.excludeAir = excludeAir;
   }
 
-  @NotNull
-  public ConfigBlockValue parse(@NotNull ConfigParsingContext context, @NotNull String value) {
+  public ConfigBlockValue parse(ConfigParsingContext context, String value) {
     var parsed = ConfigFunctionValue.parse(value);
     if (parsed != null) {
       return switch (parsed.function()) {
@@ -40,8 +40,7 @@ public class BlockParser {
     }
   }
 
-  @NotNull
-  private ConfigBlockValue parseBlockTag(@NotNull ConfigParsingContext context, @NotNull String value) {
+  private ConfigBlockValue parseBlockTag(ConfigParsingContext context, String value) {
     BlockTag tag = registry.getBlockTagByName(value);
     if (tag == null) {
       context.warn(ConfigMessage.BLOCK_TAG_UNKNOWN, value);
@@ -76,8 +75,7 @@ public class BlockParser {
     return ConfigBlockValue.tag(tag, blocks);
   }
 
-  @NotNull
-  private ConfigBlockValue parseBlock(@NotNull ConfigParsingContext context, @NotNull String value) {
+  private ConfigBlockValue parseBlock(ConfigParsingContext context, String value) {
     BlockProperties block = registry.getBlockByName(value);
     if (block == null) {
       context.warn(ConfigMessage.BLOCK_UNKNOWN, value);
@@ -92,14 +90,10 @@ public class BlockParser {
 
   public static class Factory {
 
-    private final @NotNull RegistryAccessor registry;
-
     private final BlockParser excludeAir;
     private final BlockParser includeAir;
 
-    public Factory(@NotNull RegistryAccessor registry) {
-      this.registry = Objects.requireNonNull(registry);
-
+    public Factory(RegistryAccessor registry) {
       this.excludeAir = new BlockParser(registry, true);
       this.includeAir = new BlockParser(registry, false);
     }

@@ -4,18 +4,19 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
+@NullMarked
 interface ConfigMigration {
 
   int sourceVersion();
 
-  @NotNull ConfigurationSection migrate(@NotNull ConfigurationSection root);
+  ConfigurationSection migrate(ConfigurationSection root);
 
-  static void migrateNames(@Nullable ConfigurationSection section, @NotNull List<Map.Entry<String, String>> mapping) {
+  static void migrateNames(@Nullable ConfigurationSection section, List<Map.Entry<String, String>> mapping) {
     Objects.requireNonNull(mapping, "mappings can't be null");
     if (section == null) {
       return;

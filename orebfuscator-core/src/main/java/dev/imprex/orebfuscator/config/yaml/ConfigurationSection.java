@@ -15,9 +15,10 @@ import java.util.Objects;
 import java.util.Set;
 
 import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
+@NullMarked
 public class ConfigurationSection {
 
   static final char PATH_SEPARATOR = '.';
@@ -25,27 +26,25 @@ public class ConfigurationSection {
   protected final Map<String, Object> map = new LinkedHashMap<>();
   private final String path;
 
-  protected ConfigurationSection(@NotNull String path) {
+  protected ConfigurationSection(String path) {
     Objects.requireNonNull(path, "Path cannot be null");
 
     this.path = path;
   }
 
-  @NotNull
   public String getName() {
     return path;
   }
 
-  @NotNull
   public Set<String> getKeys() {
     return this.map.keySet();
   }
 
-  public boolean contains(@NotNull String path) {
+  public boolean contains(String path) {
     return get(path, null) != null;
   }
 
-  public void set(@NotNull String path, @Nullable Object value) {
+  public void set(String path, @Nullable Object value) {
     Objects.requireNonNull(path, "Path cannot be null");
 
     int end = -1, start;
@@ -76,14 +75,13 @@ public class ConfigurationSection {
     }
   }
 
-  @Nullable
-  public Object get(@NotNull String path) {
+  public @Nullable Object get(String path) {
     return get(path, null);
   }
 
-  @Nullable
+
   @Contract("_, !null -> !null")
-  public Object get(@NotNull String path, @Nullable Object defaultValue) {
+  public @Nullable Object get(String path, @Nullable Object defaultValue) {
     Objects.requireNonNull(path, "Path cannot be null");
 
     if (path.isBlank()) {
@@ -107,8 +105,7 @@ public class ConfigurationSection {
     return section.get(segment, defaultValue);
   }
 
-  @NotNull
-  public ConfigurationSection createSection(@NotNull String path) {
+  public ConfigurationSection createSection(String path) {
     Objects.requireNonNull(path, "Cannot create section at empty path");
 
     if (path.isBlank()) {
@@ -136,108 +133,95 @@ public class ConfigurationSection {
     return section.createSection(segment);
   }
 
-  public boolean isBoolean(@NotNull String path) {
+  public boolean isBoolean(String path) {
     return get(path) instanceof Boolean;
   }
 
-  @Nullable
-  public Boolean getBoolean(@NotNull String path) {
+  public @Nullable Boolean getBoolean(String path) {
     return getBoolean(path, null);
   }
 
-  @Nullable
   @Contract("_, !null -> !null")
-  public Boolean getBoolean(@NotNull String path, @Nullable Boolean defaultValue) {
+  public @Nullable Boolean getBoolean(String path, @Nullable Boolean defaultValue) {
     return get(path, defaultValue) instanceof Boolean value
         ? value : defaultValue;
   }
 
-  public boolean isInt(@NotNull String path) {
+  public boolean isInt(String path) {
     return get(path) instanceof Integer;
   }
 
-  @Nullable
-  public Integer getInt(@NotNull String path) {
+  public @Nullable Integer getInt(String path) {
     return getInt(path, null);
   }
 
-  @Nullable
   @Contract("_, !null -> !null")
-  public Integer getInt(@NotNull String path, @Nullable Integer defaultValue) {
+  public @Nullable Integer getInt(String path, @Nullable Integer defaultValue) {
     return get(path, defaultValue) instanceof Number value
         ? Integer.valueOf(value.intValue()) : defaultValue;
   }
 
-  public boolean isLong(@NotNull String path) {
+  public boolean isLong(String path) {
     return get(path) instanceof Long;
   }
 
-  @Nullable
-  public Long getLong(@NotNull String path) {
+  public @Nullable Long getLong(String path) {
     return getLong(path, null);
   }
 
-  @Nullable
   @Contract("_, !null -> !null")
-  public Long getLong(@NotNull String path, @Nullable Long defaultValue) {
+  public @Nullable Long getLong(String path, @Nullable Long defaultValue) {
     return get(path, defaultValue) instanceof Number value
         ? Long.valueOf(value.longValue()) : defaultValue;
   }
 
-  public boolean isDouble(@NotNull String path) {
+  public boolean isDouble(String path) {
     return get(path) instanceof Double;
   }
 
-  @Nullable
-  public Double getDouble(@NotNull String path) {
+  public @Nullable Double getDouble(String path) {
     return getDouble(path, null);
   }
 
-  @Nullable
   @Contract("_, !null -> !null")
-  public Double getDouble(@NotNull String path, @Nullable Double defaultValue) {
+  public @Nullable Double getDouble(String path, @Nullable Double defaultValue) {
     return get(path, defaultValue) instanceof Number value
         ? Double.valueOf(value.doubleValue()) : defaultValue;
   }
 
-  public boolean isNumber(@NotNull String path) {
+  public boolean isNumber(String path) {
     return get(path) instanceof Number;
   }
 
-  public boolean isString(@NotNull String path) {
+  public boolean isString(String path) {
     return get(path) instanceof String;
   }
 
-  @Nullable
-  public String getString(@NotNull String path) {
+  public @Nullable String getString(String path) {
     return getString(path, null);
   }
 
-  @Nullable
   @Contract("_, !null -> !null")
-  public String getString(@NotNull String path, @Nullable String defaultValue) {
+  public @Nullable String getString(String path, @Nullable String defaultValue) {
     return get(path, defaultValue) instanceof String value
         ? value : defaultValue;
   }
 
-  public boolean isList(@NotNull String path) {
+  public boolean isList(String path) {
     return get(path) instanceof List;
   }
 
-  @Nullable
-  public List<?> getList(@NotNull String path) {
+  public @Nullable List<?> getList(String path) {
     return getList(path, null);
   }
 
-  @Nullable
   @Contract("_, !null -> !null")
-  public List<?> getList(@NotNull String path, List<?> defaultValue) {
+  public @Nullable List<?> getList(String path, @Nullable List<?> defaultValue) {
     return get(path, defaultValue) instanceof List<?> value
         ? value : defaultValue;
   }
 
-  @NotNull
-  public List<String> getStringList(@NotNull String path) {
+  public List<String> getStringList(String path) {
     List<?> list = getList(path);
     if (list == null) {
       return Collections.emptyList();
@@ -254,17 +238,15 @@ public class ConfigurationSection {
     return result;
   }
 
-  public boolean isSection(@NotNull String path) {
+  public boolean isSection(String path) {
     return get(path) instanceof ConfigurationSection;
   }
 
-  @Nullable
-  public ConfigurationSection getSection(@NotNull String path) {
+  public @Nullable ConfigurationSection getSection(String path) {
     return get(path) instanceof ConfigurationSection value
         ? value : null;
   }
 
-  @NotNull
   public List<ConfigurationSection> getSubSections() {
     List<ConfigurationSection> result = new ArrayList<>();
 

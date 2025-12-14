@@ -13,7 +13,9 @@ import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
 import dev.imprex.orebfuscator.interop.ServerAccessor;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.ChunkCacheKey;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class OrebfuscatorCacheConfig implements CacheConfig {
 
   private final Path worldDirectory;
@@ -145,7 +147,7 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
 
   @Override
   public Path regionFile(ChunkCacheKey key) {
-    return this.baseDirectory.resolve(key.world())
+    return this.baseDirectory.resolve(key.world().replace(":", "_"))
         .resolve("r." + (key.x() >> 5) + "." + (key.z() >> 5) + ".mca");
   }
 

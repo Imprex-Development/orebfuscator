@@ -2,10 +2,10 @@ package dev.imprex.orebfuscator.reflect.accessor;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Field;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
 
-record DefaultFieldAccessor(@NotNull Field member, @NotNull MethodHandle getterHandle,
+record DefaultFieldAccessor(@NonNull Field member, @NonNull MethodHandle getterHandle,
                             @Nullable MethodHandle setterHandle) implements FieldAccessor {
 
   @Override
@@ -36,7 +36,7 @@ record DefaultFieldAccessor(@NotNull Field member, @NotNull MethodHandle getterH
   }
 
   @Override
-  public @NotNull Field member() {
+  public @NonNull Field member() {
     return this.member;
   }
 }

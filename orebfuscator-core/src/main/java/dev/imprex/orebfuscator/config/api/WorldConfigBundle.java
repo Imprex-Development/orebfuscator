@@ -1,12 +1,16 @@
 package dev.imprex.orebfuscator.config.api;
 
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+
+@NullMarked
 public interface WorldConfigBundle {
 
   BlockFlags blockFlags();
 
-  ObfuscationConfig obfuscation();
+  @Nullable ObfuscationConfig obfuscation();
 
-  ProximityConfig proximity();
+  @Nullable ProximityConfig proximity();
 
   boolean needsObfuscation();
 

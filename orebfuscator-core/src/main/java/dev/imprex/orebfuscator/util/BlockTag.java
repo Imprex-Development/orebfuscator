@@ -3,11 +3,12 @@ package dev.imprex.orebfuscator.util;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 
-public record BlockTag(@NotNull NamespacedKey key, @NotNull Set<BlockProperties> blocks) {
+@NullMarked
+public record BlockTag(NamespacedKey key, Set<BlockProperties> blocks) {
 
-  public BlockTag(@NotNull NamespacedKey key, @NotNull Set<BlockProperties> blocks) {
+  public BlockTag(NamespacedKey key, Set<BlockProperties> blocks) {
     this.key = key;
     this.blocks = Collections.unmodifiableSet(blocks);
   }

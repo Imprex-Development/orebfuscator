@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ThreadLocalRandom;
 import java.util.random.RandomGenerator;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 
 /**
  * Weighted random integer sampler using the
@@ -35,6 +35,7 @@ import org.jetbrains.annotations.NotNull;
  * This implementation is immutable and thread-safe for concurrent calls to
  * {@link #next()} after construction.
  */
+@NullMarked
 public final class WeightedRandom {
 
   /**
@@ -59,7 +60,7 @@ public final class WeightedRandom {
    *
    * @param builder the builder containing values and weights
    */
-  private WeightedRandom(@NotNull Builder builder) {
+  private WeightedRandom(Builder builder) {
     double minWeight = Double.POSITIVE_INFINITY;
     double maxWeight = Double.NEGATIVE_INFINITY;
     double totalWeight = 0d;
@@ -148,7 +149,7 @@ public final class WeightedRandom {
    * @param random a {@link RandomGenerator} to use for randomness
    * @return a sampled integer according to the configured weights
    */
-  public int next(@NotNull RandomGenerator random) {
+  public int next(RandomGenerator random) {
     Objects.requireNonNull(random);
 
     int i = random.nextInt(this.n);
@@ -187,7 +188,7 @@ public final class WeightedRandom {
         throw new IllegalArgumentException("Weight has to be greater zero and finite!");
       }
 
-      this.entries.merge(value, weight, (a, b) -> a + b);
+      this.entries.merge(value, weight, Double::sum);
       return this;
     }
 

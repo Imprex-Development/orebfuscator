@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
-import org.jetbrains.annotations.NotNull;
 import dev.imprex.orebfuscator.reflect.accessor.Accessors;
 import dev.imprex.orebfuscator.reflect.accessor.ConstructorAccessor;
 import dev.imprex.orebfuscator.reflect.accessor.FieldAccessor;
@@ -16,17 +15,20 @@ import dev.imprex.orebfuscator.reflect.accessor.MethodAccessor;
 import dev.imprex.orebfuscator.reflect.predicate.ConstructorPredicate;
 import dev.imprex.orebfuscator.reflect.predicate.FieldPredicate;
 import dev.imprex.orebfuscator.reflect.predicate.MethodPredicate;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
+@NullMarked
 public class Reflector {
 
   public static Reflector of(Class<?> target) {
     return new Reflector(target);
   }
 
-  private final @NotNull Class<?> target;
-  private @NotNull Class<?> recursiveUntil;
+  private final Class<?> target;
+  private Class<?> recursiveUntil;
 
-  private Reflector(@NotNull Class<?> target) {
+  private Reflector(Class<?> target) {
     this.target = Objects.requireNonNull(target);
     this.recursiveUntil = target;
   }
@@ -35,7 +37,7 @@ public class Reflector {
     return this.recursiveUntil(Object.class);
   }
 
-  public Reflector recursiveUntil(Class<?> recursiveUntil) {
+  public Reflector recursiveUntil(@Nullable Class<?> recursiveUntil) {
     this.recursiveUntil = recursiveUntil != null
         ? recursiveUntil
         : this.target;
@@ -68,35 +70,29 @@ public class Reflector {
     return stream;
   }
 
-  @NotNull
   public Stream<ConstructorAccessor> constructor(Predicate<Constructor<?>> predicate) {
     Stream<Constructor<?>> stream = get(Class::getDeclaredConstructors);
     return stream.filter(predicate).map(Accessors::wrap);
   }
 
-  @NotNull
   public ConstructorPredicate constructor() {
     return new ConstructorPredicate(this::constructor, this::className);
   }
 
-  @NotNull
   public Stream<FieldAccessor> field(Predicate<Field> predicate) {
     Stream<Field> stream = get(Class::getDeclaredFields);
     return stream.filter(predicate).map(Accessors::wrap);
   }
 
-  @NotNull
   public FieldPredicate field() {
     return new FieldPredicate(this::field, this::className);
   }
 
-  @NotNull
   public Stream<MethodAccessor> method(Predicate<Method> predicate) {
     Stream<Method> stream = get(Class::getDeclaredMethods);
     return stream.filter(predicate).map(Accessors::wrap);
   }
 
-  @NotNull
   public MethodPredicate method() {
     return new MethodPredicate(this::method, this::className);
   }

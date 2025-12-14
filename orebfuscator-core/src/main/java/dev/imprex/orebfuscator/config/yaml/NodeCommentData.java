@@ -4,9 +4,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import org.yaml.snakeyaml.comments.CommentLine;
 import org.yaml.snakeyaml.nodes.MappingNode;
 import org.yaml.snakeyaml.nodes.Node;
@@ -14,14 +13,15 @@ import org.yaml.snakeyaml.nodes.NodeTuple;
 import org.yaml.snakeyaml.nodes.ScalarNode;
 import org.yaml.snakeyaml.nodes.SequenceNode;
 
+@NullMarked
 class NodeCommentData {
 
   private final List<CommentLine> blockComments;
   private final List<CommentLine> inLineComments;
-  private final List<CommentLine> endComments;
+  private final @Nullable List<CommentLine> endComments;
 
   private final Map<String, NodeCommentData> children = new HashMap<>();
-  private final Map<Object, List<CommentLine>> sequenceValueComments;
+  private final @Nullable Map<Object, List<CommentLine>> sequenceValueComments;
 
   public NodeCommentData() {
     this.blockComments = Collections.emptyList();
@@ -30,7 +30,7 @@ class NodeCommentData {
     this.sequenceValueComments = null;
   }
 
-  public NodeCommentData(@NotNull NodeTuple nodeTuple) {
+  public NodeCommentData(NodeTuple nodeTuple) {
     Node keyNode = nodeTuple.getKeyNode();
     Node valueNode = nodeTuple.getValueNode();
 
@@ -60,23 +60,23 @@ class NodeCommentData {
     }
   }
 
-  public NodeCommentData(@NotNull MappingNode node) {
+  public NodeCommentData(MappingNode node) {
     this.blockComments = node.getBlockComments();
     this.inLineComments = node.getInLineComments();
     this.endComments = node.getEndComments();
     this.sequenceValueComments = null;
   }
 
-  public void addChild(@NotNull String key, @NotNull NodeCommentData commentData) {
+  public void addChild(String key, NodeCommentData commentData) {
     this.children.put(key, commentData);
   }
 
   @Nullable
-  public NodeCommentData getChild(@NotNull String key) {
+  public NodeCommentData getChild(String key) {
     return this.children.get(key);
   }
 
-  public void apply(@NotNull NodeTuple nodeTuple) {
+  public void apply(NodeTuple nodeTuple) {
     Node keyNode = nodeTuple.getKeyNode();
     Node valueNode = nodeTuple.getValueNode();
 
@@ -103,7 +103,7 @@ class NodeCommentData {
     }
   }
 
-  public void apply(@NotNull MappingNode node) {
+  public void apply(MappingNode node) {
     node.setBlockComments(this.blockComments);
     node.setInLineComments(this.inLineComments);
     node.setEndComments(this.endComments);

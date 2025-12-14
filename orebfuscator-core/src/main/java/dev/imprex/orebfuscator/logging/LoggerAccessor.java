@@ -1,10 +1,11 @@
 package dev.imprex.orebfuscator.logging;
 
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
+@NullMarked
 public interface LoggerAccessor {
 
-  void log(@NotNull LogLevel level, @NotNull String message, @Nullable Throwable throwable);
+  void log(LogLevel level, String message, @Nullable Throwable throwable);
 
 }

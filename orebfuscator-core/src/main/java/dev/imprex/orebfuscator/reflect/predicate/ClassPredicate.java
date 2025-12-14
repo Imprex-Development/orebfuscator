@@ -6,70 +6,55 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public interface ClassPredicate extends Predicate<Class<?>> {
 
-  boolean test(@NotNull Class<?> type);
+  boolean test(Class<?> type);
 
-  @NotNull
   String requirement();
 
-  class Builder<TParent> {
+  record Builder<TParent>(Function<ClassPredicate, TParent> returnFunction) {
 
-    private final Function<ClassPredicate, TParent> returnFunction;
-
-    public Builder(Function<ClassPredicate, TParent> returnFunction) {
-      this.returnFunction = returnFunction;
-    }
-
-    @NotNull
-    public TParent is(@NotNull Class<?> type) {
+    public TParent is(Class<?> type) {
       return returnFunction.apply(new IsClassPredicate(type));
     }
 
-    @NotNull
-    public TParent superOf(@NotNull Class<?> type) {
+    public TParent superOf(Class<?> type) {
       return returnFunction.apply(new SuperClassPredicate(type));
     }
 
-    @NotNull
-    public TParent subOf(@NotNull Class<?> type) {
+    public TParent subOf(Class<?> type) {
       return returnFunction.apply(new SubClassPredicate(type));
     }
 
-    @NotNull
-    public TParent any(@NotNull Set<Class<?>> types) {
+    public TParent any(Set<Class<?>> types) {
       return returnFunction.apply(new AnyClassPredicate(types));
     }
 
-    @NotNull
-    public TParent any(@NotNull Class<?>... types) {
+    public TParent any(Class<?>... types) {
       return any(Set.of(types));
     }
 
-    @NotNull
-    public TParent regex(@NotNull Pattern pattern) {
+    public TParent regex(Pattern pattern) {
       return returnFunction.apply(new RegexClassPredicate(pattern));
     }
   }
 
-  class IsClassPredicate implements ClassPredicate {
+  record IsClassPredicate(Class<?> expected) implements ClassPredicate {
 
-    private final @NotNull Class<?> expected;
-
-    public IsClassPredicate(@NotNull Class<?> expected) {
-      this.expected = Objects.requireNonNull(expected);
+    public IsClassPredicate {
+      Objects.requireNonNull(expected);
     }
 
     @Override
-    public boolean test(@NotNull Class<?> type) {
+    public boolean test(Class<?> type) {
       Objects.requireNonNull(type);
 
       return this.expected.equals(type);
     }
 
-    @NotNull
     @Override
     public String requirement() {
       return String.format("{is %s}", this.expected.getTypeName());
@@ -81,22 +66,19 @@ public interface ClassPredicate extends Predicate<Class<?>> {
     }
   }
 
-  class SuperClassPredicate implements ClassPredicate {
+  record SuperClassPredicate(Class<?> expected) implements ClassPredicate {
 
-    private final @NotNull Class<?> expected;
-
-    public SuperClassPredicate(@NotNull Class<?> expected) {
-      this.expected = Objects.requireNonNull(expected);
+    public SuperClassPredicate {
+      Objects.requireNonNull(expected);
     }
 
     @Override
-    public boolean test(@NotNull Class<?> type) {
+    public boolean test(Class<?> type) {
       Objects.requireNonNull(type);
 
       return type.isAssignableFrom(this.expected);
     }
 
-    @NotNull
     @Override
     public String requirement() {
       return String.format("{super-class-of %s}", this.expected.getTypeName());
@@ -108,22 +90,19 @@ public interface ClassPredicate extends Predicate<Class<?>> {
     }
   }
 
-  class SubClassPredicate implements ClassPredicate {
+  record SubClassPredicate(Class<?> expected) implements ClassPredicate {
 
-    private final @NotNull Class<?> expected;
-
-    public SubClassPredicate(@NotNull Class<?> expected) {
-      this.expected = Objects.requireNonNull(expected);
+    public SubClassPredicate {
+      Objects.requireNonNull(expected);
     }
 
     @Override
-    public boolean test(@NotNull Class<?> type) {
+    public boolean test(Class<?> type) {
       Objects.requireNonNull(type);
 
       return this.expected.isAssignableFrom(type);
     }
 
-    @NotNull
     @Override
     public String requirement() {
       return String.format("{sub-class-of %s}", this.expected.getTypeName());
@@ -135,22 +114,19 @@ public interface ClassPredicate extends Predicate<Class<?>> {
     }
   }
 
-  class AnyClassPredicate implements ClassPredicate {
+  record AnyClassPredicate(Set<Class<?>> expected) implements ClassPredicate {
 
-    private final @NotNull Set<Class<?>> expected;
-
-    public AnyClassPredicate(@NotNull Set<Class<?>> expected) {
-      this.expected = Objects.requireNonNull(expected);
+    public AnyClassPredicate {
+      Objects.requireNonNull(expected);
     }
 
     @Override
-    public boolean test(@NotNull Class<?> type) {
+    public boolean test(Class<?> type) {
       Objects.requireNonNull(type);
 
       return this.expected.contains(type);
     }
 
-    @NotNull
     @Override
     public String requirement() {
       return String.format("{any %s}",
@@ -163,22 +139,19 @@ public interface ClassPredicate extends Predicate<Class<?>> {
     }
   }
 
-  class RegexClassPredicate implements ClassPredicate {
+  record RegexClassPredicate(Pattern expected) implements ClassPredicate {
 
-    private final @NotNull Pattern expected;
-
-    public RegexClassPredicate(@NotNull Pattern expected) {
-      this.expected = Objects.requireNonNull(expected);
+    public RegexClassPredicate {
+      Objects.requireNonNull(expected);
     }
 
     @Override
-    public boolean test(@NotNull Class<?> type) {
+    public boolean test(Class<?> type) {
       Objects.requireNonNull(type);
 
       return this.expected.matcher(type.getTypeName()).matches();
     }
 
-    @NotNull
     @Override
     public String requirement() {
       return String.format("{regex %s}", this.expected);

@@ -3,7 +3,9 @@ package dev.imprex.orebfuscator.config;
 import dev.imprex.orebfuscator.config.api.GeneralConfig;
 import dev.imprex.orebfuscator.config.context.ConfigParsingContext;
 import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public class OrebfuscatorGeneralConfig implements GeneralConfig {
 
   private boolean checkForUpdates = true;

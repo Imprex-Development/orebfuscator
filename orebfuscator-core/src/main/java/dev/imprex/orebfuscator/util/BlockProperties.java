@@ -4,7 +4,10 @@ import java.util.HashSet;
 import java.util.Objects;
 import java.util.Set;
 import com.google.common.collect.ImmutableList;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
+@NullMarked
 public class BlockProperties {
 
   public static Builder builder(NamespacedKey key) {
@@ -17,6 +20,7 @@ public class BlockProperties {
 
   private BlockProperties(Builder builder) {
     this.key = builder.key;
+    assert builder.defaultBlockState != null;
     this.defaultBlockState = builder.defaultBlockState;
     this.blockStates = ImmutableList.copyOf(builder.blockStates);
   }
@@ -59,11 +63,11 @@ public class BlockProperties {
 
     private final NamespacedKey key;
 
-    private BlockStateProperties defaultBlockState;
+    private @Nullable BlockStateProperties defaultBlockState;
     private final Set<BlockStateProperties> blockStates = new HashSet<>();
 
     private Builder(NamespacedKey key) {
-      this.key = key;
+      this.key = Objects.requireNonNull(key);
     }
 
     public Builder withBlockState(BlockStateProperties blockState) {
@@ -76,7 +80,7 @@ public class BlockProperties {
         // check for multiple default blocks
         if (this.defaultBlockState != null) {
           throw new IllegalStateException(
-              String.format("multiple default block states for block: %s", blockState.getId(), key));
+              String.format("multiple default block states for block: %s", key));
         }
 
         this.defaultBlockState = blockState;
@@ -88,7 +92,7 @@ public class BlockProperties {
     public BlockProperties build() {
       Objects.requireNonNull(this.defaultBlockState, "missing default block state for block: " + this.key);
 
-      if (this.blockStates.size() == 0) {
+      if (this.blockStates.isEmpty()) {
         throw new IllegalStateException("missing block states for block: " + this.key);
       }
 
