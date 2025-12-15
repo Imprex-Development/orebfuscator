@@ -7,6 +7,7 @@ import java.util.function.Consumer;
 /**
  * Simple cache implementation that removes the oldest element once a certain size is reached
  */
+// TODO: nullability
 public class SimpleCache<K, V> extends LinkedHashMap<K, V> {
 
   private final int maximumSize;

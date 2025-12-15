@@ -1,9 +1,9 @@
 package dev.imprex.orebfuscator.interop;
 
-import dev.imprex.orebfuscator.util.BlockProperties;
-import dev.imprex.orebfuscator.util.BlockTag;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import dev.imprex.orebfuscator.util.BlockProperties;
+import dev.imprex.orebfuscator.util.BlockTag;
 
 @NullMarked
 public interface RegistryAccessor {
@@ -13,6 +13,8 @@ public interface RegistryAccessor {
   int getMaxBitsPerBlockState();
 
   boolean isAir(int blockId);
+
+  boolean isLava(int blockId);
 
   boolean isOccluding(int blockId);
 

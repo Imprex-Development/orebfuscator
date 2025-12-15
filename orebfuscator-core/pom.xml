@@ -53,12 +53,12 @@
       <version>${dependency.joml.version}</version>
       <scope>provided</scope>
     </dependency>
-    <!--<dependency>
+    <dependency>
       <groupId>org.lz4</groupId>
       <artifactId>lz4-java</artifactId>
       <version>${dependency.lz4.version}</version>
-      <scope>compile</scope>
-    </dependency>-->
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
 
   <build>

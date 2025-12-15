@@ -13,6 +13,11 @@ public class MathUtil {
     return value;
   }
 
+  public static int floor(double value) {
+    int i = (int) value;
+    return value < (double) i ? i - 1 : i;
+  }
+
   public static int clamp(int value, int min, int max) {
     return Math.max(min, Math.min(max, value));
   }

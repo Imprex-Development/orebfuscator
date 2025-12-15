@@ -438,15 +438,15 @@ public class OrebfuscatorConfig implements Config {
     }
 
     @Override
-    public int nextRandomObfuscationBlock(int y) {
+    public int nextRandomObfuscationBlock(RandomGenerator random, int y) {
       return this.obfuscationRandoms != null
-          ? this.obfuscationRandoms[y - this.world.getMinBuildHeight()].next() : 0;
+          ? this.obfuscationRandoms[y - this.world.getMinBuildHeight()].next(random) : 0;
     }
 
     @Override
-    public int nextRandomProximityBlock(int y) {
+    public int nextRandomProximityBlock(RandomGenerator random, int y) {
       return this.proximityRandoms != null
-          ? this.proximityRandoms[y - this.world.getMinBuildHeight()].next() : 0;
+          ? this.proximityRandoms[y - this.world.getMinBuildHeight()].next(random) : 0;
     }
   }
 }

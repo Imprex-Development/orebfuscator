@@ -1,5 +1,6 @@
 package dev.imprex.orebfuscator.chunk;
 
+import dev.imprex.orebfuscator.obfuscation.ObfuscationRequest;
 import java.util.Arrays;
 import dev.imprex.orebfuscator.interop.ChunkPacketAccessor;
 import dev.imprex.orebfuscator.interop.WorldAccessor;
@@ -20,13 +21,14 @@ public class Chunk implements AutoCloseable {
   private final ByteBuf inputBuffer;
   private final ByteBuf outputBuffer;
 
-  Chunk(ChunkFactory factory, ChunkPacketAccessor packet) {
+  Chunk(ChunkFactory factory, ObfuscationRequest request) {
     this.factory = factory;
 
+    final var packet = request.packet();
     this.chunkX = packet.chunkX();
     this.chunkZ = packet.chunkZ();
 
-    this.worldAccessor = packet.world();
+    this.worldAccessor = request.world();
     this.sections = new ChunkSectionHolder[this.worldAccessor.getSectionCount()];
 
     byte[] data = packet.data();
@@ -83,7 +85,7 @@ public class Chunk implements AutoCloseable {
   }
 
   @Override
-  public void close() throws Exception {
+  public void close() {
     this.inputBuffer.release();
     this.outputBuffer.release();
   }

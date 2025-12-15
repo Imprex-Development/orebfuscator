@@ -1,8 +1,8 @@
 package dev.imprex.orebfuscator.chunk;
 
-import dev.imprex.orebfuscator.interop.ChunkPacketAccessor;
 import dev.imprex.orebfuscator.interop.RegistryAccessor;
 import dev.imprex.orebfuscator.interop.ServerAccessor;
+import dev.imprex.orebfuscator.obfuscation.ObfuscationRequest;
 
 public class ChunkFactory {
 
@@ -22,7 +22,7 @@ public class ChunkFactory {
     return versionFlags;
   }
 
-  public Chunk fromPacket(ChunkPacketAccessor packet) {
-    return new Chunk(this, packet);
+  public Chunk fromPacket(ObfuscationRequest request) {
+    return new Chunk(this, request);
   }
 }

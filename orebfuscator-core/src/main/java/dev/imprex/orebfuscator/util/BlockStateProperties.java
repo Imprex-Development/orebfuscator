@@ -12,6 +12,7 @@ public class BlockStateProperties {
   private final int id;
 
   private final boolean isAir;
+  private final boolean isLava;
   private final boolean isOccluding;
   private final boolean isBlockEntity;
   private final boolean isDefaultState;
@@ -19,6 +20,7 @@ public class BlockStateProperties {
   private BlockStateProperties(Builder builder) {
     this.id = builder.id;
     this.isAir = builder.isAir;
+    this.isLava = builder.isLava;
     this.isOccluding = builder.isOccluding;
     this.isBlockEntity = builder.isBlockEntity;
     this.isDefaultState = builder.isDefaultState;
@@ -30,6 +32,10 @@ public class BlockStateProperties {
 
   public boolean isAir() {
     return isAir;
+  }
+
+  public boolean isLava() {
+    return isLava;
   }
 
   public boolean isOccluding() {
@@ -71,6 +77,7 @@ public class BlockStateProperties {
     private final int id;
 
     private boolean isAir;
+    private boolean isLava;
     private boolean isOccluding;
     private boolean isBlockEntity;
     private boolean isDefaultState;
@@ -81,6 +88,11 @@ public class BlockStateProperties {
 
     public Builder withIsAir(boolean isAir) {
       this.isAir = isAir;
+      return this;
+    }
+
+    public Builder withIsLava(boolean isLava) {
+      this.isLava = isLava;
       return this;
     }
 

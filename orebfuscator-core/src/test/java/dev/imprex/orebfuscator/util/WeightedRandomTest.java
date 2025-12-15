@@ -14,7 +14,7 @@ import org.junit.jupiter.api.Test;
 public class WeightedRandomTest {
 
   private static final long SEED = 1337;
-  private static final int SAMPLES = 250_000;
+  private static final int SAMPLES = 1_000_000;
   private static final double SIGMA = 2.0;
 
   private WeightedRandom createWeightedRandom(Map<Integer, Double> weights) {

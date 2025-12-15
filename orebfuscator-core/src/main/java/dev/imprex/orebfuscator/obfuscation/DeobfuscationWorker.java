@@ -1,0 +1,140 @@
+package dev.imprex.orebfuscator.obfuscation;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Objects;
+import java.util.Set;
+import org.jspecify.annotations.Nullable;
+import org.jspecify.annotations.NullMarked;
+import dev.imprex.orebfuscator.cache.ObfuscationCache;
+import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
+import dev.imprex.orebfuscator.config.api.BlockFlags;
+import dev.imprex.orebfuscator.config.api.ObfuscationConfig;
+import dev.imprex.orebfuscator.interop.ChunkAccessor;
+import dev.imprex.orebfuscator.interop.OrebfuscatorCore;
+import dev.imprex.orebfuscator.interop.WorldAccessor;
+import dev.imprex.orebfuscator.statistics.ObfuscationStatistics;
+import dev.imprex.orebfuscator.util.BlockPos;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
+
+@NullMarked
+public class DeobfuscationWorker {
+
+  private static List<BlockPos> precomputeOffsets(int radius) {
+    List<Map.Entry<BlockPos, Integer>> offset = new ArrayList<>();
+
+    for (int dx = -radius; dx <= radius; dx++) {
+      for (int dy = -radius; dy <= radius; dy++) {
+        for (int dz = -radius; dz <= radius; dz++) {
+          int distance = Math.abs(dx) + Math.abs(dy) + Math.abs(dz);
+          if (distance <= radius) {
+            offset.add(Map.entry(new BlockPos(dx, dy, dz), distance));
+          }
+        }
+      }
+    }
+
+    offset
+        .sort(Comparator.comparingInt((Map.Entry<BlockPos, Integer> e) -> e.getValue()).thenComparing(Entry::getKey));
+
+    return offset.stream().map(Map.Entry::getKey).toList();
+  }
+
+  private final OrebfuscatorConfig config;
+  private final ObfuscationCache cache;
+  private final ObfuscationStatistics statistics;
+
+  private final List<BlockPos> offsets;
+
+  public DeobfuscationWorker(OrebfuscatorCore orebfuscator) {
+    this.config = orebfuscator.config();
+    this.cache = orebfuscator.cache();
+    this.statistics = orebfuscator.statistics().obfuscation;
+
+    this.offsets = precomputeOffsets(orebfuscator.config().general().updateRadius());
+  }
+
+  public void deobfuscate(WorldAccessor world, @Nullable BlockPos block) {
+    Objects.requireNonNull(world);
+    if (block == null) {
+      return;
+    }
+
+    deobfuscate(world, List.of(block));
+  }
+
+  public void deobfuscate(WorldAccessor world, @Nullable List<BlockPos> blocks) {
+    Objects.requireNonNull(world);
+    if (blocks == null || blocks.isEmpty()) {
+      return;
+    }
+
+    ObfuscationConfig obfuscationConfig = world.config().obfuscation();
+    if (obfuscationConfig == null || !obfuscationConfig.isEnabled()) {
+      return;
+    }
+
+    var timer = statistics.debofuscation.start();
+    try (var processor = new RecursiveProcessor(world)) {
+      for (BlockPos position : blocks) {
+        processor.processPosition(position);
+      }
+    } finally {
+      timer.stop();
+    }
+  }
+
+  // TODO: there is nothing recusive about this, maybe even remove class and do a single method
+  private class RecursiveProcessor implements AutoCloseable {
+
+    private final Set<BlockPos> updatedBlocks = new HashSet<>();
+    private final Set<ChunkCacheKey> invalidChunks = new HashSet<>();
+    private final Map<Long, ChunkAccessor> chunks = new HashMap<>();
+
+    private final WorldAccessor world;
+    private final BlockFlags blockFlags;
+
+    public RecursiveProcessor(WorldAccessor world) {
+      this.world = world;
+      this.blockFlags = world.config().blockFlags();
+    }
+
+    public void processPosition(BlockPos position) {
+      Objects.requireNonNull(position);
+
+      for (var offset : offsets) {
+        updateBlock(position.add(offset));
+      }
+    }
+
+    private void updateBlock(BlockPos position) {
+      int chunkX = position.x() >> 4;
+      int chunkZ = position.z() >> 4;
+      long key = ChunkAccessor.chunkCoordsToLong(chunkX, chunkZ);
+      var chunk = chunks.computeIfAbsent(key, k -> world.getChunk(chunkX, chunkZ));
+      if (chunk != null) {
+        int blockState = chunk.getBlockState(position.x(), position.y(), position.z());
+        if (BlockFlags.isObfuscateBitSet(blockFlags.flags(blockState)) && updatedBlocks.add(position)) {
+
+          // invalidate cache if enabled
+          if (config.cache().enabled()) {
+            ChunkCacheKey chunkPosition = new ChunkCacheKey(world, position);
+            if (this.invalidChunks.add(chunkPosition)) {
+              cache.invalidate(chunkPosition);
+            }
+          }
+        }
+      }
+    }
+
+    @Override
+    public void close() {
+      world.sendBlockUpdates(this.updatedBlocks);
+    }
+  }
+}

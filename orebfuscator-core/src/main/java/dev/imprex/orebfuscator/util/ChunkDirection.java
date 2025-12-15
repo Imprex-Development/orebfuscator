@@ -1,5 +1,7 @@
 package dev.imprex.orebfuscator.util;
 
+import java.util.Objects;
+import dev.imprex.orebfuscator.interop.ChunkPacketAccessor;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -23,6 +25,27 @@ public enum ChunkDirection {
     return offsetZ;
   }
 
+  public static ChunkDirection fromPosition(ChunkPacketAccessor packetAccessor, int targetX, int targetZ) {
+    Objects.requireNonNull(packetAccessor);
+
+    int offsetX = (targetX >> 4) - packetAccessor.chunkX();
+    int offsetZ = (targetZ >> 4) - packetAccessor.chunkZ();
+
+    if (offsetX == 1 && offsetZ == 0) {
+      return NORTH;
+    } else if (offsetX == 0 && offsetZ == 1) {
+      return EAST;
+    } else if (offsetX == -1 && offsetZ == 0) {
+      return SOUTH;
+    } else if (offsetX == 0 && offsetZ == -1) {
+      return WEST;
+    }
+
+    throw new IllegalArgumentException(String.format("invalid offset (chunkX: %d, chunkZ: %d, x: %d, z: %d)",
+        packetAccessor.chunkX(), packetAccessor.chunkZ(), targetX, targetZ));
+  }
+
+  @Deprecated
   public static ChunkDirection fromPosition(ChunkCacheKey key, int targetX, int targetZ) {
     int offsetX = (targetX >> 4) - key.x();
     int offsetZ = (targetZ >> 4) - key.z();
