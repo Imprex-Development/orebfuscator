@@ -8,14 +8,14 @@ import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import dev.imprex.orebfuscator.util.ChunkDirection;
 import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.compatibility.CompatibilityLayer;
-import net.imprex.orebfuscator.nms.ReadOnlyChunk;
+import dev.imprex.orebfuscator.interop.ChunkAccessor;
 
 public abstract class AbstractPaperCompatibilityLayer implements CompatibilityLayer {
 
   @Override
-  public CompletableFuture<ReadOnlyChunk[]> getNeighboringChunks(World world, ChunkCacheKey key) {
+  public CompletableFuture<ChunkAccessor[]> getNeighboringChunks(World world, ChunkCacheKey key) {
     CompletableFuture<?>[] futures = new CompletableFuture<?>[4];
-    ReadOnlyChunk[] neighboringChunks = new ReadOnlyChunk[4];
+    ChunkAccessor[] neighboringChunks = new ChunkAccessor[4];
 
     for (ChunkDirection direction : ChunkDirection.values()) {
       int chunkX = key.x() + direction.getOffsetX();
@@ -23,7 +23,7 @@ public abstract class AbstractPaperCompatibilityLayer implements CompatibilityLa
       int index = direction.ordinal();
 
       futures[index] = world.getChunkAtAsync(chunkX, chunkZ).thenAccept(chunk -> {
-        neighboringChunks[index] = OrebfuscatorNms.getReadOnlyChunk(world, chunkX, chunkZ);
+        neighboringChunks[index] = OrebfuscatorNms.getChunkAccessor(world, chunkX, chunkZ);
       });
     }
 

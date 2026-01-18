@@ -3,13 +3,14 @@ package net.imprex.orebfuscator;
 import java.lang.reflect.Constructor;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
+import org.jspecify.annotations.Nullable;
 import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.config.api.Config;
+import dev.imprex.orebfuscator.interop.ChunkAccessor;
 import dev.imprex.orebfuscator.interop.RegistryAccessor;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.nms.NmsManager;
-import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 import net.imprex.orebfuscator.util.ServerVersion;
 
@@ -63,6 +64,10 @@ public class OrebfuscatorNms {
     return instance.isAir(blockId);
   }
 
+  public static boolean isLava(int blockId) {
+    return instance.isLava(blockId);
+  }
+
   public static boolean isOccluding(int blockId) {
     return instance.isOccluding(blockId);
   }
@@ -71,8 +76,12 @@ public class OrebfuscatorNms {
     return instance.isBlockEntity(blockId);
   }
 
-  public static ReadOnlyChunk getReadOnlyChunk(World world, int chunkX, int chunkZ) {
-    return instance.getReadOnlyChunk(world, chunkX, chunkZ);
+  public static ChunkAccessor getChunkAccessor(World world, int chunkX, int chunkZ) {
+    return instance.getChunkAccessor(world, chunkX, chunkZ);
+  }
+
+  public static @Nullable ChunkAccessor tryGetChunkAccessor(World world, int chunkX, int chunkZ) {
+    return instance.tryGetChunkAccessor(world, chunkX, chunkZ);
   }
 
   public static int getBlockState(World world, BlockPos position) {

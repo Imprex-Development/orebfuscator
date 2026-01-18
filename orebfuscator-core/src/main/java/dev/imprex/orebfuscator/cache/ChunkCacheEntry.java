@@ -20,10 +20,8 @@ import net.jpountz.lz4.LZ4BlockOutputStream;
 public record ChunkCacheEntry(ChunkCacheKey key, byte[] compressedData) {
 
   public static ChunkCacheEntry create(CacheRequest request, ObfuscationResponse response) {
-    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-    // TODO: move BAOS and return into try block
-
-    try (LZ4BlockOutputStream lz4BlockOutputStream = new LZ4BlockOutputStream(byteArrayOutputStream);
+    try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        LZ4BlockOutputStream lz4BlockOutputStream = new LZ4BlockOutputStream(byteArrayOutputStream);
         DataOutputStream dataOutputStream = new DataOutputStream(lz4BlockOutputStream)) {
 
       byteArrayOutputStream.write(request.hash());
@@ -36,8 +34,7 @@ public record ChunkCacheEntry(ChunkCacheKey key, byte[] compressedData) {
       dataOutputStream.writeInt(proximityBlocks.size());
       for (ProximityBlock blockPosition : proximityBlocks) {
         dataOutputStream.writeInt(blockPosition.blockPos().toSectionPos());
-        // TODO save as byte: flags
-        dataOutputStream.writeBoolean(blockPosition.lavaObfuscated());
+        dataOutputStream.writeByte(blockPosition.flags());
       }
 
       Collection<BlockPos> blockEntities = response.blockEntities();
@@ -45,11 +42,11 @@ public record ChunkCacheEntry(ChunkCacheKey key, byte[] compressedData) {
       for (BlockPos blockPosition : blockEntities) {
         dataOutputStream.writeInt(blockPosition.toSectionPos());
       }
+
+      return new ChunkCacheEntry(request.cacheKey(), byteArrayOutputStream.toByteArray());
     } catch (Exception e) {
       throw new ChunkCacheException("Unable to compress chunk: " + request.cacheKey(), e);
     }
-
-    return new ChunkCacheEntry(request.cacheKey(), byteArrayOutputStream.toByteArray());
   }
 
   public int estimatedSize() {
@@ -62,7 +59,7 @@ public record ChunkCacheEntry(ChunkCacheKey key, byte[] compressedData) {
 
   public ObfuscationResponse toResult() {
     try (ByteArrayInputStream byteArrayInputStream = new ByteArrayInputStream(compressedData);
-        LZ4BlockInputStream lz4BlockInputStream = new LZ4BlockInputStream(byteArrayInputStream);
+        LZ4BlockInputStream lz4BlockInputStream = LZ4BlockInputStream.newBuilder().build(byteArrayInputStream);
         DataInputStream dataInputStream = new DataInputStream(lz4BlockInputStream)) {
 
       byteArrayInputStream.skip(CacheRequest.HASH_LENGTH);
@@ -76,8 +73,8 @@ public record ChunkCacheEntry(ChunkCacheKey key, byte[] compressedData) {
       var proximityBlocks = new ArrayList<ProximityBlock>();
       for (int i = dataInputStream.readInt(); i > 0; i--) {
         var blockPos = BlockPos.fromSectionPos(x, z, dataInputStream.readInt());
-        var lavaObfuscated = dataInputStream.readBoolean();
-        proximityBlocks.add(new ProximityBlock(blockPos, lavaObfuscated));
+        var flags = dataInputStream.readByte();
+        proximityBlocks.add(new ProximityBlock(blockPos, flags));
       }
 
       var blockEntities = new HashSet<BlockPos>();

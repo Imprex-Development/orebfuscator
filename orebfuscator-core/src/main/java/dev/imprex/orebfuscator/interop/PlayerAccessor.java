@@ -1,10 +1,11 @@
 package dev.imprex.orebfuscator.interop;
 
+import org.jspecify.annotations.NullMarked;
 import dev.imprex.orebfuscator.player.OrebfuscatorPlayer;
 import dev.imprex.orebfuscator.util.BlockPos;
 import dev.imprex.orebfuscator.util.EntityPose;
 
-// TODO: nullability
+@NullMarked
 public interface PlayerAccessor {
 
   OrebfuscatorPlayer orebfuscatorPlayer();

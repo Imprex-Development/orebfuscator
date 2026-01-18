@@ -98,7 +98,7 @@
       <scope>compile</scope>
     </dependency>
     <dependency>
-      <groupId>org.lz4</groupId>
+      <groupId>at.yawk.lz4</groupId>
       <artifactId>lz4-java</artifactId>
       <version>${dependency.lz4.version}</version>
       <scope>compile</scope>
@@ -136,7 +136,7 @@
           <artifactId>joml</artifactId>
         </exclusion>
         <exclusion>
-          <groupId>org.lz4</groupId>
+          <groupId>at.yawk.lz4</groupId>
           <artifactId>lz4-java</artifactId>
         </exclusion>
       </exclusions>

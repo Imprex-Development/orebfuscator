@@ -4,14 +4,12 @@ import java.util.BitSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
-
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.nbt.NbtBase;
 import com.comphenix.protocol.wrappers.nbt.NbtCompound;
-
 import dev.imprex.orebfuscator.interop.ChunkPacketAccessor;
-import dev.imprex.orebfuscator.interop.WorldAccessor;
+import dev.imprex.orebfuscator.obfuscation.ObfuscationResponse;
 import dev.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 import net.imprex.orebfuscator.util.WrappedClientboundLevelChunkPacketData;
@@ -21,8 +19,6 @@ public class BukkitChunkPacketAccessor implements ChunkPacketAccessor {
   private static final boolean HAS_CLIENTBOUND_LEVEL_CHUNK_PACKET_DATA = MinecraftVersion.isAtOrAbove("1.18");
   private static final boolean HAS_HEIGHT_BITMASK = MinecraftVersion.isBelow("1.18");
   private static final boolean HAS_VARINT_BITMASK = MinecraftVersion.isBelow("1.17");
-
-  public final BukkitWorldAccessor worldAccessor;
 
   private final int chunkX;
   private final int chunkZ;
@@ -35,7 +31,6 @@ public class BukkitChunkPacketAccessor implements ChunkPacketAccessor {
 
   public BukkitChunkPacketAccessor(PacketContainer packet, BukkitWorldAccessor worldAccessor) {
     this.packet = packet;
-    this.worldAccessor = worldAccessor;
 
     StructureModifier<Integer> packetInteger = packet.getIntegers();
     this.chunkX = packetInteger.read(0);
@@ -62,11 +57,6 @@ public class BukkitChunkPacketAccessor implements ChunkPacketAccessor {
   }
 
   @Override
-  public WorldAccessor world() {
-    return this.worldAccessor;
-  }
-
-  @Override
   public int chunkX() {
     return this.chunkX;
   }
@@ -87,26 +77,21 @@ public class BukkitChunkPacketAccessor implements ChunkPacketAccessor {
   }
 
   @Override
-  public void setData(byte[] data) {
+  public void update(ObfuscationResponse response) {
+    Predicate<BlockPos> blockEntityPredicate = relativePostion ->
+      response.blockEntities().contains(relativePostion.add(chunkX << 4, 0, chunkZ << 4));
+
     if (this.packetData != null) {
-      this.packetData.setBuffer(data);
+      this.packetData.setBuffer(response.data());
+      this.packetData.removeBlockEntityIf(blockEntityPredicate);
     } else {
-      this.packet.getByteArrays().write(0, data);
+      this.packet.getByteArrays().write(0, response.data());
+      removeTileEntitiesFromPacket(blockEntityPredicate);
     }
   }
 
-  @Override
-  public void filterBlockEntities(Predicate<BlockPos> predicate) {
-    if (this.packetData != null) {
-      this.packetData.removeBlockEntityIf(relativePostion ->
-          predicate.test(relativePostion.add(chunkX << 4, 0, chunkZ << 4)));
-    } else {
-      removeTileEntitiesFromPacket(this.packet, predicate);
-    }
-  }
-
-  private void removeTileEntitiesFromPacket(PacketContainer packet, Predicate<BlockPos> predicate) {
-    StructureModifier<List<NbtBase<?>>> packetNbtList = packet.getListNbtModifier();
+  private void removeTileEntitiesFromPacket(Predicate<BlockPos> predicate) {
+    StructureModifier<List<NbtBase<?>>> packetNbtList = this.packet.getListNbtModifier();
 
     List<NbtBase<?>> tileEntities = packetNbtList.read(0);
     this.removeTileEntities(tileEntities, predicate);

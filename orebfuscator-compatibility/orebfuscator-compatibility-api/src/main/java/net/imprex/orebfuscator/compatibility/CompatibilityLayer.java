@@ -5,7 +5,7 @@ import java.util.concurrent.CompletableFuture;
 import org.bukkit.World;
 
 import dev.imprex.orebfuscator.util.ChunkCacheKey;
-import net.imprex.orebfuscator.nms.ReadOnlyChunk;
+import dev.imprex.orebfuscator.interop.ChunkAccessor;
 
 public interface CompatibilityLayer {
 
@@ -13,5 +13,5 @@ public interface CompatibilityLayer {
 
   CompatibilityScheduler getScheduler();
 
-  CompletableFuture<ReadOnlyChunk[]> getNeighboringChunks(World world, ChunkCacheKey key);
+  CompletableFuture<ChunkAccessor[]> getNeighboringChunks(World world, ChunkCacheKey key);
 }

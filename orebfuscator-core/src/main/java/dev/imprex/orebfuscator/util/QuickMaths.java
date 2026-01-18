@@ -1,6 +1,6 @@
 package dev.imprex.orebfuscator.util;
 
-public class MathUtil {
+public class QuickMaths {
 
   public static int ceilToPowerOfTwo(int value) {
     value--;

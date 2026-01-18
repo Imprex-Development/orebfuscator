@@ -1,23 +1,24 @@
 package dev.imprex.orebfuscator.util;
 
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import dev.imprex.orebfuscator.interop.WorldAccessor;
 
-// TODO: nullability
+@NullMarked
 public record EntityPose(@Nullable WorldAccessor world, double x, double y, double z, float rotX, float rotY) {
 
   public static final EntityPose ZERO = new EntityPose(null, 0, 0, 0, 0, 0);
 
   public int blockX() {
-    return MathUtil.floor(this.x);
+    return QuickMaths.floor(this.x);
   }
 
   public int blockY() {
-    return MathUtil.floor(this.y);
+    return QuickMaths.floor(this.y);
   }
 
   public int blockZ() {
-    return MathUtil.floor(this.z);
+    return QuickMaths.floor(this.z);
   }
 
   public double distanceSquared(EntityPose other) {

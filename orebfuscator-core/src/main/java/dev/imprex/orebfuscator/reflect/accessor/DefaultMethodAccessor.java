@@ -3,7 +3,6 @@ package dev.imprex.orebfuscator.reflect.accessor;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.NullMarked;
 
 record DefaultMethodAccessor(@NonNull Method member, @NonNull MethodHandle methodHandle) implements
     MethodAccessor {

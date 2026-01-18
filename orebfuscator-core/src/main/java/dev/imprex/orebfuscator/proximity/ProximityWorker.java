@@ -19,12 +19,10 @@ import dev.imprex.orebfuscator.util.EntityPose;
 
 public class ProximityWorker {
 
-  private final OrebfuscatorCore orebfuscator;
   private final OrebfuscatorConfig config;
   private final RegistryAccessor registry;
 
   public ProximityWorker(OrebfuscatorCore orebfuscator) {
-    this.orebfuscator = orebfuscator;
     this.config = orebfuscator.config();
     this.registry = orebfuscator.getRegistry();
   }
@@ -97,6 +95,9 @@ public class ProximityWorker {
     
     double lavaDistance = player.lavaFogDistance();
     double lavaDistanceSquared = lavaDistance * lavaDistance;
+    
+    ProximityRayCaster rayCaster = proximityConfig.rayCastCheckEnabled()
+        ? new ProximityRayCaster(registry, world) : null;
 
     for (int chunkZ = minChunkZ; chunkZ <= maxChunkZ; chunkZ++) {
       for (int chunkX = minChunkX; chunkX <= maxChunkX; chunkX++) {
@@ -147,8 +148,7 @@ public class ProximityWorker {
             }
 
             // do ray cast check
-            if (proximityConfig.rayCastCheckEnabled() && !FastGazeUtil.doFastCheck(blockPos, eyeLocation, world,
-                orebfuscator.getRegistry(), proximityConfig.rayCastCheckOnlyCheckCenter())) {
+            if (rayCaster != null && !rayCaster.isVisible(eyeLocation, blockPos)) {
               continue;
             }
 

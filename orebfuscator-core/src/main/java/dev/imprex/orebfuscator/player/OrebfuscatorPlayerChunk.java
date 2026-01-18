@@ -3,8 +3,10 @@ package dev.imprex.orebfuscator.player;
 import java.util.Iterator;
 import java.util.List;
 import java.util.NoSuchElementException;
+import org.jspecify.annotations.NullMarked;
 import dev.imprex.orebfuscator.util.BlockPos;
 
+@NullMarked
 public class OrebfuscatorPlayerChunk {
 
   private static final int FLAG_DELETED = 0x80;

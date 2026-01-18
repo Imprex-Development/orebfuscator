@@ -9,7 +9,7 @@ import dev.imprex.orebfuscator.config.api.Config;
 import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import net.imprex.orebfuscator.compatibility.CompatibilityLayer;
 import net.imprex.orebfuscator.compatibility.CompatibilityScheduler;
-import net.imprex.orebfuscator.nms.ReadOnlyChunk;
+import dev.imprex.orebfuscator.interop.ChunkAccessor;
 
 public class BukkitCompatibilityLayer implements CompatibilityLayer {
 
@@ -34,7 +34,7 @@ public class BukkitCompatibilityLayer implements CompatibilityLayer {
   }
 
   @Override
-  public CompletableFuture<ReadOnlyChunk[]> getNeighboringChunks(World world, ChunkCacheKey key) {
+  public CompletableFuture<ChunkAccessor[]> getNeighboringChunks(World world, ChunkCacheKey key) {
     return this.chunkLoader.submitRequest(world, key);
   }
 }

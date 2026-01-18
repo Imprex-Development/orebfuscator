@@ -6,9 +6,10 @@ import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.DoubleFunction;
 import java.util.function.LongFunction;
+import org.jspecify.annotations.NullMarked;
 import com.google.common.util.concurrent.AtomicDouble;
 
-// TODO: nullability
+@NullMarked
 public class RollingAverage {
 
   private static final VarHandle BUFFER_HANDLE = MethodHandles.arrayElementVarHandle(double[].class);

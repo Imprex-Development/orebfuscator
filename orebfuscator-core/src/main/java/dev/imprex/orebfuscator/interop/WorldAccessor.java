@@ -1,11 +1,12 @@
 package dev.imprex.orebfuscator.interop;
 
 import java.util.concurrent.CompletableFuture;
+import org.jspecify.annotations.NullMarked;
 import dev.imprex.orebfuscator.config.api.WorldConfigBundle;
 import dev.imprex.orebfuscator.obfuscation.ObfuscationRequest;
 import dev.imprex.orebfuscator.util.BlockPos;
 
-// TODO: nullability
+@NullMarked
 public interface WorldAccessor {
 
   String getName();

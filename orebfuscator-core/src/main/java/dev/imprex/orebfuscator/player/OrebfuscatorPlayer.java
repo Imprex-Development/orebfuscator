@@ -5,6 +5,8 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicReference;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 import dev.imprex.orebfuscator.config.api.AdvancedConfig;
 import dev.imprex.orebfuscator.interop.ChunkAccessor;
 import dev.imprex.orebfuscator.interop.OrebfuscatorCore;
@@ -12,12 +14,13 @@ import dev.imprex.orebfuscator.interop.PlayerAccessor;
 import dev.imprex.orebfuscator.interop.WorldAccessor;
 import dev.imprex.orebfuscator.util.EntityPose;
 
+@NullMarked
 public class OrebfuscatorPlayer {
 
   private final AdvancedConfig config;
   private final PlayerAccessor player;
 
-  private final AtomicReference<WorldAccessor> world = new AtomicReference<>();
+  private final AtomicReference<@Nullable WorldAccessor> world = new AtomicReference<>();
   private final Map<Long, OrebfuscatorPlayerChunk> chunks = new ConcurrentHashMap<>();
 
   private volatile long latestUpdateTimestamp = System.currentTimeMillis();

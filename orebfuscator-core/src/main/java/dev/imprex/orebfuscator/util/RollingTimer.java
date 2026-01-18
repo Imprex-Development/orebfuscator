@@ -1,8 +1,9 @@
 package dev.imprex.orebfuscator.util;
 
 import java.util.concurrent.CompletionStage;
+import org.jspecify.annotations.NullMarked;
 
-// TODO: nullability
+@NullMarked
 public class RollingTimer extends RollingAverage {
 
   public RollingTimer(int capacity) {

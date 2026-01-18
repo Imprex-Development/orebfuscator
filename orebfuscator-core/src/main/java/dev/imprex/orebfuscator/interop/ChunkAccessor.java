@@ -1,5 +1,8 @@
 package dev.imprex.orebfuscator.interop;
 
+import org.jspecify.annotations.NullMarked;
+
+@NullMarked
 public interface ChunkAccessor {
 
   ChunkAccessor EMPTY = (x, y, z) -> 0;

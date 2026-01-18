@@ -2,10 +2,11 @@ package dev.imprex.orebfuscator.interop;
 
 import java.nio.file.Path;
 import java.util.List;
+import org.jspecify.annotations.NullMarked;
 import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.util.Version;
 
-// TODO: nullability
+@NullMarked
 public interface ServerAccessor {
 
   boolean isGameThread();

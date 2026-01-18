@@ -1,9 +1,8 @@
 package dev.imprex.orebfuscator.chunk;
 
-import dev.imprex.orebfuscator.obfuscation.ObfuscationRequest;
 import java.util.Arrays;
-import dev.imprex.orebfuscator.interop.ChunkPacketAccessor;
 import dev.imprex.orebfuscator.interop.WorldAccessor;
+import dev.imprex.orebfuscator.obfuscation.ObfuscationRequest;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.PooledByteBufAllocator;
 import io.netty.buffer.Unpooled;

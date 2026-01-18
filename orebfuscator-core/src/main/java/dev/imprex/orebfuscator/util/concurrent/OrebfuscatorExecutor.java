@@ -7,10 +7,12 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
+import org.jspecify.annotations.NullMarked;
 import dev.imprex.orebfuscator.interop.OrebfuscatorCore;
 import dev.imprex.orebfuscator.statistics.OrebfuscatorStatistics;
 
-// TODO: nullability, public schedule method
+// TODO: public schedule method
+@NullMarked
 public class OrebfuscatorExecutor implements Executor {
 
   private final ScheduledExecutorService scheduledExecutorService =

@@ -1,8 +1,9 @@
 package dev.imprex.orebfuscator.interop;
 
+import org.jspecify.annotations.NullMarked;
 import dev.imprex.orebfuscator.obfuscation.ObfuscationResponse;
 
-// TODO: nullability
+@NullMarked
 public interface ChunkPacketAccessor {
 
   int chunkX();

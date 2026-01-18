@@ -4,10 +4,11 @@ import java.lang.Thread.UncaughtExceptionHandler;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.random.RandomGenerator;
 import java.util.random.RandomGenerator.SplittableGenerator;
+import org.jspecify.annotations.NullMarked;
 import dev.imprex.orebfuscator.interop.OrebfuscatorCore;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 
-// TODO: nullability
+@NullMarked
 public class OrebfuscatorThread extends Thread implements UncaughtExceptionHandler {
 
   private static final SplittableGenerator ROOT_GENERATOR = SplittableGenerator.of("L64X128StarStarRandom");

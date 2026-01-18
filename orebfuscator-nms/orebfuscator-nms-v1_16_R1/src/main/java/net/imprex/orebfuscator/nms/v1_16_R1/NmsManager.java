@@ -18,13 +18,13 @@ import com.comphenix.protocol.wrappers.WrappedBlockData;
 import com.google.common.collect.ImmutableList;
 import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.config.api.Config;
+import dev.imprex.orebfuscator.interop.ChunkAccessor;
 import dev.imprex.orebfuscator.util.BlockPos;
 import dev.imprex.orebfuscator.util.BlockProperties;
 import dev.imprex.orebfuscator.util.BlockStateProperties;
 import dev.imprex.orebfuscator.util.BlockTag;
 import dev.imprex.orebfuscator.util.NamespacedKey;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
-import net.imprex.orebfuscator.nms.ReadOnlyChunk;
 import net.minecraft.server.v1_16_R1.Block;
 import net.minecraft.server.v1_16_R1.BlockAccessAir;
 import net.minecraft.server.v1_16_R1.BlockPosition;
@@ -83,6 +83,7 @@ public class NmsManager extends AbstractNmsManager {
       for (IBlockData blockState : possibleBlockStates) {
         BlockStateProperties properties = BlockStateProperties.builder(Block.getCombinedId(blockState))
             .withIsAir(blockState.isAir())
+            .withIsLava(block == Blocks.LAVA)
             .withIsOccluding(blockState.i(BlockAccessAir.INSTANCE, BlockPosition.ZERO)/*isSolidRender*/)
             .withIsBlockEntity(block.isTileEntity())
             .withIsDefaultState(Objects.equals(block.getBlockData(), blockState))
@@ -115,7 +116,7 @@ public class NmsManager extends AbstractNmsManager {
   }
 
   @Override
-  public ReadOnlyChunk getReadOnlyChunk(World world, int chunkX, int chunkZ) {
+  public ChunkAccessor getChunkAccessor(World world, int chunkX, int chunkZ) {
     ChunkProviderServer chunkProviderServer = level(world).getChunkProvider();
     Chunk chunk = chunkProviderServer.getChunkAt(chunkX, chunkZ, true);
     return new ReadOnlyChunkWrapper(chunk);

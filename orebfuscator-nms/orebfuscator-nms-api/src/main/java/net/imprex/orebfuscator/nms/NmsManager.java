@@ -2,9 +2,10 @@ package net.imprex.orebfuscator.nms;
 
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-
+import org.jspecify.annotations.Nullable;
 import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.config.api.Config;
+import dev.imprex.orebfuscator.interop.ChunkAccessor;
 import dev.imprex.orebfuscator.interop.RegistryAccessor;
 import dev.imprex.orebfuscator.util.BlockPos;
 
@@ -12,7 +13,9 @@ public interface NmsManager extends RegistryAccessor {
 
   AbstractRegionFileCache<?> createRegionFileCache(Config config);
 
-  ReadOnlyChunk getReadOnlyChunk(World world, int chunkX, int chunkZ);
+  ChunkAccessor getChunkAccessor(World world, int chunkX, int chunkZ);
+
+  @Nullable ChunkAccessor tryGetChunkAccessor(World world, int chunkX, int chunkZ);
 
   int getBlockState(World world, int x, int y, int z);
 

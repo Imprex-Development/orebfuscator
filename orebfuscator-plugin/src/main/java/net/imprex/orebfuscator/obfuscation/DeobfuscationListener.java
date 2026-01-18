@@ -18,7 +18,6 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
-
 import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.UpdateSystem;
@@ -27,61 +26,61 @@ import net.imprex.orebfuscator.util.PermissionUtil;
 
 public class DeobfuscationListener implements Listener {
 
-  public static void createAndRegister(Orebfuscator orebfuscator, DeobfuscationWorker deobfuscationWorker) {
-    Listener listener = new DeobfuscationListener(orebfuscator, deobfuscationWorker);
+  public static void createAndRegister(Orebfuscator orebfuscator, ObfuscationSystem obfuscationSystem) {
+    Listener listener = new DeobfuscationListener(orebfuscator, obfuscationSystem);
     Bukkit.getPluginManager().registerEvents(listener, orebfuscator);
   }
 
   private final UpdateSystem updateSystem;
   private final OrebfuscatorConfig config;
-  private final DeobfuscationWorker deobfuscationWorker;
+  private final ObfuscationSystem obfuscationSystem;
 
-  private DeobfuscationListener(Orebfuscator orebfuscator, DeobfuscationWorker deobfuscationWorker) {
-    this.updateSystem = orebfuscator.getUpdateSystem();
-    this.config = orebfuscator.getOrebfuscatorConfig();
-    this.deobfuscationWorker = deobfuscationWorker;
+  private DeobfuscationListener(Orebfuscator orebfuscator, ObfuscationSystem obfuscationSystem) {
+    this.updateSystem = orebfuscator.updateSystem();
+    this.config = orebfuscator.config();
+    this.obfuscationSystem = obfuscationSystem;
   }
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void onBlockDamage(BlockDamageEvent event) {
     if (this.config.general().updateOnBlockDamage()) {
-      this.deobfuscationWorker.deobfuscate(event.getBlock());
+      this.obfuscationSystem.deobfuscate(event.getBlock());
     }
   }
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void onBlockBreak(BlockBreakEvent event) {
-    this.deobfuscationWorker.deobfuscate(event.getBlock());
+    this.obfuscationSystem.deobfuscate(event.getBlock());
   }
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void onBlockBurn(BlockBurnEvent event) {
-    this.deobfuscationWorker.deobfuscate(event.getBlock());
+    this.obfuscationSystem.deobfuscate(event.getBlock());
   }
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void onBlockExplode(BlockExplodeEvent event) {
-    this.deobfuscationWorker.deobfuscate(event.blockList(), true);
+    this.obfuscationSystem.deobfuscate(event.blockList());
   }
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void onBlockPistonExtend(BlockPistonExtendEvent event) {
-    this.deobfuscationWorker.deobfuscate(event.getBlocks(), true);
+    this.obfuscationSystem.deobfuscate(event.getBlocks());
   }
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void onBlockPistonRetract(BlockPistonRetractEvent event) {
-    this.deobfuscationWorker.deobfuscate(event.getBlocks(), true);
+    this.obfuscationSystem.deobfuscate(event.getBlocks());
   }
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void onEntityExplode(EntityExplodeEvent event) {
-    this.deobfuscationWorker.deobfuscate(event.blockList(), true);
+    this.obfuscationSystem.deobfuscate(event.blockList());
   }
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
   public void onEntityChangeBlock(EntityChangeBlockEvent event) {
-    this.deobfuscationWorker.deobfuscate(event.getBlock());
+    this.obfuscationSystem.deobfuscate(event.getBlock());
   }
 
   @EventHandler(priority = EventPriority.HIGH, ignoreCancelled = true)
@@ -90,7 +89,7 @@ public class DeobfuscationListener implements Listener {
         && event.getItem() != null && event.getItem().getType() != null) {
       Material material = event.getItem().getType();
       if (material.name().endsWith("_HOE")) {
-        this.deobfuscationWorker.deobfuscate(event.getClickedBlock());
+        this.obfuscationSystem.deobfuscate(event.getClickedBlock());
       }
     }
   }

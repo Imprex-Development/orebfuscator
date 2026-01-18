@@ -15,7 +15,7 @@ import dev.imprex.orebfuscator.interop.WorldAccessor;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.BlockPos;
 import dev.imprex.orebfuscator.util.BlockStateProperties;
-import dev.imprex.orebfuscator.util.MathUtil;
+import dev.imprex.orebfuscator.util.QuickMaths;
 import dev.imprex.orebfuscator.util.WeightedRandom;
 import org.jspecify.annotations.NullMarked;
 
@@ -85,8 +85,8 @@ public class WeightedBlockList {
       ConfigParsingContext context) {
     this.name = section.getName();
 
-    int minY = MathUtil.clamp(section.getInt("minY", BlockPos.MIN_Y), BlockPos.MIN_Y, BlockPos.MAX_Y);
-    int maxY = MathUtil.clamp(section.getInt("maxY", BlockPos.MAX_Y), BlockPos.MIN_Y, BlockPos.MAX_Y);
+    int minY = QuickMaths.clamp(section.getInt("minY", BlockPos.MIN_Y), BlockPos.MIN_Y, BlockPos.MAX_Y);
+    int maxY = QuickMaths.clamp(section.getInt("maxY", BlockPos.MAX_Y), BlockPos.MIN_Y, BlockPos.MAX_Y);
 
     this.minY = Math.min(minY, maxY);
     this.maxY = Math.max(minY, maxY);

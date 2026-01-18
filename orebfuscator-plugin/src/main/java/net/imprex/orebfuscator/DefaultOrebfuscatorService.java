@@ -2,10 +2,8 @@ package net.imprex.orebfuscator;
 
 import java.util.Collection;
 import java.util.Iterator;
-
 import org.bukkit.World;
 import org.bukkit.block.Block;
-
 import net.imprex.orebfuscator.api.OrebfuscatorService;
 import net.imprex.orebfuscator.obfuscation.ObfuscationSystem;
 

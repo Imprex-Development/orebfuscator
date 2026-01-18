@@ -14,7 +14,7 @@ import org.jspecify.annotations.NullMarked;
 public record Version(int major, int minor, int patch) implements Comparable<Version> {
 
   private static final Pattern VERSION_PATTERN =
-      Pattern.compile("(?<major>\\d+)(?:\\.(?<minor>\\d+))?(?:\\.(?<patch>\\d+))?");
+      Pattern.compile("(?<major>\\d+)(?:\\.(?<minor>\\d+))?(?:\\.(?<patch>\\d+))?(?<suffix>.*)?");
 
   public static Version parse(String version) {
     return tryParse(version)

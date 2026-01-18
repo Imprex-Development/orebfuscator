@@ -11,7 +11,7 @@ import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
 
 import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
-import dev.imprex.orebfuscator.util.MathUtil;
+import dev.imprex.orebfuscator.util.QuickMaths;
 
 public class MetricsSystem {
 
@@ -32,8 +32,8 @@ public class MetricsSystem {
     this.metrics = new Metrics(orebfuscator, 8942);
     this.addMemoryChart();
     this.addPlayerCountChart();
-    this.addConfigCharts(orebfuscator.getOrebfuscatorConfig());
-    this.addUsageCharts(orebfuscator.getOrebfuscatorConfig());
+    this.addConfigCharts(orebfuscator.config());
+    this.addUsageCharts(orebfuscator.config());
   }
 
   public void addMemoryChart() {
@@ -47,7 +47,7 @@ public class MetricsSystem {
       } else {
         float gibiByte = Math.round(memory / 1073741824f * 100f) / 100f;
         exact.put(gibiByte + "GiB", 1);
-        result.put(MathUtil.ceilToPowerOfTwo((int) gibiByte) + "GiB", exact);
+        result.put(QuickMaths.ceilToPowerOfTwo((int) gibiByte) + "GiB", exact);
       }
 
       return result;

@@ -1,58 +1,50 @@
 package net.imprex.orebfuscator.obfuscation;
 
 import java.util.Collection;
-import java.util.concurrent.CompletableFuture;
-
 import org.bukkit.block.Block;
-
-import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
+import dev.imprex.orebfuscator.obfuscation.DeobfuscationWorker;
+import dev.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.Orebfuscator;
-import net.imprex.orebfuscator.cache.ObfuscationCache;
-import net.imprex.orebfuscator.iterop.BukkitChunkPacketAccessor;
+import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 
 public class ObfuscationSystem {
 
   private final Orebfuscator orebfuscator;
-  private final OrebfuscatorConfig config;
-  private final ObfuscationCache cache;
-
-  private final ObfuscationProcessor processor;
-  private final ObfuscationTaskDispatcher dispatcher;
   private ObfuscationListener listener;
 
   private final DeobfuscationWorker deobfuscationWorker;
 
   public ObfuscationSystem(Orebfuscator orebfuscator) {
     this.orebfuscator = orebfuscator;
-    this.config = orebfuscator.getOrebfuscatorConfig();
-    this.cache = orebfuscator.getObfuscationCache();
-
-    this.processor = new ObfuscationProcessor(orebfuscator);
-    this.dispatcher = new ObfuscationTaskDispatcher(orebfuscator, this.processor);
 
     this.deobfuscationWorker = new DeobfuscationWorker(orebfuscator);
-    DeobfuscationListener.createAndRegister(orebfuscator, this.deobfuscationWorker);
+    DeobfuscationListener.createAndRegister(orebfuscator, this);
   }
 
   public void registerChunkListener() {
     this.listener = new ObfuscationListener(orebfuscator);
   }
-
-  public CompletableFuture<ObfuscationResult> obfuscate(BukkitChunkPacketAccessor packet) {
-    ObfuscationRequest request = ObfuscationRequest.fromChunk(packet, this.config, this.dispatcher);
-    if (this.config.cache().enabled()) {
-      return this.cache.get(request);
-    } else {
-      return request.submitForObfuscation();
-    }
+  
+  public void deobfuscate(Block block) {
+    var world = BukkitWorldAccessor.get(block.getWorld());
+    var blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
+    this.deobfuscationWorker.deobfuscate(world, blockPos);
   }
-
+  
   public void deobfuscate(Collection<? extends Block> blocks) {
-    this.deobfuscationWorker.deobfuscate(blocks, false);
+    if (blocks.isEmpty()) {
+      return;
+    }
+    
+    var world = BukkitWorldAccessor.get(blocks.stream().findFirst().get().getWorld());
+    var blockPos = blocks.stream()
+        .map(block -> new BlockPos(block.getX(), block.getY(), block.getZ()))
+        .toList();
+
+    this.deobfuscationWorker.deobfuscate(world, blockPos);
   }
 
   public void shutdown() {
     this.listener.unregister();
-    this.dispatcher.shutdown();
   }
 }

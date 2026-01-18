@@ -3,21 +3,27 @@ package net.imprex.orebfuscator.iterop;
 import java.util.Collection;
 import java.util.Map;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ConcurrentHashMap;
-
 import org.bukkit.Bukkit;
 import org.bukkit.World;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
-import org.bukkit.plugin.Plugin;
-
 import com.comphenix.protocol.reflect.accessors.Accessors;
 import com.comphenix.protocol.reflect.accessors.MethodAccessor;
-
+import dev.imprex.orebfuscator.config.api.WorldConfigBundle;
+import dev.imprex.orebfuscator.interop.ChunkAccessor;
 import dev.imprex.orebfuscator.interop.WorldAccessor;
 import dev.imprex.orebfuscator.logging.OfcLogger;
+import dev.imprex.orebfuscator.obfuscation.ObfuscationRequest;
+import dev.imprex.orebfuscator.util.BlockPos;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
+import dev.imprex.orebfuscator.util.ChunkDirection;
+import net.imprex.orebfuscator.Orebfuscator;
+import net.imprex.orebfuscator.OrebfuscatorCompatibility;
+import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 
 public class BukkitWorldAccessor implements WorldAccessor {
@@ -28,8 +34,7 @@ public class BukkitWorldAccessor implements WorldAccessor {
 
   public static BukkitWorldAccessor get(World world) {
     return ACCESSOR_LOOKUP.computeIfAbsent(world, key -> {
-      OfcLogger.warn("Created world accessor outside of event!");
-      return new BukkitWorldAccessor(key);
+      throw new IllegalStateException("Created world accessor outside of event!");
     });
   }
 
@@ -70,32 +75,36 @@ public class BukkitWorldAccessor implements WorldAccessor {
     return ACCESSOR_LOOKUP.values();
   }
 
-  public static void registerListener(Plugin plugin) {
-    for (World world : Bukkit.getWorlds()) {
-      ACCESSOR_LOOKUP.put(world, new BukkitWorldAccessor(world));
-    }
-
+  public static void registerListener(Orebfuscator orebfuscator) {
     Bukkit.getPluginManager().registerEvents(new Listener() {
       @EventHandler
       public void onWorldUnload(WorldLoadEvent event) {
         World world = event.getWorld();
-        ACCESSOR_LOOKUP.put(world, new BukkitWorldAccessor(world));
+        ACCESSOR_LOOKUP.put(world, new BukkitWorldAccessor(world, orebfuscator));
       }
 
       @EventHandler
       public void onWorldUnload(WorldUnloadEvent event) {
         ACCESSOR_LOOKUP.remove(event.getWorld());
       }
-    }, plugin);
+    }, orebfuscator);
+
+    for (World world : Bukkit.getWorlds()) {
+      ACCESSOR_LOOKUP.put(world, new BukkitWorldAccessor(world, orebfuscator));
+    }
   }
 
   public final World world;
+  private final Orebfuscator orebfuscator;
 
   private final int maxHeight;
   private final int minHeight;
 
-  private BukkitWorldAccessor(World world) {
+  private WorldConfigBundle worldConfigBundle;
+
+  private BukkitWorldAccessor(World world, Orebfuscator orebfuscator) {
     this.world = Objects.requireNonNull(world);
+    this.orebfuscator = Objects.requireNonNull(orebfuscator);
 
     if (HAS_DYNAMIC_HEIGHT) {
       this.maxHeight = (int) WORLD_GET_MAX_HEIGHT.invoke(world);
@@ -104,6 +113,14 @@ public class BukkitWorldAccessor implements WorldAccessor {
       this.maxHeight = 256;
       this.minHeight = 0;
     }
+  }
+
+  @Override
+  public WorldConfigBundle config() {
+    if (this.worldConfigBundle == null) {
+      this.worldConfigBundle = this.orebfuscator.config().world(this);
+    }
+    return this.worldConfigBundle;
   }
 
   @Override
@@ -144,6 +161,40 @@ public class BukkitWorldAccessor implements WorldAccessor {
   @Override
   public int getSectionIndex(int y) {
     return blockToSectionCoord(y) - getMinSection();
+  }
+
+  public ChunkAccessor[] getNeighboringChunks(int chunkX, int chunkZ) {
+    ChunkAccessor[] neighboringChunks = new ChunkAccessor[4];
+
+    for (ChunkDirection direction : ChunkDirection.values()) {
+      int x = chunkX + direction.getOffsetX();
+      int z = chunkZ + direction.getOffsetZ();
+      int index = direction.ordinal();
+
+      neighboringChunks[index] = OrebfuscatorNms.tryGetChunkAccessor(world, x, z);
+    }
+
+    return neighboringChunks;
+  }
+
+  @Override
+  public CompletableFuture<ChunkAccessor[]> getNeighboringChunks(ObfuscationRequest request) {  
+    return OrebfuscatorCompatibility.getNeighboringChunks(world, new ChunkCacheKey(request));
+  }
+
+  @Override
+  public ChunkAccessor getChunk(int chunkX, int chunkZ) {
+    return OrebfuscatorNms.getChunkAccessor(world, chunkX, chunkZ);
+  }
+
+  @Override
+  public int getBlockState(int x, int y, int z) {
+    return OrebfuscatorNms.getBlockState(world, x, y, z);
+  }
+
+  @Override
+  public void sendBlockUpdates(Iterable<BlockPos> iterable) {
+    OrebfuscatorNms.sendBlockUpdates(world, iterable);
   }
 
   @Override

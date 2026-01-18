@@ -1,9 +1,9 @@
 package net.imprex.orebfuscator.nms.v1_16_R2;
 
-import net.imprex.orebfuscator.nms.ReadOnlyChunk;
+import dev.imprex.orebfuscator.interop.ChunkAccessor;
 import net.minecraft.server.v1_16_R2.Chunk;
 
-public class ReadOnlyChunkWrapper implements ReadOnlyChunk {
+public class ReadOnlyChunkWrapper implements ChunkAccessor {
 
   private final Chunk chunk;
 

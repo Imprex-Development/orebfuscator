@@ -8,12 +8,9 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.bukkit.World;
 import org.bukkit.entity.Player;
-
 import com.google.common.collect.ImmutableList;
-
 import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.config.api.Config;
 import dev.imprex.orebfuscator.util.BlockProperties;
@@ -23,7 +20,7 @@ import dev.imprex.orebfuscator.util.NamespacedKey;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectLinkedOpenHashMap;
 import it.unimi.dsi.fastutil.shorts.Short2ObjectMap;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
-import net.imprex.orebfuscator.nms.ReadOnlyChunk;
+import dev.imprex.orebfuscator.interop.ChunkAccessor;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.SectionPos;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -81,6 +78,7 @@ public class NmsManager extends AbstractNmsManager {
       for (BlockState blockState : possibleBlockStates) {
         BlockStateProperties properties = BlockStateProperties.builder(Block.getId(blockState))
             .withIsAir(blockState.isAir())
+            .withIsLava(block == Blocks.LAVA)
             .withIsOccluding(blockState.isSolidRender())
             .withIsBlockEntity(blockState.hasBlockEntity())
             .withIsDefaultState(Objects.equals(block.defaultBlockState(), blockState))
@@ -111,10 +109,17 @@ public class NmsManager extends AbstractNmsManager {
   }
 
   @Override
-  public ReadOnlyChunk getReadOnlyChunk(World world, int chunkX, int chunkZ) {
+  public ChunkAccessor getChunkAccessor(World world, int chunkX, int chunkZ) {
     ServerChunkCache serverChunkCache = level(world).getChunkSource();
     LevelChunk chunk = serverChunkCache.getChunk(chunkX, chunkZ, true);
     return new ReadOnlyChunkWrapper(chunk);
+  }
+
+  @Override
+  public ChunkAccessor tryGetChunkAccessor(World world, int chunkX, int chunkZ) {
+    ServerChunkCache serverChunkCache = level(world).getChunkSource();
+    LevelChunk chunk = serverChunkCache.getChunkNow(chunkX, chunkZ);
+    return chunk != null ? new ReadOnlyChunkWrapper(chunk) : null;
   }
 
   @Override
