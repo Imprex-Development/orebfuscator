@@ -28,7 +28,7 @@ import com.comphenix.protocol.events.PacketListener;
 import com.google.gson.JsonObject;
 import com.google.gson.internal.Streams;
 import com.google.gson.stream.JsonWriter;
-
+import dev.imprex.orebfuscator.PermissionRequirements;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.JavaVersion;
 import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
@@ -55,13 +55,13 @@ public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {
       return false;
     }
 
-    if (!PermissionUtil.canAccessAdminTools(sender)) {
+    if (!PermissionUtil.hasPermission(sender, PermissionRequirements.ADMIN)) {
       sender.sendMessage("You don't have the 'orebfuscator.admin' permission.");
       return false;
     }
 
     if (args.length == 0) {
-      sender.sendMessage("You are using " + this.orebfuscator.toString());
+      sender.sendMessage("You are using %s %s".formatted(this.orebfuscator.name(), this.orebfuscator.orebfuscatorVersion()));
       sender.sendMessage(this.orebfuscator.statisticsRegistry().format());
     } else if (args[0].equalsIgnoreCase("dump")) {
       TemporalAccessor now = OffsetDateTime.now(ZoneOffset.UTC);

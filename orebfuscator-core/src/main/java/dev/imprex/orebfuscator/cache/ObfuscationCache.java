@@ -51,8 +51,8 @@ public class ObfuscationCache {
     }
 
     if (this.cacheConfig.enabled() && this.cacheConfig.deleteRegionFilesAfterAccess() > 0) {
-      // TODO: OrebfuscatorCompatibility.runAsyncAtFixedRate(new CacheFileCleanupTask(orebfuscator,
-      // regionFileCache), 0, 72000L);
+      var task = new CacheFileCleanupTask(orebfuscator.config(), regionFileCache);
+      this.executor.scheduleAtFixedRate(task, 0, 1, TimeUnit.HOURS);
     }
   }
 

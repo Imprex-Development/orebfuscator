@@ -11,19 +11,19 @@ public interface ServerAccessor {
 
   boolean isGameThread();
 
-  Path getConfigDirectory();
+  Path configDirectory();
 
-  Path getWorldDirectory();
+  Path worldDirectory();
 
-  Version getOrebfuscatorVersion();
+  Version orebfuscatorVersion();
 
-  Version getMinecraftVersion();
+  Version minecraftVersion();
 
-  RegistryAccessor getRegistry();
+  RegistryAccessor registry();
 
   AbstractRegionFileCache<?> createRegionFileCache();
 
-  List<WorldAccessor> getWorlds();
+  List<WorldAccessor> worlds();
 
-  List<PlayerAccessor> getPlayers();
+  List<PlayerAccessor> players();
 }

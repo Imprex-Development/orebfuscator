@@ -8,9 +8,9 @@ import dev.imprex.orebfuscator.util.RollingTimer;
 
 public class ObfuscationStatistics implements StatisticsSource {
 
-  public final RollingTimer debofuscation = new RollingTimer(8192);
+  public final RollingTimer debofuscation = new RollingTimer(4096);
 
-  public final RollingTimer executorWaitTime = new RollingTimer(8192);
+  public final RollingTimer executorWaitTime = new RollingTimer(4096);
   public final RollingTimer executorUtilization = new RollingTimer(4096);
 
   public final RollingTimer proximityWait = new RollingTimer(4096);

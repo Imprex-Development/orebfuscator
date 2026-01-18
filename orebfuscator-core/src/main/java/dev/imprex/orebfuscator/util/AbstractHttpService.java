@@ -1,4 +1,4 @@
-package net.imprex.orebfuscator.util;
+package dev.imprex.orebfuscator.util;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -10,14 +10,9 @@ import java.net.http.HttpResponse.BodyHandler;
 import java.net.http.HttpResponse.BodySubscribers;
 import java.nio.charset.StandardCharsets;
 import java.util.Optional;
-
-import org.bukkit.plugin.PluginDescriptionFile;
-
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
-
-import dev.imprex.orebfuscator.util.Version;
-import net.imprex.orebfuscator.Orebfuscator;
+import dev.imprex.orebfuscator.interop.OrebfuscatorCore;
 
 public abstract class AbstractHttpService {
 
@@ -29,9 +24,8 @@ public abstract class AbstractHttpService {
 
   protected final String userAgent;
 
-  public AbstractHttpService(Orebfuscator orebfuscator) {
-    PluginDescriptionFile plugin = orebfuscator.getDescription();
-    this.userAgent = String.format("Imprex-Development/%s/%s", plugin.getName(), plugin.getVersion());
+  public AbstractHttpService(OrebfuscatorCore orebfuscator) {
+    this.userAgent = String.format("Imprex-Development/%s/%s", orebfuscator.name(), orebfuscator.orebfuscatorVersion());
   }
 
   protected HttpRequest.Builder request(String url) {
@@ -48,7 +42,6 @@ public abstract class AbstractHttpService {
       } catch (IOException e) {
         throw new UncheckedIOException("I/O while reading JSON", e);
       }
-    })
-        : BodySubscribers.replacing(Optional.empty());
+    }) : BodySubscribers.replacing(Optional.empty());
   }
 }

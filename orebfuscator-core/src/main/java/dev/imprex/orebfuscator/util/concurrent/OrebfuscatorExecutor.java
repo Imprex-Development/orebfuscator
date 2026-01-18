@@ -5,18 +5,18 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.LongAdder;
 import org.jspecify.annotations.NullMarked;
 import dev.imprex.orebfuscator.interop.OrebfuscatorCore;
 import dev.imprex.orebfuscator.statistics.OrebfuscatorStatistics;
 
-// TODO: public schedule method
 @NullMarked
 public class OrebfuscatorExecutor implements Executor {
 
-  private final ScheduledExecutorService scheduledExecutorService =
-      Executors.newScheduledThreadPool(1, r -> new Thread(OrebfuscatorCore.THREAD_GROUP, r, "orebfuscator-scheduler"));
+  private final ScheduledExecutorService scheduledExecutorService = Executors
+      .newSingleThreadScheduledExecutor(r -> new Thread(OrebfuscatorCore.THREAD_GROUP, r, "orebfuscator-scheduler"));
 
   private final int poolSize;
   private final ExecutorService executorService;
@@ -46,6 +46,23 @@ public class OrebfuscatorExecutor implements Executor {
     } else {
       executorService.execute(new TimedRunnable(command));
     }
+  }
+
+  public ScheduledFuture<?> schedule(Runnable command, long delay, TimeUnit unit) {
+    return scheduledExecutorService.schedule(command, delay, unit);
+  }
+
+  public ScheduledFuture<?> scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit) {
+    return scheduledExecutorService.scheduleAtFixedRate(command, initialDelay, period, unit);
+  }
+
+  public boolean isShutdown() {
+    return this.scheduledExecutorService.isShutdown() || this.executorService.isShutdown();
+  }
+
+  public void shutdown() {
+    this.scheduledExecutorService.shutdownNow();
+    this.executorService.shutdownNow();
   }
 
   private void updateStatistics() {

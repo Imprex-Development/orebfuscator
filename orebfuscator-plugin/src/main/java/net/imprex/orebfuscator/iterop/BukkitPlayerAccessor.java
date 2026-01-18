@@ -15,6 +15,7 @@ import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.potion.PotionEffectType;
 import org.jspecify.annotations.Nullable;
+import dev.imprex.orebfuscator.PermissionRequirements;
 import dev.imprex.orebfuscator.interop.OrebfuscatorCore;
 import dev.imprex.orebfuscator.interop.PlayerAccessor;
 import dev.imprex.orebfuscator.player.OrebfuscatorPlayer;
@@ -23,6 +24,7 @@ import dev.imprex.orebfuscator.util.EntityPose;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.OrebfuscatorNms;
+import net.imprex.orebfuscator.util.PermissionUtil;
 
 public class BukkitPlayerAccessor implements PlayerAccessor {
 
@@ -131,8 +133,8 @@ public class BukkitPlayerAccessor implements PlayerAccessor {
   }
 
   @Override
-  public boolean hasPermission(String permission) {
-    return player.hasPermission(permission);
+  public boolean hasPermission(PermissionRequirements permission) {
+    return PermissionUtil.hasPermission(player, permission);
   }
 
   @Override

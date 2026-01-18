@@ -10,7 +10,7 @@ public class ChunkFactory {
   private final ChunkVersionFlags versionFlags;
 
   public ChunkFactory(ServerAccessor serverAccessor) {
-    this.registryAccessor = serverAccessor.getRegistry();
+    this.registryAccessor = serverAccessor.registry();
     this.versionFlags = new ChunkVersionFlags(serverAccessor);
   }
 

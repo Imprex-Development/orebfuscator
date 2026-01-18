@@ -65,7 +65,7 @@ public class OrebfuscatorConfig implements Config {
 
   public OrebfuscatorConfig(ServerAccessor server) {
     this.server = server;
-    this.path = server.getConfigDirectory().resolve("config.yml");
+    this.path = server.configDirectory().resolve("config.yml");
 
     this.cacheConfig = new OrebfuscatorCacheConfig(this.server);
     this.configuration = this.loadConfiguration();
@@ -77,7 +77,7 @@ public class OrebfuscatorConfig implements Config {
       if (Files.notExists(this.path)) {
         Files.createDirectories(this.path.getParent());
 
-        Version version = this.server.getMinecraftVersion();
+        Version version = this.server.minecraftVersion();
         Version configVersion = ConfigLookup.getConfigVersion(version);
         if (configVersion == null) {
           throw new InvalidConfigurationException(
@@ -130,8 +130,8 @@ public class OrebfuscatorConfig implements Config {
 
   private byte[] calculateSystemHash(YamlConfiguration configuration) throws IOException {
     return Hashing.murmur3_128().newHasher()
-        .putBytes(this.server.getOrebfuscatorVersion().toString().getBytes(StandardCharsets.UTF_8))
-        .putBytes(this.server.getMinecraftVersion().toString().getBytes(StandardCharsets.UTF_8))
+        .putBytes(this.server.orebfuscatorVersion().toString().getBytes(StandardCharsets.UTF_8))
+        .putBytes(this.server.minecraftVersion().toString().getBytes(StandardCharsets.UTF_8))
         .putBytes(configuration.withoutComments().getBytes(StandardCharsets.UTF_8))
         .hash().asBytes();
   }
@@ -139,7 +139,7 @@ public class OrebfuscatorConfig implements Config {
   private void deserialize(YamlConfiguration configuration, ConfigParsingContext context) {
     if (ConfigMigrator.willMigrate(configuration)) {
       try {
-        configuration.save(server.getConfigDirectory().resolve("config-old.yml"));
+        configuration.save(server.configDirectory().resolve("config-old.yml"));
       } catch (IOException e) {
         OfcLogger.error("Can't save original config before migration", e);
       }
@@ -184,7 +184,7 @@ public class OrebfuscatorConfig implements Config {
       cacheContext.warn(ConfigMessage.MISSING_USING_DEFAULTS);
     }
 
-    final BlockParser.Factory blockParserFactory = BlockParser.factory(server.getRegistry());
+    final BlockParser.Factory blockParserFactory = BlockParser.factory(server.registry());
 
     // parse obfuscation sections
     ConfigParsingContext obfuscationContext = context.section("obfuscation");
@@ -213,7 +213,7 @@ public class OrebfuscatorConfig implements Config {
       proximityContext.warn(ConfigMessage.MISSING_OR_EMPTY);
     }
 
-    for (WorldAccessor world : this.server.getWorlds()) {
+    for (WorldAccessor world : this.server.worlds()) {
       this.worldConfigBundles.put(world, new OrebfuscatorWorldConfigBundle(world));
     }
   }
@@ -363,7 +363,7 @@ public class OrebfuscatorConfig implements Config {
       this.obfuscationConfig = findConfig(obfuscationConfigs, worldName, "obfuscation");
       this.proximityConfig = findConfig(proximityConfigs, worldName, "proximity");
 
-      this.blockFlags = OrebfuscatorBlockFlags.create(server.getRegistry(), obfuscationConfig, proximityConfig);
+      this.blockFlags = OrebfuscatorBlockFlags.create(server.registry(), obfuscationConfig, proximityConfig);
       this.needsObfuscation = obfuscationConfig != null && obfuscationConfig.isEnabled() ||
           proximityConfig != null && proximityConfig.isEnabled();
 

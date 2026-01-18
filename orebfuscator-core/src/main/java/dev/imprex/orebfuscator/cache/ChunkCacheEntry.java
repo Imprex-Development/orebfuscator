@@ -20,8 +20,9 @@ import net.jpountz.lz4.LZ4BlockOutputStream;
 public record ChunkCacheEntry(ChunkCacheKey key, byte[] compressedData) {
 
   public static ChunkCacheEntry create(CacheRequest request, ObfuscationResponse response) {
-    try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        LZ4BlockOutputStream lz4BlockOutputStream = new LZ4BlockOutputStream(byteArrayOutputStream);
+    ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+
+    try (LZ4BlockOutputStream lz4BlockOutputStream = new LZ4BlockOutputStream(byteArrayOutputStream);
         DataOutputStream dataOutputStream = new DataOutputStream(lz4BlockOutputStream)) {
 
       byteArrayOutputStream.write(request.hash());
@@ -42,11 +43,11 @@ public record ChunkCacheEntry(ChunkCacheKey key, byte[] compressedData) {
       for (BlockPos blockPosition : blockEntities) {
         dataOutputStream.writeInt(blockPosition.toSectionPos());
       }
-
-      return new ChunkCacheEntry(request.cacheKey(), byteArrayOutputStream.toByteArray());
     } catch (Exception e) {
       throw new ChunkCacheException("Unable to compress chunk: " + request.cacheKey(), e);
     }
+
+    return new ChunkCacheEntry(request.cacheKey(), byteArrayOutputStream.toByteArray());
   }
 
   public int estimatedSize() {

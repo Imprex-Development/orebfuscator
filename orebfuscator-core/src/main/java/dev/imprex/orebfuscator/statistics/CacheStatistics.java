@@ -3,11 +3,18 @@ package dev.imprex.orebfuscator.statistics;
 import java.util.Map;
 import java.util.Objects;
 import java.util.StringJoiner;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.Consumer;
 import java.util.function.LongSupplier;
+import dev.imprex.orebfuscator.config.api.CacheConfig;
+import dev.imprex.orebfuscator.config.api.Config;
+import dev.imprex.orebfuscator.util.RollingAverage;
+import dev.imprex.orebfuscator.util.RollingTimer;
 
 public class CacheStatistics implements StatisticsSource {
+  
+  private final CacheConfig config;
 
   private final AtomicLong cacheHitCountMemory = new AtomicLong(0);
   private final AtomicLong cacheHitCountDisk = new AtomicLong(0);
@@ -17,6 +24,15 @@ public class CacheStatistics implements StatisticsSource {
   private LongSupplier memoryCacheEntryCount = () -> 0;
 
   private LongSupplier diskCacheQueueLength = () -> 0;
+  private final RollingAverage diskCacheReadBytes = new RollingAverage(4096);
+  private final RollingAverage diskCacheWriteBytes = new RollingAverage(4096);
+  public final RollingTimer diskCacheWaitTime = new RollingTimer(4096);
+  public final RollingTimer diskCacheReadTime = new RollingTimer(4096);
+  public final RollingTimer diskCacheWriteTime = new RollingTimer(4096);
+  
+  public CacheStatistics(Config config) {
+    this.config = config.cache();
+  }
 
   public void onCacheHitMemory() {
     this.cacheHitCountMemory.incrementAndGet();
@@ -40,6 +56,14 @@ public class CacheStatistics implements StatisticsSource {
 
   public void setDiskCacheQueueLength(LongSupplier supplier) {
     this.diskCacheQueueLength = Objects.requireNonNull(supplier);
+  }
+  
+  public void onDiskCacheRead(long bytes) {
+    this.diskCacheReadBytes.add(bytes);
+  }
+  
+  public void onDiskCacheWrite(long bytes) {
+    this.diskCacheWriteBytes.add(bytes);
   }
 
   public void add(StringJoiner joiner) {
@@ -71,9 +95,39 @@ public class CacheStatistics implements StatisticsSource {
     joiner.add(String.format(" - memoryCache (count/bytesPerEntry): %s / %s ",
         memoryCacheEntryCount, bytes(memoryCacheBytesPerEntry)));
 
-    long diskCacheQueueLength = this.diskCacheQueueLength.getAsLong();
+    if (this.config.enableDiskCache()) {
+      long diskCacheQueueLength = this.diskCacheQueueLength.getAsLong();
 
-    joiner.add(String.format(" - diskCache (queue): %s ", diskCacheQueueLength));
+      joiner.add(String.format(" - diskCache (queue): %s", diskCacheQueueLength));
+   
+      long diskCacheWaitTime = (long) this.diskCacheWaitTime.average();
+      long diskCacheReadTime = (long) this.diskCacheReadTime.average();
+      long diskCacheWriteTime = (long) this.diskCacheWriteTime.average();
+
+      joiner.add(String.format(" - diskCacheTime (wait/read/write): %s / %s / %s",
+          time(diskCacheWaitTime), time(diskCacheReadTime), time(diskCacheWriteTime)));
+     
+      long diskCacheReadBytes = (long) this.diskCacheReadBytes.average();
+      long diskCacheWriteBytes = (long) this.diskCacheWriteBytes.average();
+
+      double diskCacheReadTimeSeconds = 1d;
+      if (diskCacheReadTime > 0) {
+        diskCacheReadTimeSeconds = (double) diskCacheReadTime / (double) TimeUnit.SECONDS.toNanos(1);
+      }
+      long diskCacheReadBytesPerSecond = Math.round((double) diskCacheReadBytes / diskCacheReadTimeSeconds);
+
+      double diskCacheWriteTimeSeconds = 1d;
+      if (diskCacheWriteTime > 0) {
+        diskCacheWriteTimeSeconds = (double) diskCacheWriteTime / (double) TimeUnit.SECONDS.toNanos(1);
+      }
+      long diskCacheWriteBytesPerSecond = Math.round((double) diskCacheWriteBytes / diskCacheWriteTimeSeconds);
+
+      joiner.add(String.format(" - diskCacheThroughput (read/write): %s/s / %s/s",
+          bytes(diskCacheReadBytesPerSecond), bytes(diskCacheWriteBytesPerSecond)));
+
+      joiner.add(String.format(" - diskCacheTaskSize (read/write): %s / %s",
+          bytes(diskCacheReadBytes), bytes(diskCacheWriteBytes)));
+    }
   }
 
   @Override
@@ -86,5 +140,10 @@ public class CacheStatistics implements StatisticsSource {
     consumer.accept(Map.entry("memoryCacheEntryCount", Long.toString(memoryCacheEntryCount.getAsLong())));
 
     consumer.accept(Map.entry("diskCacheQueueLength", Long.toString(diskCacheQueueLength.getAsLong())));
+    consumer.accept(Map.entry("diskCacheReadBytes", diskCacheReadBytes.debugLong(this::bytes)));
+    consumer.accept(Map.entry("diskCacheWriteBytes", diskCacheWriteBytes.debugLong(this::bytes)));
+    consumer.accept(Map.entry("diskCacheWaitTime", diskCacheWaitTime.debugLong(this::time)));
+    consumer.accept(Map.entry("diskCacheReadTime", diskCacheReadTime.debugLong(this::time)));
+    consumer.accept(Map.entry("diskCacheWriteTime", diskCacheWriteTime.debugLong(this::time)));
   }
 }

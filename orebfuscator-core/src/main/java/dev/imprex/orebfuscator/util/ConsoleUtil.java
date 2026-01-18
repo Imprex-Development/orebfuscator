@@ -1,11 +1,8 @@
-package net.imprex.orebfuscator.util;
+package dev.imprex.orebfuscator.util;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import org.bukkit.ChatColor;
-
 import dev.imprex.orebfuscator.logging.LogLevel;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 
@@ -18,9 +15,9 @@ public final class ConsoleUtil {
   }
 
   public static String replaceAnsiColorWithChatColor(String value) {
-    value = value.replaceAll("\u001B\\[m", ChatColor.RESET.toString());
-    value = value.replaceAll("\u001B\\[31;1m", ChatColor.RED.toString());
-    value = value.replaceAll("\u001B\\[33;1m", ChatColor.YELLOW.toString());
+    value = value.replaceAll("\u001B\\[m", "\u00A7r");
+    value = value.replaceAll("\u001B\\[31;1m", "\u00A7c");
+    value = value.replaceAll("\u001B\\[33;1m", "\u00A7e");
     return value;
   }
 

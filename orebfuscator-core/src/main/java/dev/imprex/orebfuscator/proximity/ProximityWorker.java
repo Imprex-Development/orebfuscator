@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 import org.joml.FrustumIntersection;
 import org.joml.Quaternionf;
+import dev.imprex.orebfuscator.PermissionRequirements;
 import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
 import dev.imprex.orebfuscator.config.api.ProximityConfig;
 import dev.imprex.orebfuscator.interop.ChunkAccessor;
@@ -24,11 +25,11 @@ public class ProximityWorker {
 
   public ProximityWorker(OrebfuscatorCore orebfuscator) {
     this.config = orebfuscator.config();
-    this.registry = orebfuscator.getRegistry();
+    this.registry = orebfuscator.registry();
   }
 
   private boolean shouldIgnorePlayer(PlayerAccessor player) {
-    if (player.hasPermission("orebfuscator.bypass")) {
+    if (player.hasPermission(PermissionRequirements.BYPASS)) {
       return true;
     }
 

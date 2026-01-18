@@ -11,6 +11,7 @@ import org.bukkit.event.server.PluginEnableEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
+import dev.imprex.orebfuscator.UpdateSystem;
 import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.cache.ObfuscationCache;
 import dev.imprex.orebfuscator.chunk.ChunkFactory;
@@ -22,7 +23,7 @@ import dev.imprex.orebfuscator.interop.WorldAccessor;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.obfuscation.ObfuscationPipeline;
 import dev.imprex.orebfuscator.obfuscation.ObfuscationProcessor;
-import dev.imprex.orebfuscator.proximity.ProximityDirectorThread;
+import dev.imprex.orebfuscator.proximity.ProximitySystem;
 import dev.imprex.orebfuscator.statistics.OrebfuscatorStatistics;
 import dev.imprex.orebfuscator.statistics.StatisticsRegistry;
 import dev.imprex.orebfuscator.util.Version;
@@ -50,7 +51,7 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
   private ObfuscationPipeline obfuscationPipeline;
   private ObfuscationSystem obfuscationSystem;
 
-  private ProximityDirectorThread proximityThread;
+  private ProximitySystem proximitySystem;
   private ProximityPacketListener proximityPacketListener;
 
   private UpdateSystem updateSystem;
@@ -81,7 +82,7 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
       BukkitPlayerAccessor.registerListener(this);
 
       new MetricsSystem(this);
-      this.updateSystem = new UpdateSystem(this);
+      this.updateSystem = new UpdateSystem(this, "bukkit");
 
       this.statistics = new OrebfuscatorStatistics(this.config, this.statisticsRegistry);
       this.executor = new OrebfuscatorExecutor(this);
@@ -92,9 +93,9 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
       this.obfuscationPipeline = new ObfuscationPipeline(this);
       this.obfuscationSystem = new ObfuscationSystem(this);
 
-      this.proximityThread = new ProximityDirectorThread(this);
+      this.proximitySystem = new ProximitySystem(this);
       if (this.config.proximityEnabled()) {
-        this.proximityThread.start();
+        this.proximitySystem.start();
         this.proximityPacketListener = new ProximityPacketListener(this);
       }
 
@@ -120,6 +121,10 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
 
   @Override
   public void onDisable() {
+    if (this.executor != null) {
+      this.executor.shutdown();
+    }
+
     if (this.obfuscationCache != null) {
       this.obfuscationCache.close();
     }
@@ -128,10 +133,8 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
       this.obfuscationSystem.shutdown();
     }
 
-    if (this.config != null && this.config.proximityEnabled() && this.proximityPacketListener != null
-        && this.proximityThread != null) {
+    if (this.config != null && this.config.proximityEnabled() && this.proximityPacketListener != null) {
       this.proximityPacketListener.unregister();
-      this.proximityThread.close();
     }
 
     OrebfuscatorCompatibility.close();
@@ -201,27 +204,32 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
   }
 
   @Override
-  public Path getConfigDirectory() {
+  public Path configDirectory() {
     return getDataFolder().toPath();
   }
 
   @Override
-  public Path getWorldDirectory() {
+  public Path worldDirectory() {
     return Bukkit.getWorldContainer().toPath();
+  }
+  
+  @Override
+  public String name() {
+    return getDescription().getName();
   }
 
   @Override
-  public Version getOrebfuscatorVersion() {
+  public Version orebfuscatorVersion() {
     return Version.parse(getDescription().getVersion());
   }
 
   @Override
-  public Version getMinecraftVersion() {
+  public Version minecraftVersion() {
     return MinecraftVersion.current();
   }
 
   @Override
-  public RegistryAccessor getRegistry() {
+  public RegistryAccessor registry() {
     return OrebfuscatorNms.registry();
   }
 
@@ -231,14 +239,14 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
   }
 
   @Override
-  public List<WorldAccessor> getWorlds() {
+  public List<WorldAccessor> worlds() {
     return BukkitWorldAccessor.getWorlds().stream()
         .map(WorldAccessor.class::cast)
         .toList();
   }
 
   @Override
-  public List<PlayerAccessor> getPlayers() {
+  public List<PlayerAccessor> players() {
     return BukkitPlayerAccessor.getAll().stream()
         .map(PlayerAccessor.class::cast)
         .toList();

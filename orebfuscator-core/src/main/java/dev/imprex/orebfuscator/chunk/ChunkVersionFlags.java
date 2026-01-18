@@ -13,7 +13,7 @@ public final class ChunkVersionFlags {
   private final boolean hasSingleValuePalette;
 
   public ChunkVersionFlags(ServerAccessor serverAccessor) {
-    var version = serverAccessor.getMinecraftVersion();
+    var version = serverAccessor.minecraftVersion();
     hasLongArrayLengthField = version.isBelow("1.21.5");
     hasBiomePalettedContainer = version.isAtOrAbove("1.18");
     hasSingleValuePalette = version.isAtOrAbove("1.18");

@@ -1,4 +1,4 @@
-package net.imprex.orebfuscator;
+package dev.imprex.orebfuscator;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -12,24 +12,17 @@ import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
-import org.bukkit.entity.Player;
-
+import org.jspecify.annotations.NullMarked;
 import com.google.gson.annotations.SerializedName;
-
 import dev.imprex.orebfuscator.config.api.GeneralConfig;
+import dev.imprex.orebfuscator.interop.OrebfuscatorCore;
 import dev.imprex.orebfuscator.logging.LogLevel;
 import dev.imprex.orebfuscator.logging.OfcLogger;
+import dev.imprex.orebfuscator.util.AbstractHttpService;
+import dev.imprex.orebfuscator.util.ConsoleUtil;
 import dev.imprex.orebfuscator.util.Version;
-import net.imprex.orebfuscator.util.AbstractHttpService;
-import net.imprex.orebfuscator.util.ConsoleUtil;
-import net.imprex.orebfuscator.util.MinecraftVersion;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.hover.content.Text;
 
+@NullMarked
 public class UpdateSystem extends AbstractHttpService {
 
   private static final Pattern DEV_VERSION_PATTERN = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)(?:-b(?<build>\\d+))?");
@@ -44,14 +37,18 @@ public class UpdateSystem extends AbstractHttpService {
 
   private static final Duration CACHE_DURATION = Duration.ofMinutes(10L);
 
-  private final Orebfuscator orebfuscator;
+  private final String loader;
+  
+  private final OrebfuscatorCore orebfuscator;
   private final GeneralConfig generalConfig;
 
   private final AtomicReference<Instant> validUntil = new AtomicReference<>();
   private final AtomicReference<CompletableFuture<Optional<ModrinthVersion>>> latestVersion = new AtomicReference<>();
 
-  public UpdateSystem(Orebfuscator orebfuscator) {
+  public UpdateSystem(OrebfuscatorCore orebfuscator, String loader) {
     super(orebfuscator);
+    
+    this.loader = loader;
 
     this.orebfuscator = orebfuscator;
     this.generalConfig = orebfuscator.config().general();
@@ -60,13 +57,13 @@ public class UpdateSystem extends AbstractHttpService {
   }
 
   private CompletableFuture<Optional<ModrinthVersion>> requestLatestVersion() {
-    String installedVersion = this.orebfuscator.getDescription().getVersion();
+    String installedVersion = this.orebfuscator.orebfuscatorVersion().toString();
     if (!this.generalConfig.checkForUpdates() || isDevVersion(installedVersion)) {
       OfcLogger.debug("UpdateSystem - Update check disabled or dev version detected; skipping");
       return CompletableFuture.completedFuture(Optional.empty());
     }
 
-    var uri = String.format(API_URI, "bukkit", MinecraftVersion.current());
+    var uri = String.format(API_URI, this.loader, this.orebfuscator.minecraftVersion().toString());
     return HTTP.sendAsync(request(uri).build(), optionalJson(ModrinthVersion[].class)).thenApply(response ->
         response.body().flatMap(body -> {
           var version = Version.parse(installedVersion);
@@ -118,24 +115,17 @@ public class UpdateSystem extends AbstractHttpService {
     this.getLatestVersion().thenAccept(o -> o.ifPresent(consumer));
   }
 
+  public void ifNewerDownloadAvailable(Consumer<String> consumer) {
+    this.ifNewerVersionAvailable(version -> {
+      String downloadUri = String.format(DOWNLOAD_URI, version.version);
+      consumer.accept(downloadUri);
+    });
+  }
+
   private void checkForUpdates() {
     this.ifNewerVersionAvailable(version -> {
       String downloadUri = String.format(DOWNLOAD_URI, version.version);
       ConsoleUtil.printBox(LogLevel.WARN, "UPDATE AVAILABLE", "", downloadUri);
-    });
-  }
-
-  public void checkForUpdates(Player player) {
-    this.ifNewerVersionAvailable(version -> {
-      String downloadUri = String.format(DOWNLOAD_URI, version.version);
-      BaseComponent[] components = new ComponentBuilder("[§bOrebfuscator§f]§7 A new release is available ")
-          .append("§f§l[CLICK HERE]")
-          .event(new ClickEvent(ClickEvent.Action.OPEN_URL, downloadUri))
-          .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
-              new Text(new ComponentBuilder("§7Click here to see the latest release").create()))).create();
-      OrebfuscatorCompatibility.runForPlayer(player, () -> {
-        player.spigot().sendMessage(components);
-      });
     });
   }
 

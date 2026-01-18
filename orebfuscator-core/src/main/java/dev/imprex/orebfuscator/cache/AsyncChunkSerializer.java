@@ -9,11 +9,13 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.locks.Condition;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
-import dev.imprex.orebfuscator.interop.OrebfuscatorCore;
-import dev.imprex.orebfuscator.logging.OfcLogger;
-import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import dev.imprex.orebfuscator.interop.OrebfuscatorCore;
+import dev.imprex.orebfuscator.logging.OfcLogger;
+import dev.imprex.orebfuscator.statistics.CacheStatistics;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
+import dev.imprex.orebfuscator.util.RollingTimer;
 
 /**
  * This class works similar to a bounded buffer for cache read and write requests but also functions as the only
@@ -24,10 +26,11 @@ import org.jspecify.annotations.Nullable;
  * @see <a href="https://en.wikipedia.org/wiki/Producer–consumer_problem">Bound buffer</a>
  * @see <a href="https://en.wikipedia.org/wiki/Memory_ordering">Memory ordering</a>
  */
-// TODO: add statistice for read/write times and ratio of read/write as well as average throughput for read/write
 @NullMarked
 public class AsyncChunkSerializer implements Runnable {
 
+  private final CacheStatistics statistics;
+  
   private final Lock lock = new ReentrantLock(true);
   private final Condition notFull = lock.newCondition();
   private final Condition notEmpty = lock.newCondition();
@@ -42,14 +45,15 @@ public class AsyncChunkSerializer implements Runnable {
   private volatile boolean running = true;
 
   public AsyncChunkSerializer(OrebfuscatorCore orebfuscator, AbstractRegionFileCache<?> regionFileCache) {
+    this.statistics = orebfuscator.statistics().cache;
     this.maxTaskQueueSize = orebfuscator.config().cache().maximumTaskQueueSize();
-    this.serializer = new ChunkSerializer(regionFileCache);
+    this.serializer = new ChunkSerializer(regionFileCache, this.statistics);
 
     this.thread = new Thread(OrebfuscatorCore.THREAD_GROUP, this, "ofc-chunk-serializer");
     this.thread.setDaemon(true);
     this.thread.start();
 
-    orebfuscator.statistics().cache.setDiskCacheQueueLength(this.tasks::size);
+    this.statistics.setDiskCacheQueueLength(this.tasks::size);
   }
 
   public CompletableFuture<@Nullable ChunkCacheEntry> read(ChunkCacheKey key) {
@@ -137,19 +141,44 @@ public class AsyncChunkSerializer implements Runnable {
       this.lock.unlock();
     }
   }
+  
+  private abstract class TimedTask implements Runnable {
 
-  private class WriteTask implements Runnable {
+    private final RollingTimer.Instance waitTimer = statistics.diskCacheWaitTime.start();
+    private final RollingTimer runTimer;
+
+    public TimedTask(RollingTimer runTimer) {
+      this.runTimer = runTimer;
+    }
+    
+    @Override
+    public final void run() {
+      waitTimer.stop();
+
+      var timer = runTimer.start();
+      try {
+        execute();
+      } finally {
+        timer.stop();
+      }
+    }
+    
+    protected abstract void execute();
+  }
+
+  private class WriteTask extends TimedTask {
 
     private final ChunkCacheKey key;
     private final ChunkCacheEntry chunk;
 
     public WriteTask(ChunkCacheKey key, ChunkCacheEntry chunk) {
+      super(statistics.diskCacheWriteTime);
       this.key = key;
       this.chunk = chunk;
     }
 
     @Override
-    public void run() {
+    public void execute() {
       try {
         serializer.write(key, chunk);
       } catch (IOException e) {
@@ -158,18 +187,19 @@ public class AsyncChunkSerializer implements Runnable {
     }
   }
 
-  private class ReadTask implements Runnable {
+  private class ReadTask extends TimedTask {
 
     private final ChunkCacheKey key;
     private final CompletableFuture<@Nullable ChunkCacheEntry> future;
 
     public ReadTask(ChunkCacheKey key, CompletableFuture<@Nullable ChunkCacheEntry> future) {
+      super(statistics.diskCacheReadTime);
       this.key = key;
       this.future = future;
     }
 
     @Override
-    public void run() {
+    public void execute() {
       try {
         future.complete(serializer.read(key));
       } catch (Exception e) {

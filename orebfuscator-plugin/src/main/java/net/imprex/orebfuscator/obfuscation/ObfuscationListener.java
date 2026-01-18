@@ -10,6 +10,7 @@ import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.async.AsyncListenerHandler;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
+import dev.imprex.orebfuscator.PermissionRequirements;
 import dev.imprex.orebfuscator.obfuscation.ObfuscationPipeline;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
@@ -83,7 +84,7 @@ public class ObfuscationListener extends PacketAdapter {
     }
     
     BukkitWorldAccessor world = player.world();
-    if (player.hasPermission("orebfuscator.bypass") || !world.config().needsObfuscation()) {
+    if (player.hasPermission(PermissionRequirements.BYPASS) || !world.config().needsObfuscation()) {
       return;
     }
 

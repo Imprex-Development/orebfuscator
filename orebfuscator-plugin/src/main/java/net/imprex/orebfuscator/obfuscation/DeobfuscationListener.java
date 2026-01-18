@@ -18,11 +18,18 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import dev.imprex.orebfuscator.PermissionRequirements;
+import dev.imprex.orebfuscator.UpdateSystem;
 import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
+import dev.imprex.orebfuscator.util.ConsoleUtil;
 import net.imprex.orebfuscator.Orebfuscator;
-import net.imprex.orebfuscator.UpdateSystem;
-import net.imprex.orebfuscator.util.ConsoleUtil;
+import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.util.PermissionUtil;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 
 public class DeobfuscationListener implements Listener {
 
@@ -98,17 +105,27 @@ public class DeobfuscationListener implements Listener {
   public void onJoin(PlayerJoinEvent event) {
     Player player = event.getPlayer();
 
-    if (this.config.general().bypassNotification() && PermissionUtil.canBypassObfuscate(player)) {
+    if (this.config.general().bypassNotification() && PermissionUtil.hasPermission(player, PermissionRequirements.BYPASS)) {
       player.sendMessage(
           "[§bOrebfuscator§f]§7 You bypass Orebfuscator because you have the 'orebfuscator.bypass' permission.");
     }
 
-    if (PermissionUtil.canAccessAdminTools(player)) {
+    if (PermissionUtil.hasPermission(player, PermissionRequirements.ADMIN)) {
       String configReport = this.config.report();
       if (configReport != null) {
         player.sendMessage("[§bOrebfuscator§f]§c " + ConsoleUtil.replaceAnsiColorWithChatColor(configReport));
       }
-      this.updateSystem.checkForUpdates(player);
+
+      this.updateSystem.ifNewerDownloadAvailable(downloadUri -> {
+        BaseComponent[] components = new ComponentBuilder("[§bOrebfuscator§f]§7 A new release is available ")
+            .append("§f§l[CLICK HERE]")
+            .event(new ClickEvent(ClickEvent.Action.OPEN_URL, downloadUri))
+            .event(new HoverEvent(HoverEvent.Action.SHOW_TEXT,
+                new Text(new ComponentBuilder("§7Click here to see the latest release").create()))).create();
+        OrebfuscatorCompatibility.runForPlayer(player, () -> {
+          player.spigot().sendMessage(components);
+        });
+      });
     }
   }
 }

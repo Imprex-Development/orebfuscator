@@ -35,7 +35,7 @@ public class ObfuscationProcessor {
 
   public ObfuscationProcessor(OrebfuscatorCore orebfuscator) {
     this.chunkFactory = orebfuscator.chunkFactory();
-    this.registryAccessor = orebfuscator.getRegistry();
+    this.registryAccessor = orebfuscator.registry();
     this.statistics = orebfuscator.statistics();
   }
 

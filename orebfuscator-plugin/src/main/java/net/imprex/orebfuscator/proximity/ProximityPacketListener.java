@@ -8,6 +8,7 @@ import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.events.PacketEvent;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.ChunkCoordIntPair;
+import dev.imprex.orebfuscator.PermissionRequirements;
 import dev.imprex.orebfuscator.config.api.ProximityConfig;
 import dev.imprex.orebfuscator.player.OrebfuscatorPlayer;
 import net.imprex.orebfuscator.Orebfuscator;
@@ -35,7 +36,7 @@ public class ProximityPacketListener extends PacketAdapter {
   @Override
   public void onPacketSending(PacketEvent event) {
     BukkitPlayerAccessor player = BukkitPlayerAccessor.tryGet(event.getPlayer());
-    if (player == null || player.hasPermission("orebfuscator.bypass")) {
+    if (player == null || player.hasPermission(PermissionRequirements.BYPASS)) {
       return;
     }
 

@@ -35,7 +35,7 @@ public class OrebfuscatorCacheConfig implements CacheConfig {
   private boolean enableDiskCache = false;
 
   public OrebfuscatorCacheConfig(ServerAccessor server) {
-    this.worldDirectory = server.getWorldDirectory().normalize();
+    this.worldDirectory = server.worldDirectory().normalize();
     this.baseDirectory = this.worldDirectory.resolve("orebfuscator_cache/");
   }
 

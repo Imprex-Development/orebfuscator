@@ -80,61 +80,48 @@ public class DeobfuscationWorker {
     }
 
     var timer = statistics.debofuscation.start();
-    try (var processor = new RecursiveProcessor(world)) {
-      for (BlockPos position : blocks) {
-        processor.processPosition(position);
-      }
+    try {
+      this.deobfuscateNow(world, blocks);
     } finally {
       timer.stop();
     }
   }
+  
+  private void deobfuscateNow(WorldAccessor world, List<BlockPos> blocks) {
+    final BlockFlags blockFlags = world.config().blockFlags();
 
-  // TODO: there is nothing recusive about this, maybe even remove class and do a single method
-  private class RecursiveProcessor implements AutoCloseable {
+    final Map<Long, ChunkAccessor> chunks = new HashMap<>();
+    final Set<BlockPos> updatedBlocks = new HashSet<>();
+    final Set<ChunkCacheKey> invalidChunks = new HashSet<>();
 
-    private final Set<BlockPos> updatedBlocks = new HashSet<>();
-    private final Set<ChunkCacheKey> invalidChunks = new HashSet<>();
-    private final Map<Long, ChunkAccessor> chunks = new HashMap<>();
-
-    private final WorldAccessor world;
-    private final BlockFlags blockFlags;
-
-    public RecursiveProcessor(WorldAccessor world) {
-      this.world = world;
-      this.blockFlags = world.config().blockFlags();
-    }
-
-    public void processPosition(BlockPos position) {
-      Objects.requireNonNull(position);
-
+    for (BlockPos block : blocks) {
       for (var offset : offsets) {
-        updateBlock(position.add(offset));
-      }
-    }
+        BlockPos position = block.add(offset);
 
-    private void updateBlock(BlockPos position) {
-      int chunkX = position.x() >> 4;
-      int chunkZ = position.z() >> 4;
-      long key = ChunkAccessor.chunkCoordsToLong(chunkX, chunkZ);
-      var chunk = chunks.computeIfAbsent(key, k -> world.getChunk(chunkX, chunkZ));
-      if (chunk != null) {
+        int chunkX = position.x() >> 4;
+        int chunkZ = position.z() >> 4;
+
+        long key = ChunkAccessor.chunkCoordsToLong(chunkX, chunkZ);
+        // TODO: use getChunkNow instead of getChunk with force load?
+        var chunk = chunks.computeIfAbsent(key, k -> world.getChunk(chunkX, chunkZ));
+        if (chunk == null) {
+          continue;
+        }
+
         int blockState = chunk.getBlockState(position.x(), position.y(), position.z());
-        if (BlockFlags.isObfuscateBitSet(blockFlags.flags(blockState)) && updatedBlocks.add(position)) {
+        if (!(BlockFlags.isObfuscateBitSet(blockFlags.flags(blockState)) && updatedBlocks.add(position))) {
+          continue;
+        }
 
-          // invalidate cache if enabled
-          if (config.cache().enabled()) {
-            ChunkCacheKey chunkPosition = new ChunkCacheKey(world, position);
-            if (this.invalidChunks.add(chunkPosition)) {
-              cache.invalidate(chunkPosition);
-            }
+        if (config.cache().enabled()) {
+          ChunkCacheKey chunkPosition = new ChunkCacheKey(world, position);
+          if (invalidChunks.add(chunkPosition)) {
+            cache.invalidate(chunkPosition);
           }
         }
       }
     }
 
-    @Override
-    public void close() {
-      world.sendBlockUpdates(this.updatedBlocks);
-    }
+    world.sendBlockUpdates(updatedBlocks);
   }
 }

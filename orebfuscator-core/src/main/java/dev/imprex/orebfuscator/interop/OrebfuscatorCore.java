@@ -13,6 +13,8 @@ import dev.imprex.orebfuscator.util.concurrent.OrebfuscatorExecutor;
 public interface OrebfuscatorCore extends ServerAccessor {
 
   ThreadGroup THREAD_GROUP = new ThreadGroup("orebfuscator");
+  
+  String name();
 
   OrebfuscatorExecutor executor();
 

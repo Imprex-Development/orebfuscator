@@ -9,9 +9,10 @@ import com.google.gson.TypeAdapter;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 @NullMarked
-public record Version(int major, int minor, int patch) implements Comparable<Version> {
+public record Version(int major, int minor, int patch, @Nullable String suffix) implements Comparable<Version> {
 
   private static final Pattern VERSION_PATTERN =
       Pattern.compile("(?<major>\\d+)(?:\\.(?<minor>\\d+))?(?:\\.(?<patch>\\d+))?(?<suffix>.*)?");
@@ -36,7 +37,9 @@ public record Version(int major, int minor, int patch) implements Comparable<Ver
     String patchGroup = matcher.group("patch");
     int patch = patchGroup != null ? Integer.parseInt(patchGroup) : 0;
 
-    return Optional.of(new Version(major, minor, patch));
+    String suffix = matcher.group("suffix");
+    
+    return Optional.of(new Version(major, minor, patch, suffix));
   }
 
   public boolean isAbove(String version) {
@@ -104,7 +107,7 @@ public record Version(int major, int minor, int patch) implements Comparable<Ver
 
   @Override
   public String toString() {
-    return String.format("%s.%s.%s", this.major, this.minor, this.patch);
+    return String.format("%s.%s.%s%s", this.major, this.minor, this.patch, this.suffix);
   }
 
   public static final class Json extends TypeAdapter<Version> {
