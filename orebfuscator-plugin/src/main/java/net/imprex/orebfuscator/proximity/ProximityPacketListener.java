@@ -16,6 +16,7 @@ import net.imprex.orebfuscator.iterop.BukkitPlayerAccessor;
 import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 
+// TODO: Nullability
 public class ProximityPacketListener extends PacketAdapter {
 
   private static final boolean HAS_CHUNK_POS_FIELD = MinecraftVersion.isAtOrAbove("1.20.2");

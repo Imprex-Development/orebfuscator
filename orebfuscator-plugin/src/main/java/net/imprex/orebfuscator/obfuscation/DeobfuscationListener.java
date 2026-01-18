@@ -31,6 +31,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 
+// TODO: Nullability
 public class DeobfuscationListener implements Listener {
 
   public static void createAndRegister(Orebfuscator orebfuscator, ObfuscationSystem obfuscationSystem) {

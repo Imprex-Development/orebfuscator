@@ -19,6 +19,12 @@ import net.imprex.orebfuscator.iterop.BukkitPlayerAccessor;
 import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 import net.imprex.orebfuscator.util.ServerVersion;
 
+// TODO: Nullability
+// TODO: add sync map chunk packet listener that starts obfuscation on the main thread and tries to get neighboring chunks
+//       now to reduce the potential wait time for async chunk requests.
+// TODO: add support for chunk batch system in sync listener (cancel) any packets and track current batch. On batch delimiter use
+//       future.all and send all packets at once for server to trigger multple write and single flush.
+// TODO: maybe replace async listener entirely with sync listener and packet queue
 public class ObfuscationListener extends PacketAdapter {
 
   private static final List<PacketType> PACKET_TYPES = Arrays.asList(

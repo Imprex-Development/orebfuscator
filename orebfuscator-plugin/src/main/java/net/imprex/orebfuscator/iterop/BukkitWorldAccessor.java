@@ -26,6 +26,7 @@ import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 
+// TODO: Nullability
 public class BukkitWorldAccessor implements WorldAccessor {
 
   private static final boolean HAS_DYNAMIC_HEIGHT = MinecraftVersion.isAtOrAbove("1.17");

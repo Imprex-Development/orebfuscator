@@ -7,6 +7,7 @@ import dev.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 
+// TODO: Nullability
 public class ObfuscationSystem {
 
   private final Orebfuscator orebfuscator;

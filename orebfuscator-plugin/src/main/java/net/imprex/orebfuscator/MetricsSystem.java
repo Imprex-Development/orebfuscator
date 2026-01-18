@@ -1,18 +1,18 @@
 package net.imprex.orebfuscator;
 
+import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
+import dev.imprex.orebfuscator.util.QuickMaths;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.NavigableMap;
 import java.util.TreeMap;
-
 import org.bstats.bukkit.Metrics;
 import org.bstats.charts.DrilldownPie;
 import org.bstats.charts.SimplePie;
 import org.bukkit.Bukkit;
+import org.jspecify.annotations.NullMarked;
 
-import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
-import dev.imprex.orebfuscator.util.QuickMaths;
-
+@NullMarked
 public class MetricsSystem {
 
   private static final NavigableMap<Integer, String> PLAYER_COUNT_GROUPS = new TreeMap<>();
@@ -89,8 +89,6 @@ public class MetricsSystem {
     this.metrics.addCustomChart(new SimplePie("frustum_culling", () -> {
       return Boolean.toString(config.usesFrustumCulling());
     }));
-    this.metrics.addCustomChart(new SimplePie("ray_cast", () -> {
-      return config.usesRayCastCheck();
-    }));
+    this.metrics.addCustomChart(new SimplePie("ray_cast", config::usesRayCastCheck));
   }
 }

@@ -11,6 +11,8 @@ import com.comphenix.protocol.utility.MinecraftReflection;
 
 import dev.imprex.orebfuscator.util.BlockPos;
 
+// TODO: replace all ProtocolLib reflections with own reflect lib
+// TODO: Nullability
 public class WrappedClientboundLevelChunkPacketData {
 
   private static final Class<?> CLIENTBOUND_LEVEL_CHUNK_PACKET_DATA = MinecraftReflection.getMinecraftClass(

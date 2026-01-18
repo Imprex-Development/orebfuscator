@@ -21,6 +21,7 @@ import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.AbstractHttpService;
 import dev.imprex.orebfuscator.util.ConsoleUtil;
 import dev.imprex.orebfuscator.util.Version;
+import org.jspecify.annotations.Nullable;
 
 @NullMarked
 public class UpdateSystem extends AbstractHttpService {
@@ -42,8 +43,9 @@ public class UpdateSystem extends AbstractHttpService {
   private final OrebfuscatorCore orebfuscator;
   private final GeneralConfig generalConfig;
 
-  private final AtomicReference<Instant> validUntil = new AtomicReference<>();
-  private final AtomicReference<CompletableFuture<Optional<ModrinthVersion>>> latestVersion = new AtomicReference<>();
+  private final AtomicReference<@Nullable Instant> validUntil = new AtomicReference<>();
+  private final AtomicReference<@Nullable CompletableFuture<Optional<ModrinthVersion>>> latestVersion
+      = new AtomicReference<>();
 
   public UpdateSystem(OrebfuscatorCore orebfuscator, String loader) {
     super(orebfuscator);

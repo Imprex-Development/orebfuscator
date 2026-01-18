@@ -76,6 +76,8 @@ public abstract class AbstractWorldConfig implements WorldConfig {
       return;
     }
 
+    // TODO: validate each height has some valid values or limit height or use some default fill in value
+
     for (ConfigurationSection subSection : subSectionContainer.getSubSections()) {
       ConfigParsingContext subContext = context.section(subSection.getName());
       this.weightedBlockLists.add(new WeightedBlockList(blockParserFactory, subSection, subContext));

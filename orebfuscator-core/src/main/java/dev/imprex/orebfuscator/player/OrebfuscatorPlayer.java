@@ -109,7 +109,7 @@ public class OrebfuscatorPlayer {
     }
   }
 
-  public OrebfuscatorPlayerChunk getChunk(WorldAccessor world, int chunkX, int chunkZ) {
+  public @Nullable OrebfuscatorPlayerChunk getChunk(WorldAccessor world, int chunkX, int chunkZ) {
     if (Objects.equals(this.world.getAcquire(), world)) {
       long key = ChunkAccessor.chunkCoordsToLong(chunkX, chunkZ);
       return this.chunks.get(key);

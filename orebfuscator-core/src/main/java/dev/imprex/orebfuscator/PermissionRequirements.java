@@ -2,7 +2,9 @@ package dev.imprex.orebfuscator;
 
 import java.util.Optional;
 import java.util.OptionalInt;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public record PermissionRequirements(OptionalInt operatorLevel, Optional<String> permission) {
 
   public static final PermissionRequirements BYPASS = new PermissionRequirements(OptionalInt.empty(), Optional.of("orebfuscator.bypass"));

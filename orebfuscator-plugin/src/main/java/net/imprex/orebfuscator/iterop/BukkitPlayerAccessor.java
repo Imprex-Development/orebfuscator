@@ -26,6 +26,8 @@ import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.util.PermissionUtil;
 
+// TODO: abstract static listener away into common management class, same thing for worlds as well
+// TODO: Nullability
 public class BukkitPlayerAccessor implements PlayerAccessor {
 
   private static final Map<UUID, BukkitPlayerAccessor> PLAYERS = new HashMap<>();

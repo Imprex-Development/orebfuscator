@@ -13,7 +13,9 @@ import java.util.Optional;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import dev.imprex.orebfuscator.interop.OrebfuscatorCore;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public abstract class AbstractHttpService {
 
   public static final Gson GSON = new GsonBuilder().setPrettyPrinting()

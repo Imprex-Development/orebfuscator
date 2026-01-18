@@ -2,11 +2,13 @@ package net.imprex.orebfuscator;
 
 import java.util.Collection;
 import java.util.Iterator;
-import org.bukkit.World;
-import org.bukkit.block.Block;
 import net.imprex.orebfuscator.api.OrebfuscatorService;
 import net.imprex.orebfuscator.obfuscation.ObfuscationSystem;
+import org.bukkit.World;
+import org.bukkit.block.Block;
+import org.jspecify.annotations.NullMarked;
 
+@NullMarked
 public final class DefaultOrebfuscatorService implements OrebfuscatorService {
 
   private final ObfuscationSystem obfuscationSystem;
