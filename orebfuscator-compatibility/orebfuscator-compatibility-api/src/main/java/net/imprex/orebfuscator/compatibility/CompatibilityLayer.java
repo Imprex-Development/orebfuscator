@@ -4,8 +4,8 @@ import java.util.concurrent.CompletableFuture;
 
 import org.bukkit.World;
 
-import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import dev.imprex.orebfuscator.interop.ChunkAccessor;
+import dev.imprex.orebfuscator.obfuscation.ObfuscationRequest;
 
 public interface CompatibilityLayer {
 
@@ -13,5 +13,5 @@ public interface CompatibilityLayer {
 
   CompatibilityScheduler getScheduler();
 
-  CompletableFuture<ChunkAccessor[]> getNeighboringChunks(World world, ChunkCacheKey key);
+  CompletableFuture<ChunkAccessor[]> getNeighboringChunks(World world, ObfuscationRequest request);
 }

@@ -57,9 +57,6 @@ public class ObfuscationPipeline {
 
     final var request = new ObfuscationRequest(world, player, packet, neighborChunks);
 
-    final var neighborTimer = statistics.injector.pipelineDelayNeighbors.start();
-//    final var neighborFuture = neighborTimer.wrap(world.getNeighboringChunks(request));
-
     final CacheRequest cacheRequest;
     final CompletionStage<Optional<ObfuscationResponse>> cacheFuture;
 
@@ -85,6 +82,7 @@ public class ObfuscationPipeline {
       if (optional.isPresent()) {
         return CompletableFuture.completedStage(optional.get());
       } else {
+        final var neighborTimer = statistics.injector.pipelineDelayNeighbors.start();
         return neighborTimer.wrap(world.getNeighboringChunks(request))
             .handleAsync((neighbors, throwable) -> {
               if (throwable != null) {

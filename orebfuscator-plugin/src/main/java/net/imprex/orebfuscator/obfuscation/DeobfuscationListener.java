@@ -18,6 +18,7 @@ import org.bukkit.event.entity.EntityChangeBlockEvent;
 import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.jspecify.annotations.NullMarked;
 import dev.imprex.orebfuscator.PermissionRequirements;
 import dev.imprex.orebfuscator.UpdateSystem;
 import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
@@ -31,7 +32,7 @@ import net.md_5.bungee.api.chat.ComponentBuilder;
 import net.md_5.bungee.api.chat.HoverEvent;
 import net.md_5.bungee.api.chat.hover.content.Text;
 
-// TODO: Nullability
+@NullMarked
 public class DeobfuscationListener implements Listener {
 
   public static void createAndRegister(Orebfuscator orebfuscator, ObfuscationSystem obfuscationSystem) {

@@ -8,10 +8,10 @@ import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
 import dev.imprex.orebfuscator.config.api.Config;
-import dev.imprex.orebfuscator.logging.OfcLogger;
-import dev.imprex.orebfuscator.util.ChunkCacheKey;
-import net.imprex.orebfuscator.compatibility.CompatibilityLayer;
 import dev.imprex.orebfuscator.interop.ChunkAccessor;
+import dev.imprex.orebfuscator.logging.OfcLogger;
+import dev.imprex.orebfuscator.obfuscation.ObfuscationRequest;
+import net.imprex.orebfuscator.compatibility.CompatibilityLayer;
 import net.imprex.orebfuscator.util.ServerVersion;
 
 public class OrebfuscatorCompatibility {
@@ -64,8 +64,8 @@ public class OrebfuscatorCompatibility {
     instance.getScheduler().cancelTasks();
   }
 
-  public static CompletableFuture<ChunkAccessor[]> getNeighboringChunks(World world, ChunkCacheKey key) {
-    return instance.getNeighboringChunks(world, key);
+  public static CompletableFuture<ChunkAccessor[]> getNeighboringChunks(World world, ObfuscationRequest request) {
+    return instance.getNeighboringChunks(world, request);
   }
 
   public static void close() {

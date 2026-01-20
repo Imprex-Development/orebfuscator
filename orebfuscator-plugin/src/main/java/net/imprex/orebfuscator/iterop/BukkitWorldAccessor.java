@@ -11,6 +11,7 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.world.WorldLoadEvent;
 import org.bukkit.event.world.WorldUnloadEvent;
+import org.jspecify.annotations.NullMarked;
 import com.comphenix.protocol.reflect.accessors.Accessors;
 import com.comphenix.protocol.reflect.accessors.MethodAccessor;
 import dev.imprex.orebfuscator.config.api.WorldConfigBundle;
@@ -19,14 +20,13 @@ import dev.imprex.orebfuscator.interop.WorldAccessor;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.obfuscation.ObfuscationRequest;
 import dev.imprex.orebfuscator.util.BlockPos;
-import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import dev.imprex.orebfuscator.util.ChunkDirection;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 
-// TODO: Nullability
+@NullMarked
 public class BukkitWorldAccessor implements WorldAccessor {
 
   private static final boolean HAS_DYNAMIC_HEIGHT = MinecraftVersion.isAtOrAbove("1.17");
@@ -180,7 +180,7 @@ public class BukkitWorldAccessor implements WorldAccessor {
 
   @Override
   public CompletableFuture<ChunkAccessor[]> getNeighboringChunks(ObfuscationRequest request) {  
-    return OrebfuscatorCompatibility.getNeighboringChunks(world, new ChunkCacheKey(request));
+    return OrebfuscatorCompatibility.getNeighboringChunks(world, request);
   }
 
   @Override

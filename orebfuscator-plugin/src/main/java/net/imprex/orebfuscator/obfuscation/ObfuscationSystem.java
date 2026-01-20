@@ -2,16 +2,18 @@ package net.imprex.orebfuscator.obfuscation;
 
 import java.util.Collection;
 import org.bukkit.block.Block;
+import org.jspecify.annotations.NullMarked;
 import dev.imprex.orebfuscator.obfuscation.DeobfuscationWorker;
 import dev.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 
-// TODO: Nullability
+@NullMarked
 public class ObfuscationSystem {
 
   private final Orebfuscator orebfuscator;
-  private ObfuscationListener listener;
+  private ObfuscationSyncListener syncListener;
+  private ObfuscationAsyncListener asyncListener;
 
   private final DeobfuscationWorker deobfuscationWorker;
 
@@ -23,7 +25,8 @@ public class ObfuscationSystem {
   }
 
   public void registerChunkListener() {
-    this.listener = new ObfuscationListener(orebfuscator);
+    this.syncListener = new ObfuscationSyncListener(orebfuscator);
+    this.asyncListener = new ObfuscationAsyncListener(orebfuscator);
   }
   
   public void deobfuscate(Block block) {
@@ -46,6 +49,11 @@ public class ObfuscationSystem {
   }
 
   public void shutdown() {
-    this.listener.unregister();
+    if (this.syncListener != null) {
+      this.syncListener.unregister();
+    }
+    if (this.asyncListener != null) {
+      this.asyncListener.unregister();
+    }
   }
 }

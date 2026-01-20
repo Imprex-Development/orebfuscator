@@ -1,5 +1,6 @@
 package net.imprex.orebfuscator.proximity;
 
+import org.jspecify.annotations.NullMarked;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
@@ -16,7 +17,7 @@ import net.imprex.orebfuscator.iterop.BukkitPlayerAccessor;
 import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 
-// TODO: Nullability
+@NullMarked
 public class ProximityPacketListener extends PacketAdapter {
 
   private static final boolean HAS_CHUNK_POS_FIELD = MinecraftVersion.isAtOrAbove("1.20.2");

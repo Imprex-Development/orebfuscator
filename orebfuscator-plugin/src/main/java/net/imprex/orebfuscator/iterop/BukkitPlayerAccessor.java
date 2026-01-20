@@ -4,6 +4,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.WeakHashMap;
+import java.util.concurrent.CompletableFuture;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.entity.Player;
@@ -14,7 +16,10 @@ import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.bukkit.potion.PotionEffectType;
+import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import com.comphenix.protocol.AsynchronousManager;
+import com.comphenix.protocol.events.PacketEvent;
 import dev.imprex.orebfuscator.PermissionRequirements;
 import dev.imprex.orebfuscator.interop.OrebfuscatorCore;
 import dev.imprex.orebfuscator.interop.PlayerAccessor;
@@ -24,10 +29,11 @@ import dev.imprex.orebfuscator.util.EntityPose;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.OrebfuscatorNms;
+import net.imprex.orebfuscator.obfuscation.PendingChunkBatch;
 import net.imprex.orebfuscator.util.PermissionUtil;
 
 // TODO: abstract static listener away into common management class, same thing for worlds as well
-// TODO: Nullability
+@NullMarked
 public class BukkitPlayerAccessor implements PlayerAccessor {
 
   private static final Map<UUID, BukkitPlayerAccessor> PLAYERS = new HashMap<>();
@@ -86,15 +92,50 @@ public class BukkitPlayerAccessor implements PlayerAccessor {
     return PLAYERS.values().stream().toList();
   }
   
+  private final OrebfuscatorCore orebfuscator;
   private final Player player;
   private BukkitWorldAccessor world;
 
   private final OrebfuscatorPlayer orebfuscatorPlayer;
+
+  private final Map<Object, CompletableFuture<Void>> pendingPackets = new WeakHashMap<>();
+  private volatile @Nullable PendingChunkBatch chunkBatch;
   
   public BukkitPlayerAccessor(OrebfuscatorCore orebfuscator, Player player) {
+    this.orebfuscator = orebfuscator;
     this.player = player;
     this.world = BukkitWorldAccessor.get(player.getWorld());
     this.orebfuscatorPlayer = new OrebfuscatorPlayer(orebfuscator, this);
+  }
+
+  public @Nullable CompletableFuture<Void> obfuscationFuture(PacketEvent event) {
+    return pendingPackets.remove(event.getPacket().getHandle());
+  }
+
+  public void obfuscationFuture(PacketEvent event, CompletableFuture<Void> future) {
+    pendingPackets.putIfAbsent(event.getPacket().getHandle(), future);
+  }
+
+  public void startBatch(AsynchronousManager asynchronousManager, PacketEvent event) {
+    if (this.chunkBatch != null) {
+      throw new RuntimeException("Started new chunk batch before previous one was finished!");
+    }
+    this.chunkBatch = new PendingChunkBatch(this.orebfuscator.statistics().injector, asynchronousManager, event);
+  }
+
+  public boolean addBatchChunk(PacketEvent event, CompletableFuture<Void> future) {
+    if (this.chunkBatch != null) {
+      this.chunkBatch.addChunk(event, future);
+      return true;
+    }
+    return false;
+  }
+
+  public void finishBatch(PacketEvent event) {
+    if (this.chunkBatch != null) {
+      this.chunkBatch.finish(event);
+      this.chunkBatch = null;
+    }
   }
 
   @Override

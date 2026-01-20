@@ -4,6 +4,7 @@ import java.util.BitSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
+import org.jspecify.annotations.NullMarked;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.nbt.NbtBase;
@@ -14,6 +15,7 @@ import dev.imprex.orebfuscator.util.BlockPos;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 import net.imprex.orebfuscator.util.WrappedClientboundLevelChunkPacketData;
 
+@NullMarked
 public class BukkitChunkPacketAccessor implements ChunkPacketAccessor {
 
   private static final boolean HAS_CLIENTBOUND_LEVEL_CHUNK_PACKET_DATA = MinecraftVersion.isAtOrAbove("1.18");

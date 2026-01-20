@@ -3,7 +3,9 @@ package net.imprex.orebfuscator.obfuscation;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import org.jspecify.annotations.NullMarked;
 import com.comphenix.protocol.AsynchronousManager;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
@@ -11,7 +13,9 @@ import com.comphenix.protocol.async.AsyncListenerHandler;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import dev.imprex.orebfuscator.PermissionRequirements;
+import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.obfuscation.ObfuscationPipeline;
+import dev.imprex.orebfuscator.statistics.InjectorStatistics;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.iterop.BukkitChunkPacketAccessor;
@@ -19,16 +23,13 @@ import net.imprex.orebfuscator.iterop.BukkitPlayerAccessor;
 import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 import net.imprex.orebfuscator.util.ServerVersion;
 
-// TODO: Nullability
-// TODO: add sync map chunk packet listener that starts obfuscation on the main thread and tries to get neighboring chunks
-//       now to reduce the potential wait time for async chunk requests.
-// TODO: add support for chunk batch system in sync listener (cancel) any packets and track current batch. On batch delimiter use
-//       future.all and send all packets at once for server to trigger multple write and single flush.
-// TODO: maybe replace async listener entirely with sync listener and packet queue
-public class ObfuscationListener extends PacketAdapter {
+@NullMarked
+public class ObfuscationAsyncListener extends PacketAdapter {
 
   private static final List<PacketType> PACKET_TYPES = Arrays.asList(
       PacketType.Play.Server.MAP_CHUNK,
+      PacketType.Play.Server.CHUNK_BATCH_START,
+      PacketType.Play.Server.CHUNK_BATCH_FINISHED,
       PacketType.Play.Server.UNLOAD_CHUNK,
       PacketType.Play.Server.CHUNKS_BIOMES,
       PacketType.Play.Server.LIGHT_UPDATE,
@@ -43,21 +44,22 @@ public class ObfuscationListener extends PacketAdapter {
       PacketType.Play.Server.BLOCK_CHANGE,
       PacketType.Play.Server.MULTI_BLOCK_CHANGE,
       // Clientbound packet
-      PacketType.Play.Client.CHUNK_BATCH_RECEIVED
-  );
+      PacketType.Play.Client.CHUNK_BATCH_RECEIVED);
 
   private final ObfuscationPipeline pipeline;
+  private final InjectorStatistics statistics;
 
   private final AsynchronousManager asynchronousManager;
   private final AsyncListenerHandler asyncListenerHandler;
 
-  public ObfuscationListener(Orebfuscator orebfuscator) {
+  public ObfuscationAsyncListener(Orebfuscator orebfuscator) {
     super(orebfuscator, PACKET_TYPES.stream()
         .filter(Objects::nonNull)
         .filter(PacketType::isSupported)
         .collect(Collectors.toList()));
 
     this.pipeline = orebfuscator.obfuscationPipeline();
+    this.statistics = orebfuscator.statistics().injector;
 
     this.asynchronousManager = ProtocolLibrary.getProtocolManager().getAsynchronousManager();
     this.asyncListenerHandler = this.asynchronousManager.registerAsyncHandler(this);
@@ -75,12 +77,15 @@ public class ObfuscationListener extends PacketAdapter {
 
   @Override
   public void onPacketReceiving(PacketEvent event) {
-    event.getPacket().getFloat().write(0, 10f);
+    statistics.injectorBatchSize.add(event.getPacket().getFloat().read(0));
   }
 
   @Override
   public void onPacketSending(PacketEvent event) {
-    if (event.getPacket().getType() != PacketType.Play.Server.MAP_CHUNK) {
+    PacketType type = event.getPacket().getType();
+    if (type != PacketType.Play.Server.MAP_CHUNK &&
+        type != PacketType.Play.Server.CHUNK_BATCH_START &&
+        type != PacketType.Play.Server.CHUNK_BATCH_FINISHED) {
       return;
     }
 
@@ -88,27 +93,43 @@ public class ObfuscationListener extends PacketAdapter {
     if (player == null || !player.isAlive()) {
       return;
     }
-    
+
     BukkitWorldAccessor world = player.world();
     if (player.hasPermission(PermissionRequirements.BYPASS) || !world.config().needsObfuscation()) {
       return;
     }
 
-    var packet = new BukkitChunkPacketAccessor(event.getPacket(), world);
-    if (packet.isEmpty()) {
-      return;
-    }
+    if (type == PacketType.Play.Server.CHUNK_BATCH_START) {
+      player.startBatch(asynchronousManager, event);
+    } else if (type == PacketType.Play.Server.CHUNK_BATCH_FINISHED) {
+      player.finishBatch(event);
+    } else {
+      var future = player.obfuscationFuture(event);
+      if (future == null) {
+        OfcLogger.warn("Processing chunk packet async without an obfuscation future, that shouldn't happen!");
 
-    var neighboringChunks = world
-        .getNeighboringChunks(packet.chunkX(), packet.chunkZ());
-    var future = pipeline.request(world, player, packet, neighboringChunks)
-        .toCompletableFuture();
-    
-    if (!future.isDone()) {
-      event.getAsyncMarker().incrementProcessingDelay();
-      future.whenComplete((result, throwable) -> {
-        this.asynchronousManager.signalPacketTransmission(event);
-      });
+        var packet = new BukkitChunkPacketAccessor(event.getPacket(), world);
+        if (packet.isEmpty()) {
+          future = CompletableFuture.completedFuture(null);
+        } else {
+          future = pipeline.request(world, player, packet, null).toCompletableFuture();
+        }
+      }
+
+      if (!player.addBatchChunk(event, future)) {
+        // no pending batch so we send each packet individually
+        event.getAsyncMarker().incrementProcessingDelay();
+        
+        var timer = statistics.packetDelayChunk.start();
+        future.whenComplete((result, throwable) -> {
+          if (throwable != null) {
+            OfcLogger.error(throwable);
+          }
+
+          this.asynchronousManager.signalPacketTransmission(event);
+          timer.stop();
+        });
+      }
     }
   }
 }
