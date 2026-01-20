@@ -144,11 +144,11 @@ public class ObfuscationPipeline {
     }
 
     if (throwable instanceof TimeoutException) {
-      OfcLogger.warn("Obfuscation for chunk[world=%s, x=%d, z=%d] timed out".formatted(request.world().getName(),
+      OfcLogger.warn("Obfuscation for chunk[world=%s, x=%d, z=%d] timed out".formatted(request.world().name(),
           packet.chunkX(), packet.chunkZ()));
     } else {
       OfcLogger.error("An error occurred while obfuscating chunk[world=%s, x=%d, z=%d]"
-          .formatted(request.world().getName(), packet.chunkX(), packet.chunkZ()), throwable);
+          .formatted(request.world().name(), packet.chunkX(), packet.chunkZ()), throwable);
     }
   }
 }

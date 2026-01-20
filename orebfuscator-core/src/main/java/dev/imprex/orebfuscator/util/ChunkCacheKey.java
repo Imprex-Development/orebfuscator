@@ -12,11 +12,11 @@ public record ChunkCacheKey(String world, int x, int z) {
   }
 
   public ChunkCacheKey(WorldAccessor world, BlockPos position) {
-    this(world.getName(), position.x() >> 4, position.z() >> 4);
+    this(world.name(), position.x() >> 4, position.z() >> 4);
   }
 
   public ChunkCacheKey(WorldAccessor world, int x, int z) {
-    this(world.getName(), x, z);
+    this(world.name(), x, z);
   }
 
   @Override

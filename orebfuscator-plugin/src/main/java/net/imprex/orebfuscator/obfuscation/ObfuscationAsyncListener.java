@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import net.imprex.orebfuscator.iterop.BukkitPlayerAccessorManager;
 import org.jspecify.annotations.NullMarked;
 import com.comphenix.protocol.AsynchronousManager;
 import com.comphenix.protocol.PacketType;
@@ -48,6 +49,7 @@ public class ObfuscationAsyncListener extends PacketAdapter {
 
   private final ObfuscationPipeline pipeline;
   private final InjectorStatistics statistics;
+  private final BukkitPlayerAccessorManager playerManager;
 
   private final AsynchronousManager asynchronousManager;
   private final AsyncListenerHandler asyncListenerHandler;
@@ -60,6 +62,7 @@ public class ObfuscationAsyncListener extends PacketAdapter {
 
     this.pipeline = orebfuscator.obfuscationPipeline();
     this.statistics = orebfuscator.statistics().injector;
+    this.playerManager = orebfuscator.playerManager();
 
     this.asynchronousManager = ProtocolLibrary.getProtocolManager().getAsynchronousManager();
     this.asyncListenerHandler = this.asynchronousManager.registerAsyncHandler(this);
@@ -89,7 +92,7 @@ public class ObfuscationAsyncListener extends PacketAdapter {
       return;
     }
 
-    BukkitPlayerAccessor player = BukkitPlayerAccessor.tryGet(event.getPlayer());
+    BukkitPlayerAccessor player = this.playerManager.tryGet(event.getPlayer());
     if (player == null || !player.isAlive()) {
       return;
     }
@@ -102,7 +105,7 @@ public class ObfuscationAsyncListener extends PacketAdapter {
     if (type == PacketType.Play.Server.CHUNK_BATCH_START) {
       player.startBatch(asynchronousManager, event);
     } else if (type == PacketType.Play.Server.CHUNK_BATCH_FINISHED) {
-      player.finishBatch(event);
+      player.finishBatch();
     } else {
       var future = player.obfuscationFuture(event);
       if (future == null) {
@@ -116,7 +119,7 @@ public class ObfuscationAsyncListener extends PacketAdapter {
         }
       }
 
-      if (!player.addBatchChunk(event, future)) {
+      if (!player.addBatchChunk(future)) {
         // no pending batch so we send each packet individually
         event.getAsyncMarker().incrementProcessingDelay();
 

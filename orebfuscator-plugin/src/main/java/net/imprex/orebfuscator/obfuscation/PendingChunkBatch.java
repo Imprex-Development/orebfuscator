@@ -1,42 +1,44 @@
 package net.imprex.orebfuscator.obfuscation;
 
+import com.comphenix.protocol.AsynchronousManager;
+import com.comphenix.protocol.events.PacketEvent;
+import dev.imprex.orebfuscator.logging.OfcLogger;
+import dev.imprex.orebfuscator.statistics.InjectorStatistics;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
 import org.jspecify.annotations.NullMarked;
-import com.comphenix.protocol.AsynchronousManager;
-import com.comphenix.protocol.events.PacketEvent;
-import dev.imprex.orebfuscator.logging.OfcLogger;
-import dev.imprex.orebfuscator.statistics.InjectorStatistics;
 
 @NullMarked
 public class PendingChunkBatch {
 
-  private final InjectorStatistics statistics;
   private final long enqueuedAt = System.nanoTime();
 
+  private final InjectorStatistics statistics;
   private final AsynchronousManager asynchronousManager;
+
   private final AtomicBoolean finished = new AtomicBoolean(false);
-  private final PacketEvent event;
+  private final PacketEvent startPacket;
 
   private final List<CompletableFuture<Void>> pendingFutures = new ArrayList<>();
 
-  public PendingChunkBatch(InjectorStatistics statistics, AsynchronousManager asynchronousManager, PacketEvent event) {
+  public PendingChunkBatch(InjectorStatistics statistics, AsynchronousManager asynchronousManager,
+      PacketEvent startPacket) {
     this.statistics = statistics;
     this.asynchronousManager = asynchronousManager;
 
-    this.event = event;
-    event.getAsyncMarker().incrementProcessingDelay();
+    this.startPacket = startPacket;
+    startPacket.getAsyncMarker().incrementProcessingDelay();
   }
 
-  public void addChunk(PacketEvent event, CompletableFuture<Void> future) {
+  public void addChunk(CompletableFuture<Void> future) {
     if (!this.finished.get()) {
       this.pendingFutures.add(future);
     }
   }
 
-  public void finish(PacketEvent event) {
+  public void finish() {
     if (this.finished.compareAndSet(false, true)) {
       var futures = this.pendingFutures.toArray(CompletableFuture[]::new);
 
@@ -47,7 +49,7 @@ public class PendingChunkBatch {
 
         // only delay/signal start packet as any packet after has to wait anyways and that way we
         // only take up a single processing slot in ProtocolLib's async filter manager per batch
-        this.asynchronousManager.signalPacketTransmission(this.event);
+        this.asynchronousManager.signalPacketTransmission(this.startPacket);
 
         statistics.packetDelayChunk.add(System.nanoTime() - this.enqueuedAt);
       });

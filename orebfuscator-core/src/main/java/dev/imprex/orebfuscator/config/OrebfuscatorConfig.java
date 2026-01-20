@@ -357,7 +357,7 @@ public class OrebfuscatorConfig implements Config {
     private final WeightedRandom @Nullable [] proximityRandoms;
 
     public OrebfuscatorWorldConfigBundle(WorldAccessor world) {
-      String worldName = world.getName();
+      String worldName = world.name();
       this.world = world;
 
       this.obfuscationConfig = findConfig(obfuscationConfigs, worldName, "obfuscation");
@@ -374,8 +374,8 @@ public class OrebfuscatorConfig implements Config {
           this.obfuscationConfig != null ? this.obfuscationConfig.getMaxY() : BlockPos.MIN_Y,
           this.proximityConfig != null ? this.proximityConfig.getMaxY() : BlockPos.MIN_Y);
 
-      this.minSectionIndex = world.getSectionIndex(this.minY);
-      this.maxSectionIndex = world.getSectionIndex(this.maxY - 1) + 1;
+      this.minSectionIndex = world.sectionIndex(this.minY);
+      this.maxSectionIndex = world.sectionIndex(this.maxY - 1) + 1;
 
       this.obfuscationRandoms = obfuscationConfig != null && obfuscationConfig.isEnabled()
           ? this.obfuscationConfig.createWeightedRandoms(world) : null;
@@ -440,13 +440,13 @@ public class OrebfuscatorConfig implements Config {
     @Override
     public int nextRandomObfuscationBlock(RandomGenerator random, int y) {
       return this.obfuscationRandoms != null
-          ? this.obfuscationRandoms[y - this.world.getMinBuildHeight()].next(random) : 0;
+          ? this.obfuscationRandoms[y - this.world.minBuildHeight()].next(random) : 0;
     }
 
     @Override
     public int nextRandomProximityBlock(RandomGenerator random, int y) {
       return this.proximityRandoms != null
-          ? this.proximityRandoms[y - this.world.getMinBuildHeight()].next(random) : 0;
+          ? this.proximityRandoms[y - this.world.minBuildHeight()].next(random) : 0;
     }
   }
 }

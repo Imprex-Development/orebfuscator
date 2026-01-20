@@ -9,21 +9,21 @@ import dev.imprex.orebfuscator.util.BlockPos;
 @NullMarked
 public interface WorldAccessor {
 
-  String getName();
+  String name();
 
-  int getHeight();
+  int height();
 
-  int getMinBuildHeight();
+  int minBuildHeight();
 
-  int getMaxBuildHeight();
+  int maxBuildHeight();
 
-  int getSectionCount();
+  int sectionCount();
 
-  int getMinSection();
+  int minSection();
 
-  int getMaxSection();
+  int maxSection();
 
-  int getSectionIndex(int y);
+  int sectionIndex(int y);
 
   WorldConfigBundle config();
 

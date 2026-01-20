@@ -54,7 +54,7 @@ public class BukkitChunkPacketAccessor implements ChunkPacketAccessor {
       }
     } else {
       this.sectionMask = new BitSet();
-      this.sectionMask.set(0, worldAccessor.getSectionCount());
+      this.sectionMask.set(0, worldAccessor.sectionCount());
     }
   }
 

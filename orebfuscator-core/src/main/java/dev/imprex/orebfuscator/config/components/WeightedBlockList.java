@@ -23,21 +23,21 @@ import org.jspecify.annotations.NullMarked;
 public class WeightedBlockList {
 
   public static WeightedRandom[] create(WorldAccessor world, List<WeightedBlockList> lists) {
-    WeightedRandom[] heightMap = new WeightedRandom[world.getHeight()];
+    WeightedRandom[] heightMap = new WeightedRandom[world.height()];
 
     List<WeightedBlockList> last = new ArrayList<>();
     List<WeightedBlockList> next = new ArrayList<>();
 
     int count = 0;
 
-    for (int y = world.getMinBuildHeight(); y < world.getMaxBuildHeight(); y++) {
+    for (int y = world.minBuildHeight(); y < world.maxBuildHeight(); y++) {
       for (WeightedBlockList list : lists) {
         if (list.minY <= y && list.maxY >= y) {
           next.add(list);
         }
       }
 
-      int index = y - world.getMinBuildHeight();
+      int index = y - world.minBuildHeight();
       if (index > 0 && last.equals(next)) {
         // copy last weighted random
         heightMap[index] = heightMap[index - 1];

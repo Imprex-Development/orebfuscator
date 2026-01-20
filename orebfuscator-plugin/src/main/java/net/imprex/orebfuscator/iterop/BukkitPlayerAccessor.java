@@ -1,111 +1,50 @@
 package net.imprex.orebfuscator.iterop;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import java.util.WeakHashMap;
-import java.util.concurrent.CompletableFuture;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.entity.Player;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.player.PlayerChangedWorldEvent;
-import org.bukkit.event.player.PlayerJoinEvent;
-import org.bukkit.event.player.PlayerQuitEvent;
-import org.bukkit.event.server.PluginDisableEvent;
-import org.bukkit.potion.PotionEffectType;
-import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
 import com.comphenix.protocol.AsynchronousManager;
 import com.comphenix.protocol.events.PacketEvent;
 import dev.imprex.orebfuscator.PermissionRequirements;
-import dev.imprex.orebfuscator.interop.OrebfuscatorCore;
 import dev.imprex.orebfuscator.interop.PlayerAccessor;
+import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.player.OrebfuscatorPlayer;
 import dev.imprex.orebfuscator.util.BlockPos;
 import dev.imprex.orebfuscator.util.EntityPose;
+import java.util.Map;
+import java.util.WeakHashMap;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.obfuscation.PendingChunkBatch;
 import net.imprex.orebfuscator.util.PermissionUtil;
+import org.bukkit.GameMode;
+import org.bukkit.entity.Player;
+import org.bukkit.potion.PotionEffectType;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
-// TODO: abstract static listener away into common management class, same thing for worlds as well
 @NullMarked
 public class BukkitPlayerAccessor implements PlayerAccessor {
 
-  private static final Map<UUID, BukkitPlayerAccessor> PLAYERS = new HashMap<>();
-
-  public static void registerListener(Orebfuscator orebfuscator) {
-    Bukkit.getPluginManager().registerEvents(new Listener() {
-      @EventHandler
-      public void onJoin(PlayerJoinEvent event) {
-        var player = event.getPlayer();
-        var bukkitPlayer = PLAYERS.computeIfAbsent(player.getUniqueId(),
-            key -> new BukkitPlayerAccessor(orebfuscator, player));
-        bukkitPlayer.orebfuscatorPlayer.clearChunks();
-      }
-
-      @EventHandler
-      public void onChangedWorld(PlayerChangedWorldEvent event) {
-        var player = event.getPlayer();
-        var bukkitPlayer = PLAYERS.get(player.getUniqueId());
-        if (bukkitPlayer != null) {
-          bukkitPlayer.world = BukkitWorldAccessor.get(player.getWorld());
-          bukkitPlayer.orebfuscatorPlayer.clearChunks();
-        }
-      }
-
-      @EventHandler
-      public void onQuit(PlayerQuitEvent event) {
-        PLAYERS.remove(event.getPlayer().getUniqueId());
-      }
-
-      @EventHandler
-      public void onDisable(PluginDisableEvent event) {
-        if (event.getPlugin() == orebfuscator) {
-          PLAYERS.clear();
-        }
-      }
-    }, orebfuscator);
-
-    for (Player player : Bukkit.getOnlinePlayers()) {
-      var bukkitPlayer = PLAYERS.computeIfAbsent(player.getUniqueId(),
-          key -> new BukkitPlayerAccessor(orebfuscator, player));
-      bukkitPlayer.orebfuscatorPlayer.clearChunks();
-    }
-  }
-
-  @Nullable
-  public static BukkitPlayerAccessor tryGet(Player player) {
-    try {
-      return PLAYERS.get(player.getUniqueId());
-    } catch (UnsupportedOperationException e) {
-      // catch TemporaryPlayer not implementing getUniqueId
-      return null;
-    }
-  }
-
-  public static List<BukkitPlayerAccessor> getAll() {
-    return PLAYERS.values().stream().toList();
-  }
-
-  private final OrebfuscatorCore orebfuscator;
+  private final Orebfuscator orebfuscator;
   private final Player player;
   private BukkitWorldAccessor world;
 
   private final OrebfuscatorPlayer orebfuscatorPlayer;
 
   private final Map<Object, CompletableFuture<Void>> pendingPackets = new WeakHashMap<>();
-  private volatile @Nullable PendingChunkBatch chunkBatch;
+  private final AtomicReference<@Nullable PendingChunkBatch> chunkBatch = new AtomicReference<>();
 
-  public BukkitPlayerAccessor(OrebfuscatorCore orebfuscator, Player player) {
+  public BukkitPlayerAccessor(Orebfuscator orebfuscator, Player player) {
     this.orebfuscator = orebfuscator;
     this.player = player;
-    this.world = BukkitWorldAccessor.get(player.getWorld());
+    this.world = orebfuscator.worldManager().get(player.getWorld());
     this.orebfuscatorPlayer = new OrebfuscatorPlayer(orebfuscator, this);
+  }
+
+  public void changeWorld(BukkitWorldAccessor world) {
+    this.world = world;
+    this.orebfuscatorPlayer.clearChunks();
   }
 
   public @Nullable CompletableFuture<Void> obfuscationFuture(PacketEvent event) {
@@ -117,24 +56,28 @@ public class BukkitPlayerAccessor implements PlayerAccessor {
   }
 
   public void startBatch(AsynchronousManager asynchronousManager, PacketEvent event) {
-    if (this.chunkBatch != null) {
-      throw new RuntimeException("Started new chunk batch before previous one was finished!");
+    var nextBatch = new PendingChunkBatch(this.orebfuscator.statistics().injector, asynchronousManager, event);
+    var prevBatch = this.chunkBatch.getAndSet(nextBatch);
+
+    if (prevBatch != null) {
+      prevBatch.finish();
+      OfcLogger.warn("Pending chunk batch discarded because a new batch was initiated.");
     }
-    this.chunkBatch = new PendingChunkBatch(this.orebfuscator.statistics().injector, asynchronousManager, event);
   }
 
-  public boolean addBatchChunk(PacketEvent event, CompletableFuture<Void> future) {
-    if (this.chunkBatch != null) {
-      this.chunkBatch.addChunk(event, future);
+  public boolean addBatchChunk(CompletableFuture<Void> future) {
+    var batch = this.chunkBatch.get();
+    if (batch != null) {
+      batch.addChunk(future);
       return true;
     }
     return false;
   }
 
-  public void finishBatch(PacketEvent event) {
-    if (this.chunkBatch != null) {
-      this.chunkBatch.finish(event);
-      this.chunkBatch = null;
+  public void finishBatch() {
+    var batch = this.chunkBatch.getAndSet(null);
+    if (batch != null) {
+      batch.finish();
     }
   }
 

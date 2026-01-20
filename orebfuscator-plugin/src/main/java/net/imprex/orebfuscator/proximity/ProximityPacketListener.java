@@ -1,5 +1,6 @@
 package net.imprex.orebfuscator.proximity;
 
+import net.imprex.orebfuscator.iterop.BukkitPlayerAccessorManager;
 import org.jspecify.annotations.NullMarked;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
@@ -22,10 +23,13 @@ public class ProximityPacketListener extends PacketAdapter {
 
   private static final boolean HAS_CHUNK_POS_FIELD = MinecraftVersion.isAtOrAbove("1.20.2");
 
+  private final BukkitPlayerAccessorManager playerManager;
   private final ProtocolManager protocolManager;
 
   public ProximityPacketListener(Orebfuscator orebfuscator) {
     super(orebfuscator, PacketType.Play.Server.UNLOAD_CHUNK);
+
+    this.playerManager = orebfuscator.playerManager();
 
     this.protocolManager = ProtocolLibrary.getProtocolManager();
     this.protocolManager.addPacketListener(this);
@@ -37,7 +41,7 @@ public class ProximityPacketListener extends PacketAdapter {
 
   @Override
   public void onPacketSending(PacketEvent event) {
-    BukkitPlayerAccessor player = BukkitPlayerAccessor.tryGet(event.getPlayer());
+    BukkitPlayerAccessor player = this.playerManager.tryGet(event.getPlayer());
     if (player == null || player.hasPermission(PermissionRequirements.BYPASS)) {
       return;
     }

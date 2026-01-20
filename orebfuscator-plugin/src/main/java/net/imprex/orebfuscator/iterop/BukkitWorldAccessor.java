@@ -1,17 +1,5 @@
 package net.imprex.orebfuscator.iterop;
 
-import java.util.Collection;
-import java.util.Map;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.ConcurrentHashMap;
-import org.bukkit.Bukkit;
-import org.bukkit.World;
-import org.bukkit.event.EventHandler;
-import org.bukkit.event.Listener;
-import org.bukkit.event.world.WorldLoadEvent;
-import org.bukkit.event.world.WorldUnloadEvent;
-import org.jspecify.annotations.NullMarked;
 import com.comphenix.protocol.reflect.accessors.Accessors;
 import com.comphenix.protocol.reflect.accessors.MethodAccessor;
 import dev.imprex.orebfuscator.config.api.WorldConfigBundle;
@@ -21,28 +9,25 @@ import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.obfuscation.ObfuscationRequest;
 import dev.imprex.orebfuscator.util.BlockPos;
 import dev.imprex.orebfuscator.util.ChunkDirection;
+import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.util.MinecraftVersion;
+import org.bukkit.World;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 @NullMarked
 public class BukkitWorldAccessor implements WorldAccessor {
 
   private static final boolean HAS_DYNAMIC_HEIGHT = MinecraftVersion.isAtOrAbove("1.17");
 
-  private static final Map<World, BukkitWorldAccessor> ACCESSOR_LOOKUP = new ConcurrentHashMap<>();
+  private static final @Nullable MethodAccessor WORLD_GET_MAX_HEIGHT = getWorldMethod("getMaxHeight");
+  private static final @Nullable MethodAccessor WORLD_GET_MIN_HEIGHT = getWorldMethod("getMinHeight");
 
-  public static BukkitWorldAccessor get(World world) {
-    return ACCESSOR_LOOKUP.computeIfAbsent(world, key -> {
-      throw new IllegalStateException("Created world accessor outside of event!");
-    });
-  }
-
-  private static final MethodAccessor WORLD_GET_MAX_HEIGHT = getWorldMethod("getMaxHeight");
-  private static final MethodAccessor WORLD_GET_MIN_HEIGHT = getWorldMethod("getMinHeight");
-
-  private static MethodAccessor getWorldMethod(String methodName) {
+  private static @Nullable MethodAccessor getWorldMethod(String methodName) {
     if (HAS_DYNAMIC_HEIGHT) {
       MethodAccessor methodAccessor = getWorldMethod0(World.class, methodName);
       if (methodAccessor == null) {
@@ -54,7 +39,7 @@ public class BukkitWorldAccessor implements WorldAccessor {
     return null;
   }
 
-  private static MethodAccessor getWorldMethod0(Class<?> target, String methodName) {
+  private static @Nullable MethodAccessor getWorldMethod0(Class<?> target, String methodName) {
     try {
       return Accessors.getMethodAccessor(target, methodName);
     } catch (IllegalArgumentException e) {
@@ -72,42 +57,19 @@ public class BukkitWorldAccessor implements WorldAccessor {
     return block >> 4;
   }
 
-  public static Collection<BukkitWorldAccessor> getWorlds() {
-    return ACCESSOR_LOOKUP.values();
-  }
-
-  public static void registerListener(Orebfuscator orebfuscator) {
-    Bukkit.getPluginManager().registerEvents(new Listener() {
-      @EventHandler
-      public void onWorldUnload(WorldLoadEvent event) {
-        World world = event.getWorld();
-        ACCESSOR_LOOKUP.put(world, new BukkitWorldAccessor(world, orebfuscator));
-      }
-
-      @EventHandler
-      public void onWorldUnload(WorldUnloadEvent event) {
-        ACCESSOR_LOOKUP.remove(event.getWorld());
-      }
-    }, orebfuscator);
-
-    for (World world : Bukkit.getWorlds()) {
-      ACCESSOR_LOOKUP.put(world, new BukkitWorldAccessor(world, orebfuscator));
-    }
-  }
-
   public final World world;
   private final Orebfuscator orebfuscator;
 
   private final int maxHeight;
   private final int minHeight;
 
-  private WorldConfigBundle worldConfigBundle;
+  private @Nullable WorldConfigBundle worldConfigBundle;
 
-  private BukkitWorldAccessor(World world, Orebfuscator orebfuscator) {
+  BukkitWorldAccessor(World world, Orebfuscator orebfuscator) {
     this.world = Objects.requireNonNull(world);
     this.orebfuscator = Objects.requireNonNull(orebfuscator);
 
-    if (HAS_DYNAMIC_HEIGHT) {
+    if (WORLD_GET_MAX_HEIGHT != null && WORLD_GET_MIN_HEIGHT != null) {
       this.maxHeight = (int) WORLD_GET_MAX_HEIGHT.invoke(world);
       this.minHeight = (int) WORLD_GET_MIN_HEIGHT.invoke(world);
     } else {
@@ -125,43 +87,43 @@ public class BukkitWorldAccessor implements WorldAccessor {
   }
 
   @Override
-  public String getName() {
+  public String name() {
     return this.world.getName();
   }
 
   @Override
-  public int getHeight() {
+  public int height() {
     return this.maxHeight - this.minHeight;
   }
 
   @Override
-  public int getMinBuildHeight() {
+  public int minBuildHeight() {
     return this.minHeight;
   }
 
   @Override
-  public int getMaxBuildHeight() {
+  public int maxBuildHeight() {
     return this.maxHeight;
   }
 
   @Override
-  public int getSectionCount() {
-    return this.getMaxSection() - this.getMinSection();
+  public int sectionCount() {
+    return this.maxSection() - this.minSection();
   }
 
   @Override
-  public int getMinSection() {
-    return blockToSectionCoord(this.getMinBuildHeight());
+  public int minSection() {
+    return blockToSectionCoord(this.minBuildHeight());
   }
 
   @Override
-  public int getMaxSection() {
-    return blockToSectionCoord(this.getMaxBuildHeight() - 1) + 1;
+  public int maxSection() {
+    return blockToSectionCoord(this.maxBuildHeight() - 1) + 1;
   }
 
   @Override
-  public int getSectionIndex(int y) {
-    return blockToSectionCoord(y) - getMinSection();
+  public int sectionIndex(int y) {
+    return blockToSectionCoord(y) - minSection();
   }
 
   public ChunkAccessor[] getNeighboringChunks(int chunkX, int chunkZ) {
@@ -213,6 +175,6 @@ public class BukkitWorldAccessor implements WorldAccessor {
 
   @Override
   public String toString() {
-    return String.format("[%s, minY=%s, maxY=%s]", world.getName(), minHeight, maxHeight);
+    return "[minY=%s, maxY=%s]".formatted(minHeight, maxHeight);
   }
 }

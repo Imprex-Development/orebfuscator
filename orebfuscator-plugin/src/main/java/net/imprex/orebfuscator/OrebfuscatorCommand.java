@@ -1,5 +1,6 @@
 package net.imprex.orebfuscator;
 
+import com.google.gson.JsonArray;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -91,12 +92,12 @@ public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {
       }
       root.add("plugins", plugins);
 
-      JsonObject worlds = new JsonObject();
-      for (World bukkitWorld : Bukkit.getWorlds()) {
+      JsonArray worlds = new JsonArray();
+      for (var accessor : orebfuscator.worldManager().all()) {
         JsonObject world = new JsonObject();
-        world.addProperty("uuid", bukkitWorld.getUID().toString());
-        world.addProperty("heightAccessor", BukkitWorldAccessor.get(bukkitWorld).toString());
-        worlds.add(bukkitWorld.getName(), world);
+        world.addProperty("name", accessor.name());
+        world.addProperty("heightAccessor", accessor.toString());
+        worlds.add(world);
       }
       root.add("worlds", worlds);
 

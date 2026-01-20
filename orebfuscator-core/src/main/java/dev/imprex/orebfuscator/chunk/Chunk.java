@@ -28,7 +28,7 @@ public class Chunk implements AutoCloseable {
     this.chunkZ = packet.chunkZ();
 
     this.worldAccessor = request.world();
-    this.sections = new ChunkSectionHolder[this.worldAccessor.getSectionCount()];
+    this.sections = new ChunkSectionHolder[this.worldAccessor.sectionCount()];
 
     byte[] data = packet.data();
     this.inputBuffer = Unpooled.wrappedBuffer(data);
@@ -59,7 +59,7 @@ public class Chunk implements AutoCloseable {
 
   public int getBlockState(int x, int y, int z) {
     if (x >> 4 == this.chunkX && z >> 4 == this.chunkZ) {
-      ChunkSectionHolder chunkSection = this.sections[this.worldAccessor.getSectionIndex(y)];
+      ChunkSectionHolder chunkSection = this.sections[this.worldAccessor.sectionIndex(y)];
       if (chunkSection != null) {
         return chunkSection.data[ChunkSection.positionToIndex(x & 0xF, y & 0xF, z & 0xF)];
       }

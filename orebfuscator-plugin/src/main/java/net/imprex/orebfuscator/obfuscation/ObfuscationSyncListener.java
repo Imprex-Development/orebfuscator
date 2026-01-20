@@ -1,5 +1,6 @@
 package net.imprex.orebfuscator.obfuscation;
 
+import net.imprex.orebfuscator.iterop.BukkitPlayerAccessorManager;
 import org.jspecify.annotations.NullMarked;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
@@ -17,12 +18,15 @@ import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 public class ObfuscationSyncListener extends PacketAdapter {
 
   private final ObfuscationPipeline pipeline;
+  private final BukkitPlayerAccessorManager playerManager;
+
   private final ProtocolManager protocolManager;
 
   public ObfuscationSyncListener(Orebfuscator orebfuscator) {
     super(orebfuscator, PacketType.Play.Server.MAP_CHUNK);
 
     this.pipeline = orebfuscator.obfuscationPipeline();
+    this.playerManager = orebfuscator.playerManager();
 
     this.protocolManager = ProtocolLibrary.getProtocolManager();
     this.protocolManager.addPacketListener(this);
@@ -34,7 +38,7 @@ public class ObfuscationSyncListener extends PacketAdapter {
 
   @Override
   public void onPacketSending(PacketEvent event) {
-    BukkitPlayerAccessor player = BukkitPlayerAccessor.tryGet(event.getPlayer());
+    BukkitPlayerAccessor player = this.playerManager.tryGet(event.getPlayer());
     if (player == null || !player.isAlive()) {
       return;
     }

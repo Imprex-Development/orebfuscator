@@ -81,7 +81,7 @@ public class ObfuscationProcessor {
           continue;
         }
 
-        final int baseY = worldAccessor.getMinBuildHeight() + (sectionIndex << 4);
+        final int baseY = worldAccessor.minBuildHeight() + (sectionIndex << 4);
         for (int index = 0; index < 4096; index++) {
           int y = baseY + (index >> 8 & 15);
           if (!bundle.shouldObfuscate(y)) {
@@ -154,7 +154,7 @@ public class ObfuscationProcessor {
       boolean allowNonOcclude) {
     BlockFlags blockFlags = bundle.blockFlags();
 
-    for (int targetY = y - 1; targetY > chunk.world().getMinBuildHeight(); targetY--) {
+    for (int targetY = y - 1; targetY > chunk.world().minBuildHeight(); targetY--) {
       int blockData = chunk.getBlockState(x, targetY, z);
       if (blockData != -1 && (allowNonOcclude || registryAccessor.isOccluding(blockData))) {
         int mask = blockFlags.flags(blockData, y);
@@ -194,7 +194,7 @@ public class ObfuscationProcessor {
   }
 
   private int getBlockId(ObfuscationRequest request, Chunk chunk, int x, int y, int z) {
-    if (y >= chunk.world().getMaxBuildHeight() || y < chunk.world().getMinBuildHeight()) {
+    if (y >= chunk.world().maxBuildHeight() || y < chunk.world().minBuildHeight()) {
       return -1;
     }
 

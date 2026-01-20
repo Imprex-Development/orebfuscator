@@ -15,6 +15,7 @@ public interface NmsManager extends RegistryAccessor {
 
   ChunkAccessor getChunkAccessor(World world, int chunkX, int chunkZ);
 
+  // TODO: change to getChunkNow, implement in each version and add use in deobfuscation worker
   @Nullable ChunkAccessor tryGetChunkAccessor(World world, int chunkX, int chunkZ);
 
   int getBlockState(World world, int x, int y, int z);

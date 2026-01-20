@@ -2,6 +2,8 @@ package net.imprex.orebfuscator;
 
 import java.nio.file.Path;
 import java.util.List;
+import net.imprex.orebfuscator.iterop.BukkitPlayerAccessorManager;
+import net.imprex.orebfuscator.iterop.BukkitWorldAccessorManager;
 import org.bukkit.Bukkit;
 import org.bukkit.event.Event;
 import org.bukkit.event.EventPriority;
@@ -45,6 +47,9 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
   private OrebfuscatorStatistics statistics;
   private OrebfuscatorExecutor executor;
 
+  private BukkitWorldAccessorManager worldManager;
+  private BukkitPlayerAccessorManager playerManager;
+
   private ChunkFactory chunkFactory;
   private ObfuscationProcessor obfuscationProcessor;
   private ObfuscationCache obfuscationCache;
@@ -74,13 +79,13 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
       }
 
       this.statisticsRegistry = new StatisticsRegistry();
+      this.worldManager = new BukkitWorldAccessorManager(this);
 
-      BukkitWorldAccessor.registerListener(this);
       OrebfuscatorNms.initialize();
       this.config = new OrebfuscatorConfig(this);
       OrebfuscatorCompatibility.initialize(this, config);
-      BukkitPlayerAccessor.registerListener(this);
 
+      this.playerManager = new BukkitPlayerAccessorManager(this);
       new MetricsSystem(this);
       this.updateSystem = new UpdateSystem(this, "bukkit");
 
@@ -163,6 +168,14 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
     return statisticsRegistry;
   }
 
+  public BukkitWorldAccessorManager worldManager() {
+    return worldManager;
+  }
+
+  public BukkitPlayerAccessorManager playerManager() {
+    return playerManager;
+  }
+
   @Override
   public OrebfuscatorExecutor executor() {
     return executor;
@@ -240,16 +253,12 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
 
   @Override
   public List<WorldAccessor> worlds() {
-    return BukkitWorldAccessor.getWorlds().stream()
-        .map(WorldAccessor.class::cast)
-        .toList();
+    return this.worldManager.all();
   }
 
   @Override
   public List<PlayerAccessor> players() {
-    return BukkitPlayerAccessor.getAll().stream()
-        .map(PlayerAccessor.class::cast)
-        .toList();
+    return this.playerManager.all();
   }
 
   @Override
