@@ -13,7 +13,7 @@ import dev.imprex.orebfuscator.util.RollingAverage;
 import dev.imprex.orebfuscator.util.RollingTimer;
 
 public class CacheStatistics implements StatisticsSource {
-  
+
   private final CacheConfig config;
 
   private final AtomicLong cacheHitCountMemory = new AtomicLong(0);
@@ -29,7 +29,7 @@ public class CacheStatistics implements StatisticsSource {
   public final RollingTimer diskCacheWaitTime = new RollingTimer(4096);
   public final RollingTimer diskCacheReadTime = new RollingTimer(4096);
   public final RollingTimer diskCacheWriteTime = new RollingTimer(4096);
-  
+
   public CacheStatistics(Config config) {
     this.config = config.cache();
   }
@@ -57,11 +57,11 @@ public class CacheStatistics implements StatisticsSource {
   public void setDiskCacheQueueLength(LongSupplier supplier) {
     this.diskCacheQueueLength = Objects.requireNonNull(supplier);
   }
-  
+
   public void onDiskCacheRead(long bytes) {
     this.diskCacheReadBytes.add(bytes);
   }
-  
+
   public void onDiskCacheWrite(long bytes) {
     this.diskCacheWriteBytes.add(bytes);
   }
@@ -99,14 +99,14 @@ public class CacheStatistics implements StatisticsSource {
       long diskCacheQueueLength = this.diskCacheQueueLength.getAsLong();
 
       joiner.add(String.format(" - diskCache (queue): %s", diskCacheQueueLength));
-   
+
       long diskCacheWaitTime = (long) this.diskCacheWaitTime.average();
       long diskCacheReadTime = (long) this.diskCacheReadTime.average();
       long diskCacheWriteTime = (long) this.diskCacheWriteTime.average();
 
       joiner.add(String.format(" - diskCacheTime (wait/read/write): %s / %s / %s",
           time(diskCacheWaitTime), time(diskCacheReadTime), time(diskCacheWriteTime)));
-     
+
       long diskCacheReadBytes = (long) this.diskCacheReadBytes.average();
       long diskCacheWriteBytes = (long) this.diskCacheWriteBytes.average();
 

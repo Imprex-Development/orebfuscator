@@ -86,7 +86,7 @@ public class DeobfuscationWorker {
       timer.stop();
     }
   }
-  
+
   private void deobfuscateNow(WorldAccessor world, List<BlockPos> blocks) {
     final BlockFlags blockFlags = world.config().blockFlags();
 

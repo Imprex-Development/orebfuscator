@@ -110,7 +110,7 @@ public abstract class AbstractNmsManager implements NmsManager {
   public final boolean isBlockEntity(int id) {
     return this.blockStates[id].isBlockEntity();
   }
-  
+
   @Override
   public @Nullable ChunkAccessor tryGetChunkAccessor(World world, int chunkX, int chunkZ) {
     throw new UnsupportedOperationException();

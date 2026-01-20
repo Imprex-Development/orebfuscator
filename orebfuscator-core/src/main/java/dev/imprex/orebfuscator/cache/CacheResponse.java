@@ -9,8 +9,9 @@ public sealed interface CacheResponse permits CacheResponse.Success, CacheRespon
   public static CacheResponse success(ChunkCacheEntry entry) {
     return new Success(entry);
   }
-  
+
   record Success(ChunkCacheEntry entry) implements CacheResponse {
+
     public Success {
       Objects.requireNonNull(entry, "entry");
     }

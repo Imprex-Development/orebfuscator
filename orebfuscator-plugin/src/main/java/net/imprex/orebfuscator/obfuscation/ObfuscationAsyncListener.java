@@ -119,7 +119,7 @@ public class ObfuscationAsyncListener extends PacketAdapter {
       if (!player.addBatchChunk(event, future)) {
         // no pending batch so we send each packet individually
         event.getAsyncMarker().incrementProcessingDelay();
-        
+
         var timer = statistics.packetDelayChunk.start();
         future.whenComplete((result, throwable) -> {
           if (throwable != null) {

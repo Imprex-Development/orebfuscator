@@ -61,7 +61,8 @@ public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {
     }
 
     if (args.length == 0) {
-      sender.sendMessage("You are using %s %s".formatted(this.orebfuscator.name(), this.orebfuscator.orebfuscatorVersion()));
+      sender.sendMessage(
+          "You are using %s %s".formatted(this.orebfuscator.name(), this.orebfuscator.orebfuscatorVersion()));
       sender.sendMessage(this.orebfuscator.statisticsRegistry().format());
     } else if (args[0].equalsIgnoreCase("dump")) {
       TemporalAccessor now = OffsetDateTime.now(ZoneOffset.UTC);

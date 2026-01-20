@@ -11,7 +11,7 @@ public class OrebfuscatorPlayerChunk {
 
   private static final int FLAG_DELETED = 0x80;
   private static final int FLAG_LAVA_OBFUSCATED = 0x01;
-  
+
   private final int chunkX;
   private final int chunkZ;
 
@@ -41,8 +41,9 @@ public class OrebfuscatorPlayerChunk {
   public ProximityIterator proximityIterator() {
     return new ProximityItr();
   }
-  
+
   public interface ProximityIterator extends Iterator<ProximityBlock>, AutoCloseable {
+
     void close();
   }
 
@@ -54,7 +55,7 @@ public class OrebfuscatorPlayerChunk {
     private int cursor;
     private int removeCursor = -1;
     private int deleteCount;
-    
+
     @Override
     public boolean hasNext() {
       return cursor < proximitySize;
@@ -68,7 +69,7 @@ public class OrebfuscatorPlayerChunk {
 
       int sectionPos = proximityBlocks[removeCursor = cursor];
       int flags = proximityFlags[cursor++];
-      
+
       var blockPos = BlockPos.fromSectionPos(x, z, sectionPos);
       return new ProximityBlock(blockPos, (flags & FLAG_LAVA_OBFUSCATED) != 0);
     }
@@ -82,23 +83,24 @@ public class OrebfuscatorPlayerChunk {
       // remove entry
       final int index = removeCursor;
       int flags = proximityFlags[index];
-      if ((flags & FLAG_DELETED) != 0)
+      if ((flags & FLAG_DELETED) != 0) {
         throw new IllegalStateException("Already deleted!");
+      }
 
       // update cursor positions
       removeCursor = -1;
-      
+
       proximityFlags[index] |= FLAG_DELETED;
       deleteCount++;
     }
-    
+
     @Override
     public void close() {
       if (deleteCount > 0) {
         int newSize = Math.max(0, proximitySize - deleteCount);
         int[] newProximityBlocks = new int[newSize];
         byte[] newProximityFlags = new byte[newSize];
-        
+
         int newIndex = 0;
         for (int oldIndex = 0; newIndex < newSize && oldIndex < proximitySize; oldIndex++) {
           if ((proximityFlags[oldIndex] & FLAG_DELETED) == 0) {
@@ -106,7 +108,7 @@ public class OrebfuscatorPlayerChunk {
             newProximityFlags[newIndex++] = proximityFlags[oldIndex];
           }
         }
-        
+
         proximitySize = newSize;
         proximityBlocks = newProximityBlocks;
         proximityFlags = newProximityFlags;

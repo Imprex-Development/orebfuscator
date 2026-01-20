@@ -107,7 +107,8 @@ public class DeobfuscationListener implements Listener {
   public void onJoin(PlayerJoinEvent event) {
     Player player = event.getPlayer();
 
-    if (this.config.general().bypassNotification() && PermissionUtil.hasPermission(player, PermissionRequirements.BYPASS)) {
+    if (this.config.general().bypassNotification() && PermissionUtil.hasPermission(player,
+        PermissionRequirements.BYPASS)) {
       player.sendMessage(
           "[§bOrebfuscator§f]§7 You bypass Orebfuscator because you have the 'orebfuscator.bypass' permission.");
     }

@@ -78,10 +78,10 @@ public class ProximityWorker {
     FrustumIntersection frustum =
         proximityConfig.frustumCullingEnabled()
             ? new FrustumIntersection(proximityConfig.frustumCullingProjectionMatrix()
-                .rotate(new Quaternionf()
-                    .rotateX((float) Math.toRadians(eyeLocation.rotX()))
-                    .rotateY((float) Math.toRadians(eyeLocation.rotY() + 180)))
-                .translate((float) -eyeLocation.x(), (float) -eyeLocation.y(), (float) -eyeLocation.z()), false)
+            .rotate(new Quaternionf()
+                .rotateX((float) Math.toRadians(eyeLocation.rotX()))
+                .rotateY((float) Math.toRadians(eyeLocation.rotY() + 180)))
+            .translate((float) -eyeLocation.x(), (float) -eyeLocation.y(), (float) -eyeLocation.z()), false)
             : null;
 
     EntityPose location = player.pose();
@@ -89,14 +89,14 @@ public class ProximityWorker {
     int maxChunkX = (location.blockX() + distance) >> 4;
     int minChunkZ = (location.blockZ() - distance) >> 4;
     int maxChunkZ = (location.blockZ() + distance) >> 4;
-    
+
     ChunkAccessor playerChunk = world.getChunk(location.blockX() >> 4, location.blockZ() >> 4);
     int eyeBlockId = playerChunk.getBlockState(location.blockX(), eyeLocation.blockY(), location.blockZ());
     boolean isInLava = eyeBlockId >= 0 && this.registry.isLava(eyeBlockId);
-    
+
     double lavaDistance = player.lavaFogDistance();
     double lavaDistanceSquared = lavaDistance * lavaDistance;
-    
+
     ProximityRayCaster rayCaster = proximityConfig.rayCastCheckEnabled()
         ? new ProximityRayCaster(registry, world) : null;
 
@@ -112,13 +112,13 @@ public class ProximityWorker {
           while (iterator.hasNext()) {
             ProximityBlock proximityBlock = iterator.next();
             BlockPos blockPos = proximityBlock.blockPos();
-            
+
             // skip lava obfuscated if not in lava
-            // TODO: the current deobfuscation would only deobfuscate lava if the neighoring block is a hiddenBlock
+            // TODO: the current deobfuscation would only deobfuscate lava if the neighboring block is a hiddenBlock
             if (proximityBlock.lavaObfuscated() && !isInLava) {
               continue;
             }
-            
+
             double compareDistanceSquared;
             double blockDistanceSquared;
             if (proximityBlock.lavaObfuscated()) {

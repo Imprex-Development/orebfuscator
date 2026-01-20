@@ -81,7 +81,7 @@ public class BukkitChunkPacketAccessor implements ChunkPacketAccessor {
   @Override
   public void update(ObfuscationResponse response) {
     Predicate<BlockPos> blockEntityPredicate = relativePostion ->
-      response.blockEntities().contains(relativePostion.add(chunkX << 4, 0, chunkZ << 4));
+        response.blockEntities().contains(relativePostion.add(chunkX << 4, 0, chunkZ << 4));
 
     if (this.packetData != null) {
       this.packetData.setBuffer(response.data());

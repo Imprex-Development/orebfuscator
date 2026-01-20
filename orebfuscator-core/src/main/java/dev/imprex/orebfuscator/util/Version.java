@@ -38,7 +38,7 @@ public record Version(int major, int minor, int patch, @Nullable String suffix) 
     int patch = patchGroup != null ? Integer.parseInt(patchGroup) : 0;
 
     String suffix = matcher.group("suffix");
-    
+
     return Optional.of(new Version(major, minor, patch, suffix));
   }
 

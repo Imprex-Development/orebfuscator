@@ -57,12 +57,12 @@ public class BukkitPlayerAccessor implements PlayerAccessor {
           bukkitPlayer.orebfuscatorPlayer.clearChunks();
         }
       }
-      
+
       @EventHandler
       public void onQuit(PlayerQuitEvent event) {
         PLAYERS.remove(event.getPlayer().getUniqueId());
       }
-      
+
       @EventHandler
       public void onDisable(PluginDisableEvent event) {
         if (event.getPlugin() == orebfuscator) {
@@ -70,7 +70,7 @@ public class BukkitPlayerAccessor implements PlayerAccessor {
         }
       }
     }, orebfuscator);
-    
+
     for (Player player : Bukkit.getOnlinePlayers()) {
       var bukkitPlayer = PLAYERS.computeIfAbsent(player.getUniqueId(),
           key -> new BukkitPlayerAccessor(orebfuscator, player));
@@ -91,7 +91,7 @@ public class BukkitPlayerAccessor implements PlayerAccessor {
   public static List<BukkitPlayerAccessor> getAll() {
     return PLAYERS.values().stream().toList();
   }
-  
+
   private final OrebfuscatorCore orebfuscator;
   private final Player player;
   private BukkitWorldAccessor world;
@@ -100,7 +100,7 @@ public class BukkitPlayerAccessor implements PlayerAccessor {
 
   private final Map<Object, CompletableFuture<Void>> pendingPackets = new WeakHashMap<>();
   private volatile @Nullable PendingChunkBatch chunkBatch;
-  
+
   public BukkitPlayerAccessor(OrebfuscatorCore orebfuscator, Player player) {
     this.orebfuscator = orebfuscator;
     this.player = player;
@@ -146,13 +146,15 @@ public class BukkitPlayerAccessor implements PlayerAccessor {
   @Override
   public EntityPose pose() {
     var location = player.getLocation();
-    return new EntityPose(world, location.getX(), location.getY(), location.getZ(), location.getPitch(), location.getYaw());
+    return new EntityPose(world, location.getX(), location.getY(), location.getZ(), location.getPitch(),
+        location.getYaw());
   }
 
   @Override
   public EntityPose eyePose() {
     var location = player.getEyeLocation();
-    return new EntityPose(world, location.getX(), location.getY(), location.getZ(), location.getPitch(), location.getYaw());
+    return new EntityPose(world, location.getX(), location.getY(), location.getZ(), location.getPitch(),
+        location.getYaw());
   }
 
   @Override

@@ -10,7 +10,7 @@ public class OrebfuscatorStatistics {
 
   public OrebfuscatorStatistics(Config config, StatisticsRegistry registry) {
     this.cache = new CacheStatistics(config);
-    
+
     if (config.cache().enabled()) {
       registry.register("cache", this.cache);
     }

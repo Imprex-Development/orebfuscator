@@ -15,7 +15,7 @@ public class ObfuscationStatistics implements StatisticsSource {
 
   public final RollingTimer proximityWait = new RollingTimer(4096);
   public final RollingTimer proximityProcess = new RollingTimer(4096);
-  
+
   public final RollingAverage missingNeighboringChunks = new RollingAverage(4096);
 
   public final RollingAverage originalChunkSize = new RollingAverage(4096);
@@ -27,13 +27,13 @@ public class ObfuscationStatistics implements StatisticsSource {
 
     joiner.add(String.format(" - debofuscation: %s",
         time(debofuscation)));
-    
+
     long executorWaitTime = (long) this.executorWaitTime.average();
     double executorUtilization = this.executorUtilization.average();
 
     joiner.add(String.format(" - executor (wait/utilization): %s / %s",
         time(executorWaitTime), percent(executorUtilization)));
-    
+
     double proximityWait = this.proximityWait.average();
     double proximityProcess = this.proximityProcess.average();
     double proximityTotalTime = proximityWait + proximityProcess;
@@ -42,10 +42,10 @@ public class ObfuscationStatistics implements StatisticsSource {
     if (proximityTotalTime > 0) {
       proximityUtilization = (double) proximityProcess / proximityTotalTime;
     }
-    
+
     joiner.add(String.format(" - proximity utilization: %s",
         percent(proximityUtilization)));
-    
+
     double missingNeighboringChunks = this.missingNeighboringChunks.average();
 
     joiner.add(String.format(" - missingNeighbors: %s",

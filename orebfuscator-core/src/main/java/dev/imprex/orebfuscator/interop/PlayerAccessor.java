@@ -20,7 +20,7 @@ public interface PlayerAccessor {
   boolean isAlive();
 
   boolean isSpectator();
-  
+
   double lavaFogDistance();
 
   boolean hasPermission(PermissionRequirements permission);

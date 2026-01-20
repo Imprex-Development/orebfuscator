@@ -179,7 +179,7 @@ public class BukkitWorldAccessor implements WorldAccessor {
   }
 
   @Override
-  public CompletableFuture<ChunkAccessor[]> getNeighboringChunks(ObfuscationRequest request) {  
+  public CompletableFuture<ChunkAccessor[]> getNeighboringChunks(ObfuscationRequest request) {
     return OrebfuscatorCompatibility.getNeighboringChunks(world, request);
   }
 

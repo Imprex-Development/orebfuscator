@@ -50,7 +50,7 @@ public class ProximityPacketListener extends PacketAdapter {
 
     PacketContainer packet = event.getPacket();
     OrebfuscatorPlayer orebfuscatorPlayer = player.orebfuscatorPlayer();
-    
+
     if (HAS_CHUNK_POS_FIELD) {
       ChunkCoordIntPair chunkPos = packet.getChunkCoordIntPairs().read(0);
       orebfuscatorPlayer.removeChunk(world, chunkPos.getChunkX(), chunkPos.getChunkZ());

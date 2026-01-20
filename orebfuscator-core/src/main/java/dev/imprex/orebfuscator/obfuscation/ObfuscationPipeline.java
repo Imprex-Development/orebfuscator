@@ -44,7 +44,7 @@ public class ObfuscationPipeline {
       WorldAccessor world,
       PlayerAccessor player,
       ChunkPacketAccessor packet,
-      @Nullable ChunkAccessor @Nullable[] neighborChunks) {
+      @Nullable ChunkAccessor @Nullable [] neighborChunks) {
     var timer = statistics.injector.pipelineDelayTotal.start();
     return timer.wrap(requestInternal(world, player, packet, neighborChunks));
   }
@@ -53,7 +53,7 @@ public class ObfuscationPipeline {
       WorldAccessor world,
       PlayerAccessor player,
       ChunkPacketAccessor packet,
-      @Nullable ChunkAccessor @Nullable[] neighborChunks) {
+      @Nullable ChunkAccessor @Nullable [] neighborChunks) {
 
     final var request = new ObfuscationRequest(world, player, packet, neighborChunks);
 
@@ -70,7 +70,7 @@ public class ObfuscationPipeline {
           .asBytes();
 
       cacheRequest = new CacheRequest(cacheKey, hash);
- 
+
       var cacheTimer = statistics.injector.pipelineDelayCache.start();
       cacheFuture = cacheTimer.wrap(this.cache.get(cacheRequest));
     } else {
@@ -114,7 +114,7 @@ public class ObfuscationPipeline {
           .toCompletableFuture()
           .orTimeout(advancedConfig.obfuscationTimeout(), TimeUnit.MILLISECONDS);
     }
-    
+
     return future.<Void>thenApplyAsync(response -> {
       this.postProcess(request, response);
       return null;
@@ -138,7 +138,7 @@ public class ObfuscationPipeline {
 
   private void handleExceptions(ObfuscationRequest request, Throwable throwable) {
     var packet = request.packet();
-    
+
     if (throwable instanceof CompletionException && throwable.getCause() != null) {
       throwable = throwable.getCause();
     }

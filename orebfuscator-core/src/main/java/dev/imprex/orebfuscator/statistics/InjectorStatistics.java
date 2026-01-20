@@ -48,7 +48,7 @@ public class InjectorStatistics implements StatisticsSource {
     consumer.accept(Map.entry("pipelineDelayCache", this.pipelineDelayCache.debugLong(this::time)));
     consumer.accept(Map.entry("pipelineDelayNeighbors", this.pipelineDelayNeighbors.debugLong(this::time)));
     consumer.accept(Map.entry("pipelineDelayProcessor", this.pipelineDelayProcessor.debugLong(this::time)));
- 
+
     consumer.accept(Map.entry("injectorDelaySync", this.injectorDelaySync.debugLong(this::time)));
     consumer.accept(Map.entry("injectorBatchSize", this.injectorBatchSize.debugLong(this::time)));
 

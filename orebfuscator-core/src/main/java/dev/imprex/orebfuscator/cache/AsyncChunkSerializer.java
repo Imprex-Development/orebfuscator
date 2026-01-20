@@ -30,7 +30,7 @@ import dev.imprex.orebfuscator.util.RollingTimer;
 public class AsyncChunkSerializer implements Runnable {
 
   private final CacheStatistics statistics;
-  
+
   private final Lock lock = new ReentrantLock(true);
   private final Condition notFull = lock.newCondition();
   private final Condition notEmpty = lock.newCondition();
@@ -141,7 +141,7 @@ public class AsyncChunkSerializer implements Runnable {
       this.lock.unlock();
     }
   }
-  
+
   private abstract class TimedTask implements Runnable {
 
     private final RollingTimer.Instance waitTimer = statistics.diskCacheWaitTime.start();
@@ -150,7 +150,7 @@ public class AsyncChunkSerializer implements Runnable {
     public TimedTask(RollingTimer runTimer) {
       this.runTimer = runTimer;
     }
-    
+
     @Override
     public final void run() {
       waitTimer.stop();
@@ -162,7 +162,7 @@ public class AsyncChunkSerializer implements Runnable {
         timer.stop();
       }
     }
-    
+
     protected abstract void execute();
   }
 

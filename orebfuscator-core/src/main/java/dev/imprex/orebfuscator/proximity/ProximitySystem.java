@@ -36,7 +36,7 @@ public class ProximitySystem implements Runnable {
 
     this.worker = new ProximityWorker(orebfuscator);
   }
-  
+
   public void start() {
     this.executor.schedule(this, this.checkInterval, TimeUnit.NANOSECONDS);
   }
@@ -52,7 +52,7 @@ public class ProximitySystem implements Runnable {
       if (this.executor.isShutdown()) {
         return;
       }
- 
+
       long processTime = System.nanoTime() - processStart;
       this.statistics.proximityProcess.add(processTime);
 
@@ -69,7 +69,7 @@ public class ProximitySystem implements Runnable {
       }
     });
   }
-  
+
   private CompletableFuture<Void> process() {
     var players = this.orebfuscator.players();
     if (players.isEmpty()) {
@@ -83,7 +83,7 @@ public class ProximitySystem implements Runnable {
     // calculate bucket
     int bucketCount = (int) Math.ceil((float) playerCount / maxBucketSize);
     int bucketSize = (int) Math.ceil((float) playerCount / (float) bucketCount);
-    
+
     var pendingFutures = new CompletableFuture[bucketCount];
     Iterator<PlayerAccessor> iterator = players.iterator();
 

@@ -39,7 +39,7 @@ public class UpdateSystem extends AbstractHttpService {
   private static final Duration CACHE_DURATION = Duration.ofMinutes(10L);
 
   private final String loader;
-  
+
   private final OrebfuscatorCore orebfuscator;
   private final GeneralConfig generalConfig;
 
@@ -49,7 +49,7 @@ public class UpdateSystem extends AbstractHttpService {
 
   public UpdateSystem(OrebfuscatorCore orebfuscator, String loader) {
     super(orebfuscator);
-    
+
     this.loader = loader;
 
     this.orebfuscator = orebfuscator;

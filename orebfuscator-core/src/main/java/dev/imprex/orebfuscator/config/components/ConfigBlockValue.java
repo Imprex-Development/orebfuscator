@@ -18,7 +18,7 @@ public record ConfigBlockValue(String value, Set<BlockProperties> blocks) implem
 
   private static final JsonElement INVALID = new JsonPrimitive("invalid");
   private static final JsonElement VALID = new JsonPrimitive("valid");
-  
+
   public static JsonObject toJson(Collection<? extends ConfigBlockValue> values) {
     JsonObject object = new JsonObject();
 

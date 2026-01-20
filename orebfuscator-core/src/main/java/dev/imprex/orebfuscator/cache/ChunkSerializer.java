@@ -32,7 +32,7 @@ public class ChunkSerializer {
 
       byte[] compressedData = new byte[dataInputStream.readInt()];
       dataInputStream.readFully(compressedData);
-      
+
       statistics.onDiskCacheRead(9 + compressedData.length);
 
       return new ChunkCacheEntry(key, compressedData);

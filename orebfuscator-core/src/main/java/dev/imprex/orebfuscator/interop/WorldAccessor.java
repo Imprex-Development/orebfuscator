@@ -30,7 +30,7 @@ public interface WorldAccessor {
   CompletableFuture<ChunkAccessor[]> getNeighboringChunks(ObfuscationRequest request);
 
   ChunkAccessor getChunk(int chunkX, int chunkZ);
-  
+
   @Deprecated
   int getBlockState(int x, int y, int z);
 

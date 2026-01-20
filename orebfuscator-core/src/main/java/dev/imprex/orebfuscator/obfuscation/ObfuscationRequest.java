@@ -14,7 +14,7 @@ public record ObfuscationRequest(
     WorldAccessor world,
     PlayerAccessor player,
     ChunkPacketAccessor packet,
-    @Nullable ChunkAccessor @Nullable[] neighborChunks) {
+    @Nullable ChunkAccessor @Nullable [] neighborChunks) {
 
   public ObfuscationRequest {
     Objects.requireNonNull(world);

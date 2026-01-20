@@ -86,7 +86,7 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
 
       this.statistics = new OrebfuscatorStatistics(this.config, this.statisticsRegistry);
       this.executor = new OrebfuscatorExecutor(this);
- 
+
       this.chunkFactory = new ChunkFactory(this);
       this.obfuscationProcessor = new ObfuscationProcessor(this);
       this.obfuscationCache = new ObfuscationCache(this);
@@ -212,7 +212,7 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
   public Path worldDirectory() {
     return Bukkit.getWorldContainer().toPath();
   }
-  
+
   @Override
   public String name() {
     return getDescription().getName();

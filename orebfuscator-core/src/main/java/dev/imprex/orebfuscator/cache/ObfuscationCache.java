@@ -88,10 +88,10 @@ public class ObfuscationCache {
 
     if (this.serializer != null) {
       future = future.thenComposeAsync(response ->
-          // only access disk cache if we couldn't find an entry in memory cache
-          response == CacheResponse.Failure.NOT_FOUND
-              ? this.probeDisk(request)
-              : CompletableFuture.completedStage(response)
+              // only access disk cache if we couldn't find an entry in memory cache
+              response == CacheResponse.Failure.NOT_FOUND
+                  ? this.probeDisk(request)
+                  : CompletableFuture.completedStage(response)
           , this.executor);
     }
 

@@ -41,12 +41,12 @@ public class ProximityRayCaster {
         || canRayPass(origin, target, 0.0, 1.0, 1.0)
         || canRayPass(origin, target, 1.0, 1.0, 1.0);
   }
-  
+
   private boolean canRayPass(EntityPose origin, BlockPos target, double offsetX, double offsetY, double offsetZ) {
     double tx = target.x() + offsetX;
     double ty = target.y() + offsetY;
     double tz = target.z() + offsetZ;
-    
+
     double dx = origin.x() - tx;
     double dy = origin.y() - ty;
     double dz = origin.z() - tz;
@@ -56,26 +56,26 @@ public class ProximityRayCaster {
     if (maxAbs < 1) {
       return true;
     }
-    
+
     // step in "dominant-axis" units
     dx /= maxAbs;
     dy /= maxAbs;
     dz /= maxAbs;
-    
+
     // our current position
     double cx = origin.x();
     double cy = origin.y();
     double cz = origin.z();
-    
+
     // position of current block
     int x, y, z;
-    
+
     for (int steps = (int) Math.ceil(maxAbs); steps > 0; steps--) {
       // move from origin toward target
       cx -= dx;
       cy -= dy;
       cz -= dz;
-      
+
       x = (int) QuickMaths.floor(cx);
       y = (int) QuickMaths.floor(cy);
       z = (int) QuickMaths.floor(cz);
@@ -84,7 +84,7 @@ public class ProximityRayCaster {
       if (x == target.x() && y == target.y() && z == target.z()) {
         return true;
       }
-      
+
       int blockId = level.getBlockState(x, y, z);
       // fail on first hit, this ray is "blocked"
       if (registry.isOccluding(blockId)) {

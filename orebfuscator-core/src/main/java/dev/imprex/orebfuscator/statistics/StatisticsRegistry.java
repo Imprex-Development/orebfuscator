@@ -51,7 +51,7 @@ public class StatisticsRegistry {
 
     return object;
   }
-  
+
   private List<Map.Entry<String, String>> entries() {
     var entries = new ArrayList<Map.Entry<String, String>>();
 
