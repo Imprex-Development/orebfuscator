@@ -84,9 +84,9 @@ public class ObfuscationAsyncListener extends PacketAdapter {
   @Override
   public void onPacketSending(PacketEvent event) {
     PacketType type = event.getPacket().getType();
-    if (type != Server.MAP_CHUNK &&
-        type != Server.CHUNK_BATCH_START &&
-        type != Server.CHUNK_BATCH_FINISHED) {
+    if (type != PacketType.Play.Server.MAP_CHUNK &&
+        type != PacketType.Play.Server.CHUNK_BATCH_START &&
+        type != PacketType.Play.Server.CHUNK_BATCH_FINISHED) {
       return;
     }
 
@@ -100,9 +100,9 @@ public class ObfuscationAsyncListener extends PacketAdapter {
       return;
     }
 
-    if (type == Server.CHUNK_BATCH_START) {
+    if (type == PacketType.Play.Server.CHUNK_BATCH_START) {
       player.startBatch(asynchronousManager, event);
-    } else if (type == Server.CHUNK_BATCH_FINISHED) {
+    } else if (type == PacketType.Play.Server.CHUNK_BATCH_FINISHED) {
       player.finishBatch();
     } else {
       var future = player.obfuscationFuture(event);
