@@ -1,5 +1,6 @@
 package dev.imprex.orebfuscator.config.components;
 
+import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
@@ -19,26 +20,18 @@ public record ConfigBlockValue(String value, Set<BlockProperties> blocks) implem
   private static final JsonElement INVALID = new JsonPrimitive("invalid");
   private static final JsonElement VALID = new JsonPrimitive("valid");
 
-  public static JsonObject toJson(Collection<? extends ConfigBlockValue> values) {
-    JsonObject object = new JsonObject();
-
-    var list = values.stream().sorted().toList();
-
-    for (var entry : list) {
+  public static void dump(ConfigurationSection section, Collection<? extends ConfigBlockValue> values) {
+    for (var entry : values.stream().sorted().toList()) {
       if (entry.blocks().size() > 1) {
-        JsonArray array = new JsonArray(entry.blocks().size());
-        for (var block : entry.blocks()) {
-          array.add(block.getKey().toString());
-        }
-        object.add(entry.value(), array);
+        section.set(entry.value(), entry.blocks().stream()
+            .map(block -> block.getKey().toString())
+            .toList());
       } else if (!entry.blocks().isEmpty()) {
-        object.add(entry.value(), VALID);
+        section.set(entry.value(), VALID);
       } else {
-        object.add(entry.value(), INVALID);
+        section.set(entry.value(), INVALID);
       }
     }
-
-    return object;
   }
 
   public static ConfigBlockValue invalid(String value) {

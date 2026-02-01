@@ -1,7 +1,5 @@
 package net.imprex.orebfuscator.proximity;
 
-import net.imprex.orebfuscator.iterop.BukkitPlayerAccessorManager;
-import org.jspecify.annotations.NullMarked;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
@@ -15,8 +13,10 @@ import dev.imprex.orebfuscator.config.api.ProximityConfig;
 import dev.imprex.orebfuscator.player.OrebfuscatorPlayer;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.iterop.BukkitPlayerAccessor;
+import net.imprex.orebfuscator.iterop.BukkitPlayerAccessorManager;
 import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 import net.imprex.orebfuscator.util.MinecraftVersion;
+import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public class ProximityPacketListener extends PacketAdapter {

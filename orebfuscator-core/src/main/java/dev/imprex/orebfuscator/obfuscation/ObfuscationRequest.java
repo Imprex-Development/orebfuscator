@@ -1,5 +1,6 @@
 package dev.imprex.orebfuscator.obfuscation;
 
+import java.util.Arrays;
 import java.util.Objects;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -14,8 +15,9 @@ public record ObfuscationRequest(
     WorldAccessor world,
     PlayerAccessor player,
     ChunkPacketAccessor packet,
-    @Nullable ChunkAccessor @Nullable [] neighborChunks) {
+    ChunkAccessor @Nullable [] neighborChunks) {
 
+  @SuppressWarnings("ConstantConditions")
   public ObfuscationRequest {
     Objects.requireNonNull(world);
     Objects.requireNonNull(player);
@@ -23,6 +25,8 @@ public record ObfuscationRequest(
 
     if (neighborChunks != null && neighborChunks.length != 4) {
       throw new IllegalArgumentException("Expected 4 neighboring chunks but got " + neighborChunks.length);
+    } else if (neighborChunks != null && Arrays.stream(neighborChunks).anyMatch(Objects::isNull)) {
+      throw new IllegalArgumentException("Neighboring chunks must not be null");
     }
   }
 
@@ -35,7 +39,6 @@ public record ObfuscationRequest(
       ChunkDirection direction = ChunkDirection.fromPosition(packet, x, z);
       return neighborChunks[direction.ordinal()].getBlockState(x, y, z);
     }
-
     return 0;
   }
 }

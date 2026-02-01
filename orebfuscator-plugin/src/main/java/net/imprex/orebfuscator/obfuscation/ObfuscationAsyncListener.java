@@ -1,12 +1,5 @@
 package net.imprex.orebfuscator.obfuscation;
 
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-import net.imprex.orebfuscator.iterop.BukkitPlayerAccessorManager;
-import org.jspecify.annotations.NullMarked;
 import com.comphenix.protocol.AsynchronousManager;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
@@ -17,12 +10,18 @@ import dev.imprex.orebfuscator.PermissionRequirements;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.obfuscation.ObfuscationPipeline;
 import dev.imprex.orebfuscator.statistics.InjectorStatistics;
+import java.util.Arrays;
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.iterop.BukkitChunkPacketAccessor;
 import net.imprex.orebfuscator.iterop.BukkitPlayerAccessor;
+import net.imprex.orebfuscator.iterop.BukkitPlayerAccessorManager;
 import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 import net.imprex.orebfuscator.util.ServerVersion;
+import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public class ObfuscationAsyncListener extends PacketAdapter {
@@ -56,7 +55,6 @@ public class ObfuscationAsyncListener extends PacketAdapter {
 
   public ObfuscationAsyncListener(Orebfuscator orebfuscator) {
     super(orebfuscator, PACKET_TYPES.stream()
-        .filter(Objects::nonNull)
         .filter(PacketType::isSupported)
         .collect(Collectors.toList()));
 
@@ -86,9 +84,9 @@ public class ObfuscationAsyncListener extends PacketAdapter {
   @Override
   public void onPacketSending(PacketEvent event) {
     PacketType type = event.getPacket().getType();
-    if (type != PacketType.Play.Server.MAP_CHUNK &&
-        type != PacketType.Play.Server.CHUNK_BATCH_START &&
-        type != PacketType.Play.Server.CHUNK_BATCH_FINISHED) {
+    if (type != Server.MAP_CHUNK &&
+        type != Server.CHUNK_BATCH_START &&
+        type != Server.CHUNK_BATCH_FINISHED) {
       return;
     }
 
@@ -102,9 +100,9 @@ public class ObfuscationAsyncListener extends PacketAdapter {
       return;
     }
 
-    if (type == PacketType.Play.Server.CHUNK_BATCH_START) {
+    if (type == Server.CHUNK_BATCH_START) {
       player.startBatch(asynchronousManager, event);
-    } else if (type == PacketType.Play.Server.CHUNK_BATCH_FINISHED) {
+    } else if (type == Server.CHUNK_BATCH_FINISHED) {
       player.finishBatch();
     } else {
       var future = player.obfuscationFuture(event);

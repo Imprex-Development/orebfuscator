@@ -8,7 +8,5 @@ public interface CompatibilityScheduler {
 
   void runAsyncNow(Runnable runnable);
 
-  void runAsyncAtFixedRate(Runnable runnable, long delay, long period);
-
   void cancelTasks();
 }

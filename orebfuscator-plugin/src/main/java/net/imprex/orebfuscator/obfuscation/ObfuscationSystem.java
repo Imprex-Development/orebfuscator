@@ -4,7 +4,6 @@ import dev.imprex.orebfuscator.obfuscation.DeobfuscationWorker;
 import dev.imprex.orebfuscator.util.BlockPos;
 import java.util.Collection;
 import net.imprex.orebfuscator.Orebfuscator;
-import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
 import net.imprex.orebfuscator.iterop.BukkitWorldAccessorManager;
 import org.bukkit.block.Block;
 import org.jspecify.annotations.NullMarked;

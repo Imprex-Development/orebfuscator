@@ -177,18 +177,6 @@
     </dependency>
     <dependency>
       <groupId>net.imprex</groupId>
-      <artifactId>orebfuscator-nms-v1_16_R1</artifactId>
-      <version>${revision}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.imprex</groupId>
-      <artifactId>orebfuscator-nms-v1_16_R2</artifactId>
-      <version>${revision}</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>net.imprex</groupId>
       <artifactId>orebfuscator-nms-v1_16_R3</artifactId>
       <version>${revision}</version>
       <scope>compile</scope>

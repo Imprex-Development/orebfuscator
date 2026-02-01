@@ -26,7 +26,7 @@ import dev.imprex.orebfuscator.util.ChunkCacheKey;
 public class DeobfuscationWorker {
 
   private static List<BlockPos> precomputeOffsets(int radius) {
-    List<Map.Entry<BlockPos, Integer>> offset = new ArrayList<>();
+    List<Entry<BlockPos, Integer>> offset = new ArrayList<>();
 
     for (int dx = -radius; dx <= radius; dx++) {
       for (int dy = -radius; dy <= radius; dy++) {
@@ -40,9 +40,9 @@ public class DeobfuscationWorker {
     }
 
     offset
-        .sort(Comparator.comparingInt((Map.Entry<BlockPos, Integer> e) -> e.getValue()).thenComparing(Entry::getKey));
+        .sort(Comparator.comparingInt((Entry<BlockPos, Integer> e) -> e.getValue()).thenComparing(Entry::getKey));
 
-    return offset.stream().map(Map.Entry::getKey).toList();
+    return offset.stream().map(Entry::getKey).toList();
   }
 
   private final OrebfuscatorConfig config;
@@ -102,9 +102,8 @@ public class DeobfuscationWorker {
         int chunkZ = position.z() >> 4;
 
         long key = ChunkAccessor.chunkCoordsToLong(chunkX, chunkZ);
-        // TODO: use getChunkNow instead of getChunk with force load?
-        var chunk = chunks.computeIfAbsent(key, k -> world.getChunk(chunkX, chunkZ));
-        if (chunk == null) {
+        ChunkAccessor chunk = chunks.computeIfAbsent(key, k -> world.getChunkNow(chunkX, chunkZ));
+        if (ChunkAccessor.isNullOrEmpty(chunk)) {
           continue;
         }
 

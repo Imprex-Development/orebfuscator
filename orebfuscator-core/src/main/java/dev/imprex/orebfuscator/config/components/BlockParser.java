@@ -13,7 +13,7 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public class BlockParser {
 
-  public static BlockParser.Factory factory(RegistryAccessor registryAccessor) {
+  public static Factory factory(RegistryAccessor registryAccessor) {
     return new Factory(registryAccessor);
   }
 

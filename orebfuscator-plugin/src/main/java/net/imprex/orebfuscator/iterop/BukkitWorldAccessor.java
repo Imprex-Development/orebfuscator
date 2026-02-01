@@ -4,15 +4,16 @@ import com.comphenix.protocol.reflect.accessors.Accessors;
 import com.comphenix.protocol.reflect.accessors.MethodAccessor;
 import dev.imprex.orebfuscator.config.api.WorldConfigBundle;
 import dev.imprex.orebfuscator.interop.ChunkAccessor;
+import dev.imprex.orebfuscator.interop.ChunkPacketAccessor;
 import dev.imprex.orebfuscator.interop.WorldAccessor;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.obfuscation.ObfuscationRequest;
 import dev.imprex.orebfuscator.util.BlockPos;
 import dev.imprex.orebfuscator.util.ChunkDirection;
+import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import net.imprex.orebfuscator.Orebfuscator;
-import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 import org.bukkit.World;
@@ -126,33 +127,52 @@ public class BukkitWorldAccessor implements WorldAccessor {
     return blockToSectionCoord(y) - minSection();
   }
 
-  public ChunkAccessor[] getNeighboringChunks(int chunkX, int chunkZ) {
-    ChunkAccessor[] neighboringChunks = new ChunkAccessor[4];
+  public ChunkAccessor[] getNeighboringChunksNow(int chunkX, int chunkZ) {
+    final ChunkAccessor[] chunks = new ChunkAccessor[4];
 
     for (ChunkDirection direction : ChunkDirection.values()) {
       int x = chunkX + direction.getOffsetX();
       int z = chunkZ + direction.getOffsetZ();
-      int index = direction.ordinal();
-
-      neighboringChunks[index] = OrebfuscatorNms.tryGetChunkAccessor(world, x, z);
+      chunks[direction.ordinal()] = getChunkNow(x, z);
     }
 
-    return neighboringChunks;
+    return chunks;
   }
 
   @Override
+  @SuppressWarnings("unchecked")
   public CompletableFuture<ChunkAccessor[]> getNeighboringChunks(ObfuscationRequest request) {
-    return OrebfuscatorCompatibility.getNeighboringChunks(world, request);
+    var neighborChunks = request.neighborChunks();
+    if (neighborChunks != null && Arrays.stream(neighborChunks).noneMatch(ChunkAccessor::isNullOrEmpty)) {
+      return CompletableFuture.completedFuture(neighborChunks);
+    }
+
+    final ChunkPacketAccessor packet = request.packet();
+    final CompletableFuture<ChunkAccessor>[] futures = (CompletableFuture<ChunkAccessor>[]) new CompletableFuture[4];
+
+    for (ChunkDirection direction : ChunkDirection.values()) {
+      int chunkX = packet.chunkX() + direction.getOffsetX();
+      int chunkZ = packet.chunkZ() + direction.getOffsetZ();
+
+      int index = direction.ordinal();
+      var chunk = neighborChunks != null ? neighborChunks[index] : null;
+
+      if (ChunkAccessor.isNullOrEmpty(chunk)) {
+        futures[index] = OrebfuscatorNms.getChunkFuture(world, chunkX, chunkZ)
+            .thenApply(ChunkAccessor::ofNullable);
+      } else {
+        futures[index] = CompletableFuture.completedFuture(chunk);
+      }
+    }
+
+    return CompletableFuture.allOf(futures).thenApply(v ->
+        Arrays.stream(futures).map(CompletableFuture::join).toArray(ChunkAccessor[]::new));
   }
 
   @Override
-  public ChunkAccessor getChunk(int chunkX, int chunkZ) {
-    return OrebfuscatorNms.getChunkAccessor(world, chunkX, chunkZ);
-  }
-
-  @Override
-  public int getBlockState(int x, int y, int z) {
-    return OrebfuscatorNms.getBlockState(world, x, y, z);
+  public ChunkAccessor getChunkNow(int chunkX, int chunkZ) {
+    ChunkAccessor chunkAccessor = OrebfuscatorNms.getChunkNow(world, chunkX, chunkZ);
+    return ChunkAccessor.ofNullable(chunkAccessor);
   }
 
   @Override

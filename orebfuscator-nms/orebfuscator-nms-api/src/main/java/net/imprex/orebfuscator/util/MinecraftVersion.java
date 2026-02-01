@@ -1,14 +1,12 @@
 package net.imprex.orebfuscator.util;
 
+import dev.imprex.orebfuscator.logging.OfcLogger;
+import dev.imprex.orebfuscator.util.Version;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import org.bukkit.Bukkit;
-
-import dev.imprex.orebfuscator.logging.OfcLogger;
-import dev.imprex.orebfuscator.util.Version;
 
 public final class MinecraftVersion {
 

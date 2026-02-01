@@ -90,9 +90,9 @@ public class ProximityWorker {
     int minChunkZ = (location.blockZ() - distance) >> 4;
     int maxChunkZ = (location.blockZ() + distance) >> 4;
 
-    ChunkAccessor playerChunk = world.getChunk(location.blockX() >> 4, location.blockZ() >> 4);
+    ChunkAccessor playerChunk = world.getChunkNow(location.blockX() >> 4, location.blockZ() >> 4);
     int eyeBlockId = playerChunk.getBlockState(location.blockX(), eyeLocation.blockY(), location.blockZ());
-    boolean isInLava = eyeBlockId >= 0 && this.registry.isLava(eyeBlockId);
+    boolean isInLava = this.registry.isLava(eyeBlockId);
 
     double lavaDistance = player.lavaFogDistance();
     double lavaDistanceSquared = lavaDistance * lavaDistance;

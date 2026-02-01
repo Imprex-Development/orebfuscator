@@ -1,12 +1,11 @@
 package net.imprex.orebfuscator.compatibility.folia;
 
+import dev.imprex.orebfuscator.config.api.Config;
+import net.imprex.orebfuscator.compatibility.CompatibilityLayer;
+import net.imprex.orebfuscator.compatibility.CompatibilityScheduler;
 import org.bukkit.plugin.Plugin;
 
-import dev.imprex.orebfuscator.config.api.Config;
-import net.imprex.orebfuscator.compatibility.CompatibilityScheduler;
-import net.imprex.orebfuscator.compatibility.paper.AbstractPaperCompatibilityLayer;
-
-public class FoliaCompatibilityLayer extends AbstractPaperCompatibilityLayer {
+public class FoliaCompatibilityLayer implements CompatibilityLayer {
 
   private static final Class<?> TICK_THREAD_CLASS = getTickThreadClass();
 

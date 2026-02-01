@@ -1,19 +1,19 @@
 package net.imprex.orebfuscator.compatibility.paper;
 
+import dev.imprex.orebfuscator.config.api.Config;
+import net.imprex.orebfuscator.compatibility.CompatibilityLayer;
+import net.imprex.orebfuscator.compatibility.CompatibilityScheduler;
+import net.imprex.orebfuscator.compatibility.spigot.SpigotScheduler;
 import org.bukkit.plugin.Plugin;
 
-import dev.imprex.orebfuscator.config.api.Config;
-import net.imprex.orebfuscator.compatibility.CompatibilityScheduler;
-import net.imprex.orebfuscator.compatibility.bukkit.BukkitScheduler;
-
-public class PaperCompatibilityLayer extends AbstractPaperCompatibilityLayer {
+public class PaperCompatibilityLayer implements CompatibilityLayer {
 
   private final Thread mainThread = Thread.currentThread();
 
-  private final BukkitScheduler scheduler;
+  private final SpigotScheduler scheduler;
 
   public PaperCompatibilityLayer(Plugin plugin, Config config) {
-    this.scheduler = new BukkitScheduler(plugin);
+    this.scheduler = new SpigotScheduler(plugin);
   }
 
   @Override

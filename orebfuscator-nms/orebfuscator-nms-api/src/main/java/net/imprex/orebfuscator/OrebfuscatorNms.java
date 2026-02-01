@@ -1,18 +1,19 @@
 package net.imprex.orebfuscator;
 
-import java.lang.reflect.Constructor;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import org.jspecify.annotations.Nullable;
 import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.config.api.Config;
 import dev.imprex.orebfuscator.interop.ChunkAccessor;
 import dev.imprex.orebfuscator.interop.RegistryAccessor;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.util.BlockPos;
+import java.lang.reflect.Constructor;
+import java.util.concurrent.CompletableFuture;
 import net.imprex.orebfuscator.nms.NmsManager;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 import net.imprex.orebfuscator.util.ServerVersion;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.jspecify.annotations.Nullable;
 
 public class OrebfuscatorNms {
 
@@ -52,44 +53,12 @@ public class OrebfuscatorNms {
     return instance.createRegionFileCache(config);
   }
 
-  public static int getUniqueBlockStateCount() {
-    return instance.getUniqueBlockStateCount();
+  public static CompletableFuture<@Nullable ChunkAccessor> getChunkFuture(World world, int chunkX, int chunkZ) {
+    return instance.getChunkFuture(world, chunkX, chunkZ);
   }
 
-  public static int getMaxBitsPerBlockState() {
-    return instance.getMaxBitsPerBlockState();
-  }
-
-  public static boolean isAir(int blockId) {
-    return instance.isAir(blockId);
-  }
-
-  public static boolean isLava(int blockId) {
-    return instance.isLava(blockId);
-  }
-
-  public static boolean isOccluding(int blockId) {
-    return instance.isOccluding(blockId);
-  }
-
-  public static boolean isBlockEntity(int blockId) {
-    return instance.isBlockEntity(blockId);
-  }
-
-  public static ChunkAccessor getChunkAccessor(World world, int chunkX, int chunkZ) {
-    return instance.getChunkAccessor(world, chunkX, chunkZ);
-  }
-
-  public static @Nullable ChunkAccessor tryGetChunkAccessor(World world, int chunkX, int chunkZ) {
-    return instance.tryGetChunkAccessor(world, chunkX, chunkZ);
-  }
-
-  public static int getBlockState(World world, BlockPos position) {
-    return getBlockState(world, position.x(), position.y(), position.z());
-  }
-
-  public static int getBlockState(World world, int x, int y, int z) {
-    return instance.getBlockState(world, x, y, z);
+  public static @Nullable ChunkAccessor getChunkNow(World world, int chunkX, int chunkZ) {
+    return instance.getChunkNow(world, chunkX, chunkZ);
   }
 
   public static void sendBlockUpdates(World world, Iterable<BlockPos> iterable) {

@@ -17,7 +17,6 @@ import java.util.random.RandomGenerator;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import com.google.common.hash.Hashing;
-import com.google.gson.JsonObject;
 import dev.imprex.orebfuscator.config.api.AdvancedConfig;
 import dev.imprex.orebfuscator.config.api.BlockFlags;
 import dev.imprex.orebfuscator.config.api.CacheConfig;
@@ -236,18 +235,16 @@ public class OrebfuscatorConfig implements Config {
     }
   }
 
-  public JsonObject toJson() {
-    JsonObject object = new JsonObject();
-
+  public void dumpBlocks(ConfigurationSection section) {
+    var obfuscation = section.createSection("obfuscation");
     for (var config : obfuscationConfigs) {
-      object.add(config.getName(), config.toJson());
+      config.dumpBlocks(obfuscation.createSection(config.getName()));
     }
 
+    var proximity = section.createSection("proximity");
     for (var config : proximityConfigs) {
-      object.add(config.getName(), config.toJson());
+      config.dumpBlocks(proximity.createSection(config.getName()));
     }
-
-    return object;
   }
 
   @Override

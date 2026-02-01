@@ -1,12 +1,12 @@
 package net.imprex.orebfuscator.iterop;
 
+import dev.imprex.orebfuscator.logging.LogLevel;
+import dev.imprex.orebfuscator.logging.LoggerAccessor;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
-import dev.imprex.orebfuscator.logging.LogLevel;
-import dev.imprex.orebfuscator.logging.LoggerAccessor;
 
 @NullMarked
 public record BukkitLoggerAccessor(Logger logger) implements LoggerAccessor {

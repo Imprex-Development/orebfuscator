@@ -1,5 +1,15 @@
 package net.imprex.orebfuscator.nms.v1_16_R3;
 
+import com.comphenix.protocol.events.PacketContainer;
+import com.google.common.collect.ImmutableList;
+import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
+import dev.imprex.orebfuscator.config.api.Config;
+import dev.imprex.orebfuscator.interop.ChunkAccessor;
+import dev.imprex.orebfuscator.util.BlockPos;
+import dev.imprex.orebfuscator.util.BlockProperties;
+import dev.imprex.orebfuscator.util.BlockStateProperties;
+import dev.imprex.orebfuscator.util.BlockTag;
+import dev.imprex.orebfuscator.util.NamespacedKey;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -8,19 +18,8 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.Set;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import com.comphenix.protocol.events.PacketContainer;
-import com.google.common.collect.ImmutableList;
-import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
-import dev.imprex.orebfuscator.config.api.Config;
-import dev.imprex.orebfuscator.util.BlockPos;
-import dev.imprex.orebfuscator.util.BlockProperties;
-import dev.imprex.orebfuscator.util.BlockStateProperties;
-import dev.imprex.orebfuscator.util.BlockTag;
-import dev.imprex.orebfuscator.util.NamespacedKey;
+import java.util.concurrent.CompletableFuture;
 import net.imprex.orebfuscator.nms.AbstractNmsManager;
-import dev.imprex.orebfuscator.interop.ChunkAccessor;
 import net.minecraft.server.v1_16_R3.Block;
 import net.minecraft.server.v1_16_R3.BlockAccessAir;
 import net.minecraft.server.v1_16_R3.BlockPosition;
@@ -42,13 +41,18 @@ import net.minecraft.server.v1_16_R3.Tag;
 import net.minecraft.server.v1_16_R3.TagsBlock;
 import net.minecraft.server.v1_16_R3.TileEntity;
 import net.minecraft.server.v1_16_R3.WorldServer;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
+@NullMarked
 public class NmsManager extends AbstractNmsManager {
 
   private static final int BLOCK_ID_AIR = Block.getCombinedId(Blocks.AIR.getBlockData());
 
   static int getBlockState(Chunk chunk, int x, int y, int z) {
-    ChunkSection[] sections = chunk.getSections();
+    @Nullable ChunkSection[] sections = chunk.getSections();
 
     int sectionIndex = y >> 4;
     if (sectionIndex >= 0 && sectionIndex < sections.length) {
@@ -72,7 +76,7 @@ public class NmsManager extends AbstractNmsManager {
   public NmsManager() {
     super(Block.REGISTRY_ID.a());
 
-    for (Map.Entry<ResourceKey<Block>, Block> entry : IRegistry.BLOCK.d()) {
+    for (Entry<ResourceKey<Block>, Block> entry : IRegistry.BLOCK.d()) {
       NamespacedKey namespacedKey = NamespacedKey.fromString(entry.getKey().a().toString());
       Block block = entry.getValue();
 
@@ -115,33 +119,29 @@ public class NmsManager extends AbstractNmsManager {
   }
 
   @Override
-  public ChunkAccessor getChunkAccessor(World world, int chunkX, int chunkZ) {
-    ChunkProviderServer chunkProviderServer = level(world).getChunkProvider();
-    Chunk chunk = chunkProviderServer.getChunkAt(chunkX, chunkZ, true);
-    return new ReadOnlyChunkWrapper(chunk);
+  public CompletableFuture<@Nullable ChunkAccessor> getChunkFuture(World world, int chunkX, int chunkZ) {
+    Chunk chunk = level(world).getChunkProvider().getChunkAt(chunkX, chunkZ, true);
+    return CompletableFuture.completedFuture(chunk != null ? new DefaultChunkAccessor(chunk) : null);
   }
 
   @Override
-  public int getBlockState(World world, int x, int y, int z) {
+  public @Nullable ChunkAccessor getChunkNow(World world, int chunkX, int chunkZ) {
     ChunkProviderServer serverChunkCache = level(world).getChunkProvider();
-    if (!serverChunkCache.isChunkLoaded(x >> 4, z >> 4)) {
-      return BLOCK_ID_AIR;
+
+    Chunk chunk = serverChunkCache.a(chunkX, chunkZ);
+    if (chunk == null && serverChunkCache.isChunkLoaded(chunkX, chunkZ)) {
+      chunk = serverChunkCache.getChunkAt(chunkX, chunkZ, false);
     }
 
-    Chunk chunk = serverChunkCache.getChunkAt(x >> 4, z >> 4, true);
-    if (chunk == null) {
-      return BLOCK_ID_AIR;
-    }
-
-    return getBlockState(chunk, x, y, z);
+    return chunk != null ? new DefaultChunkAccessor(chunk) : null;
   }
 
   @Override
-  public void sendBlockUpdates(World world, Iterable<dev.imprex.orebfuscator.util.BlockPos> iterable) {
+  public void sendBlockUpdates(World world, Iterable<BlockPos> iterable) {
     ChunkProviderServer serverChunkCache = level(world).getChunkProvider();
     BlockPosition.MutableBlockPosition position = new BlockPosition.MutableBlockPosition();
 
-    for (dev.imprex.orebfuscator.util.BlockPos pos : iterable) {
+    for (BlockPos pos : iterable) {
       position.c(pos.x(), pos.y(), pos.z());
       serverChunkCache.flagDirty(position);
     }
@@ -157,7 +157,7 @@ public class NmsManager extends AbstractNmsManager {
     Map<SectionPosition, Map<Short, IBlockData>> sectionPackets = new HashMap<>();
     List<Packet<PacketListenerPlayOut>> blockEntityPackets = new ArrayList<>();
 
-    for (dev.imprex.orebfuscator.util.BlockPos pos : iterable) {
+    for (BlockPos pos : iterable) {
       if (!serverChunkCache.isChunkLoaded(pos.x() >> 4, pos.z() >> 4)) {
         continue;
       }
@@ -171,15 +171,18 @@ public class NmsManager extends AbstractNmsManager {
       if (blockState.getBlock().isTileEntity()) {
         TileEntity blockEntity = level.getTileEntity(position);
         if (blockEntity != null) {
-          blockEntityPackets.add(blockEntity.getUpdatePacket());
+          Packet<PacketListenerPlayOut> packet = blockEntity.getUpdatePacket();
+          if (packet != null) {
+            blockEntityPackets.add(packet);
+          }
         }
       }
     }
 
-    for (Map.Entry<SectionPosition, Map<Short, IBlockData>> entry : sectionPackets.entrySet()) {
+    for (Entry<SectionPosition, Map<Short, IBlockData>> entry : sectionPackets.entrySet()) {
       Map<Short, IBlockData> blockStates = entry.getValue();
       if (blockStates.size() == 1) {
-        Map.Entry<Short, IBlockData> blockEntry = blockStates.entrySet().iterator().next();
+        Entry<Short, IBlockData> blockEntry = blockStates.entrySet().iterator().next();
         BlockPosition blockPosition = entry.getKey().g(blockEntry.getKey());
         serverPlayer.playerConnection.sendPacket(new PacketPlayOutBlockChange(blockPosition, blockEntry.getValue()));
       } else {

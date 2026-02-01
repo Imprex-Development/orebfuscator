@@ -1,5 +1,7 @@
 package dev.imprex.orebfuscator.interop;
 
+import dev.imprex.orebfuscator.statistics.StatisticsRegistry;
+import dev.imprex.orebfuscator.util.Version;
 import org.jspecify.annotations.NullMarked;
 import dev.imprex.orebfuscator.cache.ObfuscationCache;
 import dev.imprex.orebfuscator.chunk.ChunkFactory;
@@ -17,6 +19,8 @@ public interface OrebfuscatorCore extends ServerAccessor {
   String name();
 
   OrebfuscatorExecutor executor();
+
+  StatisticsRegistry statisticsRegistry();
 
   OrebfuscatorStatistics statistics();
 

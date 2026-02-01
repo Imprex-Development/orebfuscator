@@ -104,12 +104,11 @@ public abstract class AbstractWorldConfig implements WorldConfig {
     return name;
   }
 
-  public JsonObject randomBlocksToJson() {
-    JsonObject object = new JsonObject();
+  public void dumpBlocks(ConfigurationSection section) {
+    var randomBlocks = section.createSection("randomBlocks");
     for (WeightedBlockList list : weightedBlockLists) {
-      object.add(list.getName(), ConfigBlockValue.toJson(list.getBlocks()));
+      ConfigBlockValue.dump(randomBlocks.createSection(list.getName()), list.getBlocks());
     }
-    return object;
   }
 
   @Override

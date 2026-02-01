@@ -1,10 +1,5 @@
 package net.imprex.orebfuscator.iterop;
 
-import java.util.BitSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.function.Predicate;
-import org.jspecify.annotations.NullMarked;
 import com.comphenix.protocol.events.PacketContainer;
 import com.comphenix.protocol.reflect.StructureModifier;
 import com.comphenix.protocol.wrappers.nbt.NbtBase;
@@ -12,8 +7,13 @@ import com.comphenix.protocol.wrappers.nbt.NbtCompound;
 import dev.imprex.orebfuscator.interop.ChunkPacketAccessor;
 import dev.imprex.orebfuscator.obfuscation.ObfuscationResponse;
 import dev.imprex.orebfuscator.util.BlockPos;
+import java.util.BitSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.function.Predicate;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 import net.imprex.orebfuscator.util.WrappedClientboundLevelChunkPacketData;
+import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public class BukkitChunkPacketAccessor implements ChunkPacketAccessor {

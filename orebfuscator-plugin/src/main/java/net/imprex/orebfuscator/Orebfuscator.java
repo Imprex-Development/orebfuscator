@@ -1,18 +1,5 @@
 package net.imprex.orebfuscator;
 
-import java.nio.file.Path;
-import java.util.List;
-import net.imprex.orebfuscator.iterop.BukkitPlayerAccessorManager;
-import net.imprex.orebfuscator.iterop.BukkitWorldAccessorManager;
-import org.bukkit.Bukkit;
-import org.bukkit.event.Event;
-import org.bukkit.event.EventPriority;
-import org.bukkit.event.HandlerList;
-import org.bukkit.event.Listener;
-import org.bukkit.event.server.PluginEnableEvent;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.ServicePriority;
-import org.bukkit.plugin.java.JavaPlugin;
 import dev.imprex.orebfuscator.UpdateSystem;
 import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.cache.ObfuscationCache;
@@ -30,13 +17,24 @@ import dev.imprex.orebfuscator.statistics.OrebfuscatorStatistics;
 import dev.imprex.orebfuscator.statistics.StatisticsRegistry;
 import dev.imprex.orebfuscator.util.Version;
 import dev.imprex.orebfuscator.util.concurrent.OrebfuscatorExecutor;
+import java.nio.file.Path;
+import java.util.List;
 import net.imprex.orebfuscator.api.OrebfuscatorService;
 import net.imprex.orebfuscator.iterop.BukkitLoggerAccessor;
-import net.imprex.orebfuscator.iterop.BukkitPlayerAccessor;
-import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
+import net.imprex.orebfuscator.iterop.BukkitPlayerAccessorManager;
+import net.imprex.orebfuscator.iterop.BukkitWorldAccessorManager;
 import net.imprex.orebfuscator.obfuscation.ObfuscationSystem;
 import net.imprex.orebfuscator.proximity.ProximityPacketListener;
 import net.imprex.orebfuscator.util.MinecraftVersion;
+import org.bukkit.Bukkit;
+import org.bukkit.event.Event;
+import org.bukkit.event.EventPriority;
+import org.bukkit.event.HandlerList;
+import org.bukkit.event.Listener;
+import org.bukkit.event.server.PluginEnableEvent;
+import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.ServicePriority;
+import org.bukkit.plugin.java.JavaPlugin;
 
 public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCore {
 
@@ -164,10 +162,6 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
     return obfuscationSystem;
   }
 
-  public StatisticsRegistry statisticsRegistry() {
-    return statisticsRegistry;
-  }
-
   public BukkitWorldAccessorManager worldManager() {
     return worldManager;
   }
@@ -179,6 +173,11 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
   @Override
   public OrebfuscatorExecutor executor() {
     return executor;
+  }
+
+  @Override
+  public StatisticsRegistry statisticsRegistry() {
+    return statisticsRegistry;
   }
 
   @Override

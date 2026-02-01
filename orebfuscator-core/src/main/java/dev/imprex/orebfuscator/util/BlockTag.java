@@ -9,8 +9,8 @@ import org.jspecify.annotations.NullMarked;
 public record BlockTag(NamespacedKey key, Set<BlockProperties> blocks) {
 
   public BlockTag(NamespacedKey key, Set<BlockProperties> blocks) {
-    this.key = key;
-    this.blocks = Collections.unmodifiableSet(blocks);
+    this.key = Objects.requireNonNull(key);
+    this.blocks = Collections.unmodifiableSet(Objects.requireNonNull(blocks));
   }
 
   @Override

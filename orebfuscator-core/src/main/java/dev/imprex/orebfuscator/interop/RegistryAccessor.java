@@ -1,5 +1,6 @@
 package dev.imprex.orebfuscator.interop;
 
+import org.jetbrains.annotations.Range;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 import dev.imprex.orebfuscator.util.BlockProperties;

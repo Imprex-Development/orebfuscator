@@ -38,21 +38,7 @@ public class StatisticsRegistry {
         .collect(Collectors.joining("\n"));
   }
 
-  public JsonObject json() {
-    JsonObject object = new JsonObject();
-
-    var entries = entries().stream()
-        .sorted(Comparator.comparing(Map.Entry::getKey))
-        .toList();
-
-    for (var entry : entries) {
-      object.addProperty(entry.getKey(), entry.getValue());
-    }
-
-    return object;
-  }
-
-  private List<Map.Entry<String, String>> entries() {
+  public List<Map.Entry<String, String>> entries() {
     var entries = new ArrayList<Map.Entry<String, String>>();
 
     for (var source : sources.values()) {

@@ -27,7 +27,7 @@ import dev.imprex.orebfuscator.util.concurrent.OrebfuscatorThread;
 @NullMarked
 public class ObfuscationProcessor {
 
-  private static final ThreadLocal<State> STATE = ThreadLocal.withInitial(() -> new State());
+  private static final ThreadLocal<State> STATE = ThreadLocal.withInitial(State::new);
 
   private final ChunkFactory chunkFactory;
   private final RegistryAccessor registryAccessor;
@@ -178,15 +178,13 @@ public class ObfuscationProcessor {
 
   private boolean isAdjacentBlockOccluding(ObfuscationRequest request, Chunk chunk, State state, int x, int y, int z) {
     int blockId = getBlockId(request, chunk, x, y, z);
-    if (blockId < 0) {
-      return false;
-    }
-
     if (registryAccessor.isOccluding(blockId)) {
       return true;
-    } else if (registryAccessor.isLava(blockId)) {
+    }
+
+    if (registryAccessor.isLava(blockId)) {
       int aboveBlockId = getBlockId(request, chunk, x, y + 1, z);
-      state.isLava = aboveBlockId >= 0 && registryAccessor.isLava(aboveBlockId);
+      state.isLava = registryAccessor.isLava(aboveBlockId);
       return state.isLava;
     }
 
@@ -195,7 +193,7 @@ public class ObfuscationProcessor {
 
   private int getBlockId(ObfuscationRequest request, Chunk chunk, int x, int y, int z) {
     if (y >= chunk.world().maxBuildHeight() || y < chunk.world().minBuildHeight()) {
-      return -1;
+      return 0;
     }
 
     int blockId = chunk.getBlockState(x, y, z);

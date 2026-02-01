@@ -1,16 +1,21 @@
 package dev.imprex.orebfuscator.proximity;
 
+import dev.imprex.orebfuscator.interop.ChunkAccessor;
 import dev.imprex.orebfuscator.interop.RegistryAccessor;
 import dev.imprex.orebfuscator.interop.WorldAccessor;
 import dev.imprex.orebfuscator.util.BlockPos;
 import dev.imprex.orebfuscator.util.EntityPose;
 import dev.imprex.orebfuscator.util.QuickMaths;
+import java.util.Map;
+import java.util.HashMap;
 
 public class ProximityRayCaster {
 
   private final RegistryAccessor registry;
   private final WorldAccessor level;
   private final boolean onlyCheckCenter;
+
+  private final Map<Long, ChunkAccessor> chunks = new HashMap<>();
 
   public ProximityRayCaster(RegistryAccessor registry, WorldAccessor level) {
     this.registry = registry;
@@ -85,7 +90,7 @@ public class ProximityRayCaster {
         return true;
       }
 
-      int blockId = level.getBlockState(x, y, z);
+      int blockId = this.getBlockState(x, y, z);
       // fail on first hit, this ray is "blocked"
       if (registry.isOccluding(blockId)) {
         return false;
@@ -93,5 +98,16 @@ public class ProximityRayCaster {
     }
 
     return true;
+  }
+
+  private int getBlockState(int x, int y, int z) {
+    int chunkX = x >> 4;
+    int chunkZ = z >> 4;
+
+    long key = ChunkAccessor.chunkCoordsToLong(chunkX, chunkZ);
+
+    return chunks
+        .computeIfAbsent(key, k -> level.getChunkNow(chunkX, chunkZ))
+        .getBlockState(x, y, z);
   }
 }

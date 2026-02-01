@@ -1,12 +1,5 @@
 package net.imprex.orebfuscator.nms;
 
-import java.util.HashMap;
-import java.util.Map;
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
-import dev.imprex.orebfuscator.interop.ChunkAccessor;
 import dev.imprex.orebfuscator.reflect.Reflector;
 import dev.imprex.orebfuscator.reflect.accessor.MethodAccessor;
 import dev.imprex.orebfuscator.util.BlockProperties;
@@ -14,6 +7,12 @@ import dev.imprex.orebfuscator.util.BlockStateProperties;
 import dev.imprex.orebfuscator.util.BlockTag;
 import dev.imprex.orebfuscator.util.NamespacedKey;
 import dev.imprex.orebfuscator.util.QuickMaths;
+import java.util.HashMap;
+import java.util.Map;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 @NullMarked
 public abstract class AbstractNmsManager implements NmsManager {
@@ -109,10 +108,5 @@ public abstract class AbstractNmsManager implements NmsManager {
   @Override
   public final boolean isBlockEntity(int id) {
     return this.blockStates[id].isBlockEntity();
-  }
-
-  @Override
-  public @Nullable ChunkAccessor tryGetChunkAccessor(World world, int chunkX, int chunkZ) {
-    throw new UnsupportedOperationException();
   }
 }

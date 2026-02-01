@@ -1,7 +1,7 @@
 package net.imprex.orebfuscator.util;
 
-import org.bukkit.permissions.Permissible;
 import dev.imprex.orebfuscator.PermissionRequirements;
+import org.bukkit.permissions.Permissible;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked

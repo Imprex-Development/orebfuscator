@@ -161,11 +161,9 @@ public class OrebfuscatorProximityConfig extends AbstractWorldConfig implements 
     }
   }
 
-  public JsonObject toJson() {
-    JsonObject object = new JsonObject();
-    object.add("hiddenBlocks", ConfigBlockValue.toJson(hiddenBlocks.keySet()));
-    object.add("randomBlocks", randomBlocksToJson());
-    return object;
+  public void dumpBlocks(ConfigurationSection section) {
+    ConfigBlockValue.dump(section.createSection("hiddenBlocks"), hiddenBlocks.keySet());
+    super.dumpBlocks(section);
   }
 
   @Override

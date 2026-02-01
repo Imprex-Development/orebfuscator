@@ -1,5 +1,17 @@
 package net.imprex.orebfuscator.obfuscation;
 
+import dev.imprex.orebfuscator.PermissionRequirements;
+import dev.imprex.orebfuscator.UpdateSystem;
+import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
+import dev.imprex.orebfuscator.util.ConsoleUtil;
+import net.imprex.orebfuscator.Orebfuscator;
+import net.imprex.orebfuscator.OrebfuscatorCompatibility;
+import net.imprex.orebfuscator.util.PermissionUtil;
+import net.md_5.bungee.api.chat.BaseComponent;
+import net.md_5.bungee.api.chat.ClickEvent;
+import net.md_5.bungee.api.chat.ComponentBuilder;
+import net.md_5.bungee.api.chat.HoverEvent;
+import net.md_5.bungee.api.chat.hover.content.Text;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -19,18 +31,6 @@ import org.bukkit.event.entity.EntityExplodeEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.jspecify.annotations.NullMarked;
-import dev.imprex.orebfuscator.PermissionRequirements;
-import dev.imprex.orebfuscator.UpdateSystem;
-import dev.imprex.orebfuscator.config.OrebfuscatorConfig;
-import dev.imprex.orebfuscator.util.ConsoleUtil;
-import net.imprex.orebfuscator.Orebfuscator;
-import net.imprex.orebfuscator.OrebfuscatorCompatibility;
-import net.imprex.orebfuscator.util.PermissionUtil;
-import net.md_5.bungee.api.chat.BaseComponent;
-import net.md_5.bungee.api.chat.ClickEvent;
-import net.md_5.bungee.api.chat.ComponentBuilder;
-import net.md_5.bungee.api.chat.HoverEvent;
-import net.md_5.bungee.api.chat.hover.content.Text;
 
 @NullMarked
 public class DeobfuscationListener implements Listener {

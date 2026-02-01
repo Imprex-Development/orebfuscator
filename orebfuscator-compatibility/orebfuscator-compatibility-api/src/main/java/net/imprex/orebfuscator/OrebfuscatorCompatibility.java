@@ -1,18 +1,12 @@
 package net.imprex.orebfuscator;
 
-import java.lang.reflect.Constructor;
-import java.util.concurrent.CompletableFuture;
-
-import org.bukkit.World;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.Plugin;
-
 import dev.imprex.orebfuscator.config.api.Config;
-import dev.imprex.orebfuscator.interop.ChunkAccessor;
 import dev.imprex.orebfuscator.logging.OfcLogger;
-import dev.imprex.orebfuscator.obfuscation.ObfuscationRequest;
+import java.lang.reflect.Constructor;
 import net.imprex.orebfuscator.compatibility.CompatibilityLayer;
 import net.imprex.orebfuscator.util.ServerVersion;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.Plugin;
 
 public class OrebfuscatorCompatibility {
 
@@ -23,7 +17,7 @@ public class OrebfuscatorCompatibility {
       throw new IllegalStateException("Compatibility layer is already initialized!");
     }
 
-    String className = "net.imprex.orebfuscator.compatibility.bukkit.BukkitCompatibilityLayer";
+    String className = "net.imprex.orebfuscator.compatibility.spigot.SpigotCompatibilityLayer";
     if (ServerVersion.isFolia()) {
       className = "net.imprex.orebfuscator.compatibility.folia.FoliaCompatibilityLayer";
     } else if (ServerVersion.isPaper()) {
@@ -54,18 +48,6 @@ public class OrebfuscatorCompatibility {
 
   public static void runAsyncNow(Runnable runnable) {
     instance.getScheduler().runAsyncNow(runnable);
-  }
-
-  public static void runAsyncAtFixedRate(Runnable runnable, long delay, long period) {
-    instance.getScheduler().runAsyncAtFixedRate(runnable, delay, period);
-  }
-
-  public static void cancelTasks() {
-    instance.getScheduler().cancelTasks();
-  }
-
-  public static CompletableFuture<ChunkAccessor[]> getNeighboringChunks(World world, ObfuscationRequest request) {
-    return instance.getNeighboringChunks(world, request);
   }
 
   public static void close() {

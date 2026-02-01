@@ -1,7 +1,5 @@
 package net.imprex.orebfuscator.obfuscation;
 
-import net.imprex.orebfuscator.iterop.BukkitPlayerAccessorManager;
-import org.jspecify.annotations.NullMarked;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
@@ -12,7 +10,9 @@ import dev.imprex.orebfuscator.obfuscation.ObfuscationPipeline;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.iterop.BukkitChunkPacketAccessor;
 import net.imprex.orebfuscator.iterop.BukkitPlayerAccessor;
+import net.imprex.orebfuscator.iterop.BukkitPlayerAccessorManager;
 import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
+import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public class ObfuscationSyncListener extends PacketAdapter {
@@ -53,7 +53,7 @@ public class ObfuscationSyncListener extends PacketAdapter {
       return;
     }
 
-    var neighboringChunks = world.getNeighboringChunks(packet.chunkX(), packet.chunkZ());
+    var neighboringChunks = world.getNeighboringChunksNow(packet.chunkX(), packet.chunkZ());
     var future = pipeline.request(world, player, packet, neighboringChunks).toCompletableFuture();
 
     player.obfuscationFuture(event, future);

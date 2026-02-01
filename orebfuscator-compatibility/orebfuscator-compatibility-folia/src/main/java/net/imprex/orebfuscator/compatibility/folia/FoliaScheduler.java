@@ -1,12 +1,9 @@
 package net.imprex.orebfuscator.compatibility.folia;
 
-import java.util.concurrent.TimeUnit;
-
+import net.imprex.orebfuscator.compatibility.CompatibilityScheduler;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
-
-import net.imprex.orebfuscator.compatibility.CompatibilityScheduler;
 
 public class FoliaScheduler implements CompatibilityScheduler {
 
@@ -27,14 +24,6 @@ public class FoliaScheduler implements CompatibilityScheduler {
   public void runAsyncNow(Runnable runnable) {
     if (this.plugin.isEnabled()) {
       Bukkit.getAsyncScheduler().runNow(this.plugin, task -> runnable.run());
-    }
-  }
-
-  @Override
-  public void runAsyncAtFixedRate(Runnable runnable, long delay, long period) {
-    if (this.plugin.isEnabled()) {
-      Bukkit.getAsyncScheduler().runAtFixedRate(this.plugin, task -> runnable.run(),
-          delay * 50, period * 50, TimeUnit.MILLISECONDS);
     }
   }
 

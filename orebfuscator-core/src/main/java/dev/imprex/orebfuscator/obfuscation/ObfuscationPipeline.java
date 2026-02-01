@@ -89,11 +89,9 @@ public class ObfuscationPipeline {
                 OfcLogger.error("Can't get neighboring chunks for (%d, %d)".formatted(packet.chunkX(), packet.chunkZ()),
                     throwable);
                 return request;
-              } else if (neighbors == null) {
-                return request;
               }
 
-              long missingChunks = Arrays.stream(neighbors).filter(n -> n == ChunkAccessor.EMPTY).count();
+              long missingChunks = Arrays.stream(neighbors).filter(ChunkAccessor::isNullOrEmpty).count();
               statistics.obfuscation.missingNeighboringChunks.add(missingChunks);
 
               return request.withNeighbors(neighbors);

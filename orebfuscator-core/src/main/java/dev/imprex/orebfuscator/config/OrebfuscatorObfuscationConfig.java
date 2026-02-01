@@ -1,5 +1,6 @@
 package dev.imprex.orebfuscator.config;
 
+import dev.imprex.orebfuscator.config.components.WeightedBlockList;
 import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -69,11 +70,9 @@ public class OrebfuscatorObfuscationConfig extends AbstractWorldConfig implement
     section.set("hiddenBlocks", blockNames);
   }
 
-  public JsonObject toJson() {
-    JsonObject object = new JsonObject();
-    object.add("hiddenBlocks", ConfigBlockValue.toJson(hiddenBlocks));
-    object.add("randomBlocks", randomBlocksToJson());
-    return object;
+  public void dumpBlocks(ConfigurationSection section) {
+    ConfigBlockValue.dump(section.createSection("hiddenBlocks"), hiddenBlocks);
+    super.dumpBlocks(section);
   }
 
   @Override

@@ -1,7 +1,6 @@
 package net.imprex.orebfuscator.api;
 
 import java.util.Collection;
-
 import org.bukkit.block.Block;
 import org.jspecify.annotations.NullMarked;
 
