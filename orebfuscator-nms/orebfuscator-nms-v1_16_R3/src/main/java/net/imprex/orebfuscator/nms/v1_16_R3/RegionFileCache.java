@@ -12,7 +12,10 @@ import net.minecraft.server.v1_16_R3.DedicatedServer;
 import net.minecraft.server.v1_16_R3.RegionFile;
 import net.minecraft.server.v1_16_R3.RegionFileCompression;
 import org.bukkit.Bukkit;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
+@NullMarked
 public class RegionFileCache extends AbstractRegionFileCache<RegionFile> {
 
   RegionFileCache(CacheConfig cacheConfig) {
@@ -31,7 +34,7 @@ public class RegionFileCache extends AbstractRegionFileCache<RegionFile> {
   }
 
   @Override
-  protected DataInputStream createInputStream(RegionFile t, ChunkCacheKey key) throws IOException {
+  protected @Nullable DataInputStream createInputStream(RegionFile t, ChunkCacheKey key) throws IOException {
     return t.a(new ChunkCoordIntPair(key.x(), key.z()));
   }
 

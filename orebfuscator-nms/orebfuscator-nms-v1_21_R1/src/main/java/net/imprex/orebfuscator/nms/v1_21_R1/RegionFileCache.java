@@ -12,7 +12,10 @@ import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.chunk.storage.RegionFile;
 import net.minecraft.world.level.chunk.storage.RegionFileVersion;
 import org.bukkit.Bukkit;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
+@NullMarked
 public class RegionFileCache extends AbstractRegionFileCache<RegionFile> {
 
   RegionFileCache(CacheConfig cacheConfig) {
@@ -31,7 +34,7 @@ public class RegionFileCache extends AbstractRegionFileCache<RegionFile> {
   }
 
   @Override
-  protected DataInputStream createInputStream(RegionFile t, ChunkCacheKey key) throws IOException {
+  protected @Nullable DataInputStream createInputStream(RegionFile t, ChunkCacheKey key) throws IOException {
     return t.getChunkDataInputStream(new ChunkPos(key.x(), key.z()));
   }
 

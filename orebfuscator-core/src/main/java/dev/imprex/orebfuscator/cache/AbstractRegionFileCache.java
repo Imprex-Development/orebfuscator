@@ -72,7 +72,7 @@ public abstract class AbstractRegionFileCache<T> {
     }
   }
 
-  protected final T get(Path path) throws IOException {
+  private T get(Path path) throws IOException {
     this.lock.readLock().lock();
     try {
       T t = this.regionFiles.get(path);
