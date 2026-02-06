@@ -4,12 +4,17 @@ import dev.imprex.orebfuscator.config.api.CacheConfig;
 import dev.imprex.orebfuscator.config.api.Config;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import java.io.IOException;
+import java.nio.file.DirectoryNotEmptyException;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 @NullMarked
 public class CacheFileCleanupTask implements Runnable {
@@ -45,7 +50,17 @@ public class CacheFileCleanupTask implements Runnable {
             Files.delete(path);
 
             CacheFileCleanupTask.this.deleteCount++;
-            OfcLogger.debug("deleted cache file: " + path);
+            OfcLogger.debug("Deleted cache file: " + path);
+          }
+          return FileVisitResult.CONTINUE;
+        }
+
+        @Override
+        public FileVisitResult postVisitDirectory(Path dir, @Nullable IOException exc) throws IOException {
+          try {
+            Files.delete(dir);
+          } catch (NoSuchFileException | DirectoryNotEmptyException e) {
+            // NOOP; we don't care
           }
           return FileVisitResult.CONTINUE;
         }
