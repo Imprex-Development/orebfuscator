@@ -1,5 +1,13 @@
 package dev.imprex.orebfuscator;
 
+import com.google.gson.annotations.SerializedName;
+import dev.imprex.orebfuscator.config.api.GeneralConfig;
+import dev.imprex.orebfuscator.interop.OrebfuscatorCore;
+import dev.imprex.orebfuscator.logging.LogLevel;
+import dev.imprex.orebfuscator.logging.OfcLogger;
+import dev.imprex.orebfuscator.util.AbstractHttpService;
+import dev.imprex.orebfuscator.util.ConsoleUtil;
+import dev.imprex.orebfuscator.util.Version;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Arrays;
@@ -13,23 +21,19 @@ import java.util.function.Consumer;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import org.jspecify.annotations.NullMarked;
-import com.google.gson.annotations.SerializedName;
-import dev.imprex.orebfuscator.config.api.GeneralConfig;
-import dev.imprex.orebfuscator.interop.OrebfuscatorCore;
-import dev.imprex.orebfuscator.logging.LogLevel;
-import dev.imprex.orebfuscator.logging.OfcLogger;
-import dev.imprex.orebfuscator.util.AbstractHttpService;
-import dev.imprex.orebfuscator.util.ConsoleUtil;
-import dev.imprex.orebfuscator.util.Version;
 import org.jspecify.annotations.Nullable;
 
 @NullMarked
 public class UpdateSystem extends AbstractHttpService {
 
-  private static final Pattern DEV_VERSION_PATTERN = Pattern.compile("(\\d+)\\.(\\d+)\\.(\\d+)(?:-b(?<build>\\d+))?");
+  private static final Pattern DEV_VERSION_PATTERN = Pattern.compile("(?:-b(?<build>\\d+))?");
 
-  private static boolean isDevVersion(String version) {
-    Matcher matcher = DEV_VERSION_PATTERN.matcher(version);
+  private static boolean isDevVersion(Version version) {
+    if (version.suffix() == null) {
+      return false;
+    }
+
+    Matcher matcher = DEV_VERSION_PATTERN.matcher(version.suffix());
     return matcher.find() && matcher.group("build") != null;
   }
 
@@ -59,27 +63,25 @@ public class UpdateSystem extends AbstractHttpService {
   }
 
   private CompletableFuture<Optional<ModrinthVersion>> requestLatestVersion() {
-    String installedVersion = this.orebfuscator.orebfuscatorVersion().toString();
+    Version installedVersion = this.orebfuscator.orebfuscatorVersion();
     if (!this.generalConfig.checkForUpdates() || isDevVersion(installedVersion)) {
       OfcLogger.debug("UpdateSystem - Update check disabled or dev version detected; skipping");
       return CompletableFuture.completedFuture(Optional.empty());
     }
 
-    var uri = String.format(API_URI, this.loader, this.orebfuscator.minecraftVersion().toString());
+    var uri = String.format(API_URI, this.loader, this.orebfuscator.minecraftVersion());
     return HTTP.sendAsync(request(uri).build(), optionalJson(ModrinthVersion[].class)).thenApply(response ->
         response.body().flatMap(body -> {
-          var version = Version.parse(installedVersion);
           var latestVersion = Arrays.stream(body)
               .filter(e -> Objects.equals(e.versionType, "release"))
               .filter(e -> Objects.equals(e.status, "listed"))
-              .sorted(Comparator.reverseOrder())
-              .findFirst();
+              .max(Comparator.naturalOrder());
 
           latestVersion.ifPresentOrElse(
               v -> OfcLogger.debug("UpdateSystem - Fetched latest version " + v.version),
               () -> OfcLogger.debug("UpdateSystem - Couldn't fetch latest version"));
 
-          return latestVersion.map(v -> version.isBelow(v.version) ? v : null);
+          return latestVersion.map(v -> installedVersion.isBelow(v.version) ? v : null);
         })
     ).exceptionally(throwable -> {
       OfcLogger.log(LogLevel.WARN, "UpdateSystem - Unable to fetch latest version", throwable);
@@ -134,7 +136,7 @@ public class UpdateSystem extends AbstractHttpService {
   public static class ModrinthVersion implements Comparable<ModrinthVersion> {
 
     private static final Comparator<ModrinthVersion> COMPARATOR =
-        Comparator.comparing(e -> e.version, Comparator.nullsLast(Version::compareTo));
+        Comparator.comparing(e -> e.version, Comparator.nullsFirst(Version::compareTo));
 
     @SerializedName("version_number")
     public Version version;
