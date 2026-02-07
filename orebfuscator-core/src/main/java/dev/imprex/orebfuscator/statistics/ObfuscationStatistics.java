@@ -2,6 +2,7 @@ package dev.imprex.orebfuscator.statistics;
 
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import dev.imprex.orebfuscator.util.RollingAverage;
 import dev.imprex.orebfuscator.util.RollingTimer;
@@ -64,18 +65,18 @@ public class ObfuscationStatistics implements StatisticsSource {
   }
 
   @Override
-  public void debug(Consumer<Map.Entry<String, String>> consumer) {
-    consumer.accept(Map.entry("debofuscation", this.debofuscation.debugLong(this::time)));
+  public void debug(BiConsumer<String, String> consumer) {
+    consumer.accept("debofuscation", this.debofuscation.debugLong(this::time));
 
-    consumer.accept(Map.entry("executorWaitTime", this.executorWaitTime.debugLong(this::time)));
-    consumer.accept(Map.entry("executorUtilization", this.executorUtilization.debugDouble(this::percent)));
+    consumer.accept("executorWaitTime", this.executorWaitTime.debugLong(this::time));
+    consumer.accept("executorUtilization", this.executorUtilization.debugDouble(this::percent));
 
-    consumer.accept(Map.entry("proximityWait", this.proximityWait.debugLong(this::time)));
-    consumer.accept(Map.entry("proximityProcess", this.proximityProcess.debugDouble(this::percent)));
+    consumer.accept("proximityWait", this.proximityWait.debugLong(this::time));
+    consumer.accept("proximityProcess", this.proximityProcess.debugDouble(this::percent));
 
-    consumer.accept(Map.entry("missingNeighboringChunks", this.missingNeighboringChunks.debugDouble(this::faction)));
+    consumer.accept("missingNeighboringChunks", this.missingNeighboringChunks.debugDouble(this::faction));
 
-    consumer.accept(Map.entry("originalChunkSize", this.originalChunkSize.debugLong(this::bytes)));
-    consumer.accept(Map.entry("obfuscatedChunkSize", this.obfuscatedChunkSize.debugLong(this::bytes)));
+    consumer.accept("originalChunkSize", this.originalChunkSize.debugLong(this::bytes));
+    consumer.accept("obfuscatedChunkSize", this.obfuscatedChunkSize.debugLong(this::bytes));
   }
 }

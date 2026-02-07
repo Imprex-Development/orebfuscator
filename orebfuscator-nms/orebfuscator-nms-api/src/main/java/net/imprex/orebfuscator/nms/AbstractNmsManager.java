@@ -82,12 +82,12 @@ public abstract class AbstractNmsManager implements NmsManager {
 
   @Override
   public final @Nullable BlockProperties getBlockByName(String name) {
-    return this.blocks.get(NamespacedKey.fromString(name));
+    return NamespacedKey.tryParse(name).map(this.blocks::get).orElse(null);
   }
 
   @Override
   public final @Nullable BlockTag getBlockTagByName(String name) {
-    return this.tags.get(NamespacedKey.fromString(name));
+    return NamespacedKey.tryParse(name).map(this.tags::get).orElse(null);
   }
 
   @Override

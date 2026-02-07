@@ -1,6 +1,7 @@
 package dev.imprex.orebfuscator.util;
 
 import java.util.concurrent.CompletionStage;
+import java.util.concurrent.atomic.AtomicBoolean;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked
@@ -17,7 +18,7 @@ public class RollingTimer extends RollingAverage {
   public class Instance {
 
     private final long time = System.nanoTime();
-    private boolean running = true;
+    private final AtomicBoolean running = new AtomicBoolean(true);
 
     private Instance() {
     }
@@ -27,9 +28,8 @@ public class RollingTimer extends RollingAverage {
     }
 
     public void stop() {
-      if (running) {
+      if (this.running.compareAndSet(true, false)) {
         add(System.nanoTime() - time);
-        running = false;
       }
     }
   }

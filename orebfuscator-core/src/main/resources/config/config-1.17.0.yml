@@ -1,4 +1,4 @@
-version: 5
+version: 6
 general:
   checkForUpdates: true
   updateOnBlockDamage: true
@@ -7,12 +7,10 @@ general:
   updateRadius: 2
 advanced:
   verbose: false
+  threads: -1
   obfuscation:
-    threads: -1
     timeout: 10000
-    maxMillisecondsPerTick: 10
   proximity:
-    threads: -1
     defaultBucketSize: 50
     threadCheckInterval: 50
     playerCheckInterval: 5000

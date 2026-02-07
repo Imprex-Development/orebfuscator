@@ -1,7 +1,10 @@
 package dev.imprex.orebfuscator.util;
 
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
 
 /**
  * Represents a String based key which consists of two components - a namespace and a key.
@@ -17,147 +20,45 @@ import org.jspecify.annotations.Nullable;
 @NullMarked
 public record NamespacedKey(String namespace, String key) {
 
-  /**
-   * The namespace representing all inbuilt keys.
-   */
-  public static final String MINECRAFT = "minecraft";
+  private static final String DEFAULT_NAMESPACE = "minecraft";
 
-  private static boolean isValidNamespaceChar(char c) {
-    return (c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') || c == '.' || c == '_' || c == '-';
+  private static final Pattern PARSE = Pattern.compile("^(?:(?<namespace>[a-z0-9._-]+):)?(?<key>[a-z0-9/._-]+)$");
+  private static final Predicate<String> VALID_NAMESPACE = Pattern.compile("^[a-z0-9._-]+$").asMatchPredicate();
+  private static final Predicate<String> VALID_KEY = Pattern.compile("^[a-z0-9/._-]+$").asMatchPredicate();
+
+  public static NamespacedKey parse(String value) {
+    return tryParse(value).orElseThrow(() -> new IllegalArgumentException(
+        "Invalid namespaced key. Must be /^([a-z0-9._-]+:)?[a-z0-9/._-]+$/: %s".formatted(value)));
   }
 
-  private static boolean isValidKeyChar(char c) {
-    return isValidNamespaceChar(c) || c == '/';
+  public static Optional<NamespacedKey> tryParse(String value) {
+    Matcher matcher = PARSE.matcher(value);
+    if (!matcher.find()) {
+      return Optional.empty();
+    }
+
+    String namespace = matcher.group("namespace");
+    String key = matcher.group("key");
+
+    if ("..".equals(namespace)) {
+      return Optional.empty();
+    }
+
+    return Optional.of(new NamespacedKey(namespace == null ? DEFAULT_NAMESPACE : namespace, key));
   }
 
-  private static boolean isInvalidNamespace(@Nullable String namespace) {
-    if (namespace == null) {
-      return true;
+  @SuppressWarnings("ConstantConditions")
+  public NamespacedKey {
+    if (namespace == null || namespace.equals("..") || !VALID_NAMESPACE.test(namespace)) {
+      throw new IllegalArgumentException("Invalid namespace. Must be [a-z0-9._-]: %s".formatted(namespace));
     }
-
-    int len = namespace.length();
-    if (len == 0) {
-      return true;
+    if (key == null || !VALID_KEY.test(key)) {
+      throw new IllegalArgumentException("Invalid key. Must be [a-z0-9/._-]: %s".formatted(key));
     }
-
-    for (int i = 0; i < len; i++) {
-      if (!isValidNamespaceChar(namespace.charAt(i))) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  private static boolean isInvalidKey(@Nullable String key) {
-    if (key == null) {
-      return true;
-    }
-
-    int len = key.length();
-    if (len == 0) {
-      return true;
-    }
-
-    for (int i = 0; i < len; i++) {
-      if (!isValidKeyChar(key.charAt(i))) {
-        return true;
-      }
-    }
-
-    return false;
-  }
-
-  /**
-   * Create a key in a specific namespace.
-   *
-   * @param namespace namespace
-   * @param key       key
-   * @deprecated should never be used by plugins, for internal use only!!
-   */
-  @Deprecated
-  public NamespacedKey(String namespace, String key) {
-    if (isInvalidNamespace(namespace)) {
-      throw new IllegalArgumentException(String.format("Invalid namespace. Must be [a-z0-9._-]: %s", namespace));
-    } else if (isInvalidKey(key)) {
-      throw new IllegalArgumentException(String.format("Invalid key. Must be [a-z0-9/._-]: %s", key));
-    }
-
-    this.namespace = namespace;
-    this.key = key;
-
-    String string = toString();
-    if (string.length() >= 256) {
-      throw new IllegalArgumentException(String.format("NamespacedKey must be less than 256 characters (%s)", string));
-    }
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    final NamespacedKey other = (NamespacedKey) obj;
-    return this.namespace.equals(other.namespace) && this.key.equals(other.key);
   }
 
   @Override
   public String toString() {
     return this.namespace + ":" + this.key;
-  }
-
-  /**
-   * Get a key in the Minecraft namespace.
-   *
-   * @param key the key to use
-   * @return new key in the Minecraft namespace
-   */
-  public static NamespacedKey minecraft(String key) {
-    return new NamespacedKey(MINECRAFT, key);
-  }
-
-
-  /**
-   * Get a NamespacedKey from the supplied string.
-   * <p>
-   * The default namespace will be Minecraft's (i.e. {@link #minecraft(String)}).
-   *
-   * @return the created NamespacedKey. null if invalid
-   */
-  public static @Nullable NamespacedKey fromString(String string) {
-    if (string.isEmpty()) {
-      throw new IllegalArgumentException("Input string must not be empty or null");
-    }
-
-    String[] components = string.split(":", 3);
-    if (components.length > 2) {
-      return null;
-    }
-
-    String key = (components.length == 2) ? components[1] : "";
-    if (components.length == 1) {
-      String value = components[0];
-      if (value.isEmpty() || isInvalidKey(value)) {
-        return null;
-      }
-
-      return minecraft(value);
-    } else if (components.length == 2 && isInvalidKey(key)) {
-      return null;
-    }
-
-    String namespace = components[0];
-    if (namespace.isEmpty()) {
-      return minecraft(key);
-    }
-
-    if (isInvalidNamespace(namespace)) {
-      return null;
-    }
-
-    return new NamespacedKey(namespace, key);
   }
 }

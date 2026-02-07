@@ -1,7 +1,9 @@
 package dev.imprex.orebfuscator.statistics;
 
 import java.util.Map;
+import java.util.Map.Entry;
 import java.util.StringJoiner;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 
 public interface StatisticsSource {
@@ -38,5 +40,5 @@ public interface StatisticsSource {
 
   void add(StringJoiner joiner);
 
-  void debug(Consumer<Map.Entry<String, String>> consumer);
+  void debug(BiConsumer<String, String> consumer);
 }

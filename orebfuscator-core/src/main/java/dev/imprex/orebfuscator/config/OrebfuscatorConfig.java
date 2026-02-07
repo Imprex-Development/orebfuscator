@@ -43,7 +43,7 @@ import dev.imprex.orebfuscator.util.WeightedRandom;
 @NullMarked
 public class OrebfuscatorConfig implements Config {
 
-  private static final int CONFIG_VERSION = 5;
+  private static final int CONFIG_VERSION = 6;
 
   private final OrebfuscatorGeneralConfig generalConfig = new OrebfuscatorGeneralConfig();
   private final OrebfuscatorAdvancedConfig advancedConfig = new OrebfuscatorAdvancedConfig();

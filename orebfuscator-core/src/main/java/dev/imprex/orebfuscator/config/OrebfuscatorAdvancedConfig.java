@@ -11,36 +11,30 @@ import org.jspecify.annotations.NullMarked;
 public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
 
   private boolean verbose = false;
+  private int threads = -1;
 
-  private int obfuscationThreads = -1;
   private long obfuscationTimeout = 10_000L;
-  private int maxMillisecondsPerTick = 10;
 
-  private int proximityThreads = -1;
   private int proximityDefaultBucketSize = 50;
   private int proximityThreadCheckInterval = 50;
   private int proximityPlayerCheckInterval = 5000;
 
-  private boolean obfuscationThreadsSet = false;
+  private boolean hasThreads = false;
   private boolean hasObfuscationTimeout = false;
-  private boolean proximityThreadsSet = false;
   private boolean hasProximityPlayerCheckInterval = true;
 
   public void deserialize(ConfigurationSection section, ConfigParsingContext context) {
     this.verbose = section.getBoolean("verbose", false);
 
+    this.threads = section.getInt("threads", -1);
+    this.hasThreads = (this.threads > 0);
+
     // parse obfuscation section
     ConfigParsingContext obfuscationContext = context.section("obfuscation");
     ConfigurationSection obfuscationSection = section.getSection("obfuscation");
     if (obfuscationSection != null) {
-      this.obfuscationThreads = obfuscationSection.getInt("threads", -1);
-      this.obfuscationThreadsSet = (this.obfuscationThreads > 0);
-
       this.obfuscationTimeout = obfuscationSection.getLong("timeout", 10_000L);
       this.hasObfuscationTimeout = (this.obfuscationTimeout > 0);
-
-      this.maxMillisecondsPerTick = obfuscationSection.getInt("maxMillisecondsPerTick", 10);
-      obfuscationContext.errorMinMaxValue("maxMillisecondsPerTick", 1, 50, this.maxMillisecondsPerTick);
     } else {
       obfuscationContext.warn(ConfigMessage.MISSING_USING_DEFAULTS);
     }
@@ -49,9 +43,6 @@ public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
     ConfigParsingContext proximityContext = context.section("proximity");
     ConfigurationSection proximitySection = section.getSection("proximity");
     if (proximitySection != null) {
-      this.proximityThreads = proximitySection.getInt("threads", -1);
-      this.proximityThreadsSet = (this.proximityThreads > 0);
-
       this.proximityDefaultBucketSize = proximitySection.getInt("defaultBucketSize", 50);
       proximityContext.errorMinValue("defaultBucketSize", 1, this.proximityDefaultBucketSize);
 
@@ -65,22 +56,18 @@ public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
     }
 
     int availableThreads = Runtime.getRuntime().availableProcessors();
-    this.obfuscationThreads = obfuscationThreadsSet ? obfuscationThreads : availableThreads;
-    this.proximityThreads = (int) (proximityThreadsSet ? proximityThreads : Math.ceil(availableThreads / 2f));
+    this.threads = hasThreads ? threads : availableThreads;
 
     OfcLogger.setVerboseLogging(this.verbose);
-    OfcLogger.debug("advanced.obfuscationThreads = " + this.obfuscationThreads);
-    OfcLogger.debug("advanced.proximityThreads = " + this.proximityThreads);
+    OfcLogger.debug("advanced.threads = " + this.threads);
   }
 
   public void serialize(ConfigurationSection section) {
     section.set("verbose", this.verbose);
+    section.set("threads", this.hasThreads ? this.threads : -1);
 
-    section.set("obfuscation.threads", this.obfuscationThreadsSet ? this.obfuscationThreads : -1);
     section.set("obfuscation.timeout", this.hasObfuscationTimeout ? this.obfuscationTimeout : -1);
-    section.set("obfuscation.maxMillisecondsPerTick", this.maxMillisecondsPerTick);
 
-    section.set("proximity.threads", this.proximityThreadsSet ? this.proximityThreads : -1);
     section.set("proximity.defaultBucketSize", this.proximityDefaultBucketSize);
     section.set("proximity.threadCheckInterval", this.proximityThreadCheckInterval);
     section.set("proximity.playerCheckInterval",
@@ -88,8 +75,8 @@ public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
   }
 
   @Override
-  public int obfuscationThreads() {
-    return this.obfuscationThreads;
+  public int threads() {
+    return this.threads;
   }
 
   @Override
@@ -100,16 +87,6 @@ public class OrebfuscatorAdvancedConfig implements AdvancedConfig {
   @Override
   public long obfuscationTimeout() {
     return this.obfuscationTimeout;
-  }
-
-  @Override
-  public int maxMillisecondsPerTick() {
-    return this.maxMillisecondsPerTick;
-  }
-
-  @Override
-  public int proximityThreads() {
-    return this.proximityThreads;
   }
 
   @Override

@@ -4,6 +4,7 @@ import java.lang.reflect.Executable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.OptionalInt;
 import java.util.function.Function;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
@@ -95,7 +96,7 @@ abstract sealed class AbstractExecutablePredicate<
     return instance();
   }
 
-  private record IndexedClassMatcher(ClassPredicate matcher, @Nullable Integer index) implements
+  private record IndexedClassMatcher(ClassPredicate matcher, OptionalInt index) implements
       Comparable<IndexedClassMatcher> {
 
     private static boolean all(Class<?>[] classArray, List<IndexedClassMatcher> classMatchers) {
@@ -103,47 +104,50 @@ abstract sealed class AbstractExecutablePredicate<
     }
 
     private static String toString(List<IndexedClassMatcher> classMatchers) {
-      return classMatchers.stream()
-          .sorted()
-          .map(IndexedClassMatcher::toString)
+      return classMatchers.stream().sorted().map(IndexedClassMatcher::toString)
           .collect(Collectors.joining(",\n    ", "{\n    ", "\n  }"));
     }
 
     public IndexedClassMatcher(ClassPredicate matcher) {
-      this(matcher, null);
+      this(matcher, OptionalInt.empty());
+    }
+
+    public IndexedClassMatcher(ClassPredicate matcher, int index) {
+      this(matcher, OptionalInt.of(index));
     }
 
     public boolean matches(Class<?>[] classArray) {
-      if (index() == null) {
+      if (index.isEmpty()) {
         for (Class<?> entry : classArray) {
-          if (matcher().test(entry)) {
+          if (matcher.test(entry)) {
             return true;
           }
         }
         return false;
       }
 
-      return index() < classArray.length && matcher().test(classArray[index()]);
+      int i = index.getAsInt();
+      return i < classArray.length && matcher.test(classArray[i]);
     }
 
     @Override
     public int compareTo(IndexedClassMatcher other) {
-      if (this.index == null && other.index == null) {
+      if (this.index.isEmpty() && other.index.isEmpty()) {
         return 0;
       }
-      if (this.index == null) {
+      if (this.index.isEmpty()) {
         return -1;
       }
-      if (other.index == null) {
+      if (other.index.isEmpty()) {
         return 1;
       }
-      return this.index.compareTo(other.index);
+      return Integer.compare(this.index.getAsInt(), other.index.getAsInt());
     }
 
     @Override
     public String toString() {
-      String key = index() == null ? "<any>" : index().toString();
-      return String.format("%s=%s", key, matcher().requirement());
+      String key = index.isEmpty() ? "<any>" : Integer.toString(index.getAsInt());
+      return String.format("%s=%s", key, matcher.requirement());
     }
   }
 }

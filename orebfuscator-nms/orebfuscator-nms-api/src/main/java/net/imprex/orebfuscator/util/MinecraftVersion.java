@@ -10,7 +10,7 @@ import org.bukkit.Bukkit;
 
 public final class MinecraftVersion {
 
-  private static final class NmsMapping {
+  private record NmsMapping(Version version, String nmsVersion) {
 
     private static final List<NmsMapping> MAPPINGS = new ArrayList<>();
 
@@ -40,19 +40,15 @@ public final class MinecraftVersion {
       throw new RuntimeException("Can't get nms package version for minecraft version: " + version);
     }
 
-    private final Version version;
-    private final String nmsVersion;
-
-    public NmsMapping(String version, String nmsVersion) {
-      this.version = Version.parse(version);
-      this.nmsVersion = nmsVersion;
+    private NmsMapping(String version, String nmsVersion) {
+      this(Version.parse(version), nmsVersion);
     }
   }
 
   private static final Pattern PACKAGE_PATTERN = Pattern.compile("org\\.bukkit\\.craftbukkit\\.(v\\d+_\\d+_R\\d+)");
   private static final Version CURRENT_VERSION = Version.parse(Bukkit.getBukkitVersion());
 
-  private static String NMS_VERSION;
+  private static final String NMS_VERSION;
 
   static {
     String craftBukkitPackage = Bukkit.getServer().getClass().getPackage().getName();

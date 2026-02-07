@@ -20,8 +20,7 @@ public class BlockProperties {
 
   private BlockProperties(Builder builder) {
     this.key = builder.key;
-    assert builder.defaultBlockState != null;
-    this.defaultBlockState = builder.defaultBlockState;
+    this.defaultBlockState = Objects.requireNonNull(builder.defaultBlockState);
     this.blockStates = ImmutableList.copyOf(builder.blockStates);
   }
 

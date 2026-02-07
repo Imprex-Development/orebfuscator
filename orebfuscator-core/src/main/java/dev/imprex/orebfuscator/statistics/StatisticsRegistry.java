@@ -3,8 +3,11 @@ package dev.imprex.orebfuscator.statistics;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 import com.google.gson.JsonObject;
@@ -38,13 +41,13 @@ public class StatisticsRegistry {
         .collect(Collectors.joining("\n"));
   }
 
-  public List<Map.Entry<String, String>> entries() {
-    var entries = new ArrayList<Map.Entry<String, String>>();
+  public Set<Entry<String, String>> entries() {
+    var entries = new LinkedHashMap<String, String>();
 
     for (var source : sources.values()) {
-      source.debug(entries::add);
+      source.debug(entries::put);
     }
 
-    return entries;
+    return entries.entrySet();
   }
 }

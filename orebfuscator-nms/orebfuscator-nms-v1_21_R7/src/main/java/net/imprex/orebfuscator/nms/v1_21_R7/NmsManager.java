@@ -75,7 +75,7 @@ public class NmsManager extends AbstractNmsManager {
     super(Block.BLOCK_STATE_REGISTRY.size());
 
     for (Map.Entry<ResourceKey<Block>, Block> entry : BuiltInRegistries.BLOCK.entrySet()) {
-      NamespacedKey namespacedKey = NamespacedKey.fromString(entry.getKey().identifier().toString());
+      NamespacedKey namespacedKey = NamespacedKey.parse(entry.getKey().identifier().toString());
       Block block = entry.getValue();
 
       ImmutableList<BlockState> possibleBlockStates = block.getStateDefinition().getPossibleStates();
@@ -97,7 +97,7 @@ public class NmsManager extends AbstractNmsManager {
     }
 
     BuiltInRegistries.BLOCK.getTags().forEach(tag -> {
-      NamespacedKey namespacedKey = NamespacedKey.fromString(tag.key().location().toString());
+      NamespacedKey namespacedKey = NamespacedKey.parse(tag.key().location().toString());
 
       Set<BlockProperties> blocks = tag.stream()
           .map(holder -> holder.unwrapKey().map(key -> getBlockByName(key.identifier().toString())))

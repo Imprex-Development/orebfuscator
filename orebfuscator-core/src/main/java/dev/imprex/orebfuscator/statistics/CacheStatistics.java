@@ -5,6 +5,7 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import java.util.function.LongSupplier;
 import dev.imprex.orebfuscator.config.api.CacheConfig;
@@ -131,19 +132,19 @@ public class CacheStatistics implements StatisticsSource {
   }
 
   @Override
-  public void debug(Consumer<Map.Entry<String, String>> consumer) {
-    consumer.accept(Map.entry("cacheHitCountMemory", Long.toString(cacheHitCountMemory.get())));
-    consumer.accept(Map.entry("cacheHitCountDisk", Long.toString(cacheHitCountDisk.get())));
-    consumer.accept(Map.entry("cacheMissCount", Long.toString(cacheMissCount.get())));
+  public void debug(BiConsumer<String, String> consumer) {
+    consumer.accept("cacheHitCountMemory", Long.toString(cacheHitCountMemory.get()));
+    consumer.accept("cacheHitCountDisk", Long.toString(cacheHitCountDisk.get()));
+    consumer.accept("cacheMissCount", Long.toString(cacheMissCount.get()));
 
-    consumer.accept(Map.entry("memoryCacheByteSize", Long.toString(memoryCacheByteSize.get())));
-    consumer.accept(Map.entry("memoryCacheEntryCount", Long.toString(memoryCacheEntryCount.getAsLong())));
+    consumer.accept("memoryCacheByteSize", Long.toString(memoryCacheByteSize.get()));
+    consumer.accept("memoryCacheEntryCount", Long.toString(memoryCacheEntryCount.getAsLong()));
 
-    consumer.accept(Map.entry("diskCacheQueueLength", Long.toString(diskCacheQueueLength.getAsLong())));
-    consumer.accept(Map.entry("diskCacheReadBytes", diskCacheReadBytes.debugLong(this::bytes)));
-    consumer.accept(Map.entry("diskCacheWriteBytes", diskCacheWriteBytes.debugLong(this::bytes)));
-    consumer.accept(Map.entry("diskCacheWaitTime", diskCacheWaitTime.debugLong(this::time)));
-    consumer.accept(Map.entry("diskCacheReadTime", diskCacheReadTime.debugLong(this::time)));
-    consumer.accept(Map.entry("diskCacheWriteTime", diskCacheWriteTime.debugLong(this::time)));
+    consumer.accept("diskCacheQueueLength", Long.toString(diskCacheQueueLength.getAsLong()));
+    consumer.accept("diskCacheReadBytes", diskCacheReadBytes.debugLong(this::bytes));
+    consumer.accept("diskCacheWriteBytes", diskCacheWriteBytes.debugLong(this::bytes));
+    consumer.accept("diskCacheWaitTime", diskCacheWaitTime.debugLong(this::time));
+    consumer.accept("diskCacheReadTime", diskCacheReadTime.debugLong(this::time));
+    consumer.accept("diskCacheWriteTime", diskCacheWriteTime.debugLong(this::time));
   }
 }

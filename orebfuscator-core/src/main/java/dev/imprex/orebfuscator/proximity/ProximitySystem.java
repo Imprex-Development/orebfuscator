@@ -30,7 +30,7 @@ public class ProximitySystem implements Runnable {
     this.executor = orebfuscator.executor();
 
     AdvancedConfig advancedConfig = orebfuscator.config().advanced();
-    this.workerCount = advancedConfig.proximityThreads();
+    this.workerCount = advancedConfig.threads();
     this.defaultBucketSize = advancedConfig.proximityDefaultBucketSize();
     this.checkInterval = TimeUnit.MILLISECONDS.toNanos(advancedConfig.proximityThreadCheckInterval());
 

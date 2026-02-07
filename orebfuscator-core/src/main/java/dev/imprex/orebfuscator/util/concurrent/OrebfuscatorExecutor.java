@@ -29,7 +29,7 @@ public class OrebfuscatorExecutor implements Executor {
   public OrebfuscatorExecutor(OrebfuscatorCore orebfuscator) {
     this.statistics = orebfuscator.statistics();
 
-    this.poolSize = orebfuscator.config().advanced().obfuscationThreads();
+    this.poolSize = orebfuscator.config().advanced().threads();
     this.executorService = Executors.newFixedThreadPool(this.poolSize, OrebfuscatorThread::new);
 
     this.scheduledExecutorService.scheduleAtFixedRate(this::updateStatistics, 1L, 1L, TimeUnit.SECONDS);

@@ -57,11 +57,13 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
   private ProximitySystem proximitySystem;
   private ProximityPacketListener proximityPacketListener;
 
+  private Version orebfuscatorVersion;
   private UpdateSystem updateSystem;
 
   @Override
   public void onLoad() {
     OfcLogger.setLogger(new BukkitLoggerAccessor(getLogger()));
+    this.orebfuscatorVersion = Version.parse(getDescription().getVersion());
   }
 
   @Override
@@ -232,7 +234,7 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
 
   @Override
   public Version orebfuscatorVersion() {
-    return Version.parse(getDescription().getVersion());
+    return this.orebfuscatorVersion;
   }
 
   @Override

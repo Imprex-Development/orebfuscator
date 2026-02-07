@@ -77,7 +77,7 @@ public class NmsManager extends AbstractNmsManager {
     super(Block.REGISTRY_ID.a());
 
     for (Entry<ResourceKey<Block>, Block> entry : IRegistry.BLOCK.d()) {
-      NamespacedKey namespacedKey = NamespacedKey.fromString(entry.getKey().a().toString());
+      NamespacedKey namespacedKey = NamespacedKey.parse(entry.getKey().a().toString());
       Block block = entry.getValue();
 
       ImmutableList<IBlockData> possibleBlockStates = block.getStates().a();
@@ -99,7 +99,7 @@ public class NmsManager extends AbstractNmsManager {
     }
 
     for (Entry<MinecraftKey, Tag<Block>> entry : TagsBlock.a().a().entrySet()) {
-      NamespacedKey namespacedKey = NamespacedKey.fromString(entry.getKey().toString());
+      NamespacedKey namespacedKey = NamespacedKey.parse(entry.getKey().toString());
 
       Set<BlockProperties> blocks = new HashSet<>();
       for (Block block : entry.getValue().getTagged()) {

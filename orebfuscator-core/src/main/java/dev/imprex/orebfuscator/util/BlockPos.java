@@ -50,7 +50,7 @@ public record BlockPos(int x, int y, int z) implements Comparable<BlockPos> {
   }
 
   public int toSectionPos() {
-    return (this.x & 0xF) << 12 | (this.y & 0xFFF) << 0 | (this.z & 0xF) << 16;
+    return (this.x & 0xF) << 12 | (this.y & 0xFFF) | (this.z & 0xF) << 16;
   }
 
   public static BlockPos fromSectionPos(int x, int z, int sectionPos) {

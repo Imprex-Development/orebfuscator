@@ -2,6 +2,7 @@ package dev.imprex.orebfuscator.statistics;
 
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.function.BiConsumer;
 import java.util.function.Consumer;
 import dev.imprex.orebfuscator.util.RollingAverage;
 import dev.imprex.orebfuscator.util.RollingTimer;
@@ -43,16 +44,16 @@ public class InjectorStatistics implements StatisticsSource {
   }
 
   @Override
-  public void debug(Consumer<Map.Entry<String, String>> consumer) {
-    consumer.accept(Map.entry("pipelineDelayTotal", this.pipelineDelayTotal.debugLong(this::time)));
-    consumer.accept(Map.entry("pipelineDelayCache", this.pipelineDelayCache.debugLong(this::time)));
-    consumer.accept(Map.entry("pipelineDelayNeighbors", this.pipelineDelayNeighbors.debugLong(this::time)));
-    consumer.accept(Map.entry("pipelineDelayProcessor", this.pipelineDelayProcessor.debugLong(this::time)));
+  public void debug(BiConsumer<String, String> consumer) {
+    consumer.accept("pipelineDelayTotal", this.pipelineDelayTotal.debugLong(this::time));
+    consumer.accept("pipelineDelayCache", this.pipelineDelayCache.debugLong(this::time));
+    consumer.accept("pipelineDelayNeighbors", this.pipelineDelayNeighbors.debugLong(this::time));
+    consumer.accept("pipelineDelayProcessor", this.pipelineDelayProcessor.debugLong(this::time));
 
-    consumer.accept(Map.entry("injectorDelaySync", this.injectorDelaySync.debugLong(this::time)));
-    consumer.accept(Map.entry("injectorBatchSize", this.injectorBatchSize.debugLong(this::time)));
+    consumer.accept("injectorDelaySync", this.injectorDelaySync.debugLong(this::time));
+    consumer.accept("injectorBatchSize", this.injectorBatchSize.debugLong(this::time));
 
-    consumer.accept(Map.entry("packetDelayAny", this.packetDelayAny.debugLong(this::time)));
-    consumer.accept(Map.entry("packetDelayChunk", this.packetDelayChunk.debugLong(this::time)));
+    consumer.accept("packetDelayAny", this.packetDelayAny.debugLong(this::time));
+    consumer.accept("packetDelayChunk", this.packetDelayChunk.debugLong(this::time));
   }
 }

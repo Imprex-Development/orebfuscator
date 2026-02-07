@@ -73,7 +73,7 @@ public final class ConsoleUtil {
     int totalWidth = width + BOX_PADDING * 2;
 
     // create top/bottom lines
-    String bottomTopLine = repeat('-', totalWidth);
+    String bottomTopLine = "-".repeat(totalWidth);
     String topLine = String.format("+%s+", bottomTopLine);
     String bottomLine = String.format("+%s+", bottomTopLine);
 
@@ -87,10 +87,10 @@ public final class ConsoleUtil {
       // center line
       String leftPadding, rightPadding;
       if (space % 2 == 0) {
-        leftPadding = rightPadding = repeat(' ', space / 2);
+        leftPadding = rightPadding = " ".repeat(space / 2);
       } else {
-        leftPadding = repeat(' ', space / 2 + 1);
-        rightPadding = repeat(' ', space / 2);
+        leftPadding = " ".repeat(space / 2 + 1);
+        rightPadding = " ".repeat(space / 2);
       }
 
       box.add(String.format("|%s%s%s|", leftPadding, line, rightPadding));
@@ -98,11 +98,5 @@ public final class ConsoleUtil {
 
     box.add(bottomLine);
     return box;
-  }
-
-  private static String repeat(char character, int length) {
-    char[] string = new char[length];
-    Arrays.fill(string, character);
-    return new String(string);
   }
 }

@@ -62,8 +62,8 @@ public class MetricsSystem {
   }
 
   public void addConfigCharts(OrebfuscatorConfig config) {
-    this.metrics.addCustomChart(new SimplePie("max_mspt", () -> {
-      return Integer.toString(config.advanced().maxMillisecondsPerTick());
+    this.metrics.addCustomChart(new SimplePie("obfuscation_timeout", () -> {
+      return Long.toString(config.advanced().obfuscationTimeout());
     }));
     this.metrics.addCustomChart(new SimplePie("update_radius", () -> {
       return Integer.toString(config.general().updateRadius());
@@ -78,7 +78,10 @@ public class MetricsSystem {
       return Boolean.toString(config.general().ignoreSpectator());
     }));
     this.metrics.addCustomChart(new SimplePie("cache", () -> {
-      return Boolean.toString(config.cache().enabled());
+      if (config.cache().enabled()) {
+        return config.cache().enableDiskCache() ? "disk" : "true";
+      }
+      return "false";
     }));
     this.metrics.addCustomChart(new SimplePie("proximity", () -> {
       return Boolean.toString(config.proximityEnabled());

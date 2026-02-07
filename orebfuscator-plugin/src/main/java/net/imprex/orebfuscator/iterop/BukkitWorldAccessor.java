@@ -195,6 +195,6 @@ public class BukkitWorldAccessor implements WorldAccessor {
 
   @Override
   public String toString() {
-    return "[minY=%s, maxY=%s]".formatted(minHeight, maxHeight);
+    return "[name=%s, minY=%s, maxY=%s]".formatted(name(), minHeight, maxHeight);
   }
 }

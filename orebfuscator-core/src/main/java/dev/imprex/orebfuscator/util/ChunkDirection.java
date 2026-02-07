@@ -44,23 +44,4 @@ public enum ChunkDirection {
     throw new IllegalArgumentException(String.format("invalid offset (chunkX: %d, chunkZ: %d, x: %d, z: %d)",
         packetAccessor.chunkX(), packetAccessor.chunkZ(), targetX, targetZ));
   }
-
-  @Deprecated
-  public static ChunkDirection fromPosition(ChunkCacheKey key, int targetX, int targetZ) {
-    int offsetX = (targetX >> 4) - key.x();
-    int offsetZ = (targetZ >> 4) - key.z();
-
-    if (offsetX == 1 && offsetZ == 0) {
-      return NORTH;
-    } else if (offsetX == 0 && offsetZ == 1) {
-      return EAST;
-    } else if (offsetX == -1 && offsetZ == 0) {
-      return SOUTH;
-    } else if (offsetX == 0 && offsetZ == -1) {
-      return WEST;
-    }
-
-    throw new IllegalArgumentException(
-        String.format("invalid offset (origin: %s, x: %d, z: %d)", key, targetX, targetZ));
-  }
 }
