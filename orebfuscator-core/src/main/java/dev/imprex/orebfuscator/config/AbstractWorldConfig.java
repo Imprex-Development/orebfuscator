@@ -1,6 +1,5 @@
 package dev.imprex.orebfuscator.config;
 
-import com.google.gson.JsonObject;
 import dev.imprex.orebfuscator.config.api.WorldConfig;
 import dev.imprex.orebfuscator.config.components.BlockParser;
 import dev.imprex.orebfuscator.config.components.ConfigBlockValue;
@@ -76,8 +75,6 @@ public abstract class AbstractWorldConfig implements WorldConfig {
       return;
     }
 
-    // TODO: validate each height has some valid values or limit height or use some default fill in value
-
     for (ConfigurationSection subSection : subSectionContainer.getSubSections()) {
       ConfigParsingContext subContext = context.section(subSection.getName());
       this.weightedBlockLists.add(new WeightedBlockList(blockParserFactory, subSection, subContext));
@@ -85,7 +82,23 @@ public abstract class AbstractWorldConfig implements WorldConfig {
 
     if (this.weightedBlockLists.isEmpty()) {
       context.error(ConfigMessage.MISSING_OR_EMPTY);
+    } else if (this.areWeightedBlockListsInvalid()) {
+      context.warn(ConfigMessage.RANDOM_BLOCKS_INCOMPLETE);
     }
+  }
+
+  private boolean areWeightedBlockListsInvalid() {
+    yLoop:
+    for (int y = minY; y <= maxY; y++) {
+      for (WeightedBlockList list : this.weightedBlockLists) {
+        if (list.matches(y)) {
+          continue yLoop;
+        }
+      }
+      return true;
+    }
+
+    return false;
   }
 
   protected void serializeRandomBlocks(ConfigurationSection section) {

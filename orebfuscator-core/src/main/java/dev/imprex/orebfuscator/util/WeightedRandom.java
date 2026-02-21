@@ -143,23 +143,6 @@ public final class WeightedRandom {
     return next(ThreadLocalRandom.current());
   }
 
-  private static double boundedNextDouble(long seed, double bound) {
-    // Specialize boundedNextDouble for origin == 0, bound > 0
-    double r = (seed >>> 11) * 0x1.0p-53;
-    r = r * bound;
-    if (r >= bound) // may need to correct a rounding problem
-    {
-      r = Double.longBitsToDouble(Double.doubleToLongBits(bound) - 1);
-    }
-    return r;
-  }
-
-  private static int boundedNextInt(long seed, int n) {
-    return ((n & (n - 1)) == 0)
-        ? (int) (seed & (n - 1))
-        : (int) (((seed & 0xFFFF_FFFFL) * (long) n) >>> 32);
-  }
-
   /**
    * Samples a random value using the given random generator.
    *
@@ -169,22 +152,17 @@ public final class WeightedRandom {
   public int next(RandomGenerator random) {
     Objects.requireNonNull(random);
 
-    long seed = random.nextLong();
+    if (this.values.length == 1) {
+      return values[0];
+    }
 
-    int i = boundedNextInt(seed, this.n);
+    int i = random.nextInt(this.n);
     if (this.allWeightsEqual) {
       return values[i];
     }
 
-    int pick = boundedNextDouble(seed, totalWeight) < probabilities[i] ? i : alias[i];
+    int pick = random.nextDouble(totalWeight) < probabilities[i] ? i : alias[i];
     return values[pick];
-//    int i = random.nextInt(this.n);
-//    if (this.allWeightsEqual) {
-//      return values[i];
-//    }
-//
-//    int pick = random.nextDouble(totalWeight) < probabilities[i] ? i : alias[i];
-//    return values[pick];
   }
 
   /**
@@ -197,6 +175,10 @@ public final class WeightedRandom {
     private final Map<Integer, Double> entries = new LinkedHashMap<>();
 
     private Builder() {
+    }
+
+    public boolean isEmpty() {
+      return this.entries.isEmpty();
     }
 
     /**

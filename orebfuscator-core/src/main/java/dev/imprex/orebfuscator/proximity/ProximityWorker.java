@@ -114,7 +114,6 @@ public class ProximityWorker {
             BlockPos blockPos = proximityBlock.blockPos();
 
             // skip lava obfuscated if not in lava
-            // TODO: the current deobfuscation would only deobfuscate lava if the neighboring block is a hiddenBlock
             if (proximityBlock.lavaObfuscated() && !isInLava) {
               continue;
             }

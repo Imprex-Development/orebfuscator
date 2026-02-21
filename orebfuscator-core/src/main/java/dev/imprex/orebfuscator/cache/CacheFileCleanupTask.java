@@ -41,7 +41,8 @@ public class CacheFileCleanupTask implements Runnable {
     this.deleteCount = 0;
 
     try {
-      Files.walkFileTree(this.cacheConfig.baseDirectory(), new SimpleFileVisitor<>() {
+      Path basePath = this.cacheConfig.baseDirectory();
+      Files.walkFileTree(basePath, new SimpleFileVisitor<>() {
 
         @Override
         public FileVisitResult visitFile(Path path, BasicFileAttributes attributes) throws IOException {
@@ -58,7 +59,9 @@ public class CacheFileCleanupTask implements Runnable {
         @Override
         public FileVisitResult postVisitDirectory(Path dir, @Nullable IOException exc) throws IOException {
           try {
-            Files.delete(dir);
+            if (!basePath.equals(dir)) {
+              Files.delete(dir);
+            }
           } catch (NoSuchFileException | DirectoryNotEmptyException e) {
             // NOOP; we don't care
           }

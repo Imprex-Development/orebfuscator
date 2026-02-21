@@ -58,6 +58,11 @@ public class WeightedBlockList {
           }
         }
 
+        if (builder.isEmpty()) {
+          // add air as fallback if builder is empty
+          builder.add(0, 1);
+        }
+
         heightMap[index] = builder.build();
         count++;
 
@@ -131,5 +136,9 @@ public class WeightedBlockList {
 
   public Set<ConfigBlockValue> getBlocks() {
     return Collections.unmodifiableSet(this.blocks.keySet());
+  }
+
+  public boolean matches(int y) {
+    return this.minY <= y && this.maxY >= y;
   }
 }
