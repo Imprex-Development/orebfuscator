@@ -17,9 +17,6 @@ import org.jspecify.annotations.NullMarked;
 public record ConfigBlockValue(String value, Set<BlockProperties> blocks) implements
     Comparable<ConfigBlockValue> {
 
-  private static final JsonElement INVALID = new JsonPrimitive("invalid");
-  private static final JsonElement VALID = new JsonPrimitive("valid");
-
   public static void dump(ConfigurationSection section, Collection<? extends ConfigBlockValue> values) {
     for (var entry : values.stream().sorted().toList()) {
       if (entry.blocks().size() > 1) {
@@ -27,9 +24,9 @@ public record ConfigBlockValue(String value, Set<BlockProperties> blocks) implem
             .map(block -> block.getKey().toString())
             .toList());
       } else if (!entry.blocks().isEmpty()) {
-        section.set(entry.value(), VALID);
+        section.set(entry.value(), "valid");
       } else {
-        section.set(entry.value(), INVALID);
+        section.set(entry.value(), "invalid");
       }
     }
   }

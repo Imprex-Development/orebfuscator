@@ -37,6 +37,7 @@ public class OrebfuscatorDumpFile extends ConfigurationSection {
   private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
   private static final Gson GSON = new GsonBuilder().setPrettyPrinting()
+      .registerTypeAdapter(OrebfuscatorDumpFile.class, new Json())
       .registerTypeAdapter(ConfigurationSection.class, new Json())
       .create();
 
@@ -66,7 +67,7 @@ public class OrebfuscatorDumpFile extends ConfigurationSection {
     var levels = createSection("levels");
     for (WorldAccessor accessor : orebfuscator.worlds()) {
       var section = levels.createSection(accessor.name());
-      section.set("accessor", accessor);
+      section.set("accessor", accessor.toString());
       section.set("minY", accessor.minBuildHeight());
       section.set("maxY", accessor.maxBuildHeight());
     }

@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.iterop.BukkitChunkPacketAccessor;
@@ -26,25 +27,22 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public class ObfuscationAsyncListener extends PacketAdapter {
 
-  private static final List<PacketType> PACKET_TYPES = Arrays.asList(
-      PacketType.Play.Server.MAP_CHUNK,
-      PacketType.Play.Server.CHUNK_BATCH_START,
-      PacketType.Play.Server.CHUNK_BATCH_FINISHED,
-      PacketType.Play.Server.UNLOAD_CHUNK,
-      PacketType.Play.Server.CHUNKS_BIOMES,
-      PacketType.Play.Server.LIGHT_UPDATE,
-      PacketType.Play.Server.TILE_ENTITY_DATA,
-      PacketType.Play.Server.RESPAWN,
-      // PlayerList::sendLevelInfo
-      PacketType.Play.Server.INITIALIZE_BORDER,
-      PacketType.Play.Server.UPDATE_TIME,
-      PacketType.Play.Server.SPAWN_POSITION,
-      PacketType.Play.Server.GAME_STATE_CHANGE,
-      // Proximity hider updates
-      PacketType.Play.Server.BLOCK_CHANGE,
-      PacketType.Play.Server.MULTI_BLOCK_CHANGE,
-      // Clientbound packet
-      PacketType.Play.Client.CHUNK_BATCH_RECEIVED);
+  private static final List<PacketType> PACKET_TYPES = Stream.concat(
+      ObfuscationSyncListener.PACKET_TYPES_RESPAWN.stream(),
+      Stream.of(
+          PacketType.Play.Server.MAP_CHUNK,
+          PacketType.Play.Server.CHUNK_BATCH_START,
+          PacketType.Play.Server.CHUNK_BATCH_FINISHED,
+          PacketType.Play.Server.UNLOAD_CHUNK,
+          PacketType.Play.Server.CHUNKS_BIOMES,
+          PacketType.Play.Server.LIGHT_UPDATE,
+          PacketType.Play.Server.TILE_ENTITY_DATA,
+          // Proximity hider updates
+          PacketType.Play.Server.BLOCK_CHANGE,
+          PacketType.Play.Server.MULTI_BLOCK_CHANGE,
+          // Serverbound packet
+          PacketType.Play.Client.CHUNK_BATCH_RECEIVED
+      )).filter(PacketType::isSupported).toList();
 
   private final ObfuscationPipeline pipeline;
   private final InjectorStatistics statistics;
@@ -54,9 +52,7 @@ public class ObfuscationAsyncListener extends PacketAdapter {
   private final AsyncListenerHandler asyncListenerHandler;
 
   public ObfuscationAsyncListener(Orebfuscator orebfuscator) {
-    super(orebfuscator, PACKET_TYPES.stream()
-        .filter(PacketType::isSupported)
-        .collect(Collectors.toList()));
+    super(orebfuscator, PACKET_TYPES);
 
     this.pipeline = orebfuscator.obfuscationPipeline();
     this.statistics = orebfuscator.statistics().injector;
@@ -83,7 +79,7 @@ public class ObfuscationAsyncListener extends PacketAdapter {
 
   @Override
   public void onPacketSending(PacketEvent event) {
-    PacketType type = event.getPacket().getType();
+    PacketType type = event.getPacketType();
     if (type != PacketType.Play.Server.MAP_CHUNK &&
         type != PacketType.Play.Server.CHUNK_BATCH_START &&
         type != PacketType.Play.Server.CHUNK_BATCH_FINISHED) {

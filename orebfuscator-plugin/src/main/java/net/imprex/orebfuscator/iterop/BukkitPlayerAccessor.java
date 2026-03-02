@@ -11,6 +11,7 @@ import dev.imprex.orebfuscator.util.EntityPose;
 import java.util.Map;
 import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;
@@ -34,12 +35,25 @@ public class BukkitPlayerAccessor implements PlayerAccessor {
 
   private final Map<Object, CompletableFuture<Void>> pendingPackets = new WeakHashMap<>();
   private final AtomicReference<@Nullable PendingChunkBatch> chunkBatch = new AtomicReference<>();
+  private volatile boolean respawning = false;
 
   public BukkitPlayerAccessor(Orebfuscator orebfuscator, Player player) {
     this.orebfuscator = orebfuscator;
     this.player = player;
     this.world = orebfuscator.worldManager().get(player.getWorld());
     this.orebfuscatorPlayer = new OrebfuscatorPlayer(orebfuscator, this);
+  }
+
+  public void startRespawn() {
+    this.respawning = true;
+
+    this.runForPlayer(() -> {
+      this.respawning = false;
+    });
+  }
+
+  public boolean isRespawning() {
+    return this.respawning;
   }
 
   public void changeWorld(BukkitWorldAccessor world) {
