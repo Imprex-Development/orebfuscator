@@ -64,7 +64,7 @@ public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {
       var listeners = dumpFile.createSection("listeners");
       for (PacketListener packetListener : ProtocolLibrary.getProtocolManager().getPacketListeners()) {
         var listener = listeners.createSection(
-            packetListener.getClass().toGenericString() + "@" + System.identityHashCode(packetListener));
+            packetListener.getClass().getName() + "@" + System.identityHashCode(packetListener));
         listener.set("plugin", packetListener.getPlugin().toString());
         listener.set("receivingWhitelist", packetListener.getReceivingWhitelist().toString());
         listener.set("sendingWhitelist", packetListener.getSendingWhitelist().toString());

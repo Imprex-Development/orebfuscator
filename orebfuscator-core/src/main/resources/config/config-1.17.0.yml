@@ -145,6 +145,7 @@ obfuscation:
     layerObfuscation: false
     hiddenBlocks:
     - minecraft:end_stone
+    - minecraft:obsidian
     - tag(minecraft:shulker_boxes)
     - minecraft:barrel
     - minecraft:chest

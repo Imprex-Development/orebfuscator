@@ -9,6 +9,7 @@ import dev.imprex.orebfuscator.player.OrebfuscatorPlayer;
 import dev.imprex.orebfuscator.util.BlockPos;
 import dev.imprex.orebfuscator.util.EntityPose;
 import java.util.Map;
+import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -19,6 +20,7 @@ import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.obfuscation.PendingChunkBatch;
 import net.imprex.orebfuscator.util.PermissionUtil;
 import org.bukkit.GameMode;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.potion.PotionEffectType;
 import org.jspecify.annotations.NullMarked;
@@ -31,6 +33,7 @@ public class BukkitPlayerAccessor implements PlayerAccessor {
   private final Player player;
   private BukkitWorldAccessor world;
 
+  private final BukkitWorldAccessorManager worldManager;
   private final OrebfuscatorPlayer orebfuscatorPlayer;
 
   private final Map<Object, CompletableFuture<Void>> pendingPackets = new WeakHashMap<>();
@@ -40,7 +43,8 @@ public class BukkitPlayerAccessor implements PlayerAccessor {
   public BukkitPlayerAccessor(Orebfuscator orebfuscator, Player player) {
     this.orebfuscator = orebfuscator;
     this.player = player;
-    this.world = orebfuscator.worldManager().get(player.getWorld());
+    this.worldManager = orebfuscator.worldManager();
+    this.world = this.worldManager.get(player.getWorld());
     this.orebfuscatorPlayer = new OrebfuscatorPlayer(orebfuscator, this);
   }
 
@@ -116,6 +120,12 @@ public class BukkitPlayerAccessor implements PlayerAccessor {
 
   @Override
   public BukkitWorldAccessor world() {
+    World bukkitWorld = player.getWorld();
+
+    if (!Objects.equals(this.world.world, bukkitWorld)) {
+      this.changeWorld(this.worldManager.get(bukkitWorld));
+    }
+
     return world;
   }
 
@@ -147,5 +157,10 @@ public class BukkitPlayerAccessor implements PlayerAccessor {
   @Override
   public void sendBlockUpdates(Iterable<BlockPos> iterable) {
     OrebfuscatorNms.sendBlockUpdates(player, iterable);
+  }
+
+  @Override
+  public String toString() {
+    return this.player.toString();
   }
 }

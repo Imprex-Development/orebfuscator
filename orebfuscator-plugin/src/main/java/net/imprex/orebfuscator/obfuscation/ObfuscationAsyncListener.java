@@ -74,6 +74,7 @@ public class ObfuscationAsyncListener extends PacketAdapter {
 
   @Override
   public void onPacketReceiving(PacketEvent event) {
+    event.getPacket().getFloat().write(0, 10f);
     statistics.injectorBatchSize.add(event.getPacket().getFloat().read(0));
   }
 
@@ -87,7 +88,7 @@ public class ObfuscationAsyncListener extends PacketAdapter {
     }
 
     BukkitPlayerAccessor player = this.playerManager.tryGet(event.getPlayer());
-    if (player == null || !player.isAlive()) {
+    if (player == null) {
       return;
     }
 
@@ -103,12 +104,11 @@ public class ObfuscationAsyncListener extends PacketAdapter {
     } else {
       var future = player.obfuscationFuture(event);
       if (future == null) {
-        OfcLogger.warn("Processing chunk packet async without an obfuscation future, that shouldn't happen!");
-
         var packet = new BukkitChunkPacketAccessor(event.getPacket(), world);
         if (packet.isEmpty()) {
           future = CompletableFuture.completedFuture(null);
         } else {
+          OfcLogger.warn("Processing chunk packet async without an obfuscation future, that shouldn't happen!");
           future = pipeline.request(world, player, packet, null).toCompletableFuture();
         }
       }

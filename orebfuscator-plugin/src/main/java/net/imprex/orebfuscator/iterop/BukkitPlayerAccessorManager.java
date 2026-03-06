@@ -1,6 +1,7 @@
 package net.imprex.orebfuscator.iterop;
 
 import dev.imprex.orebfuscator.interop.PlayerAccessor;
+import dev.imprex.orebfuscator.logging.OfcLogger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,6 +13,7 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerChangedWorldEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
+import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -50,6 +52,16 @@ public class BukkitPlayerAccessorManager implements Listener {
   public void onPlayerJoin(PlayerJoinEvent event) {
     this.players.computeIfAbsent(event.getPlayer(), key -> new BukkitPlayerAccessor(orebfuscator, key))
         .orebfuscatorPlayer().clearChunks();
+  }
+
+  @EventHandler
+  public void onPlayerRespawn(PlayerRespawnEvent event) {
+    var player = event.getPlayer();
+    var world = event.getRespawnLocation().getWorld();
+    var bukkitPlayer = this.players.get(player);
+    if (bukkitPlayer != null && world != null) {
+      bukkitPlayer.changeWorld(this.worldManager.get(world));
+    }
   }
 
   @EventHandler

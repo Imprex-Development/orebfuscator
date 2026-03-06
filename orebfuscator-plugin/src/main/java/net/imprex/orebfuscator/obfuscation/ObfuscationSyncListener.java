@@ -86,6 +86,10 @@ public class ObfuscationSyncListener extends PacketAdapter {
     try {
       BukkitPlayerAccessor player = this.playerManager.tryGet(event.getPlayer());
       if (player == null) {
+        if (event.getAsyncMarker() != null) {
+          // cancel async processing of login packets as our player object is created after join event
+          event.getAsyncMarker().setAsyncCancelled(true);
+        }
         return;
       }
 
@@ -106,10 +110,6 @@ public class ObfuscationSyncListener extends PacketAdapter {
   }
 
   private void onSendLevelChunk(PacketEvent event, BukkitPlayerAccessor player) {
-    if (!player.isAlive()) {
-      return;
-    }
-
     BukkitWorldAccessor world = player.world();
     if (player.hasPermission(PermissionRequirements.BYPASS) || !world.config().needsObfuscation()) {
       return;

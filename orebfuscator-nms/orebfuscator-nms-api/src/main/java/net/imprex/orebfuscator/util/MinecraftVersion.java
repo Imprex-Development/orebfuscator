@@ -26,6 +26,8 @@ public final class MinecraftVersion {
     }
 
     public static String get(Version version) {
+      version = new Version(version.major(), version.minor(), version.patch(), null);
+
       for (NmsMapping mapping : MAPPINGS) {
         if (version.isAtOrAbove(mapping.version)) {
           if (mapping.version.minor() != version.minor()) {
