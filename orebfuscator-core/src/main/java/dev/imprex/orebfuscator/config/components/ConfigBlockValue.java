@@ -1,16 +1,12 @@
 package dev.imprex.orebfuscator.config.components;
 
 import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
+import dev.imprex.orebfuscator.util.BlockProperties;
+import dev.imprex.orebfuscator.util.BlockTag;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
-import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-import com.google.gson.JsonPrimitive;
-import dev.imprex.orebfuscator.util.BlockProperties;
-import dev.imprex.orebfuscator.util.BlockTag;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked

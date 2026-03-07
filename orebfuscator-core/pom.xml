@@ -34,30 +34,35 @@
       <artifactId>guava</artifactId>
       <version>${dependency.guava.version}</version>
       <scope>compile</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>com.google.code.gson</groupId>
       <artifactId>gson</artifactId>
       <version>${dependency.gson.version}</version>
-      <scope>provided</scope>
+      <scope>compile</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.yaml</groupId>
       <artifactId>snakeyaml</artifactId>
       <version>${dependency.snakeyaml.version}</version>
       <scope>compile</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>org.joml</groupId>
       <artifactId>joml</artifactId>
       <version>${dependency.joml.version}</version>
-      <scope>provided</scope>
+      <scope>compile</scope>
+      <optional>true</optional>
     </dependency>
     <dependency>
       <groupId>at.yawk.lz4</groupId>
       <artifactId>lz4-java</artifactId>
       <version>${dependency.lz4.version}</version>
-      <scope>provided</scope>
+      <scope>compile</scope>
+      <optional>true</optional>
     </dependency>
   </dependencies>
 
@@ -67,10 +72,27 @@
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
         <configuration>
+          <minimizeJar>true</minimizeJar>
+          <filters>
+            <filter>
+              <artifact>*:lz4-java</artifact>
+              <includes>
+                <include>**</include>
+              </includes>
+            </filter>
+          </filters>
           <relocations>
             <relocation>
-              <pattern>com.google.common</pattern>
-              <shadedPattern>dev.imprex.shaded.com.google.common</shadedPattern>
+              <pattern>com.google</pattern>
+              <shadedPattern>dev.imprex.shaded.com.google</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>net.jpountz</pattern>
+              <shadedPattern>dev.imprex.shaded.net.jpountz</shadedPattern>
+            </relocation>
+            <relocation>
+              <pattern>org.joml</pattern>
+              <shadedPattern>dev.imprex.shaded.org.joml</shadedPattern>
             </relocation>
             <relocation>
               <pattern>org.yaml.snakeyaml</pattern>

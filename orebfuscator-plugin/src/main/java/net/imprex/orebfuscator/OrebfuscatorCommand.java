@@ -50,6 +50,7 @@ public class OrebfuscatorCommand implements CommandExecutor, TabCompleter {
       dumpFile.set("versions.nms", MinecraftVersion.nmsVersion());
       dumpFile.set("versions.server", Bukkit.getVersion());
       dumpFile.set("versions.bukkit", Bukkit.getBukkitVersion());
+      dumpFile.set("versions.vendor", Bukkit.getName());
       dumpFile.set("versions.protocolLib", ProtocolLibrary.getPlugin().toString());
 
       var plugins = dumpFile.createSection("plugins");

@@ -1,16 +1,13 @@
 package dev.imprex.orebfuscator.statistics;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
-import com.google.gson.JsonObject;
 
 public class StatisticsRegistry {
 

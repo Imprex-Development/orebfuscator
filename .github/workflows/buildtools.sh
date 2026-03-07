@@ -24,8 +24,6 @@ checkVersion () {
   fi
 }
 
-checkVersion "1.16.1" "8"
-checkVersion "1.16.3" "8"
 checkVersion "1.16.5" "8"
 checkVersion "1.17.1" "17"
 checkVersion "1.18.1" "17"

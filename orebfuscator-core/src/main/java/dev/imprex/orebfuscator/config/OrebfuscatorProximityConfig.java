@@ -1,11 +1,5 @@
 package dev.imprex.orebfuscator.config;
 
-import java.util.HashSet;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.Set;
-import org.joml.Matrix4f;
-import com.google.gson.JsonObject;
 import dev.imprex.orebfuscator.config.api.BlockFlags;
 import dev.imprex.orebfuscator.config.api.ProximityConfig;
 import dev.imprex.orebfuscator.config.components.BlockParser;
@@ -15,6 +9,11 @@ import dev.imprex.orebfuscator.config.context.ConfigMessage;
 import dev.imprex.orebfuscator.config.context.ConfigParsingContext;
 import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
 import dev.imprex.orebfuscator.util.BlockProperties;
+import java.util.HashSet;
+import java.util.LinkedHashMap;
+import java.util.Map;
+import java.util.Set;
+import org.joml.Matrix4f;
 import org.jspecify.annotations.NullMarked;
 
 @NullMarked

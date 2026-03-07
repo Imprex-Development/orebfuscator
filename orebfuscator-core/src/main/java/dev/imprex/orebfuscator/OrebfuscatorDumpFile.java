@@ -37,6 +37,7 @@ public class OrebfuscatorDumpFile extends ConfigurationSection {
   private static final DateTimeFormatter TIME_FORMAT = DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 
   private static final Gson GSON = new GsonBuilder().setPrettyPrinting()
+      .disableHtmlEscaping()
       .registerTypeAdapter(OrebfuscatorDumpFile.class, new Json())
       .registerTypeAdapter(ConfigurationSection.class, new Json())
       .create();
