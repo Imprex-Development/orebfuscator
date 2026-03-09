@@ -1,5 +1,6 @@
 package net.imprex.orebfuscator;
 
+import dev.imprex.orebfuscator.SystemMonitor;
 import dev.imprex.orebfuscator.UpdateSystem;
 import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.cache.ObfuscationCache;
@@ -44,6 +45,7 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
   private OrebfuscatorConfig config;
   private OrebfuscatorStatistics statistics;
   private OrebfuscatorExecutor executor;
+  private SystemMonitor systemMonitor;
 
   private BukkitWorldAccessorManager worldManager;
   private BukkitPlayerAccessorManager playerManager;
@@ -91,6 +93,7 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
 
       this.statistics = new OrebfuscatorStatistics(this.config, this.statisticsRegistry);
       this.executor = new OrebfuscatorExecutor(this);
+      this.systemMonitor = new SystemMonitor(this);
 
       this.chunkFactory = new ChunkFactory(this);
       this.obfuscationProcessor = new ObfuscationProcessor(this);
@@ -175,6 +178,11 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
   @Override
   public OrebfuscatorExecutor executor() {
     return executor;
+  }
+
+  @Override
+  public SystemMonitor systemMonitor() {
+    return systemMonitor;
   }
 
   @Override

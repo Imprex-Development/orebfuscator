@@ -9,8 +9,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonPrimitive;
 import com.google.gson.JsonSerializationContext;
 import com.google.gson.JsonSerializer;
-import com.google.gson.internal.Streams;
-import com.google.gson.stream.JsonWriter;
 import dev.imprex.orebfuscator.config.yaml.ConfigurationSection;
 import dev.imprex.orebfuscator.interop.OrebfuscatorCore;
 import dev.imprex.orebfuscator.interop.WorldAccessor;
@@ -59,6 +57,8 @@ public class OrebfuscatorDumpFile extends ConfigurationSection {
 
     set("versions.java", JavaVersion.get());
     set("versions.orebfuscator", orebfuscator.orebfuscatorVersion().toString());
+
+    orebfuscator.systemMonitor().dump(createSection("system"));
 
     var statistics = createSection("statistics");
     orebfuscator.statisticsRegistry().entries().stream()
