@@ -20,7 +20,7 @@ cache:
     maximumSize: 32768
     expireAfterAccess: 60000
   diskCache:
-    enabled: true
+    enabled: false
     directory: orebfuscator_cache
     maximumOpenFiles: 256
     deleteFilesAfterAccess: 172800000
