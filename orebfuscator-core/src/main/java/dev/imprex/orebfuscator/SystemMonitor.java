@@ -56,6 +56,7 @@ public class SystemMonitor implements Runnable {
     }
 
     var runtime = Runtime.getRuntime();
+    section.set("cpu.core", runtime.availableProcessors());
     section.set("memory.process.total", runtime.totalMemory());
     section.set("memory.process.free", runtime.freeMemory());
 
