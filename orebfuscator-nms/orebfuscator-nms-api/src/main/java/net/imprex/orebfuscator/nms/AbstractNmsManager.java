@@ -61,6 +61,7 @@ public abstract class AbstractNmsManager implements NmsManager {
   protected final void registerBlockProperties(BlockProperties block) {
     this.blocks.put(block.getKey(), block);
 
+    // TODO: add BitSet for each flag for (faster) cache friendly lookup
     for (BlockStateProperties blockState : block.getBlockStates()) {
       this.blockStates[blockState.getId()] = blockState;
     }
@@ -91,22 +92,27 @@ public abstract class AbstractNmsManager implements NmsManager {
   }
 
   @Override
-  public final boolean isAir(int id) {
-    return this.blockStates[id].isAir();
+  public final boolean isAir(int blockId) {
+    return this.blockStates[blockId].isAir();
   }
 
   @Override
-  public final boolean isLava(int id) {
-    return this.blockStates[id].isLava();
+  public boolean isFluid(int blockId) {
+    return this.blockStates[blockId].isFluid();
   }
 
   @Override
-  public final boolean isOccluding(int id) {
-    return this.blockStates[id].isOccluding();
+  public final boolean isLava(int blockId) {
+    return this.blockStates[blockId].isLava();
   }
 
   @Override
-  public final boolean isBlockEntity(int id) {
-    return this.blockStates[id].isBlockEntity();
+  public final boolean isOccluding(int blockId) {
+    return this.blockStates[blockId].isOccluding();
+  }
+
+  @Override
+  public final boolean isBlockEntity(int blockId) {
+    return this.blockStates[blockId].isBlockEntity();
   }
 }

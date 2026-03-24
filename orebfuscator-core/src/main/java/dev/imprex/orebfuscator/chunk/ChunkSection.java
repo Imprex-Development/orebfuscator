@@ -9,6 +9,7 @@ public class ChunkSection {
   private final ChunkVersionFlags versionFlags;
 
   private int blockCount;
+  private int fluidCount;
   private int bitsPerBlock = -1;
 
   private Palette palette;
@@ -78,10 +79,18 @@ public class ChunkSection {
 
     if (!registryAccessor.isAir(prevBlockId)) {
       --this.blockCount;
+
+      if (registryAccessor.isFluid(prevBlockId)) {
+        --this.fluidCount;
+      }
     }
 
     if (!registryAccessor.isAir(blockId)) {
       ++this.blockCount;
+
+      if (registryAccessor.isFluid(blockId)) {
+        ++this.fluidCount;
+      }
     }
 
     int paletteIndex = this.palette.idFor(blockId);
@@ -103,6 +112,10 @@ public class ChunkSection {
   public void write(ByteBuf buffer) {
     buffer.writeShort(this.blockCount);
 
+    if (this.versionFlags.hasFluidCount()) {
+      buffer.writeShort(this.fluidCount);
+    }
+
     buffer.writeByte(this.bitsPerBlock);
     this.palette.write(buffer);
 
@@ -119,6 +132,10 @@ public class ChunkSection {
 
   public int[] read(ByteBuf buffer) {
     this.blockCount = buffer.readShort();
+
+    if (this.versionFlags.hasFluidCount()) {
+      this.fluidCount = buffer.readShort();
+    }
 
     this.setBitsPerBlock(buffer.readUnsignedByte(), false);
 

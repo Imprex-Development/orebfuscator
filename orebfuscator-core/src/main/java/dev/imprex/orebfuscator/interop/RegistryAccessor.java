@@ -15,6 +15,8 @@ public interface RegistryAccessor {
 
   boolean isAir(int blockId);
 
+  boolean isFluid(int blockId);
+
   boolean isLava(int blockId);
 
   boolean isOccluding(int blockId);
