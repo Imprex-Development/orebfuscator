@@ -84,6 +84,7 @@ public class NmsManager extends AbstractNmsManager {
       for (BlockState blockState : possibleBlockStates) {
         BlockStateProperties properties = BlockStateProperties.builder(Block.getId(blockState))
             .withIsAir(blockState.isAir())
+            .withIsFluid(!blockState.getFluidState().isEmpty())
             .withIsLava(block == Blocks.LAVA)
             .withIsOccluding(blockState.isSolidRender())
             .withIsBlockEntity(blockState.hasBlockEntity())

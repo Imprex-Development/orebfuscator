@@ -41,9 +41,9 @@
     <dependency.jetannotations.version>26.0.2</dependency.jetannotations.version>
     <dependency.jspecify.version>1.0.0</dependency.jspecify.version>
 
-    <plugin.compile.version>3.14.0</plugin.compile.version>
-    <plugin.shade.version>3.6.0</plugin.shade.version>
-    <plugin.jar.version>3.4.2</plugin.jar.version>
+    <plugin.compile.version>3.15.0</plugin.compile.version>
+    <plugin.shade.version>3.6.2</plugin.shade.version>
+    <plugin.jar.version>3.5.0</plugin.jar.version>
     <plugin.sunfire.version>3.5.3</plugin.sunfire.version>
     <plugin.flatten.version>1.7.2</plugin.flatten.version>
     <plugin.specialsource.version>2.0.4</plugin.specialsource.version>

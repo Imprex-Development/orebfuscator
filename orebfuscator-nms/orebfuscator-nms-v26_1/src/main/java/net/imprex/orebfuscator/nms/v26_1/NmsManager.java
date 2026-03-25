@@ -1,7 +1,6 @@
-package net.imprex.orebfuscator.nms.v1_19_R2;
+package net.imprex.orebfuscator.nms.v26_1;
 
 import com.google.common.collect.ImmutableList;
-import com.mojang.datafixers.util.Pair;
 import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
 import dev.imprex.orebfuscator.config.api.Config;
 import dev.imprex.orebfuscator.interop.ChunkAccessor;
@@ -32,15 +31,14 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.level.EmptyBlockGetter;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.chunk.ChunkAccess;
-import net.minecraft.world.level.chunk.ChunkStatus;
 import net.minecraft.world.level.chunk.LevelChunk;
 import net.minecraft.world.level.chunk.LevelChunkSection;
+import net.minecraft.world.level.chunk.status.ChunkStatus;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.jspecify.annotations.NullMarked;
@@ -77,7 +75,7 @@ public class NmsManager extends AbstractNmsManager {
     super(Block.BLOCK_STATE_REGISTRY.size());
 
     for (Map.Entry<ResourceKey<Block>, Block> entry : BuiltInRegistries.BLOCK.entrySet()) {
-      NamespacedKey namespacedKey = NamespacedKey.parse(entry.getKey().location().toString());
+      NamespacedKey namespacedKey = NamespacedKey.parse(entry.getKey().identifier().toString());
       Block block = entry.getValue();
 
       ImmutableList<BlockState> possibleBlockStates = block.getStateDefinition().getPossibleStates();
@@ -88,7 +86,7 @@ public class NmsManager extends AbstractNmsManager {
             .withIsAir(blockState.isAir())
             .withIsFluid(!blockState.getFluidState().isEmpty())
             .withIsLava(block == Blocks.LAVA)
-            .withIsOccluding(blockState.isSolidRender(EmptyBlockGetter.INSTANCE, BlockPos.ZERO))
+            .withIsOccluding(blockState.isSolidRender())
             .withIsBlockEntity(blockState.hasBlockEntity())
             .withIsDefaultState(Objects.equals(block.defaultBlockState(), blockState))
             .build();
@@ -99,11 +97,11 @@ public class NmsManager extends AbstractNmsManager {
       registerBlockProperties(builder.build());
     }
 
-    BuiltInRegistries.BLOCK.getTags().map(Pair::getSecond).forEach(tag -> {
+    BuiltInRegistries.BLOCK.getTags().forEach(tag -> {
       NamespacedKey namespacedKey = NamespacedKey.parse(tag.key().location().toString());
 
       Set<BlockProperties> blocks = tag.stream()
-          .map(holder -> holder.unwrapKey().map(key -> getBlockByName(key.location().toString())))
+          .map(holder -> holder.unwrapKey().map(key -> getBlockByName(key.identifier().toString())))
           .filter(Optional::isPresent)
           .map(Optional::get)
           .collect(Collectors.toUnmodifiableSet());
@@ -122,7 +120,7 @@ public class NmsManager extends AbstractNmsManager {
     return level(world).getChunkSource()
         .getChunkFuture(chunkX, chunkZ, ChunkStatus.FULL, true)
         .thenApply(result -> {
-          var chunk = result.left().orElse(null);
+          var chunk = result.orElse(null);
           return chunk != null ? new DefaultChunkAccessor(chunk) : null;
         });
   }
@@ -153,7 +151,7 @@ public class NmsManager extends AbstractNmsManager {
   @Override
   public void sendBlockUpdates(Player player, Iterable<dev.imprex.orebfuscator.util.BlockPos> iterable) {
     ServerPlayer serverPlayer = player(player);
-    ServerLevel level = serverPlayer.getLevel();
+    ServerLevel level = serverPlayer.level();
     ServerChunkCache serverChunkCache = level.getChunkSource();
 
     BlockPos.MutableBlockPos position = new BlockPos.MutableBlockPos();
@@ -190,7 +188,7 @@ public class NmsManager extends AbstractNmsManager {
         serverPlayer.connection.send(new ClientboundBlockUpdatePacket(blockPosition, blockEntry.getValue()));
       } else {
         serverPlayer.connection.send(new ClientboundSectionBlocksUpdatePacket(entry.getKey(),
-            blockStates.keySet(), blockStates.values().toArray(BlockState[]::new), false));
+            blockStates.keySet(), blockStates.values().toArray(BlockState[]::new)));
       }
     }
 

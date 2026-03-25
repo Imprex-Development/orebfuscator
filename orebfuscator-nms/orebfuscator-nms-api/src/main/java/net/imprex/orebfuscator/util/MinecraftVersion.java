@@ -15,6 +15,7 @@ public final class MinecraftVersion {
     private static final List<NmsMapping> MAPPINGS = new ArrayList<>();
 
     static {
+      MAPPINGS.add(new NmsMapping("26.1.0", "v26_1"));
       MAPPINGS.add(new NmsMapping("1.21.11", "v1_21_R7"));
       MAPPINGS.add(new NmsMapping("1.21.9", "v1_21_R6"));
       MAPPINGS.add(new NmsMapping("1.21.6", "v1_21_R5"));
@@ -48,11 +49,15 @@ public final class MinecraftVersion {
   }
 
   private static final Pattern PACKAGE_PATTERN = Pattern.compile("org\\.bukkit\\.craftbukkit\\.(v\\d+_\\d+_R\\d+)");
-  private static final Version CURRENT_VERSION = Version.parse(Bukkit.getBukkitVersion());
 
+  private static final Version CURRENT_VERSION;
   private static final String NMS_VERSION;
 
   static {
+    // remove SNAPSHOT suffix of bukkit
+    var version = Version.parse(Bukkit.getBukkitVersion());
+    CURRENT_VERSION = new Version(version.major(), version.minor(), version.patch(), null);
+
     String craftBukkitPackage = Bukkit.getServer().getClass().getPackage().getName();
     Matcher matcher = PACKAGE_PATTERN.matcher(craftBukkitPackage);
 
