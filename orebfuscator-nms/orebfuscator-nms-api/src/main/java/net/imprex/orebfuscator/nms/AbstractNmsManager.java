@@ -97,7 +97,7 @@ public abstract class AbstractNmsManager implements NmsManager {
   }
 
   @Override
-  public boolean isFluid(int blockId) {
+  public final boolean isFluid(int blockId) {
     return this.blockStates[blockId].isFluid();
   }
 
