@@ -1,8 +1,12 @@
 package dev.imprex.orebfuscator.logging;
 
+import dev.imprex.orebfuscator.util.QuickMaths;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Queue;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicLong;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
 
@@ -10,9 +14,10 @@ import org.jspecify.annotations.Nullable;
 public class OfcLogger {
 
   private static LoggerAccessor logger = new SystemLogger();
-
-  private static final Queue<String> VERBOSE_LOG = new ConcurrentLinkedQueue<>();
   private static boolean verbose;
+
+  private static final Queue<String> MESSAGE_LOG = new ConcurrentLinkedQueue<>();
+  private static final Map<String, AtomicLong> COUNTERS = new ConcurrentHashMap<>();
 
   public static void setLogger(LoggerAccessor logger) {
     if (OfcLogger.logger instanceof SystemLogger) {
@@ -29,8 +34,8 @@ public class OfcLogger {
     }
   }
 
-  public static String getLatestVerboseLog() {
-    return String.join("\n", VERBOSE_LOG);
+  public static String getLatestLog() {
+    return String.join("\n", MESSAGE_LOG);
   }
 
   public static void debug(String message) {
@@ -53,6 +58,15 @@ public class OfcLogger {
     log(LogLevel.ERROR, message, throwable);
   }
 
+  public static void throttle(LogLevel level, String message) {
+    var count = COUNTERS.computeIfAbsent(message, k -> new AtomicLong()).incrementAndGet();
+    if (count < 16) {
+      log(level, message);
+    } else if (QuickMaths.isPowerOfTwo(count)) {
+      log(level, "[x%d] %s".formatted(count, message));
+    }
+  }
+
   public static void log(LogLevel level, String message) {
     log(level, message, null);
   }
@@ -61,18 +75,14 @@ public class OfcLogger {
     Objects.requireNonNull(level);
     Objects.requireNonNull(message);
 
-    if (level == LogLevel.DEBUG) {
-      // always store debug messages for system dumps
-      while (VERBOSE_LOG.size() >= 1000) {
-        VERBOSE_LOG.poll();
-      }
+    while (MESSAGE_LOG.size() >= 2048) {
+      MESSAGE_LOG.poll();
+    }
+    MESSAGE_LOG.offer(message);
 
-      VERBOSE_LOG.offer(message);
-
-      // filter out debug if verbose logging is disabled
-      if (!verbose) {
-        return;
-      }
+    // filter out debug if verbose logging is disabled
+    if (level == LogLevel.DEBUG && !verbose) {
+      return;
     }
 
     logger.log(level, message, throwable);

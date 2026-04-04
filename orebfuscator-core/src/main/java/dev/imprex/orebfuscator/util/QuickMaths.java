@@ -2,6 +2,10 @@ package dev.imprex.orebfuscator.util;
 
 public class QuickMaths {
 
+  public static boolean isPowerOfTwo(long n) {
+    return (n & (n - 1)) == 0;
+  }
+
   public static int ceilToPowerOfTwo(int value) {
     value--;
     value |= value >> 1;

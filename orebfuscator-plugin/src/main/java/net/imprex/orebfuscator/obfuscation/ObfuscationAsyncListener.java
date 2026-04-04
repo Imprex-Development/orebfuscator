@@ -7,11 +7,13 @@ import com.comphenix.protocol.async.AsyncListenerHandler;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import dev.imprex.orebfuscator.PermissionRequirements;
+import dev.imprex.orebfuscator.logging.LogLevel;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.obfuscation.ObfuscationPipeline;
 import dev.imprex.orebfuscator.statistics.InjectorStatistics;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.iterop.BukkitChunkPacketAccessor;
@@ -100,7 +102,7 @@ public class ObfuscationAsyncListener extends PacketAdapter {
         if (packet.isEmpty()) {
           future = CompletableFuture.completedFuture(null);
         } else {
-          OfcLogger.warn("Processing chunk packet async without an obfuscation future, that shouldn't happen!");
+          OfcLogger.throttle(LogLevel.WARN, "Processing chunk packet async without an obfuscation future, that shouldn't happen!");
           future = pipeline.request(world, player, packet, null).toCompletableFuture();
         }
       }

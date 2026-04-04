@@ -9,8 +9,11 @@ import java.io.IOException;
 import java.nio.file.Path;
 import net.minecraft.server.dedicated.DedicatedServer;
 import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.Level;
 import net.minecraft.world.level.chunk.storage.RegionFile;
 import net.minecraft.world.level.chunk.storage.RegionFileVersion;
+import net.minecraft.world.level.chunk.storage.RegionStorageInfo;
+import net.minecraft.world.level.levelgen.WorldDimensions;
 import org.bukkit.Bukkit;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -25,7 +28,8 @@ public class RegionFileCache extends AbstractRegionFileCache<RegionFile> {
   @Override
   protected RegionFile createRegionFile(Path path) throws IOException {
     boolean isSyncChunkWrites = serverHandle(Bukkit.getServer(), DedicatedServer.class).forceSynchronousWrites();
-    return new RegionFile(null, path, path.getParent(), RegionFileVersion.VERSION_NONE, isSyncChunkWrites);
+    RegionStorageInfo info = new RegionStorageInfo("orebfuscator", Level.OVERWORLD, "orebfuscator_cache");
+    return new RegionFile(info, path, path.getParent(), RegionFileVersion.VERSION_NONE, isSyncChunkWrites);
   }
 
   @Override

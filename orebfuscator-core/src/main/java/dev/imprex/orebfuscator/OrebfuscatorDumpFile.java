@@ -76,7 +76,7 @@ public class OrebfuscatorDumpFile extends ConfigurationSection {
     orebfuscator.config().dumpBlocks(createSection("blocks"));
 
     Base64.Encoder encoder = Base64.getUrlEncoder();
-    String latestLog = OfcLogger.getLatestVerboseLog();
+    String latestLog = OfcLogger.getLatestLog();
     set("verboseLog", encoder.encodeToString(latestLog.getBytes(StandardCharsets.UTF_8)));
 
     try {
