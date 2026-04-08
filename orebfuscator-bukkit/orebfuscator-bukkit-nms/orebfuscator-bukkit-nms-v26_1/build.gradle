@@ -1,0 +1,19 @@
+dependencies {
+    compileOnly(libs.protocollib)
+    compileOnly(project(":orebfuscator-bukkit:orebfuscator-bukkit-nms"))
+    compileOnly("org.spigotmc:spigot:26.1.1-R0.1-SNAPSHOT")
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+}
+
+configurations.named("compileClasspath") {
+    attributes {
+        attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 25)
+    }
+}

@@ -1,0 +1,5 @@
+dependencies {
+    compileOnly(libs.spigot)
+    compileOnly(project(":orebfuscator-bukkit:orebfuscator-bukkit-nms"))
+    compileOnly(project(":orebfuscator-bukkit:orebfuscator-bukkit-compatibility"))
+}

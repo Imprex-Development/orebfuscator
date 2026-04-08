@@ -1,0 +1,6 @@
+dependencies {
+    compileOnly(libs.paper)
+    compileOnly(project(":orebfuscator-bukkit:orebfuscator-bukkit-nms"))
+    compileOnly(project(":orebfuscator-bukkit:orebfuscator-bukkit-compatibility"))
+    compileOnly(project(":orebfuscator-bukkit:orebfuscator-bukkit-compatibility:orebfuscator-bukkit-compatibility-spigot"))
+}

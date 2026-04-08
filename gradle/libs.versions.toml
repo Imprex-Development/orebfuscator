@@ -1,0 +1,55 @@
+[versions]
+# gradle plugins
+shadow = "9.4.1"
+
+# test
+junit = "5.13.4"
+
+# common
+jspecify = "1.0.0"
+annotations = "26.0.2"
+
+# core
+netty = "4.1.90.Final"
+guava = "33.5.0-jre"
+gson = "2.13.2"
+snakeyaml = "2.5"
+joml = "1.10.8"
+lz4 = "1.10.2"
+
+# bukkit
+spigot = "1.16.1-R0.1-SNAPSHOT"
+paper = "1.20.1-R0.1-SNAPSHOT"
+folia = "1.20.1-R0.1-SNAPSHOT"
+bstats = "3.1.0"
+protocollib = "5.3.0"
+
+[plugins]
+shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+
+[libraries]
+
+# test
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-platform = { module = "org.junit.platform:junit-platform-launcher" }
+
+# common
+jspecify = { module = "org.jspecify:jspecify", version.ref = "jspecify" }
+annotations = { module = "org.jetbrains:annotations", version.ref = "annotations" }
+
+# core
+netty-bom = { module = "io.netty:netty-bom", version.ref = "netty" }
+netty-buffer = { module = "io.netty:netty-buffer" }
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+gson = { module = "com.google.code.gson:gson", version.ref = "gson" }
+snakeyaml = { module = "org.yaml:snakeyaml", version.ref = "snakeyaml" }
+joml = { module = "org.joml:joml", version.ref = "joml" }
+lz4 = { module = "at.yawk.lz4:lz4-java", version.ref = "lz4" }
+
+# bukkit
+spigot = { module = "org.spigotmc:spigot-api", version.ref = "spigot" }
+paper = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
+folia = { module = "dev.folia:folia-api", version.ref = "folia" }
+bstats = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
+protocollib = { module = "net.dmulloy2:ProtocolLib", version.ref = "protocollib" }
