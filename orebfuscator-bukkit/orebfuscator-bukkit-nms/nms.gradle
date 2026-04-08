@@ -1,0 +1,100 @@
+/*
+ * This code is adapted from the Shopkeepers:
+ * https://github.com/Shopkeepers/Shopkeepers/blob/master/modules/shared/nmsModule.gradle
+ * Copyright (C) 2014-2026 Shopkeepers (original authors and contributors)
+ * Licensed under the GNU General Public License v3.0 (GPLv3)
+ */
+
+apply plugin: "com.gradleup.shadow"
+apply from: rootProject.file("orebfuscator-bukkit/orebfuscator-bukkit-nms/specialSource.gradle")
+
+if (!project.hasProperty("nmsVersion")) {
+    throw new GradleException("Property 'nmsVersion' must be defined before applying this script.")
+}
+
+if (!project.hasProperty("javaVersion")) {
+    ext.javaVersion = 17
+}
+
+def resolvedJavaVersion = project.property("javaVersion").toString().toInteger()
+
+dependencies {
+    compileOnly(libs.protocollib)
+    compileOnly(project(":orebfuscator-bukkit:orebfuscator-bukkit-nms"))
+    compileOnly("org.spigotmc:spigot:${nmsVersion}:remapped-mojang")
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(resolvedJavaVersion)
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 17
+}
+
+configurations.named("compileClasspath") {
+    attributes {
+        attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, resolvedJavaVersion)
+    }
+}
+
+def nmsPackageToken = { ->
+    def m = (project.name =~ /(v\d+_\d+_R\d+)/)
+    if (m.find()) return m.group(1)
+    throw new GradleException("Could not determine NMS package token (e.g. v1_20_R2) for ${project.path}.")
+}.call()
+
+tasks.named("shadowJar").configure {
+    archiveClassifier.set("mojang-mapped")
+    relocate(
+            "net.imprex.orebfuscator.nms.${nmsPackageToken}",
+            "net.imprex.orebfuscator.nms.${nmsPackageToken}_mojang"
+    )
+}
+
+tasks.register("remappedJar", Jar) {
+    dependsOn jar
+    def inputJar = jar.archiveFile
+    inputs.file(inputJar)
+
+    archiveClassifier.set("spigot-mapped")
+
+    doLast {
+        def inputFile = inputJar.get().asFile
+        def intermediateFile = new File(temporaryDir, inputFile.name.replace(".jar", "-obf.jar"))
+        def outputFile = outputs.files.singleFile
+        remapMojangToSpigot(inputFile, intermediateFile, outputFile, nmsVersion)
+    }
+}
+
+def bundlingAttr = Attribute.of("dev.imprex.mapping", String)
+
+configurations {
+    create("mojangMapped") {
+        canBeConsumed = true
+        canBeResolved = false
+        attributes {
+            attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
+            attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.JAR))
+            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 17)
+            attribute(bundlingAttr, "mojang-mapped")
+        }
+    }
+    create("spigotMapped") {
+        canBeConsumed = true
+        canBeResolved = false
+        attributes {
+            attribute(Category.CATEGORY_ATTRIBUTE, objects.named(Category, Category.LIBRARY))
+            attribute(Usage.USAGE_ATTRIBUTE, objects.named(Usage, Usage.JAVA_RUNTIME))
+            attribute(LibraryElements.LIBRARY_ELEMENTS_ATTRIBUTE, objects.named(LibraryElements, LibraryElements.JAR))
+            attribute(TargetJvmVersion.TARGET_JVM_VERSION_ATTRIBUTE, 17)
+            attribute(bundlingAttr, "spigot-mapped")
+        }
+    }
+}
+
+artifacts {
+    mojangMapped tasks.named("shadowJar").map { it.archiveFile }
+    spigotMapped tasks.named("remappedJar").map { it.archiveFile }
+}

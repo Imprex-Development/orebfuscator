@@ -1,0 +1,34 @@
+api-version: 1.16
+folia-supported: true
+
+name: ${name}
+version: ${version}
+description: '${description}'
+
+author: Ingrim4
+authors: [NgLoader, lishid, SydMontague, ProgrammerDan, Aleksey-Terzi]
+
+main: net.imprex.orebfuscator.Orebfuscator
+depend: [ProtocolLib]
+
+commands:
+  orebfuscator:
+    aliases: [ofc]
+    description: Performs administrative tasks regarding Orebfuscator.
+    usage: /<command> [dump]
+    permission: orebfuscator.admin
+    permission-message: You don't have <permission>
+
+permissions:
+  orebfuscator.*:
+    default: false
+    description: Access to all of Orebfuscator's features
+    children:
+      orebfuscator.admin: true
+      orebfuscator.bypass: true
+  orebfuscator.admin:
+    default: op
+    description: Access to update notifications and commands
+  orebfuscator.bypass:
+    default: false
+    description: Bypass the obfuscation

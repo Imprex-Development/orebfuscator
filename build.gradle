@@ -1,0 +1,48 @@
+allprojects {
+    group = "dev.imprex"
+    version = findProperty("buildVersion") ?: "5.0.0-b0"
+    description = "High-Performance Anti X-Ray"
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'java-library'
+
+    repositories {
+        mavenCentral()
+        maven {
+            name = 'spigot'
+            url = 'https://hub.spigotmc.org/nexus/content/repositories/snapshots/'
+        }
+        maven {
+            name = 'papermc'
+            url = 'https://repo.papermc.io/repository/maven-public/'
+        }
+        maven {
+            name = 'codemc'
+            url = 'https://repo.codemc.io/repository/maven-releases/'
+        }
+        mavenLocal()
+    }
+
+    dependencies {
+        compileOnly(libs.jspecify)
+        compileOnly(libs.annotations)
+
+        testImplementation(platform(libs.junit.bom))
+        testImplementation(libs.junit.jupiter)
+        testRuntimeOnly(libs.junit.platform)
+    }
+
+    java {
+        toolchain.languageVersion = JavaLanguageVersion.of(17)
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = 'UTF-8'
+    }
+
+    tasks.test {
+        useJUnitPlatform()
+    }
+}

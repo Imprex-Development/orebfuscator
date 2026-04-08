@@ -19,27 +19,27 @@ build () {
 checkVersion () {
   echo Checking version $1
 
-  if [ ! -d ~/.m2/repository/org/spigotmc/spigot/$1-R0.1-SNAPSHOT ]; then
-    build $1 $2
+  if [ ! -d ~/.m2/repository/org/spigotmc/spigot/$1-$2-SNAPSHOT ]; then
+    build $1 $3
   fi
 }
 
-checkVersion "1.16.5" "8"
-checkVersion "1.17.1" "17"
-checkVersion "1.18.1" "17"
-checkVersion "1.18.2" "17"
-checkVersion "1.19.2" "17"
-checkVersion "1.19.3" "17"
-checkVersion "1.19.4" "17"
-checkVersion "1.20.1" "17"
-checkVersion "1.20.2" "17"
-checkVersion "1.20.4" "17"
-checkVersion "1.20.6" "21"
-checkVersion "1.21.1" "21"
-checkVersion "1.21.3" "21"
-checkVersion "1.21.4" "21"
-checkVersion "1.21.5" "21"
-checkVersion "1.21.8" "21"
-checkVersion "1.21.10" "21"
-checkVersion "1.21.11" "21"
-checkVersion "26.1" "25"
+checkVersion "1.16.5" "R0.1" "8"
+checkVersion "1.17.1" "R0.1" "17"
+checkVersion "1.18.1" "R0.1" "17"
+checkVersion "1.18.2" "R0.1" "17"
+checkVersion "1.19.2" "R0.1" "17"
+checkVersion "1.19.3" "R0.1" "17"
+checkVersion "1.19.4" "R0.1" "17"
+checkVersion "1.20.1" "R0.1" "17"
+checkVersion "1.20.2" "R0.1" "17"
+checkVersion "1.20.4" "R0.1" "17"
+checkVersion "1.20.6" "R0.1" "21"
+checkVersion "1.21.1" "R0.1" "21"
+checkVersion "1.21.3" "R0.1" "21"
+checkVersion "1.21.4" "R0.1" "21"
+checkVersion "1.21.5" "R0.1" "21"
+checkVersion "1.21.8" "R0.1" "21"
+checkVersion "1.21.10" "R0.1" "21"
+checkVersion "1.21.11" "R0.2" "21"
+checkVersion "26.1.1" "R0.1" "25"
