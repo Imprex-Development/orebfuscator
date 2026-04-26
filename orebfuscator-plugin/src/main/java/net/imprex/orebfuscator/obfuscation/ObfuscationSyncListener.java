@@ -28,6 +28,7 @@ public class ObfuscationSyncListener extends PacketAdapter {
       // 1.16.5
       PacketType.Play.Server.RESPAWN,
       PacketType.Play.Server.VIEW_DISTANCE,
+      PacketType.Play.Server.VIEW_CENTRE,
       PacketType.Play.Server.POSITION,
       PacketType.Play.Server.SPAWN_POSITION,
       PacketType.Play.Server.SERVER_DIFFICULTY,
