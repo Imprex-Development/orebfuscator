@@ -44,7 +44,7 @@ public class ProximitySystem implements Runnable {
   @Override
   public void run() {
     long processStart = System.nanoTime();
-    process().whenComplete((v, throwable) -> {
+    invokeProcess().whenComplete((v, throwable) -> {
       if (throwable != null) {
         OfcLogger.error("An error occurred while running proximity worker", throwable);
       }
@@ -65,9 +65,23 @@ public class ProximitySystem implements Runnable {
         this.statistics.proximityWait.add(TimeUnit.MILLISECONDS.toNanos(waitMillis));
         this.executor.schedule(this, waitMillis, TimeUnit.MILLISECONDS);
       } else {
-        this.executor.execute(this);
+        // Schedule instead of executing directly to break reentrant execution chains of
+        // OrebfuscatorExecutor and avoid potential StackOverflowError.
+        this.executor.schedule(this, 0L, TimeUnit.NANOSECONDS);
+      }
+    }).whenComplete((v, throwable) -> {
+      if (throwable != null) {
+        OfcLogger.error("An error occurred while running proximity worker, can't recover!", throwable);
       }
     });
+  }
+
+  private CompletableFuture<Void> invokeProcess() {
+    try {
+      return process();
+    } catch (Exception e) {
+      return CompletableFuture.failedFuture(e);
+    }
   }
 
   private CompletableFuture<Void> process() {
