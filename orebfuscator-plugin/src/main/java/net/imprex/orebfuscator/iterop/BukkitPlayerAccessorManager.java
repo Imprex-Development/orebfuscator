@@ -1,11 +1,9 @@
 package net.imprex.orebfuscator.iterop;
 
-import dev.imprex.orebfuscator.interop.PlayerAccessor;
-import dev.imprex.orebfuscator.logging.OfcLogger;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import net.imprex.orebfuscator.Orebfuscator;
+import java.util.concurrent.ConcurrentHashMap;
 import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
@@ -17,11 +15,13 @@ import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.server.PluginDisableEvent;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
+import dev.imprex.orebfuscator.interop.PlayerAccessor;
+import net.imprex.orebfuscator.Orebfuscator;
 
 @NullMarked
 public class BukkitPlayerAccessorManager implements Listener {
 
-  private final Map<Player, BukkitPlayerAccessor> players = new HashMap<>();
+  private final Map<Player, BukkitPlayerAccessor> players = new ConcurrentHashMap<>();
 
   private final Orebfuscator orebfuscator;
   private final BukkitWorldAccessorManager worldManager;
