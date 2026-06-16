@@ -1,25 +1,21 @@
 package net.imprex.orebfuscator.obfuscation;
 
+import java.util.List;
+import java.util.stream.Stream;
+import org.jspecify.annotations.NullMarked;
 import com.comphenix.protocol.PacketType;
 import com.comphenix.protocol.ProtocolLibrary;
 import com.comphenix.protocol.ProtocolManager;
 import com.comphenix.protocol.events.PacketAdapter;
 import com.comphenix.protocol.events.PacketEvent;
 import dev.imprex.orebfuscator.PermissionRequirements;
-import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.obfuscation.ObfuscationPipeline;
 import dev.imprex.orebfuscator.statistics.InjectorStatistics;
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Objects;
-import java.util.stream.Stream;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.iterop.BukkitChunkPacketAccessor;
 import net.imprex.orebfuscator.iterop.BukkitPlayerAccessor;
 import net.imprex.orebfuscator.iterop.BukkitPlayerAccessorManager;
 import net.imprex.orebfuscator.iterop.BukkitWorldAccessor;
-import org.jspecify.annotations.NullMarked;
 
 @NullMarked
 public class ObfuscationSyncListener extends PacketAdapter {
@@ -29,6 +25,7 @@ public class ObfuscationSyncListener extends PacketAdapter {
       // 1.16.5
       PacketType.Play.Server.RESPAWN,
       PacketType.Play.Server.VIEW_DISTANCE,
+      PacketType.Play.Server.VIEW_CENTRE,
       PacketType.Play.Server.POSITION,
       PacketType.Play.Server.SPAWN_POSITION,
       PacketType.Play.Server.SERVER_DIFFICULTY,

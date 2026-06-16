@@ -1,9 +1,9 @@
 package net.imprex.orebfuscator.iterop;
 
 import dev.imprex.orebfuscator.interop.WorldAccessor;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 import net.imprex.orebfuscator.Orebfuscator;
 import org.bukkit.Bukkit;
 import org.bukkit.World;
@@ -17,7 +17,7 @@ import org.jspecify.annotations.NullMarked;
 @NullMarked
 public class BukkitWorldAccessorManager implements Listener {
 
-  private final Map<World, BukkitWorldAccessor> worlds = new HashMap<>();
+  private final Map<World, BukkitWorldAccessor> worlds = new ConcurrentHashMap<>();
 
   private final Orebfuscator orebfuscator;
 

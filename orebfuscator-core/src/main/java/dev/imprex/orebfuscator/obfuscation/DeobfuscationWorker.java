@@ -79,7 +79,7 @@ public class DeobfuscationWorker {
       return;
     }
 
-    var timer = statistics.debofuscation.start();
+    var timer = statistics.deobfuscation.start();
     try {
       this.deobfuscateNow(world, blocks);
     } finally {

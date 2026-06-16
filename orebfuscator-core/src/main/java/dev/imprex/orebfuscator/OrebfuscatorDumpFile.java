@@ -59,6 +59,7 @@ public class OrebfuscatorDumpFile extends ConfigurationSection {
     set("versions.orebfuscator", orebfuscator.orebfuscatorVersion().toString());
 
     orebfuscator.systemMonitor().dump(createSection("system"));
+    orebfuscator.executor().dump(createSection("executor"));
 
     var statistics = createSection("statistics");
     orebfuscator.statisticsRegistry().entries().stream()
