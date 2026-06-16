@@ -12,7 +12,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.WeakHashMap;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.OrebfuscatorCompatibility;

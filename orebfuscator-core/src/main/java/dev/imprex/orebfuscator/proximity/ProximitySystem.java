@@ -44,30 +44,49 @@ public class ProximitySystem implements Runnable {
   @Override
   public void run() {
     long processStart = System.nanoTime();
-    process().whenComplete((v, throwable) -> {
-      if (throwable != null) {
-        OfcLogger.error("An error occurred while running proximity worker", throwable);
-      }
+    invokeProcess().whenComplete((v, throwable) -> {
+      try {
+        if (throwable != null) {
+          OfcLogger.error("An error occurred while running proximity worker", throwable);
+        }
 
-      if (this.executor.isShutdown()) {
-        return;
-      }
+        if (this.executor.isShutdown()) {
+          return;
+        }
 
-      long processTime = System.nanoTime() - processStart;
-      this.statistics.proximityProcess.add(processTime);
+        long processTime = System.nanoTime() - processStart;
+        this.statistics.proximityProcess.add(processTime);
 
-      // check if we have enough time to sleep
-      long waitTime = Math.max(0, this.checkInterval - processTime);
-      long waitMillis = TimeUnit.NANOSECONDS.toMillis(waitTime);
+        // check if we have enough time to sleep
+        long waitTime = Math.max(0, this.checkInterval - processTime);
+        long waitMillis = TimeUnit.NANOSECONDS.toMillis(waitTime);
 
-      if (waitMillis > 0) {
-        // measure wait time
-        this.statistics.proximityWait.add(TimeUnit.MILLISECONDS.toNanos(waitMillis));
-        this.executor.schedule(this, waitMillis, TimeUnit.MILLISECONDS);
-      } else {
-        this.executor.execute(this);
+        if (waitMillis > 0) {
+          // measure wait time
+          this.statistics.proximityWait.add(TimeUnit.MILLISECONDS.toNanos(waitMillis));
+          this.executor.schedule(this, waitMillis, TimeUnit.MILLISECONDS);
+        } else {
+          // Schedule instead of executing directly to break reentrant execution chains of
+          // OrebfuscatorExecutor and avoid potential StackOverflowError.
+          this.statistics.proximityWait.add(0);
+          this.executor.schedule(this, 0L, TimeUnit.NANOSECONDS);
+        }
+      } catch (Exception e) {
+        OfcLogger.error("An error occurred while scheduling proximity worker", e);
+
+        // backoff for 1sec on reschedule failure
+        this.statistics.proximityWait.add(TimeUnit.SECONDS.toNanos(1));
+        this.executor.schedule(this, 1L, TimeUnit.SECONDS);
       }
     });
+  }
+
+  private CompletableFuture<Void> invokeProcess() {
+    try {
+      return process();
+    } catch (Exception e) {
+      return CompletableFuture.failedFuture(e);
+    }
   }
 
   private CompletableFuture<Void> process() {

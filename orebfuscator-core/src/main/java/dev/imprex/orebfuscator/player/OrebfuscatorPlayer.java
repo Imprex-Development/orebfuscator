@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -22,6 +23,8 @@ public class OrebfuscatorPlayer {
 
   private final AtomicReference<@Nullable WorldAccessor> world = new AtomicReference<>();
   private final Map<Long, OrebfuscatorPlayerChunk> chunks = new ConcurrentHashMap<>();
+  
+  private final AtomicBoolean pendingUpdate = new AtomicBoolean(false);
 
   private volatile long latestUpdateTimestamp = System.currentTimeMillis();
   private volatile EntityPose location = EntityPose.ZERO;
@@ -45,6 +48,13 @@ public class OrebfuscatorPlayer {
     }
 
     long timestamp = System.currentTimeMillis();
+    if (this.pendingUpdate.compareAndSet(true, false)) {
+      this.location = player.pose();
+      this.latestUpdateTimestamp = timestamp;
+
+      return true;
+    }
+
     if (this.config.hasProximityPlayerCheckInterval()
         && timestamp - this.latestUpdateTimestamp > this.config.proximityPlayerCheckInterval()) {
 
@@ -106,6 +116,13 @@ public class OrebfuscatorPlayer {
     if (Objects.equals(this.world.getAcquire(), world)) {
       long key = ChunkAccessor.chunkCoordsToLong(chunkX, chunkZ);
       this.chunks.put(key, new OrebfuscatorPlayerChunk(chunkX, chunkZ, blocks));
+
+      int dChunkX = chunkX - (this.location.blockX() >> 4);
+      int dChunkZ = chunkZ - (this.location.blockZ() >> 4);
+
+      if (dChunkX >= -1 && dChunkX <= 1 && dChunkZ >= -1 && dChunkZ <= 1) {
+        this.pendingUpdate.set(true);
+      }
     }
   }
 

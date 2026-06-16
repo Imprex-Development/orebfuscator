@@ -14,6 +14,7 @@ import java.util.function.Predicate;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 import net.imprex.orebfuscator.util.WrappedClientboundLevelChunkPacketData;
 import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
 
 @NullMarked
 public class BukkitChunkPacketAccessor implements ChunkPacketAccessor {
@@ -29,7 +30,7 @@ public class BukkitChunkPacketAccessor implements ChunkPacketAccessor {
   private final byte[] data;
 
   private final PacketContainer packet;
-  private final WrappedClientboundLevelChunkPacketData packetData;
+  private final @Nullable WrappedClientboundLevelChunkPacketData packetData;
 
   public BukkitChunkPacketAccessor(PacketContainer packet, BukkitWorldAccessor worldAccessor) {
     this.packet = packet;

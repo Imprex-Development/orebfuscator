@@ -5,6 +5,7 @@ import com.comphenix.protocol.reflect.accessors.Accessors;
 import com.comphenix.protocol.reflect.accessors.FieldAccessor;
 import com.comphenix.protocol.utility.MinecraftReflection;
 import dev.imprex.orebfuscator.util.BlockPos;
+import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.function.Predicate;
@@ -43,7 +44,8 @@ public class WrappedClientboundLevelChunkPacketData {
   }
 
   public void removeBlockEntityIf(Predicate<BlockPos> predicate) {
-    List<?> blockEntities = (List<?>) BLOCK_ENTITIES.get(this.handle);
+    // work on copy only to prevent ConcurrentModificationException
+    List<?> blockEntities = new ArrayList<>((List<?>) BLOCK_ENTITIES.get(this.handle));
     for (Iterator<?> iterator = blockEntities.iterator(); iterator.hasNext(); ) {
       Object blockEntityInfo = iterator.next();
       int packedXZ = (int) PACKED_XZ.get(blockEntityInfo);
@@ -56,5 +58,6 @@ public class WrappedClientboundLevelChunkPacketData {
         iterator.remove();
       }
     }
+    BLOCK_ENTITIES.set(this.handle, blockEntities);
   }
 }
