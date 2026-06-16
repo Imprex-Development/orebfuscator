@@ -1,7 +1,10 @@
 
 # Orebfuscator - Anti X-Ray
 [![Release Status](https://github.com/Imprex-Development/Orebfuscator/workflows/Releases/badge.svg)](https://github.com/Imprex-Development/Orebfuscator/releases/latest) [![Build Status](https://github.com/Imprex-Development/Orebfuscator/workflows/Build/badge.svg)](https://github.com/Imprex-Development/Orebfuscator/actions?query=workflow%3ABuild)
-<img align="right" src="https://github.com/user-attachments/assets/6d05fbe5-6a60-4634-a9a1-9285c2aeafe4" width="220" height="220" alt="logo" />
+
+<picture width="220">
+  <img align="right" src="https://github.com/user-attachments/assets/6d05fbe5-6a60-4634-a9a1-9285c2aeafe4" width="220" height="220" alt="Orebfuscator logo" />
+</picture>
 
 Orebfuscator empowers server owners to protect their server from X-Ray Clients and Texture Packs, all while offering a high degree of configurability. This is achieved through modifying network packets without altering your game world, guaranteeing a secure and reliable experience for users. With Orebfuscator, you can tailor the settings to suit your server's needs, ensuring precise control over the visibility of specific blocks. This means that not only does Orebfuscator safeguard your world's integrity, but it also empowers you to fine-tune your Anti-X-Ray measures for the best gameplay experience.
 
