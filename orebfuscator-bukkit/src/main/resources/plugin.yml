@@ -1,7 +1,8 @@
 api-version: 1.16
 folia-supported: true
 
-name: ${name}
+# keep capitalization of name for backwards comp.
+name: Orebfuscator
 version: ${version}
 description: '${description}'
 
