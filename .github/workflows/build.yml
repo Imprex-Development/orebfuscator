@@ -12,7 +12,7 @@ jobs:
 
     steps:
     - name: Checkout
-      uses: actions/checkout@v4
+      uses: actions/checkout@v7
       with:
         fetch-depth: 0
 
@@ -25,7 +25,7 @@ jobs:
 
     - name: Restore cache
       id: cache-restore
-      uses: actions/cache/restore@v4
+      uses: actions/cache/restore@v5
       with:
         path: ~/.m2/repository
         key: ${{ runner.os }}-maven-${{ hashFiles('./.github/workflows/buildtools.sh') }}
@@ -33,7 +33,7 @@ jobs:
           ${{ runner.os }}-maven
 
     - name: Set up JDK 17/21/25
-      uses: actions/setup-java@v4
+      uses: actions/setup-java@v5
       with:
         distribution: 'temurin'
         java-version: |
@@ -53,13 +53,13 @@ jobs:
 
     - name: Save cache
       if: always() && steps.cache-restore.outputs.cache-hit != 'true'
-      uses: actions/cache/save@v4
+      uses: actions/cache/save@v5
       with:
         path: ~/.m2/repository
         key: ${{ steps.cache-restore.outputs.cache-primary-key }}
 
     - name: Upload artifacts
-      uses: actions/upload-artifact@v4
+      uses: actions/upload-artifact@v7
       with:
         name: orebfuscator-bukkit
         path: ./orebfuscator-*.jar
