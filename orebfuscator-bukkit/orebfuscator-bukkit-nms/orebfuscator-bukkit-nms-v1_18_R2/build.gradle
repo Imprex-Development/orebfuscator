@@ -1,0 +1,5 @@
+ext {
+    nmsVersion = "1.18.2-R0.1-SNAPSHOT"
+}
+
+apply from: rootProject.file("orebfuscator-bukkit/orebfuscator-bukkit-nms/nms.gradle")

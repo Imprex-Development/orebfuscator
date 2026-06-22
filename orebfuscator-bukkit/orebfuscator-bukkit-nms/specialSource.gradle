@@ -1,0 +1,65 @@
+/*
+ * This code is adapted from the Shopkeepers:
+ * https://github.com/Shopkeepers/Shopkeepers/blob/master/modules/shared/specialSource.gradle
+ * Copyright (C) 2014-2026 Shopkeepers (original authors and contributors)
+ * Licensed under the GNU General Public License v3.0 (GPLv3)
+ */
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+}
+
+def specialSourceConfig = buildscript.configurations.detachedConfiguration(
+    buildscript.dependencies.create("net.md-5:SpecialSource:1.11.5:shaded")
+)
+
+// Spigot server code remapping: https://www.spigotmc.org/threads/spigot-bungeecord-1-17-1-17-1.510208/
+// These dependencies and mappings are installed into the local Maven repository when BuildTools builds the Spigot dependencies.
+def m2Repo = new File(repositories.mavenLocal().url.path)
+def remappedMojang = new File(m2Repo, "org/spigotmc/spigot/{nmsVersion}/spigot-{nmsVersion}-remapped-mojang.jar").path
+def remappedObf = new File(m2Repo, "org/spigotmc/spigot/{nmsVersion}/spigot-{nmsVersion}-remapped-obf.jar").path
+def mojangMappings = new File(m2Repo, "org/spigotmc/minecraft-server/{nmsVersion}/minecraft-server-{nmsVersion}-maps-mojang.txt").path
+def spigotMappings = new File(m2Repo, "org/spigotmc/minecraft-server/{nmsVersion}/minecraft-server-{nmsVersion}-maps-spigot.csrg").path
+
+def specialSource = specialSourceConfig.incoming.artifactView {
+    componentFilter {
+        it.group == "net.md-5" && it.module == "SpecialSource"
+    }
+}.files.first().path
+
+// Converts from Mojang"s mappings to Minecraft"s obfuscated mappings.
+ext.remapMojangToObfuscated = { inputFile, outputFile, nmsVersion ->
+    def classpathSeparator = System.properties["path.separator"]
+    providers.exec {
+        commandLine "java",
+                "-cp", "${specialSource}${classpathSeparator}${remappedMojang}".replace("{nmsVersion}", nmsVersion),
+                "net.md_5.specialsource.SpecialSource",
+                "--live",
+                "-i", inputFile.path,
+                "-o", outputFile.path,
+                "-m", mojangMappings.replace("{nmsVersion}", nmsVersion),
+                "--reverse"
+    }.result.get() // Trigger
+}
+
+// Converts from Minecraft"s obfuscated mappings to Spigot"s mappings.
+ext.remapObfuscatedToSpigot = { inputFile, outputFile, nmsVersion ->
+    def classpathSeparator = System.properties["path.separator"]
+    providers.exec {
+        commandLine "java",
+                "-cp", "${specialSource}${classpathSeparator}${remappedObf}".replace("{nmsVersion}", nmsVersion),
+                "net.md_5.specialsource.SpecialSource",
+                "--live",
+                "-i", inputFile.path,
+                "-o", outputFile.path,
+                "-m", spigotMappings.replace("{nmsVersion}", nmsVersion)
+    }.result.get() // Trigger
+}
+
+// Converts from Mojang"s mappings to Spigot"s mappings.
+ext.remapMojangToSpigot = { inputFile, intermediateFile, outputFile, nmsVersion ->
+    remapMojangToObfuscated(inputFile, intermediateFile, nmsVersion)
+    remapObfuscatedToSpigot(intermediateFile, outputFile, nmsVersion)
+}

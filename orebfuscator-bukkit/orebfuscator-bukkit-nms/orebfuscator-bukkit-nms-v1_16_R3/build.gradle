@@ -1,0 +1,5 @@
+dependencies {
+    compileOnly(libs.protocollib)
+    compileOnly("org.spigotmc:spigot:1.16.5-R0.1-SNAPSHOT")
+    compileOnly(project(":orebfuscator-bukkit:orebfuscator-bukkit-nms"))
+}

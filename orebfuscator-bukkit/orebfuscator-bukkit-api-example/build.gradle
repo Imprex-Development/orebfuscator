@@ -1,0 +1,4 @@
+dependencies {
+    compileOnly(project(":orebfuscator-bukkit:orebfuscator-bukkit-api"))
+    compileOnly(libs.folia)
+}

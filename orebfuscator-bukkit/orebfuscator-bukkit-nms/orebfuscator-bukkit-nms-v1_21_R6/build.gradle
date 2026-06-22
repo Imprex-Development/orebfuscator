@@ -1,0 +1,6 @@
+ext {
+    javaVersion = 21
+    nmsVersion = "1.21.10-R0.1-SNAPSHOT"
+}
+
+apply from: rootProject.file("orebfuscator-bukkit/orebfuscator-bukkit-nms/nms.gradle")

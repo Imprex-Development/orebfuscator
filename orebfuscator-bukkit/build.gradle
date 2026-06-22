@@ -1,0 +1,78 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+plugins {
+    alias(libs.plugins.shadow)
+}
+
+dependencies {
+    compileOnly(libs.spigot)
+    compileOnly(libs.protocollib)
+    implementation(libs.bstats)
+
+    api(project(":orebfuscator-bukkit:orebfuscator-bukkit-api"))
+
+    implementation(project(":orebfuscator-bukkit:orebfuscator-bukkit-compatibility"))
+    implementation(project(":orebfuscator-bukkit:orebfuscator-bukkit-compatibility:orebfuscator-bukkit-compatibility-spigot"))
+    implementation(project(":orebfuscator-bukkit:orebfuscator-bukkit-compatibility:orebfuscator-bukkit-compatibility-paper"))
+    implementation(project(":orebfuscator-bukkit:orebfuscator-bukkit-compatibility:orebfuscator-bukkit-compatibility-folia"))
+
+    implementation(project(":orebfuscator-bukkit:orebfuscator-bukkit-nms"))
+    implementation(project(":orebfuscator-bukkit:orebfuscator-bukkit-nms:orebfuscator-bukkit-nms-v1_16_R3"))
+
+    def nmsModules = [
+            // spigot-only
+            [ver: "v1_17_R1", cfgs: ["spigotMapped"]],
+            [ver: "v1_18_R1", cfgs: ["spigotMapped"]],
+            [ver: "v1_18_R2", cfgs: ["spigotMapped"]],
+
+            // mojmap + spigot
+            [ver: "v1_19_R1", cfgs: ["mojangMapped", "spigotMapped"]],
+            [ver: "v1_19_R2", cfgs: ["mojangMapped", "spigotMapped"]],
+            [ver: "v1_19_R3", cfgs: ["mojangMapped", "spigotMapped"]],
+            [ver: "v1_20_R1", cfgs: ["mojangMapped", "spigotMapped"]],
+            [ver: "v1_20_R2", cfgs: ["mojangMapped", "spigotMapped"]],
+            [ver: "v1_20_R3", cfgs: ["mojangMapped", "spigotMapped"]],
+            [ver: "v1_20_R4", cfgs: ["mojangMapped", "spigotMapped"]],
+            [ver: "v1_21_R1", cfgs: ["mojangMapped", "spigotMapped"]],
+            [ver: "v1_21_R2", cfgs: ["mojangMapped", "spigotMapped"]],
+            [ver: "v1_21_R3", cfgs: ["mojangMapped", "spigotMapped"]],
+            [ver: "v1_21_R4", cfgs: ["mojangMapped", "spigotMapped"]],
+            [ver: "v1_21_R5", cfgs: ["mojangMapped", "spigotMapped"]],
+            [ver: "v1_21_R6", cfgs: ["mojangMapped", "spigotMapped"]],
+            [ver: "v1_21_R7", cfgs: ["mojangMapped", "spigotMapped"]],
+    ]
+
+    nmsModules.each { m ->
+        m.cfgs.each { cfg ->
+            implementation(project(
+                    path: ":orebfuscator-bukkit:orebfuscator-bukkit-nms:orebfuscator-bukkit-nms-${m.ver}",
+                    configuration: cfg
+            ))
+        }
+    }
+
+    implementation(project(":orebfuscator-bukkit:orebfuscator-bukkit-nms:orebfuscator-bukkit-nms-v26_1"))
+}
+
+tasks.named("jar", Jar) {
+    manifest {
+        attributes(
+                'paperweight-mappings-namespace': 'mojang'
+        )
+    }
+}
+
+tasks.named('shadowJar', ShadowJar) {
+    archiveClassifier = ''
+    relocate 'org.bstats', 'net.imprex.shaded.org.bstats'
+}
+
+tasks.processResources {
+    filesMatching("plugin.yml") {
+        expand(
+                name: rootProject.name,
+                version: project.version,
+                description: (rootProject.description ?: "")
+        )
+    }
+}

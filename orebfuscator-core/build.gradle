@@ -1,0 +1,35 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+
+plugins {
+    alias(libs.plugins.shadow)
+}
+
+dependencies {
+    implementation(platform(libs.netty.bom))
+    implementation(libs.netty.buffer)
+    implementation(libs.guava)
+    implementation(libs.gson)
+    implementation(libs.snakeyaml)
+    implementation(libs.joml)
+    implementation(libs.lz4)
+}
+
+configurations {
+    shaded
+}
+
+artifacts {
+    shaded(tasks.named("shadowJar"))
+}
+
+tasks.named('shadowJar', ShadowJar) {
+    enableAutoRelocation = true
+    relocationPrefix = "dev.imprex.shaded"
+
+    minimize {
+        exclude { dep ->
+            dep.moduleGroup == "net.imprex" || dep.moduleGroup == "dev.imprex"
+        }
+        exclude(dependency("at.yawk.lz4:lz4-java:.*"))
+    }
+}
