@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import net.imprex.orebfuscator.Orebfuscator;
+import net.imprex.orebfuscator.OrebfuscatorCompatibility;
 import net.imprex.orebfuscator.OrebfuscatorNms;
 import net.imprex.orebfuscator.util.MinecraftVersion;
 import org.bukkit.World;
@@ -158,8 +159,7 @@ public class BukkitWorldAccessor implements WorldAccessor {
       var chunk = neighborChunks != null ? neighborChunks[index] : null;
 
       if (ChunkAccessor.isNullOrEmpty(chunk)) {
-        futures[index] = OrebfuscatorNms.getChunkFuture(world, chunkX, chunkZ)
-            .thenApply(ChunkAccessor::ofNullable);
+        futures[index] = OrebfuscatorCompatibility.getChunkFuture(world, chunkX, chunkZ);
       } else {
         futures[index] = CompletableFuture.completedFuture(chunk);
       }
