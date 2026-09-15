@@ -1,12 +1,29 @@
+import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
+import com.github.jengelman.gradle.plugins.shadow.transformers.PreserveFirstFoundResourceTransformer
+
+plugins {
+    alias(libs.plugins.shadow) apply false
+}
+
 allprojects {
-    group = "dev.imprex"
-    version = findProperty("buildVersion") ?: "5.0.0-b0"
+    group = "dev.imprex.orebfuscator"
+    version = providers.gradleProperty("buildVersion").getOrElse("5.0.0-b0")
     description = "High-Performance Anti X-Ray"
 }
 
 subprojects {
     apply plugin: 'java'
     apply plugin: 'java-library'
+
+    pluginManager.withPlugin("com.gradleup.shadow") {
+        tasks.withType(ShadowJar).configureEach {
+            duplicatesStrategy = DuplicatesStrategy.INCLUDE
+            failOnDuplicateEntries = true
+            transform(PreserveFirstFoundResourceTransformer) {
+                include("META-INF/LICENSE", "META-INF/io.netty.versions.properties")
+            }
+        }
+    }
 
     repositories {
         mavenCentral()
@@ -26,12 +43,12 @@ subprojects {
     }
 
     dependencies {
-        compileOnly(libs.jspecify)
-        compileOnly(libs.annotations)
+        compileOnly(rootProject.libs.jspecify)
+        compileOnly(rootProject.libs.annotations)
 
-        testImplementation(platform(libs.junit.bom))
-        testImplementation(libs.junit.jupiter)
-        testRuntimeOnly(libs.junit.platform)
+        testImplementation(platform(rootProject.libs.junit.bom))
+        testImplementation(rootProject.libs.junit.jupiter)
+        testRuntimeOnly(rootProject.libs.junit.platform)
     }
 
     java {

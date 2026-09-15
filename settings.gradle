@@ -6,7 +6,15 @@ pluginManagement {
             name = "papermc"
             url = "https://repo.papermc.io/repository/maven-public/"
         }
+        maven {
+            name = 'Fabric'
+            url = 'https://maven.fabricmc.net/'
+        }
     }
+}
+
+plugins {
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
 }
 
 rootProject.name = "orebfuscator"
@@ -14,7 +22,6 @@ rootProject.name = "orebfuscator"
 include "orebfuscator-core"
 include "orebfuscator-bukkit"
 include "orebfuscator-bukkit:orebfuscator-bukkit-api"
-include "orebfuscator-bukkit:orebfuscator-bukkit-api-example"
 include "orebfuscator-bukkit:orebfuscator-bukkit-compatibility"
 include "orebfuscator-bukkit:orebfuscator-bukkit-compatibility:orebfuscator-bukkit-compatibility-spigot"
 include "orebfuscator-bukkit:orebfuscator-bukkit-compatibility:orebfuscator-bukkit-compatibility-paper"
@@ -39,3 +46,4 @@ include 'orebfuscator-bukkit:orebfuscator-bukkit-nms:orebfuscator-bukkit-nms-v1_
 include 'orebfuscator-bukkit:orebfuscator-bukkit-nms:orebfuscator-bukkit-nms-v1_21_R6'
 include 'orebfuscator-bukkit:orebfuscator-bukkit-nms:orebfuscator-bukkit-nms-v1_21_R7'
 include 'orebfuscator-bukkit:orebfuscator-bukkit-nms:orebfuscator-bukkit-nms-v26_1'
+include "orebfuscator-fabric"
