@@ -1,10 +1,14 @@
 package net.imprex.orebfuscator;
 
 import dev.imprex.orebfuscator.config.api.Config;
+import dev.imprex.orebfuscator.interop.ChunkAccessor;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import java.lang.reflect.Constructor;
+import java.util.concurrent.CompletableFuture;
+
 import net.imprex.orebfuscator.compatibility.CompatibilityLayer;
 import net.imprex.orebfuscator.util.ServerVersion;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 
@@ -48,6 +52,10 @@ public class OrebfuscatorCompatibility {
 
   public static void runAsyncNow(Runnable runnable) {
     instance.getScheduler().runAsyncNow(runnable);
+  }
+
+  public static CompletableFuture<ChunkAccessor> getChunkFuture(World world, int chunkX, int chunkZ) {
+    return instance.getChunkFuture(world, chunkX, chunkZ);
   }
 
   public static void close() {
