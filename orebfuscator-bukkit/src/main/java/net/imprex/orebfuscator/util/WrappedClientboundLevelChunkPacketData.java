@@ -26,8 +26,24 @@ public class WrappedClientboundLevelChunkPacketData {
       "network.protocol.game.ClientboundLevelChunkPacketData$BlockEntityInfo",
       "network.protocol.game.ClientboundLevelChunkPacketData$a");
   private static final FieldAccessor[] INT_FIELDS = Accessors.getFieldAccessorArray(BLOCK_ENTITY_INFO, int.class, true);
-  private static final FieldAccessor PACKED_XZ = INT_FIELDS[0];
-  private static final FieldAccessor Y = INT_FIELDS[1];
+  private static final FieldAccessor PACKED_XZ = getPackedXZField();
+  private static final FieldAccessor Y = getYField();
+
+  private static FieldAccessor getPackedXZField() {
+    if (INT_FIELDS.length == 2) {
+      return INT_FIELDS[0];
+    } else {
+      return Accessors.getFieldAccessor(BLOCK_ENTITY_INFO, byte.class, true);
+    }
+  }
+
+  private static FieldAccessor getYField() {
+    if (INT_FIELDS.length == 2) {
+      return INT_FIELDS[1];
+    } else {
+      return Accessors.getFieldAccessor(BLOCK_ENTITY_INFO, short.class, true);
+    }
+  }
 
   private final Object handle;
 
@@ -48,10 +64,10 @@ public class WrappedClientboundLevelChunkPacketData {
     List<?> blockEntities = new ArrayList<>((List<?>) BLOCK_ENTITIES.get(this.handle));
     for (Iterator<?> iterator = blockEntities.iterator(); iterator.hasNext(); ) {
       Object blockEntityInfo = iterator.next();
-      int packedXZ = (int) PACKED_XZ.get(blockEntityInfo);
+      int packedXZ = ((Number) PACKED_XZ.get(blockEntityInfo)).intValue();
 
       int x = (packedXZ >> 4) & 15;
-      int y = (int) Y.get(blockEntityInfo);
+      int y = ((Number) Y.get(blockEntityInfo)).intValue();
       int z = packedXZ & 15;
 
       if (predicate.test(new BlockPos(x, y, z))) {
