@@ -32,7 +32,7 @@ public final class MinecraftVersion {
       for (NmsMapping mapping : MAPPINGS) {
         if (version.isAtOrAbove(mapping.version)) {
           if (mapping.version.minor() != version.minor()) {
-            OfcLogger.warn(String.format("Using nms mapping with mismatched minor versions: %s - %s",
+            OfcLogger.info(String.format("Using nms mapping with mismatched minor versions: %s - %s",
                 mapping.version, version));
           }
 
