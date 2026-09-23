@@ -1,0 +1,57 @@
+plugins {
+    alias(libs.plugins.loom)
+}
+
+loom {
+    accessWidenerPath = file('src/main/resources/orebfuscator-fabric.classtweaker')
+
+    runs {
+        client {
+            client()
+            displayName = "Minecraft Client"
+            jvmArguments.add("-Xmx4G")
+            generateRunConfig = true
+        }
+
+        server {
+            server()
+            displayName = "Minecraft Server"
+            jvmArguments.add("-Xmx4G")
+            generateRunConfig = true
+        }
+    }
+}
+
+dependencies {
+    minecraft libs.minecraft
+    implementation libs.fabric.loader
+    implementation libs.fabric.api
+
+    include(implementation libs.fabric.permission.get())
+    include(implementation project(path: ":orebfuscator-core", configuration: "shaded"))
+}
+
+def resourceProperties = [
+        "description"           : project.description,
+        "version"               : project.version,
+        "minecraft_version"     : libs.versions.minecraft.get(),
+        "fabric_loader_version" : libs.versions.fabric.loader.get(),
+        "fabric_api_version"    : libs.versions.fabric.api.get()
+]
+
+tasks.named('processResources') {
+    inputs.properties(resourceProperties)
+    filteringCharset = 'UTF-8'
+
+    filesMatching('fabric.mod.json') {
+        expand(resourceProperties)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.release = 25
+}
+
+java {
+    toolchain.languageVersion = JavaLanguageVersion.of(25)
+}

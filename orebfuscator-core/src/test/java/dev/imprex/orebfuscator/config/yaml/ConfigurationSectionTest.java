@@ -32,7 +32,7 @@ class ConfigurationSectionTest {
     section.set("b.b", 0);
     section.set("b.b.a", 0);
 
-    assertArrayEquals(new String[]{"a", "b"}, section.getKeys().toArray());
+    assertArrayEquals(new String[] {"a", "b"}, section.getKeys().toArray());
   }
 
   @Test

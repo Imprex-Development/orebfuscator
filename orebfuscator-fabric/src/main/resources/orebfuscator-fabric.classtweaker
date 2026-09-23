@@ -1,0 +1,3 @@
+classTweaker v1 official
+
+accessible method net/minecraft/network/Connection sendPacket (Lnet/minecraft/network/protocol/Packet;Lio/netty/channel/ChannelFutureListener;Z)V

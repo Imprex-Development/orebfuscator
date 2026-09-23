@@ -1,0 +1,50 @@
+package dev.imprex.orebfuscator.iterop;
+
+import dev.imprex.orebfuscator.cache.AbstractRegionFileCache;
+import dev.imprex.orebfuscator.config.api.Config;
+import dev.imprex.orebfuscator.util.ChunkCacheKey;
+
+import java.io.DataInputStream;
+import java.io.DataOutputStream;
+import java.io.IOException;
+import java.nio.file.Path;
+
+import net.minecraft.server.MinecraftServer;
+import net.minecraft.world.level.ChunkPos;
+import net.minecraft.world.level.chunk.storage.RegionFile;
+import net.minecraft.world.level.chunk.storage.RegionFileVersion;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+
+@NullMarked
+public class FabricRegionFileCache extends AbstractRegionFileCache<RegionFile> {
+
+  private final MinecraftServer server;
+
+  public FabricRegionFileCache(Config config, MinecraftServer server) {
+    super(config.cache());
+    this.server = server;
+  }
+
+  @Override
+  protected RegionFile createRegionFile(Path path) throws IOException {
+    boolean isSyncChunkWrites = this.server.forceSynchronousWrites();
+    return new RegionFile(null, path, path.getParent(), RegionFileVersion.VERSION_NONE, isSyncChunkWrites);
+  }
+
+  @Override
+  protected void closeRegionFile(RegionFile t) throws IOException {
+    t.close();
+  }
+
+  @Nullable
+  @Override
+  protected DataInputStream createInputStream(RegionFile t, ChunkCacheKey key) throws IOException {
+    return t.getChunkDataInputStream(new ChunkPos(key.x(), key.z()));
+  }
+
+  @Override
+  protected DataOutputStream createOutputStream(RegionFile t, ChunkCacheKey key) throws IOException {
+    return t.getChunkDataOutputStream(new ChunkPos(key.x(), key.z()));
+  }
+}

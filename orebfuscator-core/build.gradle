@@ -23,8 +23,8 @@ artifacts {
 }
 
 tasks.named('shadowJar', ShadowJar) {
-    enableAutoRelocation = true
-    relocationPrefix = "dev.imprex.shaded"
+    enableAutoRelocation.set(true)
+    relocationPrefix.set("dev.imprex.shaded")
 
     minimize {
         exclude { dep ->

@@ -1,31 +1,39 @@
 [versions]
 # gradle plugins
-shadow = "9.4.1"
+shadow = "9.6.1"
+loom = "1.18-SNAPSHOT"
 
 # test
-junit = "5.13.4"
+junit = "6.1.3"
 
 # common
-jspecify = "1.0.0"
-annotations = "26.0.2"
+jspecify = "1.0.1"
+annotations = "26.1.0"
 
 # core
-netty = "4.1.90.Final"
-guava = "33.5.0-jre"
-gson = "2.13.2"
-snakeyaml = "2.5"
-joml = "1.10.8"
-lz4 = "1.10.2"
+netty = "4.2.18.Final"
+guava = "33.7.1-jre"
+gson = "2.14.0"
+snakeyaml = "2.7"
+joml = "1.10.9"
+lz4 = "1.11.2"
 
 # bukkit
 spigot = "1.16.1-R0.1-SNAPSHOT"
 paper = "1.20.1-R0.1-SNAPSHOT"
 folia = "1.20.1-R0.1-SNAPSHOT"
-bstats = "3.1.0"
+bstats = "3.2.1"
 protocollib = "5.3.0"
+
+# fabric
+minecraft = "26.3"
+fabric_loader = "0.19.5"
+fabric_api = "0.160.5+26.3"
+fabric_permission = "0.7.0"
 
 [plugins]
 shadow = { id = "com.gradleup.shadow", version.ref = "shadow" }
+loom = { id = "net.fabricmc.fabric-loom", version.ref = "loom" }
 
 [libraries]
 
@@ -53,3 +61,9 @@ paper = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
 folia = { module = "dev.folia:folia-api", version.ref = "folia" }
 bstats = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
 protocollib = { module = "net.dmulloy2:ProtocolLib", version.ref = "protocollib" }
+
+# fabric
+minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }
+fabric-loader = { module = "net.fabricmc:fabric-loader", version.ref = "fabric_loader" }
+fabric-api = { module = "net.fabricmc.fabric-api:fabric-api", version.ref = "fabric_api" }
+fabric-permission = { module = "me.lucko:fabric-permissions-api", version.ref = "fabric_permission" }

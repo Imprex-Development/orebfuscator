@@ -48,6 +48,7 @@ public final class MinecraftVersion {
     }
   }
 
+
   private static final Pattern PACKAGE_PATTERN = Pattern.compile("org\\.bukkit\\.craftbukkit\\.(v\\d+_\\d+_R\\d+)");
 
   private static final Version CURRENT_VERSION;

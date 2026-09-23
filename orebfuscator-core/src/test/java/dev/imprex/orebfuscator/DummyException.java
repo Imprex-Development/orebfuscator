@@ -20,7 +20,7 @@ public class DummyException extends Exception {
     super("dummy exception");
 
     // Set a fixed stack trace
-    this.setStackTrace(new StackTraceElement[]{
+    this.setStackTrace(new StackTraceElement[] {
         new StackTraceElement("dev.imprex.orebfuscator.DummyException", "<init>", "DummyException.java", 26),
         new StackTraceElement("dev.imprex.orebfuscator.DummyException", "<clinit>", "DummyException.java", 18)
     });

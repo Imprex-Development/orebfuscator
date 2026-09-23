@@ -32,6 +32,7 @@ obfuscation:
     maxY: 2031
     worlds:
     - world
+    - minecraft:overworld
     layerObfuscation: false
     hiddenBlocks:
     - tag(minecraft:base_stone_overworld)
@@ -102,6 +103,7 @@ obfuscation:
     maxY: 2031
     worlds:
     - world_nether
+    - minecraft:the_nether
     layerObfuscation: false
     hiddenBlocks:
     - tag(minecraft:base_stone_nether)
@@ -144,6 +146,7 @@ obfuscation:
     maxY: 2031
     worlds:
     - world_the_end
+    - minecraft:the_end
     layerObfuscation: false
     hiddenBlocks:
     - minecraft:end_stone
@@ -174,6 +177,7 @@ proximity:
     maxY: 2031
     worlds:
     - world
+    - minecraft:overworld
     distance: 24
     frustumCulling:
       enabled: true
@@ -232,6 +236,7 @@ proximity:
     maxY: 2031
     worlds:
     - world_nether
+    - minecraft:the_nether
     distance: 24
     frustumCulling:
       enabled: true
@@ -286,6 +291,7 @@ proximity:
     maxY: 2031
     worlds:
     - world_the_end
+    - minecraft:the_end
     distance: 24
     frustumCulling:
       enabled: true

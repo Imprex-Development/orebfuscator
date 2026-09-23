@@ -29,7 +29,8 @@ public class OrebfuscatorNms {
       nmsVersion += "_mojang";
     }
 
-    OfcLogger.info("Searching NMS adapter for version=\"" + MinecraftVersion.current() +  "\", nms=\"" + nmsVersion + "\"!");
+    OfcLogger.info(
+        "Searching NMS adapter for version=\"" + MinecraftVersion.current() + "\", nms=\"" + nmsVersion + "\"!");
 
     try {
       String className = "net.imprex.orebfuscator.nms." + nmsVersion + ".NmsManager";

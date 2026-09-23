@@ -17,7 +17,8 @@ import org.junit.jupiter.api.io.TempDir;
 
 class YamlConfigurationTest {
 
-  private static final String SEQUENCE_COMMENT_EXAMPLE = "#header\nlist:\n- a # inline a\n- b # inline b\n- c #inline c\n#footer\n";
+  private static final String SEQUENCE_COMMENT_EXAMPLE =
+      "#header\nlist:\n- a # inline a\n- b # inline b\n- c #inline c\n#footer\n";
 
   @Test
   void testSaveEmpty() throws IOException {
