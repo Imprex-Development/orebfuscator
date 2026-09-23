@@ -18,8 +18,10 @@ import java.util.concurrent.ConcurrentHashMap;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLevelEvents;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ChunkHolder;
 import net.minecraft.server.level.ServerChunkCache;
 import net.minecraft.server.level.ServerLevel;
+import net.minecraft.world.level.ChunkPos;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.chunk.ChunkAccess;
@@ -146,7 +148,16 @@ public class FabricWorldAccessor implements WorldAccessor {
   @Override
   public ChunkAccessor getChunkNow(int chunkX, int chunkZ) {
     ServerChunkCache serverChunkCache = level.getChunkSource();
+
     LevelChunk chunk = serverChunkCache.getChunkNow(chunkX, chunkZ);
+    if (chunk == null) {
+      var key = ChunkPos.pack(chunkX, chunkZ);
+      var chunkHolder = serverChunkCache.chunkMap.getUpdatingChunkIfPresent(key);
+      if (chunkHolder != null) {
+        chunk = chunkHolder.getFullChunkFuture().getNow(ChunkHolder.UNLOADED_LEVEL_CHUNK).orElse(null);
+      }
+    }
+
     return chunk != null ? new FabricChunkAccessor(chunk) : ChunkAccessor.EMPTY;
   }
 
