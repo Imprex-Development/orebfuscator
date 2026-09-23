@@ -1,27 +1,27 @@
 package dev.imprex.orebfuscator.cache;
 
-import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionStage;
-import java.util.concurrent.TimeUnit;
-import org.jspecify.annotations.NullMarked;
-import org.jspecify.annotations.Nullable;
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.RemovalNotification;
-import dev.imprex.orebfuscator.config.api.CacheConfig;
 import dev.imprex.orebfuscator.interop.OrebfuscatorCore;
 import dev.imprex.orebfuscator.logging.OfcLogger;
 import dev.imprex.orebfuscator.obfuscation.ObfuscationResponse;
 import dev.imprex.orebfuscator.statistics.CacheStatistics;
 import dev.imprex.orebfuscator.util.ChunkCacheKey;
 import dev.imprex.orebfuscator.util.concurrent.OrebfuscatorExecutor;
+import org.jspecify.annotations.NullMarked;
+import org.jspecify.annotations.Nullable;
+
+import java.time.Duration;
+import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionStage;
+import java.util.concurrent.TimeUnit;
 
 @NullMarked
 public class ObfuscationCache {
 
   private final OrebfuscatorCore orebfuscator;
-  private final CacheConfig cacheConfig;
   private final CacheStatistics statistics;
   private final OrebfuscatorExecutor executor;
 
@@ -31,26 +31,27 @@ public class ObfuscationCache {
 
   public ObfuscationCache(OrebfuscatorCore orebfuscator) {
     this.orebfuscator = orebfuscator;
-    this.cacheConfig = orebfuscator.config().cache();
     this.statistics = orebfuscator.statistics().cache;
     this.executor = orebfuscator.executor();
 
+    var cacheConfig = orebfuscator.config().cache();
+
     this.cache = CacheBuilder.newBuilder()
-        .maximumSize(this.cacheConfig.maximumSize())
-        .expireAfterAccess(this.cacheConfig.expireAfterAccess(), TimeUnit.MILLISECONDS)
+        .maximumSize(cacheConfig.maximumSize())
+        .expireAfterAccess(Duration.ofMillis(cacheConfig.expireAfterAccess()))
         .removalListener(this::onRemoval)
         .build();
     this.statistics.setMemoryCacheEntryCount(this.cache::size);
 
     this.regionFileCache = orebfuscator.createRegionFileCache();
 
-    if (this.cacheConfig.enableDiskCache()) {
+    if (cacheConfig.enableDiskCache()) {
       this.serializer = new AsyncChunkSerializer(orebfuscator, regionFileCache);
     } else {
       this.serializer = null;
     }
 
-    if (this.cacheConfig.enabled() && this.cacheConfig.deleteRegionFilesAfterAccess() > 0) {
+    if (cacheConfig.enabled() && cacheConfig.deleteRegionFilesAfterAccess() > 0) {
       var task = new CacheFileCleanupTask(orebfuscator.config(), regionFileCache);
       this.executor.scheduleAtFixedRate(task, 0, 1, TimeUnit.HOURS);
     }

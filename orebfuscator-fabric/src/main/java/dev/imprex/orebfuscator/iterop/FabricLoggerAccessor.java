@@ -13,14 +13,14 @@ public class FabricLoggerAccessor implements LoggerAccessor {
 
   @Override
   public void log(@NotNull LogLevel level, @NotNull String message, @Nullable Throwable throwable) {
-    if (level == LogLevel.INFO) {
-      LOGGER.info(message, throwable);
-    } else if (level == LogLevel.DEBUG) {
+    if (level == LogLevel.DEBUG) {
       LOGGER.info(message, throwable);
     } else if (level == LogLevel.WARN) {
       LOGGER.warn(message, throwable);
     } else if (level == LogLevel.ERROR) {
       LOGGER.error(message, throwable);
+    } else { // INFO or fallback
+      LOGGER.info(message, throwable);
     }
   }
 }

@@ -17,10 +17,10 @@ public class DeobfuscationEvents {
         }
       });
 
-  public static final Event<BreakBlock> BREAK_BLOCK =
-      EventFactory.createArrayBacked(BreakBlock.class, callbacks -> (level, blockPos, action) -> {
-        for (BreakBlock callback : callbacks) {
-          callback.onBlockBreak(level, blockPos, action);
+  public static final Event<DamageBlock> DAMAGE_BLOCK =
+      EventFactory.createArrayBacked(DamageBlock.class, callbacks -> (level, blockPos) -> {
+        for (DamageBlock callback : callbacks) {
+          callback.onDamageBlock(level, blockPos);
         }
       });
 
@@ -34,7 +34,7 @@ public class DeobfuscationEvents {
 
 
   @FunctionalInterface
-  public interface BreakBlock {
-    void onBlockBreak(ServerLevel level, BlockPos blockPos, ServerboundPlayerActionPacket.Action action);
+  public interface DamageBlock {
+    void onDamageBlock(ServerLevel level, BlockPos blockPos);
   }
 }
