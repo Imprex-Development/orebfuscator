@@ -32,8 +32,8 @@ public class SystemMonitor implements Runnable {
   private final RollingAverage process1min = new RollingAverage(60);
   private final RollingAverage process15min = new RollingAverage(60 * 15);
 
-  private final RollingAverage[] system = new RollingAverage[]{system10sec, system1min, system15min};
-  private final RollingAverage[] process = new RollingAverage[]{process10sec, process1min, process15min};
+  private final RollingAverage[] system = new RollingAverage[] {system10sec, system1min, system15min};
+  private final RollingAverage[] process = new RollingAverage[] {process10sec, process1min, process15min};
 
   public SystemMonitor(OrebfuscatorCore orebfuscator) {
     this.osBean = tryCreateOsBeanProxy();
@@ -93,10 +93,15 @@ public class SystemMonitor implements Runnable {
 
   public interface OperatingSystemMXBeanProxy {
     long getTotalSwapSpaceSize();
+
     long getFreeSwapSpaceSize();
+
     long getTotalMemorySize();
+
     long getFreeMemorySize();
+
     double getCpuLoad();
+
     double getProcessCpuLoad();
   }
 }

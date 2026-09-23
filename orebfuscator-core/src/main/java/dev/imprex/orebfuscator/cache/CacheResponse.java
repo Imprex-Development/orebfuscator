@@ -17,6 +17,7 @@ public sealed interface CacheResponse permits CacheResponse.Success, CacheRespon
     }
   }
 
+
   enum Failure implements CacheResponse {
     NOT_FOUND, MEMORY_INVALID, DISK_INVALID;
   }

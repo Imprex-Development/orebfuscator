@@ -24,8 +24,8 @@ public class ConfigMessage {
 
   public static final ConfigMessage RANDOM_BLOCKS_INCOMPLETE = fixed(
       "Incomplete height coverage detected in randomBlocks. " +
-      "One or more Y-levels between the configured minY and maxY are not assigned to any section. " +
-      "These uncovered height ranges will use minecraft:air as the fallback replacement material.");
+          "One or more Y-levels between the configured minY and maxY are not assigned to any section. " +
+          "These uncovered height ranges will use minecraft:air as the fallback replacement material.");
 
   public static final ConfigMessage BLOCK_TAG_UNKNOWN = dynamic("skipping unknown block tag '%s'");
   public static final ConfigMessage BLOCK_TAG_EMPTY = dynamic("skipping empty block tag '%s'");

@@ -47,8 +47,8 @@ class MethodAccessorTest {
     var method = MethodTest.class.getDeclaredMethod("sum", int.class, int[].class);
     var accessor = Accessors.wrap(method);
 
-    assertEquals(10, accessor.invoke(MethodTest.INSTANCE, 1, new int[]{2, 3, 4}));
-    assertThrows(IllegalStateException.class, () -> accessor.invoke(null, 1, new int[]{2, 3, 4}));
+    assertEquals(10, accessor.invoke(MethodTest.INSTANCE, 1, new int[] {2, 3, 4}));
+    assertThrows(IllegalStateException.class, () -> accessor.invoke(null, 1, new int[] {2, 3, 4}));
   }
 
   @Test
@@ -65,8 +65,8 @@ class MethodAccessorTest {
     var method = MethodTest.class.getDeclaredMethod("staticSum", int.class, int[].class);
     var accessor = Accessors.wrap(method);
 
-    assertEquals(10, accessor.invoke(null, 1, new int[]{2, 3, 4}));
-    assertEquals(10, accessor.invoke("ab", 1, new int[]{2, 3, 4}));
+    assertEquals(10, accessor.invoke(null, 1, new int[] {2, 3, 4}));
+    assertEquals(10, accessor.invoke("ab", 1, new int[] {2, 3, 4}));
   }
 
   public static class MethodTest {

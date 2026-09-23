@@ -37,7 +37,8 @@ public class UpdateSystem extends AbstractHttpService {
     return matcher.find() && matcher.group("build") != null;
   }
 
-  private static final String API_URI = "https://api.modrinth.com/v2/project/orebfuscator/version?loaders=%s&game_versions=%s";
+  private static final String API_URI =
+      "https://api.modrinth.com/v2/project/orebfuscator/version?loaders=%s&game_versions=%s";
   private static final String DOWNLOAD_URI = "https://modrinth.com/plugin/orebfuscator/version/%s";
 
   private static final Duration CACHE_DURATION = Duration.ofMinutes(10L);

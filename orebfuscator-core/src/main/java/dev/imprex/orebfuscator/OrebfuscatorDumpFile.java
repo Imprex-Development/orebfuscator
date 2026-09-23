@@ -107,7 +107,8 @@ public class OrebfuscatorDumpFile extends ConfigurationSection {
   private static class Json implements JsonSerializer<ConfigurationSection> {
 
     @Override
-    public JsonElement serialize(ConfigurationSection section, Type type, JsonSerializationContext jsonSerializationContext) {
+    public JsonElement serialize(ConfigurationSection section, Type type,
+        JsonSerializationContext jsonSerializationContext) {
       return serialize(section);
     }
 

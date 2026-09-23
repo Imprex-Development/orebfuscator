@@ -42,6 +42,7 @@ public interface ClassPredicate extends Predicate<Class<?>> {
     }
   }
 
+
   record IsClassPredicate(Class<?> expected) implements ClassPredicate {
 
     public IsClassPredicate {
@@ -65,6 +66,7 @@ public interface ClassPredicate extends Predicate<Class<?>> {
       return this == obj || (obj instanceof IsClassPredicate other && Objects.equals(this.expected, other.expected));
     }
   }
+
 
   record SuperClassPredicate(Class<?> expected) implements ClassPredicate {
 
@@ -90,6 +92,7 @@ public interface ClassPredicate extends Predicate<Class<?>> {
     }
   }
 
+
   record SubClassPredicate(Class<?> expected) implements ClassPredicate {
 
     public SubClassPredicate {
@@ -113,6 +116,7 @@ public interface ClassPredicate extends Predicate<Class<?>> {
       return this == obj || (obj instanceof SubClassPredicate other && Objects.equals(this.expected, other.expected));
     }
   }
+
 
   record AnyClassPredicate(Set<Class<?>> expected) implements ClassPredicate {
 
@@ -138,6 +142,7 @@ public interface ClassPredicate extends Predicate<Class<?>> {
       return this == obj || (obj instanceof AnyClassPredicate other && Objects.equals(this.expected, other.expected));
     }
   }
+
 
   record RegexClassPredicate(Pattern expected) implements ClassPredicate {
 

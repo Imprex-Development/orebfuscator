@@ -166,6 +166,7 @@ public class AsyncChunkSerializer implements Runnable {
     protected abstract void execute();
   }
 
+
   private class WriteTask extends TimedTask {
 
     private final ChunkCacheKey key;
@@ -186,6 +187,7 @@ public class AsyncChunkSerializer implements Runnable {
       }
     }
   }
+
 
   private class ReadTask extends TimedTask {
 

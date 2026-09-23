@@ -47,6 +47,7 @@ public class OrebfuscatorPlayerChunk {
     void close();
   }
 
+
   private class ProximityItr implements ProximityIterator {
 
     private final int x = chunkX << 4;

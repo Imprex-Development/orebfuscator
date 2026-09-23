@@ -23,7 +23,7 @@ public class OrebfuscatorPlayer {
 
   private final AtomicReference<@Nullable WorldAccessor> world = new AtomicReference<>();
   private final Map<Long, OrebfuscatorPlayerChunk> chunks = new ConcurrentHashMap<>();
-  
+
   private final AtomicBoolean pendingUpdate = new AtomicBoolean(false);
 
   private volatile long latestUpdateTimestamp = System.currentTimeMillis();
