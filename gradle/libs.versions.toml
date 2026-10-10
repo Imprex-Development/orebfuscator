@@ -24,6 +24,7 @@ paper = "1.20.1-R0.1-SNAPSHOT"
 folia = "1.20.1-R0.1-SNAPSHOT"
 bstats = "3.2.1"
 protocollib = "5.3.0"
+worldedit = "7.2.20"
 
 # fabric
 minecraft = "26.3"
@@ -61,6 +62,7 @@ paper = { module = "io.papermc.paper:paper-api", version.ref = "paper" }
 folia = { module = "dev.folia:folia-api", version.ref = "folia" }
 bstats = { module = "org.bstats:bstats-bukkit", version.ref = "bstats" }
 protocollib = { module = "net.dmulloy2:ProtocolLib", version.ref = "protocollib" }
+worldedit = { module = "com.sk89q.worldedit:worldedit-bukkit", version.ref = "worldedit" }
 
 # fabric
 minecraft = { module = "com.mojang:minecraft", version.ref = "minecraft" }

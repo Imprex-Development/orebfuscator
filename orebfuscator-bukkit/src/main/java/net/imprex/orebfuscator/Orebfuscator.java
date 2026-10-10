@@ -21,6 +21,7 @@ import dev.imprex.orebfuscator.util.concurrent.OrebfuscatorExecutor;
 import java.nio.file.Path;
 import java.util.List;
 import net.imprex.orebfuscator.api.OrebfuscatorService;
+import net.imprex.orebfuscator.compatibility.PluginCompatibility;
 import net.imprex.orebfuscator.iterop.BukkitLoggerAccessor;
 import net.imprex.orebfuscator.iterop.BukkitPlayerAccessorManager;
 import net.imprex.orebfuscator.iterop.BukkitWorldAccessorManager;
@@ -40,6 +41,8 @@ import org.bukkit.plugin.java.JavaPlugin;
 public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCore {
 
   public static final ThreadGroup THREAD_GROUP = new ThreadGroup("orebfuscator");
+
+  private final PluginCompatibility pluginCompatibility = new PluginCompatibility();
 
   private StatisticsRegistry statisticsRegistry;
   private OrebfuscatorConfig config;
@@ -101,6 +104,8 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
       this.obfuscationPipeline = new ObfuscationPipeline(this);
       this.obfuscationSystem = new ObfuscationSystem(this);
 
+      this.pluginCompatibility.start(this);
+
       this.proximitySystem = new ProximitySystem(this);
       if (this.config.proximityEnabled()) {
         this.proximitySystem.start();
@@ -129,6 +134,8 @@ public class Orebfuscator extends JavaPlugin implements Listener, OrebfuscatorCo
 
   @Override
   public void onDisable() {
+    this.pluginCompatibility.stop();
+
     if (this.executor != null) {
       this.executor.shutdown();
     }

@@ -11,6 +11,7 @@ authors: [NgLoader, lishid, SydMontague, ProgrammerDan, Aleksey-Terzi]
 
 main: net.imprex.orebfuscator.Orebfuscator
 depend: [ProtocolLib]
+softdepend: [WorldEdit]
 
 commands:
   orebfuscator:

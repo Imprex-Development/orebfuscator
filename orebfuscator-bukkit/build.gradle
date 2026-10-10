@@ -4,9 +4,17 @@ plugins {
     alias(libs.plugins.shadow)
 }
 
+repositories {
+    maven {
+        name = 'enginehub'
+        url = 'https://maven.enginehub.org/repo/'
+    }
+}
+
 dependencies {
     compileOnly(libs.spigot)
     compileOnly(libs.protocollib)
+    compileOnly(libs.worldedit)
     implementation(libs.bstats)
 
     api(project(":orebfuscator-bukkit:orebfuscator-bukkit-api"))
