@@ -3,8 +3,10 @@ package net.imprex.orebfuscator.obfuscation;
 import dev.imprex.orebfuscator.obfuscation.DeobfuscationWorker;
 import dev.imprex.orebfuscator.util.BlockPos;
 import java.util.Collection;
+import java.util.List;
 import net.imprex.orebfuscator.Orebfuscator;
 import net.imprex.orebfuscator.iterop.BukkitWorldAccessorManager;
+import org.bukkit.World;
 import org.bukkit.block.Block;
 import org.jspecify.annotations.NullMarked;
 import org.jspecify.annotations.Nullable;
@@ -36,6 +38,10 @@ public class ObfuscationSystem {
     var world = this.worldManager.get(block.getWorld());
     var blockPos = new BlockPos(block.getX(), block.getY(), block.getZ());
     this.deobfuscationWorker.deobfuscate(world, blockPos);
+  }
+
+  public void deobfuscate(World world, List<BlockPos> blocks) {
+    this.deobfuscationWorker.deobfuscate(this.worldManager.get(world), blocks);
   }
 
   public void deobfuscate(Collection<? extends Block> blocks) {

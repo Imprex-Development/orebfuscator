@@ -39,7 +39,11 @@ public record BlockPos(int x, int y, int z) implements Comparable<BlockPos> {
   }
 
   public long toLong() {
-    return (this.x & MASK_X) << OFFSET_X | (this.y & MASK_Y) << OFFSET_Y | (this.z & MASK_Z) << OFFSET_Z;
+    return toLong(this.x, this.y, this.z);
+  }
+
+  public static long toLong(int x, int y, int z) {
+    return (x & MASK_X) << OFFSET_X | (y & MASK_Y) << OFFSET_Y | (z & MASK_Z) << OFFSET_Z;
   }
 
   public static BlockPos fromLong(long value) {

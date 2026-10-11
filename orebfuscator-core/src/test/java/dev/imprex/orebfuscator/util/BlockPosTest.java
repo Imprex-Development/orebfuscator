@@ -2,6 +2,7 @@ package dev.imprex.orebfuscator.util;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
+import java.util.List;
 import org.junit.jupiter.api.Test;
 
 public class BlockPosTest {
@@ -22,6 +23,18 @@ public class BlockPosTest {
     assertEquals(positionB, BlockPos.fromLong(valueB));
     assertEquals(positionC, BlockPos.fromLong(valueC));
     assertEquals(positionD, BlockPos.fromLong(valueD));
+  }
+
+  @Test
+  public void testLongFormatBoundaries() {
+    for (BlockPos position : List.of(
+        new BlockPos(-33_554_432, -2048, -33_554_432),
+        new BlockPos(33_554_431, 2047, 33_554_431),
+        new BlockPos(-1, -64, -1),
+        new BlockPos(0, 0, 0))) {
+      assertEquals(position,
+          BlockPos.fromLong(BlockPos.toLong(position.x(), position.y(), position.z())));
+    }
   }
 
   @Test
