@@ -124,7 +124,7 @@ public class ObfuscationProcessor {
               && proximityConfig.shouldObfuscate(y)) {
             proximityBlocks.add(new ProximityBlock(new BlockPos(x, y, z), false));
             if (BlockFlags.isUseBlockBelowBitSet(obfuscateBits)) {
-              boolean allowNonOcclude = !isObfuscateBitSet || !ProximityHeightCondition.isPresent(obfuscateBits);
+              boolean allowNonOcclude = !registryAccessor.isOccluding(blockState);
               blockState = getBlockStateBelow(random, bundle, chunk, x, y, z, allowNonOcclude);
             } else {
               blockState = bundle.nextRandomProximityBlock(random, y);
